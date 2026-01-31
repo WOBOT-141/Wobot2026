@@ -26,10 +26,10 @@ public class MainBot implements IBotSelector {
     public MainBot() {
         distToFront = Units.inchesToMeters(17.375);// in inches
 
-        frontLeftOffset = 0.818848 ; // .818848 //.819824
-        backLeftOffset = 0.624023 ; // .624023 //.623291
-        backRightOffset = 0.022705; // .022705 //.025146
-        frontRightOffset = 0.958008; // .958008 //.956543
+        frontLeftOffset = 0.45093 ; // .818848 //.819824
+        backLeftOffset = -0.343994 ; // .624023 //.623291
+        backRightOffset = -0.24512; // .022705 //.025146
+        frontRightOffset = 0.4975585; // .958008 //.956543
 
         frontLeftLocationX = -.232; //TODO double check, may not be precise
         frontLeftLocationY = .3556;
