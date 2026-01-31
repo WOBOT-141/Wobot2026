@@ -2,15 +2,15 @@ package frc.robot.commands.DriveCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.SpektrumFlightController;
-import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drivetrain;
 
 // Note: right now, controls are backwards when using this command.  Prefer StickCommand for now.
 // We will have to integrate the normalization into StickCommand.
 public class NormalizedStickCommand extends Command {
     private final SpektrumFlightController _flightController;
-    private final Drive _driveSubsystem;
+    private final Drivetrain _driveSubsystem;
     
-    public NormalizedStickCommand(SpektrumFlightController flightController, Drive driveSubsystem) {
+    public NormalizedStickCommand(SpektrumFlightController flightController, Drivetrain driveSubsystem) {
         _flightController = flightController;
         _driveSubsystem = driveSubsystem;
         addRequirements(driveSubsystem);
