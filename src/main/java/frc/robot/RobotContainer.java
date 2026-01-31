@@ -43,7 +43,7 @@ public class RobotContainer {
   private final IGyro m_Gyro = new NavxGyro();
   public final Wheel[] m_wheels;
 
-  private final IBotSelector _selectedBot = new MainBot();
+  private final IBotSelector _selectedBot = new SummerBot();
   // private final IBotSelector _selectedBot = new SummerBot();
 
   StickCommand m_StickCommand;
@@ -54,12 +54,6 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-
-    pneumaticHub.enableCompressorDigital();
-
-    flightController0 = new SpektrumFlightController(0);
-    xboxController0 = new XboxController(1);
-    joystick = new Joystick(2);
 
     m_wheels = new Wheel[] {
         // assuming that the roborio is the front and the battery is the back
@@ -100,6 +94,14 @@ public class RobotContainer {
             _selectedBot.getbackRightLocationY())// back right 0.506836 rotations
     };
     m_Drive = new Drive(m_wheels, m_Gyro);
+    
+    pneumaticHub.enableCompressorDigital();
+
+    flightController0 = new SpektrumFlightController(0);
+    xboxController0 = new XboxController(1);
+    joystick = new Joystick(2);
+
+    configureBindings();
   }
 
   public void deadbandSetup() {
