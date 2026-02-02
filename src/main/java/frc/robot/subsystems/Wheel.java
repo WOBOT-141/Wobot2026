@@ -14,6 +14,7 @@ import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -35,9 +36,9 @@ public class Wheel extends SubsystemBase {
   private final CANcoder _cancoder;
   private final RelativeEncoder _wheelDriveEncoder;
 
-  private  double _xPos;
-  private  double _yPos;
-  private  double encoderOffset;
+  private double _xPos;
+  private double _yPos;
+  private double encoderOffset;
 
   private int steerMotorID;
   private int driveMotorID;
@@ -80,8 +81,16 @@ public class Wheel extends SubsystemBase {
     driveConfig.encoder
         .positionConversionFactor(1.0/WheelConstants.rotationsPerInch)
         .velocityConversionFactor((1.0/WheelConstants.rotationsPerInch)/60.0);
+    
+    FeedForwardConfig driveFF = new FeedForwardConfig()
+        .kS(WheelConstants.DriveFFkS)
+        .kV(WheelConstants.DriveFFKv);
     driveConfig.closedLoop
-        .pidf(WheelConstants.DriveP, WheelConstants.DriveI, WheelConstants.DriveD, WheelConstants.DriveFF);
+        .p(WheelConstants.DriveP)
+        .i(WheelConstants.DriveI)
+        .d(WheelConstants.DriveD)
+        .apply(driveFF);
+        
     _drivePID = _driveMotor.getClosedLoopController();
 
     steerConfig
@@ -131,7 +140,7 @@ public class Wheel extends SubsystemBase {
     SmartDashboard.putNumber("The speed of commanding", speed);
   }
 
-  public void setPos(double pos){
+  public void setPos(double pos) {
     _drivePID.setSetpoint(pos, ControlType.kPosition);
   }
 
@@ -155,7 +164,8 @@ public class Wheel extends SubsystemBase {
   public double getEncoderDistance() {
     return _wheelDriveEncoder.getPosition();
   }
-  public void resetEncoder(){
+
+  public void resetEncoder() {
     _wheelDriveEncoder.setPosition(0);
   }
 
@@ -302,11 +312,12 @@ public class Wheel extends SubsystemBase {
   }
 
   public static class WheelConstants {
-    public static final double DriveP = 0.0000075; //.0150
+    public static final double DriveP = 0.0000075; // .0150
     public static final double DriveI = 0;
     public static final double DriveD = 0;
     public static final double DriveIz = 0;
-    public static final double DriveFF = 1.0/473 ; //.00060
+    public static final double DriveFFkS = 0.2; 
+    public static final double DriveFFKv = 0.00018; 
 
     public static final double SteerP = 0.025;
     public static final double SteerI = 0;
@@ -314,7 +325,7 @@ public class Wheel extends SubsystemBase {
     public static final double SteerIz = 0;
     public static final double SteerFF = 0;
 
-    //TODO double check all these numbers 
+    // TODO double check all these numbers
     public static final double wheelCircumference = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
     public static final double rotationsPerInch = driveGearRatio / wheelCircumference;
