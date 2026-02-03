@@ -53,8 +53,18 @@ public final class Constants {
     public static final double driveGearRatio = 5.14;
     // the number of motor rotations to get one wheel rotation (3.6) divided by the
     // wheel circumference
+    // Circumference of the wheel on the output end of the gearbox, 1 roation of the
+    // gearbox = 7.086678 inches travelled
+    public static final double wheelCircumference = 2.2557 * Math.PI;
+    // Number of inches the first stage moves for every rotation of the motors
+    public static final double inchesPerRotation = driveGearRatio * wheelCircumference;
+    // Number of inches carriage moves per rotation of the motors (twice what the
+    // first stage moves)
+    public static final double carriageInchesPerRotation = inchesPerRotation * 2;
+
     public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear ratio
-    public static final double metersToRotationsPerMin = driveGearRatio / Units.inchesToMeters(wheelCircumference_in) * 60; // RPS
+    public static final double metersToRotationsPerMin = driveGearRatio / Units.inchesToMeters(wheelCircumference_in)
+        * 60; // RPS
     public static final double drivekP = 0.0016;// .00009
     public static final double drivekI = 0.000068;// 0
     public static final double drivekD = 0;
@@ -109,5 +119,31 @@ public final class Constants {
     public static final int leftIntakeMotor = 19;
     public static final int climbMotorLeftId = 21;
     public static final int climbMotorRightId = 22;
+  }
+
+  public static class ControllerOneConstants {
+    /**
+     * Factors used in the spektrum flight controller to multiply the raw stick
+     * outputs in order to scale them up or down.
+     * These can be found by dividing 1 by the raw stick output of that direction
+     */
+    public static final double RotateFactor = 1.35;
+    public static final double DriveXFactor = 1.26;
+    public static final double DriveYFactor = 1.23;
+    public static final double ThrottleFactor = 1.55;
+    /**
+     * Offsets used to add or subtract from a raw stick value in the spektrum flight
+     * controller to make their resting postion 0
+     * These should be equal to the raw stick output at rest.
+     */
+    public static final double RotateOffset = -0.056375;
+    public static final double DriveXOffset = 0.039816 + 0.029202; // .075813
+    public static final double DriveYOffset = -0.024228;
+    public static final double ThrottleOffset = 0;
+
+    // Deadbands for sticks
+    public static final double deadbandRot = 0.025;
+    public static final double deadbandX = 0.025;
+    public static final double deadbandY = 0.025;
   }
 }
