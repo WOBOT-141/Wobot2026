@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.SpektrumFlightController;
 import frc.robot.subsystems.Drive;
@@ -34,7 +33,6 @@ import frc.robot.commands.StickParameters.StickBParameters;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private PneumaticHub pneumaticHub = new PneumaticHub(27);
   private final Drive m_Drive;
 
   public static SpektrumFlightController flightController0;
@@ -95,8 +93,6 @@ public class RobotContainer {
     };
     m_Drive = new Drive(m_wheels, m_Gyro);
     
-    pneumaticHub.enableCompressorDigital();
-
     flightController0 = new SpektrumFlightController(0);
     xboxController0 = new XboxController(1);
     joystick = new Joystick(2);
@@ -121,19 +117,19 @@ public class RobotContainer {
   }
 
   public void wheelSetup() {
-    m_wheels[0].setEncoderOffset(_selectedBot.getfrontLeftOffset());
+    m_wheels[0].setEncoderOffset_deg(_selectedBot.getfrontLeftOffset());
     m_wheels[0].set_xPos(_selectedBot.getfrontLeftLocationX());
     m_wheels[0].set_yPos(_selectedBot.getfrontLeftLocationY());
 
-    m_wheels[1].setEncoderOffset(_selectedBot.getbackLeftOffset());
+    m_wheels[1].setEncoderOffset_deg(_selectedBot.getbackLeftOffset());
     m_wheels[1].set_xPos(_selectedBot.getbackLeftLocationX());
     m_wheels[1].set_yPos(_selectedBot.getbackLeftLocationY());
 
-    m_wheels[2].setEncoderOffset(_selectedBot.getfrontRightOffset());
+    m_wheels[2].setEncoderOffset_deg(_selectedBot.getfrontRightOffset());
     m_wheels[2].set_xPos(_selectedBot.getfrontRightLocationX());
     m_wheels[2].set_yPos(_selectedBot.getfrontRightLocationY());
 
-    m_wheels[3].setEncoderOffset(_selectedBot.getbackRightOffset());
+    m_wheels[3].setEncoderOffset_deg(_selectedBot.getbackRightOffset());
     m_wheels[3].set_xPos(_selectedBot.getbackRightLocationX());
     m_wheels[3].set_yPos(_selectedBot.getbackRightLocationY());
 
@@ -181,7 +177,7 @@ public class RobotContainer {
     configureJoystick();
     configureFlightController();
   }
-
+  
   private void configureXboxController() {
     Trigger leftBumper = new JoystickButton(xboxController0, XboxController.Button.kLeftBumper.value);
     Trigger rightBumper = new JoystickButton(xboxController0, XboxController.Button.kRightBumper.value);
@@ -196,7 +192,7 @@ public class RobotContainer {
     Trigger dPadDown = new POVButton(xboxController0, 180);
     Trigger dPadLeft = new POVButton(xboxController0, 270);
   }
-
+  
   private void configureJoystick() {
     Trigger trigger = new JoystickButton(joystick, Joystick.ButtonType.kTrigger.value);
     Trigger sideButton = new JoystickButton(joystick, 2);
@@ -204,7 +200,7 @@ public class RobotContainer {
     Trigger eight = new JoystickButton(joystick, 8);
     Trigger twelve = new JoystickButton(joystick, 12);
   }
-
+  
   private void configureFlightController() {
     Trigger lockWheels = new JoystickButton(flightController0, SpektrumFlightController.Button.kSelectPress.value);
     Trigger reset = new JoystickButton(flightController0, SpektrumFlightController.Button.kReset.value);

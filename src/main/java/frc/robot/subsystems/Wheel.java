@@ -38,29 +38,25 @@ public class Wheel extends SubsystemBase {
 
   private double _xPos;
   private double _yPos;
-  private double encoderOffset;
+  private double encoderOffset_deg;
 
   private int steerMotorID;
   private int driveMotorID;
-  private double maxAmpsBL = 0;
-  private double maxAmpsBR = 0;
-  private double maxAmpsFL = 0;
-  private double maxAmpsFR = 0;
+  private double maxAmpsBL_amp = 0;
+  private double maxAmpsBR_amp = 0;
+  private double maxAmpsFL_amp = 0;
+  private double maxAmpsFR_amp = 0;
 
   private SimpleMotorFeedforward feedForward;
 
   /** Creates a new Wheel. */
-  public Wheel(int steerId, int driveId, int cancoderId, double absoluteOffset, boolean motorInvert,
+  public Wheel(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, boolean motorInvert,
     boolean encoderInvert, double xPosition, double yPosition) {
     steerMotorID = steerId;
     driveMotorID = driveId;
     _xPos = xPosition;
     _yPos = yPosition;
-    encoderOffset = absoluteOffset;
-
-    //Ks = min volts to make motor barely move, Kv = got number from neo documentation 
-    feedForward = new SimpleMotorFeedforward(0.12, .473);
-
+    encoderOffset_deg = absoluteOffset_deg;
 
     _cancoder = new CANcoder(cancoderId);
     MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
@@ -82,9 +78,9 @@ public class Wheel extends SubsystemBase {
         .positionConversionFactor(1.0/WheelConstants.rotationsPerInch)
         .velocityConversionFactor((1.0/WheelConstants.rotationsPerInch)/60.0);
     
-    FeedForwardConfig driveFF = new FeedForwardConfig()
-        .kS(WheelConstants.DriveFFkS)
-        .kV(WheelConstants.DriveFFKv);
+    FeedForwardConfig driveFF = new FeedForwardConfig();
+        driveFF.kV(WheelConstants.DriveFFKv);
+      
     driveConfig.closedLoop
         .p(WheelConstants.DriveP)
         .i(WheelConstants.DriveI)
@@ -111,8 +107,8 @@ public class Wheel extends SubsystemBase {
     settoZero();
   }
 
-  public double getEncoderOffset() {
-    return encoderOffset;
+  public double getEncoderOffset_deg() {
+    return encoderOffset_deg;
   }
 
   public double get_xPos() {
@@ -123,8 +119,8 @@ public class Wheel extends SubsystemBase {
     return _yPos;
   }
 
-  public void setEncoderOffset(double encoderOffset) {
-    this.encoderOffset = encoderOffset;
+  public void setEncoderOffset_deg(double encoderOffset_deg) {
+    this.encoderOffset_deg = encoderOffset_deg;
   }
 
   public void set_xPos(double _xPos) {
@@ -232,31 +228,31 @@ public class Wheel extends SubsystemBase {
     switch (driveMotorID) {
       case Constants.SteerConstants.backLeftDriveMotorID:
         SmartDashboard.putNumber("Back Left Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsBL) {
-          maxAmpsBL = outputAMPs;
+        if (outputAMPs > maxAmpsBL_amp) {
+          maxAmpsBL_amp = outputAMPs;
         }
-        SmartDashboard.putNumber("Back Left Max Amps: ", maxAmpsBL);
+        SmartDashboard.putNumber("Back Left Max Amps: ", maxAmpsBL_amp);
         break;
       case Constants.SteerConstants.backRightDriveMotorID:
         SmartDashboard.putNumber("Back Right Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsBR) {
-          maxAmpsBR = outputAMPs;
+        if (outputAMPs > maxAmpsBR_amp) {
+          maxAmpsBR_amp = outputAMPs;
         }
-        SmartDashboard.putNumber("Back Right Max Amps: ", maxAmpsBR);
+        SmartDashboard.putNumber("Back Right Max Amps: ", maxAmpsBR_amp);
         break;
       case Constants.SteerConstants.frontLeftDriveMotorID:
         SmartDashboard.putNumber("Front Left Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsFL) {
-          maxAmpsFL = outputAMPs;
+        if (outputAMPs > maxAmpsFL_amp) {
+          maxAmpsFL_amp = outputAMPs;
         }
-        SmartDashboard.putNumber("Front Left Max Amps: ", maxAmpsFL);
+        SmartDashboard.putNumber("Front Left Max Amps: ", maxAmpsFL_amp);
         break;
       case Constants.SteerConstants.frontRightDriveMotorID:
         SmartDashboard.putNumber("Front Right Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsFR) {
-          maxAmpsFR = outputAMPs;
+        if (outputAMPs > maxAmpsFR_amp) {
+          maxAmpsFR_amp = outputAMPs;
         }
-        SmartDashboard.putNumber("Front Right Max Amps: ", maxAmpsFR);
+        SmartDashboard.putNumber("Front Right Max Amps: ", maxAmpsFR_amp);
         break;
     }
   }
@@ -284,19 +280,19 @@ public class Wheel extends SubsystemBase {
     double startAngle = _cancoder.getAbsolutePosition().getValueAsDouble();
     switch (steerMotorID) {
       case Constants.SteerConstants.backLeftSteerMotorID:
-        offsetAngle = getEncoderOffset();
+        offsetAngle = getEncoderOffset_deg();
         SmartDashboard.putNumber("Back Left Cancoder: ", (startAngle - offsetAngle) * 360);
         break;
       case Constants.SteerConstants.backRightSteerMotorID:
-        offsetAngle = getEncoderOffset();
+        offsetAngle = getEncoderOffset_deg();
         SmartDashboard.putNumber("Back Right Cancoder: ", (startAngle - offsetAngle) * 360);
         break;
       case Constants.SteerConstants.frontLeftSteerMotorID:
-        offsetAngle = getEncoderOffset();
+        offsetAngle = getEncoderOffset_deg();
         SmartDashboard.putNumber("Front Left Cancoder: ", (startAngle - offsetAngle) * 360);
         break;
       case Constants.SteerConstants.frontRightSteerMotorID:
-        offsetAngle = getEncoderOffset();
+        offsetAngle = getEncoderOffset_deg();
         SmartDashboard.putNumber("Front Right Cancoder: ", (startAngle - offsetAngle) * 360);
         break;
       default:
@@ -306,7 +302,7 @@ public class Wheel extends SubsystemBase {
 
   public void settoZero() {
     double startAngle = _cancoder.getAbsolutePosition().getValueAsDouble();
-    double offsetAngle = encoderOffset;
+    double offsetAngle = encoderOffset_deg;
     double absoluteAngle = (startAngle - offsetAngle) * 360;
     _steerMotor.getEncoder().setPosition(absoluteAngle);
   }
@@ -316,8 +312,8 @@ public class Wheel extends SubsystemBase {
     public static final double DriveI = 0;
     public static final double DriveD = 0;
     public static final double DriveIz = 0;
-    public static final double DriveFFkS = 0.2; 
-    public static final double DriveFFKv = 0.00018; 
+    public static final double DriveFFkS = 0.00012; // Ks = min volts to make motor barely move
+    public static final double DriveFFKv = 0.473; // Kv = got number from neo documentation
 
     public static final double SteerP = 0.025;
     public static final double SteerI = 0;

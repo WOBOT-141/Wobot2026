@@ -10,7 +10,7 @@ import frc.robot.Constants.DriveConstants;
 public class Drive extends SubsystemBase {
 
   private Wheel[] _wheels;
-  private double restAngle = 0;
+  private double restAngle_deg = 0;
   private boolean isTipping = false;
   private boolean climbing = false;
   private double tipMagnitude;
@@ -25,29 +25,29 @@ public class Drive extends SubsystemBase {
     climbing = climb;
   }
 
-  public void driveSwerve(double linearAngle, double linearSpeed, double rotationalSpeed) {
-    driveSwerve(linearAngle, linearSpeed, rotationalSpeed, 0, 0);
+  public void driveSwerve(double linearAngle_deg, double linearSpeed_mps, double rotationalSpeed_dps) {
+    driveSwerve(linearAngle_deg, linearSpeed_mps, rotationalSpeed_dps, 0, 0);
   }
 
-  public void driveSwerve(double linearAngle, double linearSpeed, double rotationalSpeed, double rotX, double rotY) {
+  public void driveSwerve(double linearAngle_deg, double linearSpeed_mps, double rotationalSpeed_dps, double rotX, double rotY) {
     if(isTipping && !climbing){
-      linearAngle = tipDirection;
-      linearSpeed = tipMagnitude / (tipThreshold*2);
-      rotationalSpeed = 0;
+      linearAngle_deg = tipDirection;
+      linearSpeed_mps = tipMagnitude / (tipThreshold*2);
+      rotationalSpeed_dps = 0;
       rotX = 0;
       rotY = 0;
     }
-    SmartDashboard.putNumber("Linear Speed", linearSpeed);
-    SmartDashboard.putNumber("Linear Angle", linearAngle);
-    SmartDashboard.putNumber("Rotational Speed", rotationalSpeed);
+    SmartDashboard.putNumber("Linear Speed", linearSpeed_mps);
+    SmartDashboard.putNumber("Linear Angle", linearAngle_deg);
+    SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_dps);
 
     double rotationalCenterX = rotX;
     double rotationalCenterY = rotY;
-    double[] calcWheelAngle = new double[_wheels.length];
-    double[] calcWheelSpeed = new double[_wheels.length];
+    double[] calcWheelAngle_deg = new double[_wheels.length];
+    double[] calcWheelSpeed_mps = new double[_wheels.length];
     double normalizingFactor = 1;
 
-    if (linearAngle == 0 && linearSpeed == 0 && rotationalSpeed == 0) {
+    if (linearAngle_deg == 0 && linearSpeed_mps == 0 && rotationalSpeed_dps == 0) {
       for (int i = 0; i < _wheels.length; ++i) {
         _wheels[i].cancelMovement();
       }
@@ -62,27 +62,27 @@ public class Drive extends SubsystemBase {
       double deltaX = wheelX - rotationalCenterX;
       double deltaY = wheelY - rotationalCenterY;
 
-      XYVector linearVector = getLinearVector(linearSpeed, linearAngle);
-      double rotationAngle = getRotationAngle(deltaX, deltaY, linearAngle, rotationalSpeed);
-      XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed, deltaX, deltaY);
+      XYVector linearVector = getLinearVector(linearSpeed_mps, linearAngle_deg);
+      double rotationAngle = getRotationAngle(deltaX, deltaY, linearAngle_deg, rotationalSpeed_dps);
+      XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed_dps, deltaX, deltaY);
       XYVector resultXY = new XYVector(linearVector.X + rotationVector.X, linearVector.Y + rotationVector.Y);
 
-      double resultSpeed = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2));
+      double resultSpeed_mps = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2));
 
-      double resultAngle = getResultAngle(resultXY);
+      double resultAngle_deg = getResultAngle(resultXY);
 
-      calcWheelAngle[i] = resultAngle;
-      calcWheelSpeed[i] = resultSpeed;
+      calcWheelAngle_deg[i] = resultAngle_deg;
+      calcWheelSpeed_mps[i] = resultSpeed_mps;
 
       // normalizing the vectors
-      if (resultSpeed > normalizingFactor) {
-        normalizingFactor = resultSpeed;
+      if (resultSpeed_mps > normalizingFactor) {
+        normalizingFactor = resultSpeed_mps;
       }
     }
 
     for (int i = 0; i < _wheels.length; i++) {
-      var inputState = new SwerveModuleState(DriveConstants.topSpeed * (calcWheelSpeed[i] / normalizingFactor),
-          Rotation2d.fromDegrees(calcWheelAngle[i]));
+      var inputState = new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_mps[i] / normalizingFactor),
+          Rotation2d.fromDegrees(calcWheelAngle_deg[i]));
       var outputState = _wheels[i].bestAngle(inputState);
       // _wheels[i].setAngle(outputState.angle.getDegrees());
       // _wheels[i].setSpeed(outputState.speedMetersPerSecond);
@@ -105,20 +105,20 @@ public class Drive extends SubsystemBase {
   }
 
   public double getResultAngle(XYVector resultXY) {
-    double resultAngle = Math.toDegrees(Math.atan2(resultXY.Y, resultXY.X));
-    resultAngle = -(90 - resultAngle);
+    double resultAngle_deg = Math.toDegrees(Math.atan2(resultXY.Y, resultXY.X));
+    resultAngle_deg = -(90 - resultAngle_deg);
 
     if (resultXY.Y == 0 && resultXY.X == 0) {
-      resultAngle = restAngle;
+      resultAngle_deg = restAngle_deg;
     } else {
-      restAngle = resultAngle;
+      restAngle_deg = resultAngle_deg;
     }
-    return resultAngle;
+    return resultAngle_deg;
   }
 
-  public XYVector getRotationVector(double rotationAngle, double rotationalSpeed, double deltaX, double deltaY) {
-    double rotationalspeedY = Math.cos(Math.toRadians(rotationAngle)) * Math.abs(rotationalSpeed);
-    double rotationalspeedX = Math.sin(Math.toRadians(rotationAngle)) * Math.abs(rotationalSpeed);
+  public XYVector getRotationVector(double rotationAngle_deg, double rotationalSpeed_dps, double deltaX, double deltaY) {
+    double rotationalspeedY = Math.cos(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_dps);
+    double rotationalspeedX = Math.sin(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_dps);
     if (deltaX == 0 && deltaY == 0) {
       rotationalspeedX = 0;
       rotationalspeedY = 0;
@@ -126,17 +126,17 @@ public class Drive extends SubsystemBase {
     return new XYVector(rotationalspeedX, rotationalspeedY);
   }
 
-  public XYVector getLinearVector(double linearSpeed, double linearAngle) {
-    double linDeltaY = Math.cos(Math.toRadians(linearAngle)) * linearSpeed;
-    double linDeltaX = Math.sin(Math.toRadians(linearAngle)) * linearSpeed;
+  public XYVector getLinearVector(double linearSpeed_mps, double linearAngle_deg) {
+    double linDeltaY = Math.cos(Math.toRadians(linearAngle_deg)) * linearSpeed_mps;
+    double linDeltaX = Math.sin(Math.toRadians(linearAngle_deg)) * linearSpeed_mps;
     return new XYVector(linDeltaX, linDeltaY);
   }
 
-  public double getRotationAngle(double deltaX, double deltaY, double linearAngle, double rotationalSpeed) {
+  public double getRotationAngle(double deltaX, double deltaY, double linearAngle_deg, double rotationalSpeed_dps) {
     // alpha is the angle of the vector to the wheel location
     // with respect forward and in degrees
     double alpha = 0;
-    double RotationAngle = 0.0;
+    double RotationAngle_deg = 0.0;
 
     if (deltaY == 0 && deltaX > 0) {
       // If the wheel is aligned with the center of rotation on the Y axis and
@@ -149,21 +149,21 @@ public class Drive extends SubsystemBase {
     } else if (deltaY == 0 && deltaX == 0) {
       // If the wheel is aligned with the center of rotation on both axis the alpha
       // should be the linear angle
-      alpha = linearAngle;
+      alpha = linearAngle_deg;
     } else {
       // Otherwise use atan2 of delta X and delta Y to find angle
       alpha = Math.toDegrees(Math.atan2(deltaX, deltaY));
     }
 
-    if (rotationalSpeed > 0) {
+    if (rotationalSpeed_dps > 0) {
       // If rotating clockwise add 90 to alpha to get angle
-      RotationAngle = alpha + 90;
-    } else if (rotationalSpeed < 0) {
+      RotationAngle_deg = alpha + 90;
+    } else if (rotationalSpeed_dps < 0) {
       // If rotating counter clockwise subtract 90 from alpha to get angle
-      RotationAngle = alpha - 90;
+      RotationAngle_deg = alpha - 90;
     }
 
-    return RotationAngle;
+    return RotationAngle_deg;
   }
 
   @Override
