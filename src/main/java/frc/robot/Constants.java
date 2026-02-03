@@ -51,15 +51,11 @@ public final class Constants {
     // wheel diameter multiplied by pi = circumference
     public static final double wheelCircumference_in = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
-    // the number of motor rotations to get one wheel rotation (3.6) divided by the
-    // wheel circumference
-    // Circumference of the wheel on the output end of the gearbox, 1 roation of the
-    // gearbox = 7.086678 inches travelled
-    public static final double wheelCircumference = 2.2557 * Math.PI;
+    
     // Number of inches the first stage moves for every rotation of the motors
-    public static final double inchesPerRotation = driveGearRatio * wheelCircumference;
-    // Number of inches carriage moves per rotation of the motors (twice what the
-    // first stage moves)
+    public static final double inchesPerRotation = driveGearRatio * wheelCircumference_in;
+    
+    // Number of inches carriage moves per rotation of the motors (twice what the first stage moves)
     public static final double carriageInchesPerRotation = inchesPerRotation * 2;
 
     public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear ratio

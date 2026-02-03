@@ -24,21 +24,21 @@ public class MainBot implements IBotSelector {
     double backRightLocationY;
 
     public MainBot() {
-        distToFront = Units.inchesToMeters(17.375);// in inches
+        distToFront = Units.inchesToMeters(15.25);
 
-        frontLeftOffset = 0.818848 ; // .818848 //.819824
-        backLeftOffset = 0.624023 ; // .624023 //.623291
-        backRightOffset = 0.022705; // .022705 //.025146
-        frontRightOffset = 0.958008; // .958008 //.956543
+        frontLeftOffset  = 0.445312; 
+        backLeftOffset   = 0.176270; 
+        backRightOffset  = 0.584473; 
+        frontRightOffset = 0.507324; 
 
-        frontLeftLocationX = -.232; //TODO double check, may not be precise
-        frontLeftLocationY = .3556;
-        backLeftLocationX = -.232;
-        backLeftLocationY = -.3556;
-        frontRightLocationX = .232;
-        frontRightLocationY = .3556;
-        backRightLocationX = .232;
-        backRightLocationY = -.3556;
+        frontLeftLocationX = -.229;
+        frontLeftLocationY = .229;
+        backLeftLocationX = -.229;
+        backLeftLocationY = -.229;
+        frontRightLocationX = .229;
+        frontRightLocationY = .229;
+        backRightLocationX = .229;
+        backRightLocationY = -.229 ;
     }
 
     @Override
