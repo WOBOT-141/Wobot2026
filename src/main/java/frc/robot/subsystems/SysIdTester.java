@@ -6,10 +6,12 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 
 public class SysIdTester {
+
+    SysIdRoutine m_sysid;
     
 
     public SysIdTester() {
-        SysIdRoutine _sysid = new SysIdRoutine(new Config(), new Mechanism(null, this::LogSysId, null));
+        m_sysid = new SysIdRoutine(new Config(), new Mechanism(null, this::LogSysId, null));
     }
 
     private void LogSysId(SysIdRoutineLog ALog) {
