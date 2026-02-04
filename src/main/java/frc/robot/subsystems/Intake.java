@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.PersistMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -13,8 +16,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
 public class Intake extends SubsystemBase {
-  private SparkMax slapdownMotor;
-  private SparkMax rollerMotor;
+  private final SparkMax slapdownMotor;
+  private final SparkMax rollerMotor;
+  private AbsoluteEncoder _intakeDegree;
+
   /** Creates a new Intake. */
   public Intake() { //TODO set ids
      slapdownMotor = new SparkMax(0, MotorType.kBrushless);
@@ -27,7 +32,8 @@ public class Intake extends SubsystemBase {
      .idleMode(IdleMode.kBrake)
      .smartCurrentLimit(20, 20);
      slapdownMotorConfig.closedLoop
-     .pid(0.001, 0, 0);
+     .pid(0.001, 0, 0); 
+     slapdownMotorConfig.encoder.positionConversionFactor(0); //TODO set factor
 
      rollerMotorConfig
      .idleMode(IdleMode.kCoast)
@@ -35,12 +41,35 @@ public class Intake extends SubsystemBase {
      rollerMotorConfig.closedLoop
      .pid(0.001, 0, 0);
 
+     slapdownMotor.configure(slapdownMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+     rollerMotor.configure(rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+     _intakeDegree = slapdownMotor.getAbsoluteEncoder();
+
+
+
+
   }
   
+  public void fuelIntaking() {
+    rollerMotor.set(0.1);
+  }
+
+  /*
+  public void SlappingDown() {
+    slapdownMotor.set(0.1);
+
+  }
+
+  public void PullingUp() { //if slapdwon motor is 
+    if (slapdownMotor >)
+    slapdownMotor.set(-0.1);
+
+  }
+  */
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // rollerMotor.set(.1);
   }
 }
