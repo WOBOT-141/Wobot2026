@@ -8,13 +8,13 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.IBotSelector;
-import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.lib.SpektrumFlightController;
 
 public class StickCommand extends Command {
   @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
-  private final Drive m_drive;
+  private final Drivetrain m_drive;
   private final IGyro m_gyro;
 
   private final SpektrumFlightController m_flightController;
@@ -32,7 +32,7 @@ public class StickCommand extends Command {
    * @param gyro
    *          TODO
    */
-  public StickCommand(Drive drive, IGyro gyro, SpektrumFlightController m_flightController, IBotSelector selectedBot) {
+  public StickCommand(Drivetrain drive, IGyro gyro, SpektrumFlightController m_flightController, IBotSelector selectedBot) {
     m_drive = drive;
     m_gyro = gyro;
     addRequirements(drive);

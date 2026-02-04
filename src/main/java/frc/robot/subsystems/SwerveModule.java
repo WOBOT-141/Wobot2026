@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.SteerConstants;
 
-public class Wheel extends SubsystemBase {
+public class SwerveModule extends SubsystemBase {
 
   private final SparkMax _driveMotor;
   private final SparkMax _steerMotor;
@@ -49,7 +49,7 @@ public class Wheel extends SubsystemBase {
   private SimpleMotorFeedforward feedForward;
 
   /** Creates a new Wheel. */
-  public Wheel(int steerId, int driveId, int cancoderId, double absoluteOffset, boolean motorInvert,
+  public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset, boolean motorInvert,
     boolean encoderInvert, double xPosition, double yPosition) {
     steerMotorID = steerId;
     driveMotorID = driveId;

@@ -7,9 +7,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
 import frc.robot.Constants.DriveConstants;
 
-public class Drive extends SubsystemBase {
+public class Drivetrain extends SubsystemBase {
 
-  private Wheel[] _wheels;
+  private SwerveModule[] _wheels;
   private double restAngle = 0;
   private boolean isTipping = false;
   private boolean climbing = false;
@@ -17,7 +17,7 @@ public class Drive extends SubsystemBase {
   private double tipDirection;
   private double tipThreshold = 10;
 
-  public Drive(Wheel[] wheels, IGyro gyro) {
+  public Drivetrain(SwerveModule[] wheels, IGyro gyro) {
     _wheels = wheels;
   }
 
@@ -178,7 +178,7 @@ public class Drive extends SubsystemBase {
     }
   }
 
-  public Wheel[] getWheels() {
+  public SwerveModule[] getWheels() {
     return _wheels;
   }
 }
