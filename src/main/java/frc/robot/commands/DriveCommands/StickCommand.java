@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.DriveCommands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -13,167 +9,127 @@ import frc.robot.subsystems.IGyro;
 import frc.lib.SpektrumFlightController;
 
 public class StickCommand extends Command {
-  @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
+
   private final Drive m_drive;
   private final IGyro m_gyro;
-
   private final SpektrumFlightController m_flightController;
-  // private final XboxController m_XboxController;
+  private final IBotSelector m_selectedBot;
+
+  private final SlewRateLimiter rampRate = new SlewRateLimiter(1.0);
+
   private double lastRightDirectional = 0.0;
-  private SlewRateLimiter rampRate;
   private boolean isRotateCenter = false;
   private boolean lockdown = false;
-  private final IBotSelector _selectedBot;
 
-  /**
-   *
-   * @param drive
-   *          The subsystem used by this command.
-   * @param gyro
-   *          TODO
-   */
-  public StickCommand(Drive drive, IGyro gyro, SpektrumFlightController m_flightController, IBotSelector selectedBot) {
+  // Throttle dashboard updates to 5 Hz
+  private int dashboardCounter = 0;
+  private static final int DASHBOARD_DIVIDER = 10;
+
+  public StickCommand(
+      Drive drive,
+      IGyro gyro,
+      SpektrumFlightController flightController,
+      IBotSelector selectedBot) {
+
     m_drive = drive;
     m_gyro = gyro;
+    m_flightController = flightController;
+    m_selectedBot = selectedBot;
+
     addRequirements(drive);
-    _selectedBot = selectedBot;
-    this.m_flightController = m_flightController;
-    // m_XboxController = xboxController;
-    rampRate = new SlewRateLimiter(1);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
+    rampRate.reset(0);
+    lockdown = false;
   }
 
-  double stickX;
-  double stickY;
-  double stickRotate;
-  double stickThrottle;
-  boolean outsideDeadband;
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    stickDebug();
 
-    // if(m_XboxController.getRawAxis(Axis.kRightX.value) > .3 
-    // || m_XboxController.getRawAxis(Axis.kRightX.value) < -.3  
-    // || m_XboxController.getRawAxis(Axis.kRightY.value) > .3 
-    // || m_XboxController.getRawAxis(Axis.kRightY.value) < -.3
-    // || m_XboxController.getRawAxis(Axis.kLeftX.value) > .3
-    // || m_XboxController.getRawAxis(Axis.kLeftX.value) < -.3){
-    //   outsideDeadband = true;
-    // }else{
-    //   outsideDeadband = false;
-    // }
-    // SmartDashboard.putBoolean("outside dead", outsideDeadband);
-    // SmartDashboard.putNumber("XBox - X", m_XboxController.getRawAxis(Axis.kRightX.value));
-    // SmartDashboard.putNumber("Xbox - Y", m_XboxController.getRawAxis(Axis.kRightY.value));
-    // SmartDashboard.putNumber("XBox - R", m_XboxController.getRawAxis(Axis.kLeftX.value));
-    // SmartDashboard.putNumber("Xbox - T", m_XboxController.getRawAxis(Axis.kLeftY.value));
-
-    
-    // if(outsideDeadband){
-    //   stickX = m_XboxController.getRawAxis(Axis.kRightX.value);
-    //   stickY = -m_XboxController.getRawAxis(Axis.kRightY.value);
-    //   stickRotate = m_XboxController.getRawAxis(Axis.kLeftX.value);
-    //   stickThrottle = -.8; //TODO check this
-    // }else{
-      stickX = m_flightController.getDriveX();
-      stickY = m_flightController.getDriveY();
-      stickRotate = m_flightController.getRotate();
-      stickThrottle = m_flightController.getThrottle();
-    //   stickX = 0;
-    //   stickY = 0;
-    //   stickRotate = 0;
-    //   stickThrottle = 0;
-    // }
-    // Calculate the magnitudes and directions
-    double rightMagniude = Math
-        .sqrt(Math.pow(stickX, 2) + Math.pow(stickY, 2));
-    double rightDirectional = Math
-        .toDegrees(Math.atan2(stickX, stickY));
-    double leftDirectional = Math
-        .toDegrees(Math.atan2(stickRotate, stickThrottle));
-    double throttleValue = (((stickThrottle + 1) / 2) + .1);
-
-    // Clamp Angle
-    rightDirectional = (rightDirectional + 360) % 360;
-    leftDirectional = (leftDirectional + 360) % 360;
-
-    // subtract gyro from rightDirectional
-    if(!outsideDeadband){
-      rightDirectional = (rightDirectional - m_gyro.getRealGyroAngle());
+    /* ---------------- Dashboard Debug (throttled) ---------------- */
+    if (++dashboardCounter % DASHBOARD_DIVIDER == 0) {
+      stickDebug();
     }
 
-    // Magnitude for the movement of the bot on the right stick
-    double finalLinearMagnitude = rightMagniude * throttleValue;
-    if (finalLinearMagnitude > 1) {
-      finalLinearMagnitude = 1;
-    } else if (finalLinearMagnitude < -1) {
-      finalLinearMagnitude = -1;
-    }
+    /* ---------------- Read Controller ---------------- */
+    double stickX = m_flightController.getDriveX();
+    double stickY = m_flightController.getDriveY();
+    double stickRotate = m_flightController.getRotate();
+    double stickThrottle = m_flightController.getThrottle();
+
+    /* ---------------- Vector Math ---------------- */
+    double rightMagnitude = Math.hypot(stickX, stickY);
+    double rightDirectional = Math.toDegrees(Math.atan2(stickX, stickY));
+    double throttleValue = ((stickThrottle + 1) / 2.0) + 0.1;
+
+    // Normalize angle
+    rightDirectional = (rightDirectional + 360.0) % 360.0;
+
+    // Field-oriented adjustment
+    rightDirectional -= m_gyro.getRealGyroAngle();
+
+    /* ---------------- Magnitudes ---------------- */
+    double finalLinearMagnitude = rightMagnitude * throttleValue;
+    finalLinearMagnitude = Math.max(-1.0, Math.min(1.0, finalLinearMagnitude));
 
     double rampedMagnitude = rampRate.calculate(finalLinearMagnitude);
-    double finalRotationalMagnitude = stickRotate * throttleValue * .85;
-    if (finalRotationalMagnitude > 1) {
-      finalRotationalMagnitude = 1;
-    } else if (finalRotationalMagnitude < -1) {
-      finalLinearMagnitude = -1;
-    }
 
+    double finalRotationalMagnitude = stickRotate * throttleValue * 0.85;
+    finalRotationalMagnitude = Math.max(-1.0, Math.min(1.0, finalRotationalMagnitude));
+
+    /* ---------------- Lockdown Logic ---------------- */
     if (m_flightController.getSelectPressButton()) {
       lockdown = true;
     }
 
-    // Locks the wheels
     if (lockdown) {
       m_drive.lockWheels();
+
       if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
         lockdown = false;
-        System.out.println("lockdown");
       }
-      System.out.println("working");
-    } else {
-      // TODO add this to its own method maybe like stick debug is?
-      // SmartDashboard.putNumber("Final Linear Magnitude", finalLinearMagnitude);
-      // SmartDashboard.putNumber("Ramped Magnitude: ", rampedMagnitude);
-      // SmartDashboard.putNumber("Final Rotational Magnitude: ",
-      // finalRotationalMagnitude);
-      // SmartDashboard.putNumber("Right Directional: ", rightDirectional);
-      // SmartDashboard.putNumber("Last Directional", lastRightDirectional);
-      if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
-        double yDist = isRotateCenter ? _selectedBot.getDistToFront() : 0;
-
-        m_drive.driveSwerve(rightDirectional, rampedMagnitude, finalRotationalMagnitude, 0, yDist);
-        lastRightDirectional = rightDirectional;
-      } else {
-        rampRate.reset(0);
-        m_drive.driveSwerve(lastRightDirectional, 0, 0);
-      }
+      return;
     }
 
+    /* ---------------- Drive ---------------- */
+    if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
+
+      double yDist = isRotateCenter ? m_selectedBot.getDistToFront() : 0.0;
+
+      m_drive.driveSwerve(
+          rightDirectional,
+          rampedMagnitude,
+          finalRotationalMagnitude,
+          0.0,
+          yDist
+      );
+
+      lastRightDirectional = rightDirectional;
+
+    } else {
+      rampRate.reset(0);
+      m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);
+    }
   }
 
   public void setFrontDrive(boolean isTrue) {
     isRotateCenter = isTrue;
   }
 
-  public void stickDebug() {
-    SmartDashboard.putNumber("STICK X: ", m_flightController.getDriveX());
-    SmartDashboard.putNumber("STICK Y: ", m_flightController.getDriveY());
-    SmartDashboard.putNumber("STICK ROT: ", m_flightController.getRotate());
-    SmartDashboard.putNumber("STICK THROT: ", m_flightController.getThrottle());
+  private void stickDebug() {
+    SmartDashboard.putNumber("STICK X", m_flightController.getDriveX());
+    SmartDashboard.putNumber("STICK Y", m_flightController.getDriveY());
+    SmartDashboard.putNumber("STICK ROT", m_flightController.getRotate());
+    SmartDashboard.putNumber("STICK THROTTLE", m_flightController.getThrottle());
   }
 
-  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;

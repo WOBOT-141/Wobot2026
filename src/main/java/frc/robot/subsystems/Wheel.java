@@ -47,11 +47,9 @@ public class Wheel extends SubsystemBase {
   private double maxAmpsFL_amp = 0;
   private double maxAmpsFR_amp = 0;
 
-  private SimpleMotorFeedforward feedForward;
-
   /** Creates a new Wheel. */
   public Wheel(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, boolean motorInvert,
-    boolean encoderInvert, double xPosition, double yPosition) {
+      boolean encoderInvert, double xPosition, double yPosition) {
     steerMotorID = steerId;
     driveMotorID = driveId;
     _xPos = xPosition;
@@ -75,18 +73,18 @@ public class Wheel extends SubsystemBase {
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(50, 50);
     driveConfig.encoder
-        .positionConversionFactor(1.0/WheelConstants.rotationsPerInch)
-        .velocityConversionFactor((1.0/WheelConstants.rotationsPerInch)/60.0);
-    
+        .positionConversionFactor(1.0 / WheelConstants.rotationsPerInch)
+        .velocityConversionFactor((1.0 / WheelConstants.rotationsPerInch) / 60.0);
+
     FeedForwardConfig driveFF = new FeedForwardConfig();
-        driveFF.kV(WheelConstants.DriveFFKv);
-      
+    driveFF.kV(WheelConstants.DriveFFKv);
+
     driveConfig.closedLoop
         .p(WheelConstants.DriveP)
         .i(WheelConstants.DriveI)
         .d(WheelConstants.DriveD)
         .apply(driveFF);
-        
+
     _drivePID = _driveMotor.getClosedLoopController();
 
     steerConfig
@@ -132,7 +130,7 @@ public class Wheel extends SubsystemBase {
   }
 
   public void setSpeed(double speed) {
-    _drivePID.setSetpoint(speed, ControlType.kVelocity, ClosedLoopSlot.kSlot0, feedForward.calculate(speed));
+    _drivePID.setSetpoint(speed, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     SmartDashboard.putNumber("The speed of commanding", speed);
   }
 

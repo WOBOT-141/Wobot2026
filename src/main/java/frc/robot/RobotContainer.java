@@ -41,7 +41,7 @@ public class RobotContainer {
   private final IGyro m_Gyro = new NavxGyro();
   public final Wheel[] m_wheels;
 
-  private final IBotSelector _selectedBot = new SummerBot();
+  private final IBotSelector _selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
 
   StickCommand m_StickCommand;
