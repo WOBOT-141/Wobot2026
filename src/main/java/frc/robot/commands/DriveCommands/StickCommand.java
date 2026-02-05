@@ -15,7 +15,6 @@ import frc.lib.SpektrumFlightController;
 public class StickCommand extends Command {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
   @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
   private final Drivetrain m_drive;
   private final IGyro m_gyro;
@@ -407,116 +406,6 @@ public class StickCommand extends Command {
         isRotateAroundFront = isTrue;
     }
 
-=======
-
-    private final Drive m_drive;
-    private final IGyro m_gyro;
-    private final SpektrumFlightController m_flightController;
-    private final IBotSelector m_selectedBot;
-
-    private final SlewRateLimiter speedRamp = new SlewRateLimiter(4.0); // units: fraction per second (tune this)
-
-    private double lastDirectionDeg = 0.0;
-    private boolean isRotateAroundFront = false;
-    private boolean lockdownMode = false;
-
-    // Dashboard update throttling
-    private int dashboardCounter = 0;
-    private static final int DASHBOARD_UPDATE_EVERY = 10;
-
-    public StickCommand(
-            Drive drive,
-            IGyro gyro,
-            SpektrumFlightController flightController,
-            IBotSelector selectedBot) {
-        m_drive = drive;
-        m_gyro = gyro;
-        m_flightController = flightController;
-        m_selectedBot = selectedBot;
-        addRequirements(drive);
-    }
-
-    @Override
-    public void initialize() {
-        speedRamp.reset(0.0);
-        lockdownMode = false;
-    }
-
-    @Override
-    public void execute() {
-        // Throttled dashboard updates
-        if (++dashboardCounter % DASHBOARD_UPDATE_EVERY == 0) {
-            updateDashboard();
-        }
-
-        // Read raw controller inputs
-        double stickX = m_flightController.getDriveX();      // positive = right
-        double stickY = m_flightController.getDriveY();      // positive = forward
-        double stickRotate = m_flightController.getRotate(); // positive = CW or CCW? (check your controller)
-        double throttleRaw = m_flightController.getThrottle();
-
-        // Throttle scaling: map -1..1 → ~0.1..1.1 (adjust range as needed)
-        double throttle = ((throttleRaw + 1.0) / 2.0) * 1.0 + 0.1;
-        throttle = Math.min(1.1, Math.max(0.1, throttle));
-
-        // Magnitude & direction (robot-relative)
-        double magnitude = Math.hypot(stickX, stickY);
-        if (magnitude < 0.08) magnitude = 0.0; // deadband
-
-        double robotRelativeAngleDeg = Math.toDegrees(Math.atan2(stickX, stickY));
-        robotRelativeAngleDeg = (robotRelativeAngleDeg + 360.0) % 360.0;
-
-        // Field-oriented: subtract current robot heading
-        double headingDeg = m_gyro.getYaw(); // or getRealGyroAngle() if they are different
-        double fieldRelativeAngleDeg = robotRelativeAngleDeg - headingDeg;
-        fieldRelativeAngleDeg = ((fieldRelativeAngleDeg % 360.0) + 360.0) % 360.0;
-
-        // Apply throttle scaling
-        double scaledSpeed = magnitude * throttle;
-        double rampedSpeed = speedRamp.calculate(scaledSpeed);
-        rampedSpeed = Math.min(1.0, Math.max(0.0, rampedSpeed));
-
-        // Rotation (assuming positive = CCW, adjust sign if needed)
-        double scaledRotation = stickRotate * throttle * 0.9; // 90% max rotation speed
-        scaledRotation = Math.min(1.0, Math.max(-1.0, scaledRotation));
-
-        // Lockdown / brake mode
-        if (m_flightController.getSelectPressButton()) {
-            lockdownMode = true;
-        }
-        if (lockdownMode) {
-            m_drive.lockWheels();
-            if (magnitude > 0.05 || Math.abs(stickRotate) > 0.05) {
-                lockdownMode = false;
-            }
-            return;
-        }
-
-        // Send command to drive subsystem
-        if (rampedSpeed > 0.02 || Math.abs(scaledRotation) > 0.02) {
-            double rotCenterY = isRotateAroundFront ? m_selectedBot.getDistToFront() : 0.0;
-
-            m_drive.driveSwerve(
-                fieldRelativeAngleDeg,          // field-relative direction
-                rampedSpeed,                    // normalized speed 0..1
-                scaledRotation * 360.0,         // degrees per second (assuming max 360°/s)
-                0.0,                       // rotX (center offset)
-                rotCenterY                      // rotY (center offset)
-            );
-
-            lastDirectionDeg = fieldRelativeAngleDeg;
-        } else {
-            // No input → hold last direction, zero speed
-            speedRamp.reset(0.0);
-            m_drive.driveSwerve(lastDirectionDeg, 0.0, 0.0);
-        }
-    }
-
-    public void setFrontDrive(boolean isTrue) {
-        isRotateAroundFront = isTrue;
-    }
-
->>>>>>> Stashed changes
     private void updateDashboard() {
         SmartDashboard.putNumber("Stick X", m_flightController.getDriveX());
         SmartDashboard.putNumber("Stick Y", m_flightController.getDriveY());
@@ -527,9 +416,6 @@ public class StickCommand extends Command {
         SmartDashboard.putBoolean("Lockdown Active", lockdownMode);
     }
 
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
 >>>>>>> Stashed changes
     @Override
     public void end(boolean interrupted) {
@@ -541,9 +427,6 @@ public class StickCommand extends Command {
         return false;
     }
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
