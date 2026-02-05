@@ -71,19 +71,4 @@ public class PigeonGyro extends SubsystemBase implements IGyro {
     return pigeon2.getRoll().getValue().in(Degrees)*-1;
   }
 
-  @Override
-  public double getAngle() {
-    throw new UnsupportedOperationException("getAngle'");
-  }
-
-  @Override
-  public void zeroYaw() {
-    throw new UnsupportedOperationException("zeroYaw'");
-  }
-
-  @Override
-  public void reset() {
-    throw new UnsupportedOperationException("reset'");
-  }
-
 }

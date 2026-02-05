@@ -4,33 +4,37 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.revrobotics.spark.SparkMax;
-<<<<<<< Updated upstream:src/main/java/frc/robot/subsystems/SwerveModule.java
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-=======
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkBase;
->>>>>>> Stashed changes:src/main/java/frc/robot/subsystems/Wheel.java
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.SteerConstants;
 
 public class SwerveModule extends SubsystemBase {
 
-  private final SparkMax driveMotor;
-  private final SparkMax steerMotor;
-  private final SparkClosedLoopController drivePID;
-  private final SparkClosedLoopController steerPID;
-  private final CANcoder cancoder;
-  private final double encoderOffset;
+  private final SparkMax _driveMotor;
+  private final SparkMax _steerMotor;
+  private SparkClosedLoopController _drivePID;
+  private SparkClosedLoopController _steerPID;
+  private final CANcoder _cancoder;
+  private final RelativeEncoder _wheelDriveEncoder;
 
-<<<<<<< Updated upstream:src/main/java/frc/robot/subsystems/SwerveModule.java
   private  double _xPos;
   private  double _yPos;
   private  double encoderOffset;
@@ -56,40 +60,22 @@ public class SwerveModule extends SubsystemBase {
     //Ks = min volts to make motor barely move, Kv = got number from neo documentation 
     feedForward = new SimpleMotorFeedforward(0.12, .473);
 
-=======
-  // Module position relative to robot center (in meters)
-  private final double xPosMeters;  // right = positive
-  private final double yPosMeters;  // forward = positive
 
-  @SuppressWarnings("deprecation")
+    _cancoder = new CANcoder(cancoderId);
+    MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
+    _cancoder.getConfigurator().refresh(encoderConfig);
+    encoderConfig
+        .withAbsoluteSensorDiscontinuityPoint(1);
+    _cancoder.getConfigurator().apply(encoderConfig);
 
-  public Wheel(
-      int steerId,
-      int driveId,
-      int cancoderId,
-      double absoluteOffsetRotations,
-      boolean driveInvert,
-      double xPosMeters,          // ← NEW
-      double yPosMeters           // ← NEW
-  ) {
-    this.encoderOffset = absoluteOffsetRotations;
-    this.xPosMeters = xPosMeters;
-    this.yPosMeters = yPosMeters;
->>>>>>> Stashed changes:src/main/java/frc/robot/subsystems/Wheel.java
-
-    // Absolute Encoder
-    cancoder = new CANcoder(cancoderId);
-    CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
-    cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
-    cancoder.getConfigurator().apply(cancoderConfig);
-
-    // Drive motor
-    driveMotor = new SparkMax(driveId, MotorType.kBrushless);
+    _driveMotor = new SparkMax(driveId, MotorType.kBrushless);
+    _steerMotor = new SparkMax(steerId, MotorType.kBrushless);
     SparkMaxConfig driveConfig = new SparkMaxConfig();
+    SparkMaxConfig steerConfig = new SparkMaxConfig();
+
     driveConfig
-        .inverted(driveInvert)
+        .inverted(motorInvert)
         .idleMode(IdleMode.kBrake)
-<<<<<<< Updated upstream:src/main/java/frc/robot/subsystems/SwerveModule.java
         .smartCurrentLimit(50, 50);
     driveConfig.encoder
         .positionConversionFactor(1.0/WheelConstants.rotationsPerInch)
@@ -97,49 +83,34 @@ public class SwerveModule extends SubsystemBase {
     driveConfig.closedLoop
         .pidf(WheelConstants.DriveP, WheelConstants.DriveI, WheelConstants.DriveD, WheelConstants.DriveFF);
     _drivePID = _driveMotor.getClosedLoopController();
-=======
-        .smartCurrentLimit(50);
->>>>>>> Stashed changes:src/main/java/frc/robot/subsystems/Wheel.java
 
-    // Steer motor
-    steerMotor = new SparkMax(steerId, MotorType.kBrushless);
-    SparkMaxConfig steerConfig = new SparkMaxConfig();
     steerConfig
         .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(30);
+        .smartCurrentLimit(50, 50);
+    steerConfig.encoder
+        .positionConversionFactor(SteerConstants.encoderPositionConversionFactor);
+    steerConfig.closedLoop
+        .pid(WheelConstants.SteerP, WheelConstants.SteerI, WheelConstants.DriveD);
 
-    // Apply configs
-    // It did not look like there is a new method to do this yet. The depereciated version was left.
-    driveMotor.configure(driveConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-    steerMotor.configure(steerConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+    _steerPID = _steerMotor.getClosedLoopController();
 
-    drivePID = driveMotor.getClosedLoopController();
-    steerPID = steerMotor.getClosedLoopController();
+    _driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    _steerMotor.configure(steerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    syncSteerEncoderToAbsolute();
+    _wheelDriveEncoder = _driveMotor.getEncoder();
+
+    settoZero();
   }
 
-<<<<<<< Updated upstream:src/main/java/frc/robot/subsystems/SwerveModule.java
   public double getEncoderOffset() {
     return encoderOffset;
-=======
-  private void syncSteerEncoderToAbsolute() {
-    double absoluteRotations = cancoder.getAbsolutePosition().getValueAsDouble();
-    double angleDeg = (absoluteRotations - encoderOffset) * 360.0;
-    steerMotor.getEncoder().setPosition(angleDeg);
->>>>>>> Stashed changes:src/main/java/frc/robot/subsystems/Wheel.java
   }
 
-  // ───────────────────────────────────────────────
-  // Required methods for Drive subsystem
-  // ───────────────────────────────────────────────
-
   public double get_xPos() {
-    return xPosMeters;
+    return _xPos;
   }
 
   public double get_yPos() {
-<<<<<<< Updated upstream:src/main/java/frc/robot/subsystems/SwerveModule.java
     return _yPos;
   }
 
@@ -166,57 +137,77 @@ public class SwerveModule extends SubsystemBase {
 
   public void setAngle(double angle) {
     _steerPID.setSetpoint(angle, ControlType.kPosition);
-=======
-    return yPosMeters;
->>>>>>> Stashed changes:src/main/java/frc/robot/subsystems/Wheel.java
   }
 
   public void cancelMovement() {
-    drivePID.setSetpoint(0, SparkBase.ControlType.kVelocity);
-    // Optionally keep steer angle where it is, or set to 0 / rest
-    // steerPID.setSetpoint(0, SparkBase.ControlType.kPosition);
+    _driveMotor.stopMotor();
+    _steerMotor.stopMotor();
   }
 
-  /**
-   * Returns optimized SwerveModuleState (minimizes rotation < 90°)
-   * Compatible with WPILib 2026+ .optimize() behavior
-   */
-  public SwerveModuleState bestAngle(SwerveModuleState desiredState) {
-    Rotation2d currentAngle = Rotation2d.fromDegrees(getAngleDeg());
-    desiredState.optimize(currentAngle);   // mutates the state
-    return desiredState;
+  public double getSpeed() {
+    return _wheelDriveEncoder.getVelocity();
   }
 
-  // ───────────────────────────────────────────────
-  // Existing / renamed methods
-  // ───────────────────────────────────────────────
-
-  public void setSpeed(double speedMetersPerSecond) {
-    drivePID.setSetpoint(speedMetersPerSecond, SparkBase.ControlType.kVelocity);
+  public double getAngle() {
+    return 0;
   }
 
-  public void setAngle(double angleDeg) {
-    steerPID.setSetpoint(angleDeg, SparkBase.ControlType.kPosition);
+  public double getEncoderDistance() {
+    return _wheelDriveEncoder.getPosition();
   }
-<<<<<<< Updated upstream:src/main/java/frc/robot/subsystems/SwerveModule.java
   public void resetEncoder(){
     _wheelDriveEncoder.setPosition(0);
-=======
-
-  public double getAngleDeg() {
-    return steerMotor.getEncoder().getPosition();
->>>>>>> Stashed changes:src/main/java/frc/robot/subsystems/Wheel.java
   }
 
-  // Optional: keep for testing, or remove
-  public void setPos(double pos) {
-    // If you want to force drive encoder position (usually for testing)
-    // driveMotor.getEncoder().setPosition(pos);
+  public SwerveModuleState bestAngle(SwerveModuleState wheel) {
+    double currentAngle = _steerMotor.getEncoder().getPosition();
+
+    int totalRotations = (int) (currentAngle / 360);
+    double wantedAngle = wheel.angle.getDegrees() + 180;
+    double complimentaryAngle = (wantedAngle + 180) % 360;
+
+    double finalSmallestAngle = 0;
+    int direction = 0;
+
+    double deltaCurrent = (wantedAngle + (360 * totalRotations)) - currentAngle;
+    double deltaNext = (wantedAngle + (360 * (totalRotations + 1))) - currentAngle;
+    double deltaPrevious = (wantedAngle + (360 * (totalRotations - 1))) - currentAngle;
+
+    double deltaCurrentComp = (complimentaryAngle + (360 * totalRotations)) - currentAngle;
+    double deltaNextComp = (complimentaryAngle + (360 * (totalRotations + 1))) - currentAngle;
+    double deltaPreviousComp = (complimentaryAngle + (360 * (totalRotations - 1))) - currentAngle;
+
+    double smallestAngle = deltaPrevious;
+    if (Math.abs(smallestAngle) > Math.abs(deltaCurrent)) {
+      smallestAngle = deltaCurrent;
+    }
+    if (Math.abs(smallestAngle) > Math.abs(deltaNext)) {
+      smallestAngle = deltaNext;
+    }
+
+    double smallestAngleComp = deltaPreviousComp;
+    if (Math.abs(smallestAngleComp) > Math.abs(deltaCurrentComp)) {
+      smallestAngleComp = deltaCurrentComp;
+    }
+    if (Math.abs(smallestAngleComp) > Math.abs(deltaNextComp)) {
+      smallestAngleComp = deltaNextComp;
+    }
+
+    if (Math.abs(smallestAngle) <= Math.abs(smallestAngleComp)) {
+      finalSmallestAngle = smallestAngle;
+      direction = -1;
+    } else {
+      finalSmallestAngle = smallestAngleComp;
+      direction = 1;
+    }
+
+    return new SwerveModuleState(
+        wheel.speedMetersPerSecond * direction,
+        new Rotation2d(Units.degreesToRadians(currentAngle + finalSmallestAngle)));
   }
 
   @Override
   public void periodic() {
-<<<<<<< Updated upstream:src/main/java/frc/robot/subsystems/SwerveModule.java
     SmartDashboard.putNumber("encoderDist", getEncoderDistance());
     SmartDashboard.putNumber("speeed", getSpeed());
 
@@ -327,8 +318,5 @@ public class SwerveModule extends SubsystemBase {
     public static final double wheelCircumference = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
     public static final double rotationsPerInch = driveGearRatio / wheelCircumference;
-=======
-    SmartDashboard.putNumber("Steer Angle " + cancoder.getDeviceID(), getAngleDeg());
->>>>>>> Stashed changes:src/main/java/frc/robot/subsystems/Wheel.java
   }
 }
