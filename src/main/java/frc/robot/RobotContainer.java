@@ -16,7 +16,6 @@ import frc.lib.SpektrumFlightController;
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
@@ -284,74 +283,6 @@ public class RobotContainer {
     } else {
       System.out.println("Selected auton: <null>");
 =======
-        flightController = new SpektrumFlightController(0);
-        xboxController = new XboxController(1);
-        joystick = new Joystick(2);
-
-        configureDefaultCommand();
-        configureBindings();
->>>>>>> Stashed changes
-=======
-import frc.robot.commands.DriveCommands.LockWheels;
-import frc.robot.commands.DriveCommands.ResetGyro;
-import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.commands.StickParameters.StickBParameters; // ← add this import
-import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.IGyro;
-import frc.robot.subsystems.NavxGyro;
-import frc.robot.subsystems.Wheel;
-
-public class RobotContainer {
-
-    private final Drive m_drive;
-    private final IGyro m_gyro = new NavxGyro();
-   
-    public static SpektrumFlightController flightController;
-    public static XboxController xboxController;
-    public static Joystick joystick;
-
-    private final IBotSelector selectedBot = new MainBot();
-
-    private StickCommand m_stickCommand;
-
-    public RobotContainer() {
-        Wheel[] wheels = new Wheel[] {
-                new Wheel(
-                        Constants.SteerConstants.frontLeftSteerMotorID,
-                        Constants.SteerConstants.frontLeftDriveMotorID,
-                        Constants.SteerConstants.frontLeftEncoderid,
-                        selectedBot.getfrontLeftOffset(),
-                        Constants.SteerConstants.frontLeftMotorInvert,
-                        selectedBot.getfrontLeftLocationX(),
-                        selectedBot.getfrontLeftLocationY()),
-                new Wheel(
-                        Constants.SteerConstants.backLeftSteerMotorID,
-                        Constants.SteerConstants.backLeftDriveMotorID,
-                        Constants.SteerConstants.backLeftEncoderid,
-                        selectedBot.getbackLeftOffset(),
-                        Constants.SteerConstants.backLeftMotorInvert,
-                        selectedBot.getbackLeftLocationX(),
-                        selectedBot.getbackLeftLocationY()),
-                new Wheel(
-                        Constants.SteerConstants.frontRightSteerMotorID,
-                        Constants.SteerConstants.frontRightDriveMotorID,
-                        Constants.SteerConstants.frontRightEncoderid,
-                        selectedBot.getfrontRightOffset(),
-                        Constants.SteerConstants.frontRightMotorInvert,
-                        selectedBot.getfrontRightLocationX(),
-                        selectedBot.getfrontRightLocationY()),
-                new Wheel(
-                        Constants.SteerConstants.backRightSteerMotorID,
-                        Constants.SteerConstants.backRightDriveMotorID,
-                        Constants.SteerConstants.backRightEncoderid,
-                        selectedBot.getbackRightOffset(),
-                        Constants.SteerConstants.backRightMotorInvert,
-                        selectedBot.getbackRightLocationX(),
-                        selectedBot.getbackRightLocationY())
-        };
-
-        m_drive = new Drive(wheels); // ← only Wheel[] parameter
-
         flightController = new SpektrumFlightController(0);
         xboxController = new XboxController(1);
         joystick = new Joystick(2);
