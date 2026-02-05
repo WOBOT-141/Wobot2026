@@ -75,6 +75,9 @@ public final class Constants {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -97,6 +100,7 @@ public final class Constants {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     // top speed of bot in feet per second converted into meters per second
     public static final double topSpeed = 25;// 20.36
 
@@ -106,6 +110,14 @@ public final class Constants {
     public static final int driveCurrentLim = 80;
 
     public static final double driveTargetTolerance = 2.0;
+=======
+    public static final double topSpeed_mps = 25;// 20.36 // top speed of bot in feet per second converted into meters per second
+    
+    public static final double autoRotatekP = 0.4; // 0.72
+    public static final double autoRotatekI = 0.02;
+    public static final double autoRotatekD = 0;
+    
+>>>>>>> Stashed changes
 =======
     public static final double topSpeed_mps = 25;// 20.36 // top speed of bot in feet per second converted into meters per second
     
