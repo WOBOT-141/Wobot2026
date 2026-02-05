@@ -14,7 +14,7 @@ public class NavxGyro extends SubsystemBase implements IGyro {
 
   /** Creates a new Gyro. */
   public NavxGyro() {
-    gyro = new AHRS(NavXComType.kMXP_SPI); //TODO Check if com type is infact spi and this isnt a lie
+    gyro = new AHRS(NavXComType.kMXP_SPI);
   }
 
   @Override
@@ -100,5 +100,23 @@ public class NavxGyro extends SubsystemBase implements IGyro {
     SmartDashboard.putNumber("Gyro - ABS", getRealGyroAngle());
     // System.out.println(getRealGyroAngle());
     // System.out.printf("Angle: %.2f Yaw: %.2f\n", gyro.getAngle(), gyro.getYaw());
+  }
+
+  @Override
+  public double getAngle() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("getAngle'");
+  }
+
+  @Override
+  public void zeroYaw() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("zeroYaw'");
+  }
+
+  @Override
+  public void reset() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("reset'");
   }
 }

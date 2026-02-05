@@ -7,7 +7,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.lib.SpektrumFlightController;
+<<<<<<< Updated upstream
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
@@ -23,17 +28,19 @@ import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
+=======
+import frc.robot.commands.DriveCommands.LockWheels;
+import frc.robot.commands.DriveCommands.ResetGyro;
+import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.StickParameters.StickBParameters; // ← add this import
+import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.IGyro;
+import frc.robot.subsystems.NavxGyro;
+import frc.robot.subsystems.Wheel;
+>>>>>>> Stashed changes
 
-/**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 public class RobotContainer {
+<<<<<<< Updated upstream
   private PneumaticHub pneumaticHub = new PneumaticHub(27);
   private final Drivetrain m_Drive;
 
@@ -45,16 +52,59 @@ public class RobotContainer {
 
   private final IBotSelector _selectedBot = new SummerBot();
   // private final IBotSelector _selectedBot = new SummerBot();
+=======
 
-  StickCommand m_StickCommand;
+    private final Drive m_drive;
+    private final IGyro m_gyro = new NavxGyro();
+   
+    public static SpektrumFlightController flightController;
+    public static XboxController xboxController;
+    public static Joystick joystick;
 
-  ChooserHandeling autonSelector;
+    private final IBotSelector selectedBot = new MainBot();
+>>>>>>> Stashed changes
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
+    private StickCommand m_stickCommand;
 
+    public RobotContainer() {
+        Wheel[] wheels = new Wheel[] {
+                new Wheel(
+                        Constants.SteerConstants.frontLeftSteerMotorID,
+                        Constants.SteerConstants.frontLeftDriveMotorID,
+                        Constants.SteerConstants.frontLeftEncoderid,
+                        selectedBot.getfrontLeftOffset(),
+                        Constants.SteerConstants.frontLeftMotorInvert,
+                        selectedBot.getfrontLeftLocationX(),
+                        selectedBot.getfrontLeftLocationY()),
+                new Wheel(
+                        Constants.SteerConstants.backLeftSteerMotorID,
+                        Constants.SteerConstants.backLeftDriveMotorID,
+                        Constants.SteerConstants.backLeftEncoderid,
+                        selectedBot.getbackLeftOffset(),
+                        Constants.SteerConstants.backLeftMotorInvert,
+                        selectedBot.getbackLeftLocationX(),
+                        selectedBot.getbackLeftLocationY()),
+                new Wheel(
+                        Constants.SteerConstants.frontRightSteerMotorID,
+                        Constants.SteerConstants.frontRightDriveMotorID,
+                        Constants.SteerConstants.frontRightEncoderid,
+                        selectedBot.getfrontRightOffset(),
+                        Constants.SteerConstants.frontRightMotorInvert,
+                        selectedBot.getfrontRightLocationX(),
+                        selectedBot.getfrontRightLocationY()),
+                new Wheel(
+                        Constants.SteerConstants.backRightSteerMotorID,
+                        Constants.SteerConstants.backRightDriveMotorID,
+                        Constants.SteerConstants.backRightEncoderid,
+                        selectedBot.getbackRightOffset(),
+                        Constants.SteerConstants.backRightMotorInvert,
+                        selectedBot.getbackRightLocationX(),
+                        selectedBot.getbackRightLocationY())
+        };
+
+        m_drive = new Drive(wheels); // ← only Wheel[] parameter
+
+<<<<<<< Updated upstream
     m_wheels = new SwerveModule[] {
         // assuming that the roborio is the front and the battery is the back
         new SwerveModule(Constants.SteerConstants.frontLeftSteerMotorID,
@@ -229,15 +279,59 @@ public class RobotContainer {
       System.out.println("Selected auton: " + selectedCommand.toString());
     } else {
       System.out.println("Selected auton: <null>");
+=======
+        flightController = new SpektrumFlightController(0);
+        xboxController = new XboxController(1);
+        joystick = new Joystick(2);
+
+        configureDefaultCommand();
+        configureBindings();
+>>>>>>> Stashed changes
     }
 
-    return selectedCommand;
+    private void configureDefaultCommand() {
+        var params = new StickBParameters();
 
-    // return new RotateCommandField(m_Drive, m_Gyro, 180);
+        flightController.setRotateFactor(params.get_RotateFactor());
+        flightController.setDriveXFactor(params.get_DriveXFactor());
+        flightController.setDriveYFactor(params.get_DriveYFactor());
+        flightController.setThrottleFactor(params.get_ThrottleFactor());
+        flightController.setRotateOffset(params.get_RotateOffset());
+        flightController.setDriveXOffset(params.get_DriveXOffset());
+        flightController.setDriveYOffset(params.get_DriveYOffset());
+        flightController.setThrottleOffset(params.get_ThrottleOffset());
+        flightController.setxDeadBand(params.get_deadbandX());
+        flightController.setyDeadBand(params.get_deadbandY());
+        flightController.setRotationDeadBand(params.get_deadbandRot());
 
-    // return new UniversalDriveCommandPicture(m_Drive, m_Gyro, .5, serveVis);
+        m_stickCommand = new StickCommand(m_drive, m_gyro, flightController, selectedBot);
+        m_drive.setDefaultCommand(m_stickCommand);
+    }
 
-    // return new VisionL4Experimental(m_Drive, serveVis, m_Gyro, m_Elevator,
-    // m_coralManipulator, ReefSide.LEFT);
-  }
+    private void configureBindings() {
+        // Flight controller
+        new JoystickButton(flightController, SpektrumFlightController.Button.kSelectPress.value)
+                .onTrue(new LockWheels(m_drive));
+
+        new JoystickButton(flightController, SpektrumFlightController.Button.kReset.value)
+                .onTrue(new ResetGyro(m_gyro));
+
+        new JoystickButton(RobotContainer.flightController, SpektrumFlightController.Button.kReset.value)
+                .onTrue(Commands.runOnce(() -> {
+                    m_gyro.zeroYaw();
+                    System.out.println("Gyro yaw zeroed!"); // this is for troubleshooting and can be removed or commented out
+                }));
+
+        // Xbox example bindings (replace with real commands)
+        CommandXboxController xbox = new CommandXboxController(1);
+
+        xbox.leftBumper().whileTrue(Commands.print("Left bumper held"));
+        xbox.rightBumper().whileTrue(Commands.print("Right bumper held"));
+        xbox.a().onTrue(Commands.print("A pressed"));
+        // ... add your actual commands here
+    }
+
+    public Command getAutonomousCommand() {
+        return Commands.none(); // replace with real auton
+    }
 }

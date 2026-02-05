@@ -9,104 +9,100 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
- * The methods in this class are called automatically corresponding to each mode, as described in
- * the TimedRobot documentation. If you change the name of this class or the package after creating
- * this project, you must also update the Main.java file in the project.
+ * The methods in this class are called automatically corresponding to each mode,
+ * as described in the TimedRobot documentation.
  */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
 
-  private final RobotContainer m_robotContainer;
+    private Command m_autonomousCommand;
+    private final RobotContainer m_robotContainer;
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
-  public Robot() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
-  }
-
-  /**
-   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
-   * that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
-   */
-  @Override
-  public void robotPeriodic() {
-    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // and running subsystem periodic() methods.  This must be called from the robot's periodic
-    // block in order for anything in the Command-based framework to work.
-    CommandScheduler.getInstance().run();
-  }
-
-  /** This function is called once each time the robot enters Disabled mode. */
-  @Override
-  public void disabledInit() {
-  }
-
-  @Override
-  public void disabledPeriodic() {
-    m_robotContainer.wheelSetup();
-  }
-
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
-  @Override
-  public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      CommandScheduler.getInstance().schedule(m_autonomousCommand);
-    }
-  }
-
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {
-  }
-
-  @Override
-  public void teleopInit() {
-
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    /**
+     * This function is run when the robot is first started up and should be used
+     * for any initialization code.
+     */
+    public Robot() {
+        // Instantiate our RobotContainer. This will perform all our button bindings,
+        // set up subsystems, and configure default commands.
+        m_robotContainer = new RobotContainer();
     }
 
-    if (m_robotContainer.isPlugged()) {
-      System.out.print("Stick is plugged 100%");
-      m_robotContainer.stickCommandInit();
+    /**
+     * This function is called every 20 ms, no matter the mode.
+     */
+    @Override
+    public void robotPeriodic() {
+        // Runs the Scheduler — responsible for command execution
+        CommandScheduler.getInstance().run();
     }
-  }
 
-  /** This function is called periodically during operator control. */
-  @Override
-  public void teleopPeriodic() {
+    @Override
+    public void disabledInit() {
+        // Optional: reset or zero things if needed
+    }
 
-  }
+    @Override
+    public void disabledPeriodic() {
+        // wheelSetup() is no longer needed — offsets are set in constructors
+        // You can remove this call or leave it empty
+    }
 
-  @Override
-  public void testInit() {
-    // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
-  }
+    /**
+     * This autonomous runs the command selected by your RobotContainer.
+     */
+    @Override
+    public void autonomousInit() {
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {
-  }
+        // schedule the autonomous command if it exists
+        if (m_autonomousCommand != null) {
+            CommandScheduler.getInstance().schedule(m_autonomousCommand);
+        }
+    }
 
-  /** This function is called once when the robot is first started up. */
-  @Override
-  public void simulationInit() {
-  }
+    @Override
+    public void autonomousPeriodic() {
+        // usually empty — commands handle periodic behavior
+    }
 
-  /** This function is called periodically whilst in simulation. */
-  @Override
-  public void simulationPeriodic() {
-  }
+    @Override
+    public void teleopInit() {
+        // Cancel any leftover autonomous command
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.cancel();
+        }
+
+        // The default command (StickCommand) is already set in RobotContainer
+        // No need to call stickCommandInit() anymore
+
+        // Optional: log controller connection if you still want to check it
+        if (RobotContainer.flightController != null && RobotContainer.flightController.isConnected()) {
+            System.out.println("Flight controller is connected");
+        } else {
+            System.out.println("Warning: Flight controller not detected");
+        }
+    }
+
+    @Override
+    public void teleopPeriodic() {
+        // usually empty — default command handles teleop driving
+    }
+
+    @Override
+    public void testInit() {
+        // Cancels all running commands at the start of test mode
+        CommandScheduler.getInstance().cancelAll();
+    }
+
+    @Override
+    public void testPeriodic() {
+    }
+
+    @Override
+    public void simulationInit() {
+    }
+
+    @Override
+    public void simulationPeriodic() {
+    }
 }

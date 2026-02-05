@@ -8,15 +8,13 @@ import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
- * numerical or boolean
- * constants. This class should not be used for any other purpose. All constants
- * should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
+ * numerical or boolean  constants. This class should not be used for any other 
+ * purpose. All constants should be declared globally (i.e. public static). 
+ * Do not put anything functional in this class.
  *
  * <p>
  * It is advised to statically import this class (or one of its inner classes)
- * wherever the
- * constants are needed, to reduce verbosity.
+ * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
   public static class OperatorConstants {
@@ -49,17 +47,36 @@ public final class Constants {
 
   public static class DriveConstants {
     // wheel diameter multiplied by pi = circumference
+<<<<<<< Updated upstream
     public static final double wheelCircumference = (Math.PI * 4);
     public static final double driveGearRatio = 6.12;
     // the number of motor rotations to get one wheel rotation (3.6) divided by the
     // wheel circumference
     public static final double rotationsPerInch = driveGearRatio / wheelCircumference; // 3.6 might be the gear ratio
     public static final double metersToRotationsPerMin = driveGearRatio / Units.inchesToMeters(wheelCircumference) * 60; // RPS
+=======
+    public static final double wheelCircumference_in = (Math.PI * 4);
+    public static final double driveGearRatio = 5.14;
+    
+    // Number of inches the first stage moves for every rotation of the motors
+    public static final double inchesPerRotation = driveGearRatio * wheelCircumference_in;
+    
+    // Number of inches carriage moves per rotation of the motors (twice what the first stage moves)
+    public static final double carriageInchesPerRotation = inchesPerRotation * 2;
+
+    public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear ratio
+    public static final double metersToRotationsPerMin = driveGearRatio / Units.inchesToMeters(wheelCircumference_in)
+        * 60; // RPS
+    
+    public static final int driveCurrentLim_amp = 80;
+    public static final double driveTargetTolerance = 2.0;
+>>>>>>> Stashed changes
     public static final double drivekP = 0.0016;// .00009
     public static final double drivekI = 0.000068;// 0
     public static final double drivekD = 0;
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
+<<<<<<< Updated upstream
     // top speed of bot in feet per second converted into meters per second
     public static final double topSpeed = 25;// 20.36
 
@@ -69,6 +86,14 @@ public final class Constants {
     public static final int driveCurrentLim = 80;
 
     public static final double driveTargetTolerance = 2.0;
+=======
+    public static final double topSpeed_mps = 25;// 20.36 // top speed of bot in feet per second converted into meters per second
+    
+    public static final double autoRotatekP = 0.4; // 0.72
+    public static final double autoRotatekI = 0.02;
+    public static final double autoRotatekD = 0;
+    
+>>>>>>> Stashed changes
     public static final double visionDrivekP = 0.0032;
     public static final double visionDrivekI = 0.00028;
     public static final double visionDrivekD = 0.00015;
