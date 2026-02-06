@@ -60,8 +60,6 @@ public class RobotContainer {
             Constants.SteerConstants.frontLeftDriveMotorID,
             Constants.SteerConstants.frontLeftEncoderid,
             _selectedBot.getfrontLeftOffset(),
-            Constants.SteerConstants.frontLeftMotorInvert,
-            Constants.SteerConstants.frontLeftEncoderInvert,
             _selectedBot.getfrontLeftLocationX(),
             _selectedBot.getfrontLeftLocationY()), // front left 0.441650 rotations
 
@@ -69,8 +67,6 @@ public class RobotContainer {
             Constants.SteerConstants.backLeftDriveMotorID,
             Constants.SteerConstants.backLeftEncoderid,
             _selectedBot.getbackLeftOffset(),
-            Constants.SteerConstants.backLeftMotorInvert,
-            Constants.SteerConstants.backLeftEncoderInvert,
             _selectedBot.getbackLeftLocationX(),
             _selectedBot.getbackLeftLocationY()), // back left 0.176270 rotations
 
@@ -78,8 +74,6 @@ public class RobotContainer {
             Constants.SteerConstants.frontRightDriveMotorID,
             Constants.SteerConstants.frontRightEncoderid,
             _selectedBot.getfrontRightOffset(),
-            Constants.SteerConstants.frontRightMotorInvert,
-            Constants.SteerConstants.frontRightEncoderInvert,
             _selectedBot.getfrontRightLocationX(),
             _selectedBot.getfrontRightLocationY()), // front right 0.585205 rotations
 
@@ -87,8 +81,6 @@ public class RobotContainer {
             Constants.SteerConstants.backRightDriveMotorID,
             Constants.SteerConstants.backRightEncoderid,
             _selectedBot.getbackRightOffset(),
-            Constants.SteerConstants.backRightMotorInvert,
-            Constants.SteerConstants.backRightEncoderInvert,
             _selectedBot.getbackRightLocationX(),
             _selectedBot.getbackRightLocationY())// back right 0.506836 rotations
     };
@@ -210,7 +202,7 @@ public class RobotContainer {
 
     reset.onTrue(new ResetGyro(m_Gyro));
     lockWheels.onTrue(new LockWheels(m_Drive));
-    shoulderButton.whileTrue(new DriveInDirection(m_Drive, 1, 0.5));
+    shoulderButton.whileTrue(new DriveInDirection(m_Drive, 1, 0.02));
   }
 
   /**

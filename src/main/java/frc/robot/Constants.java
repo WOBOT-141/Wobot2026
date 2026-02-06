@@ -88,18 +88,12 @@ public final class Constants {
     public static final double kD = 0;
     public static final int steerContCurrentLim_amp = 4;
     public static final int steerPeakCurrentLim_amp = 6;
-    public static final boolean frontRightEncoderInvert = true;
-    public static final boolean backRightEncoderInvert = false;
-    public static final boolean frontLeftEncoderInvert = false;
-    public static final boolean backLeftEncoderInvert = true;
-    public static final boolean frontLeftMotorInvert = false; // true
-    public static final boolean backLeftMotorInvert = false; // true
-    public static final boolean frontRightMotorInvert = true; // false
-    public static final boolean backRightMotorInvert = true; // false
+
     public static final int frontLeftEncoderid = 9; 
     public static final int backLeftEncoderid = 10; 
     public static final int frontRightEncoderid = 11; 
     public static final int backRightEncoderid = 12;
+
     public static final int frontLeftSteerMotorID = 1;
     public static final int frontLeftDriveMotorID = 2;
     public static final int backLeftSteerMotorID = 3;

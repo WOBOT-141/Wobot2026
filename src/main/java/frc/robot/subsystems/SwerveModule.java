@@ -48,8 +48,7 @@ public class SwerveModule extends SubsystemBase {
   private double maxAmpsFR_amp = 0;
 
   /** Creates a new Wheel. */
-  public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, boolean motorInvert,
-    boolean encoderInvert, double xPosition, double yPosition) {
+  public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, double xPosition, double yPosition) {
     steerMotorID = steerId;
     driveMotorID = driveId;
     _xPos = xPosition;
@@ -69,7 +68,6 @@ public class SwerveModule extends SubsystemBase {
     SparkMaxConfig steerConfig = new SparkMaxConfig();
 
     driveConfig
-        .inverted(motorInvert)
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(50, 50);
     driveConfig.encoder
