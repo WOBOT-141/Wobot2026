@@ -5,13 +5,13 @@
 package frc.robot.commands.DriveCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drivetrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class LockWheels extends Command {
   /** Creates a new LockWheels. */
-  Drive drive;
-  public LockWheels(Drive driv) {
+  Drivetrain drive;
+  public LockWheels(Drivetrain driv) {
     drive = driv;
     addRequirements(drive);
     // Use addRequirements() here to declare subsystem dependencies.

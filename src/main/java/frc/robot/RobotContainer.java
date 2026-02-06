@@ -7,10 +7,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.SpektrumFlightController;
-import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
-import frc.robot.subsystems.Wheel;
+import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.ChooserHandeling;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -33,13 +33,13 @@ import frc.robot.commands.StickParameters.StickBParameters;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private final Drive m_Drive;
+  private final Drivetrain m_Drive;
 
   public static SpektrumFlightController flightController0;
   public static XboxController xboxController0;
   public static Joystick joystick;
   private final IGyro m_Gyro = new NavxGyro();
-  public final Wheel[] m_wheels;
+  public final SwerveModule[] m_wheels;
 
   private final IBotSelector _selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
@@ -53,9 +53,9 @@ public class RobotContainer {
    */
   public RobotContainer() {
 
-    m_wheels = new Wheel[] {
+    m_wheels = new SwerveModule[] {
         // assuming that the roborio is the front and the battery is the back
-        new Wheel(Constants.SteerConstants.frontLeftSteerMotorID,
+        new SwerveModule(Constants.SteerConstants.frontLeftSteerMotorID,
             Constants.SteerConstants.frontLeftDriveMotorID,
             Constants.SteerConstants.frontLeftEncoderid,
             _selectedBot.getfrontLeftOffset(),
@@ -64,7 +64,7 @@ public class RobotContainer {
             _selectedBot.getfrontLeftLocationX(),
             _selectedBot.getfrontLeftLocationY()), // front left 0.441650 rotations
 
-        new Wheel(Constants.SteerConstants.backLeftSteerMotorID,
+        new SwerveModule(Constants.SteerConstants.backLeftSteerMotorID,
             Constants.SteerConstants.backLeftDriveMotorID,
             Constants.SteerConstants.backLeftEncoderid,
             _selectedBot.getbackLeftOffset(),
@@ -73,7 +73,7 @@ public class RobotContainer {
             _selectedBot.getbackLeftLocationX(),
             _selectedBot.getbackLeftLocationY()), // back left 0.176270 rotations
 
-        new Wheel(Constants.SteerConstants.frontRightSteerMotorID,
+        new SwerveModule(Constants.SteerConstants.frontRightSteerMotorID,
             Constants.SteerConstants.frontRightDriveMotorID,
             Constants.SteerConstants.frontRightEncoderid,
             _selectedBot.getfrontRightOffset(),
@@ -82,7 +82,7 @@ public class RobotContainer {
             _selectedBot.getfrontRightLocationX(),
             _selectedBot.getfrontRightLocationY()), // front right 0.585205 rotations
 
-        new Wheel(Constants.SteerConstants.backRightSteerMotorID,
+        new SwerveModule(Constants.SteerConstants.backRightSteerMotorID,
             Constants.SteerConstants.backRightDriveMotorID,
             Constants.SteerConstants.backRightEncoderid,
             _selectedBot.getbackRightOffset(),
@@ -91,7 +91,7 @@ public class RobotContainer {
             _selectedBot.getbackRightLocationX(),
             _selectedBot.getbackRightLocationY())// back right 0.506836 rotations
     };
-    m_Drive = new Drive(m_wheels, m_Gyro);
+    m_Drive = new Drivetrain(m_wheels, m_Gyro);
     
     flightController0 = new SpektrumFlightController(0);
     xboxController0 = new XboxController(1);
