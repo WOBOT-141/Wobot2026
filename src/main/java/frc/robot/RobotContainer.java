@@ -138,7 +138,7 @@ public class RobotContainer {
   public void stickCommandInit() {
     deadbandSetup();
 
-    m_StickCommand = new StickCommand(m_Drive, m_Gyro, flightController0, _selectedBot);
+    //m_StickCommand = new StickCommand(m_Drive, m_Gyro, flightController0, _selectedBot);
     //m_Drive.setDefaultCommand(m_StickCommand);
     configureRotateBindings();
   }

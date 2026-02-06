@@ -79,7 +79,7 @@ public class SwerveModule extends SubsystemBase {
     SparkMaxConfig steerConfig = new SparkMaxConfig();
 
     driveConfig
-        .idleMode(IdleMode.kBrake)
+        .idleMode(IdleMode.kCoast)
         .smartCurrentLimit(50, 50);
     driveConfig.encoder
         .positionConversionFactor(1.0 / WheelConstants.rotationsPerInch)
@@ -102,7 +102,8 @@ public class SwerveModule extends SubsystemBase {
     steerConfig.encoder
         .positionConversionFactor(SteerConstants.encoderPositionConversionFactor);
     steerConfig.closedLoop
-        .pid(WheelConstants.SteerP, WheelConstants.SteerI, WheelConstants.DriveD);
+        .pid(WheelConstants.SteerP, WheelConstants.SteerI, WheelConstants.DriveD, ClosedLoopSlot.kSlot0)
+        .allowedClosedLoopError(2.5, ClosedLoopSlot.kSlot0);
 
     _steerPID = _steerMotor.getClosedLoopController();
 
@@ -121,7 +122,8 @@ public class SwerveModule extends SubsystemBase {
         new SysIdRoutine.Mechanism(
             volts -> {
               // Disable steering during SysId
-              _steerMotor.stopMotor();
+              //_steerMotor.stopMotor();
+              setAngle(0);
               setDriveVoltage(volts.in(edu.wpi.first.units.Units.Volts));
             },
             log -> {
