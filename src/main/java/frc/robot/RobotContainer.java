@@ -150,7 +150,7 @@ public class RobotContainer {
     deadbandSetup();
 
     m_StickCommand = new StickCommand(m_Drive, m_Gyro, flightController0, _selectedBot);
-    m_Drive.setDefaultCommand(m_StickCommand);
+    //m_Drive.setDefaultCommand(m_StickCommand);
     configureRotateBindings();
   }
 
@@ -196,6 +196,21 @@ public class RobotContainer {
     bButton.whileTrue(m_wheels[0].sysIdQuasistaticReverse());
     xButton.whileTrue(m_wheels[0].sysIdDynamicForward());
     yButton.whileTrue(m_wheels[0].sysIdDynamicReverse());
+    
+    aButton.whileTrue(m_wheels[1].sysIdQuasistaticForward());
+    bButton.whileTrue(m_wheels[1].sysIdQuasistaticReverse());
+    xButton.whileTrue(m_wheels[1].sysIdDynamicForward());
+    yButton.whileTrue(m_wheels[1].sysIdDynamicReverse());
+
+    aButton.whileTrue(m_wheels[2].sysIdQuasistaticForward());
+    bButton.whileTrue(m_wheels[2].sysIdQuasistaticReverse());
+    xButton.whileTrue(m_wheels[2].sysIdDynamicForward());
+    yButton.whileTrue(m_wheels[2].sysIdDynamicReverse());
+
+    aButton.whileTrue(m_wheels[3].sysIdQuasistaticForward());
+    bButton.whileTrue(m_wheels[3].sysIdQuasistaticReverse());
+    xButton.whileTrue(m_wheels[3].sysIdDynamicForward());
+    yButton.whileTrue(m_wheels[3].sysIdDynamicReverse());
 
     
     Trigger dPadUp = new POVButton(xboxController0, 0);
