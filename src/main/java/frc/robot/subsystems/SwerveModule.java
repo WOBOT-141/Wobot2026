@@ -38,7 +38,7 @@ public class SwerveModule extends SubsystemBase {
 
   private double _xPos;
   private double _yPos;
-  private double encoderOffset_deg;
+  private double m_encoderOffset_rot;
 
   private int steerMotorID;
   private int driveMotorID;
@@ -54,7 +54,7 @@ public class SwerveModule extends SubsystemBase {
     driveMotorID = driveId;
     _xPos = xPosition;
     _yPos = yPosition;
-    encoderOffset_deg = absoluteOffset_deg;
+    m_encoderOffset_rot = absoluteOffset_deg;
 
     _cancoder = new CANcoder(cancoderId);
     MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
@@ -106,7 +106,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public double getEncoderOffset_deg() {
-    return encoderOffset_deg;
+    return m_encoderOffset_rot;
   }
 
   public double get_xPos() {
@@ -117,8 +117,8 @@ public class SwerveModule extends SubsystemBase {
     return _yPos;
   }
 
-  public void setEncoderOffset_deg(double encoderOffset_deg) {
-    this.encoderOffset_deg = encoderOffset_deg;
+  public void setEncoderOffset_rot(double m_encoderOffset_rot) {
+    this.m_encoderOffset_rot = m_encoderOffset_rot;
   }
 
   public void set_xPos(double _xPos) {
@@ -151,8 +151,9 @@ public class SwerveModule extends SubsystemBase {
     return _wheelDriveEncoder.getVelocity();
   }
 
-  public double getAngle() {
-    return 0;
+  public double getAbsoluteEncoderAngle_deg() {
+    double startAngle = _cancoder.getAbsolutePosition().getValueAsDouble();
+    return (startAngle - m_encoderOffset_rot) * 360;
   }
 
   public double getEncoderDistance() {
@@ -215,8 +216,8 @@ public class SwerveModule extends SubsystemBase {
     SmartDashboard.putNumber("encoderDist", getEncoderDistance());
     SmartDashboard.putNumber("speeed", getSpeed());
 
-    // steerMotorPosDebug();
-    // absEncoderDebug();
+    steerMotorPosDebug();
+    absEncoderDebug();
     // steerMotorAMPDebug();
   }
 
@@ -260,15 +261,19 @@ public class SwerveModule extends SubsystemBase {
     switch (steerMotorID) {
       case Constants.SteerConstants.backLeftSteerMotorID:
         SmartDashboard.putNumber("Neo position Back Left", currentAngle);
+        // System.out.printf("Neo position Back Left: %.3f\n", currentAngle);
         break;
       case Constants.SteerConstants.backRightSteerMotorID:
         SmartDashboard.putNumber("Neo position Back Right", currentAngle);
+        // System.out.printf("Neo position Back Right: %.3f\n", currentAngle);
         break;
       case Constants.SteerConstants.frontLeftSteerMotorID:
         SmartDashboard.putNumber("Neo position Front Left", currentAngle);
+        // System.out.printf("Neo position Front Left: %.3f\n", currentAngle);
         break;
       case Constants.SteerConstants.frontRightSteerMotorID:
         SmartDashboard.putNumber("Neo position Front Right", currentAngle);
+        // System.out.printf("Neo position Front Right: %.3f\n", currentAngle);
         break;
     }
   }
@@ -279,19 +284,19 @@ public class SwerveModule extends SubsystemBase {
     switch (steerMotorID) {
       case Constants.SteerConstants.backLeftSteerMotorID:
         offsetAngle = getEncoderOffset_deg();
-        SmartDashboard.putNumber("Back Left Cancoder: ", (startAngle - offsetAngle) * 360);
+        SmartDashboard.putNumber("Back Left Cancoder: ", startAngle);
         break;
       case Constants.SteerConstants.backRightSteerMotorID:
         offsetAngle = getEncoderOffset_deg();
-        SmartDashboard.putNumber("Back Right Cancoder: ", (startAngle - offsetAngle) * 360);
+        SmartDashboard.putNumber("Back Right Cancoder: ", startAngle);
         break;
       case Constants.SteerConstants.frontLeftSteerMotorID:
         offsetAngle = getEncoderOffset_deg();
-        SmartDashboard.putNumber("Front Left Cancoder: ", (startAngle - offsetAngle) * 360);
+        SmartDashboard.putNumber("Front Left Cancoder: ", startAngle);
         break;
       case Constants.SteerConstants.frontRightSteerMotorID:
         offsetAngle = getEncoderOffset_deg();
-        SmartDashboard.putNumber("Front Right Cancoder: ", (startAngle - offsetAngle) * 360);
+        SmartDashboard.putNumber("Front Right Cancoder: ", startAngle);
         break;
       default:
         System.out.println("default: " + steerMotorID);
@@ -299,9 +304,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public void settoZero() {
-    double startAngle = _cancoder.getAbsolutePosition().getValueAsDouble();
-    double offsetAngle = encoderOffset_deg;
-    double absoluteAngle = (startAngle - offsetAngle) * 360;
+    double absoluteAngle = getAbsoluteEncoderAngle_deg();
     _steerMotor.getEncoder().setPosition(absoluteAngle);
   }
 

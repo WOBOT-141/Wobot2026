@@ -22,6 +22,7 @@ import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.commands.TestCommands.DriveInDirection;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -117,19 +118,19 @@ public class RobotContainer {
   }
 
   public void wheelSetup() {
-    m_wheels[0].setEncoderOffset_deg(_selectedBot.getfrontLeftOffset());
+    m_wheels[0].setEncoderOffset_rot(_selectedBot.getfrontLeftOffset());
     m_wheels[0].set_xPos(_selectedBot.getfrontLeftLocationX());
     m_wheels[0].set_yPos(_selectedBot.getfrontLeftLocationY());
 
-    m_wheels[1].setEncoderOffset_deg(_selectedBot.getbackLeftOffset());
+    m_wheels[1].setEncoderOffset_rot(_selectedBot.getbackLeftOffset());
     m_wheels[1].set_xPos(_selectedBot.getbackLeftLocationX());
     m_wheels[1].set_yPos(_selectedBot.getbackLeftLocationY());
 
-    m_wheels[2].setEncoderOffset_deg(_selectedBot.getfrontRightOffset());
+    m_wheels[2].setEncoderOffset_rot(_selectedBot.getfrontRightOffset());
     m_wheels[2].set_xPos(_selectedBot.getfrontRightLocationX());
     m_wheels[2].set_yPos(_selectedBot.getfrontRightLocationY());
 
-    m_wheels[3].setEncoderOffset_deg(_selectedBot.getbackRightOffset());
+    m_wheels[3].setEncoderOffset_rot(_selectedBot.getbackRightOffset());
     m_wheels[3].set_xPos(_selectedBot.getbackRightLocationX());
     m_wheels[3].set_yPos(_selectedBot.getbackRightLocationY());
 
@@ -205,9 +206,11 @@ public class RobotContainer {
     Trigger lockWheels = new JoystickButton(flightController0, SpektrumFlightController.Button.kSelectPress.value);
     Trigger reset = new JoystickButton(flightController0, SpektrumFlightController.Button.kReset.value);
     Trigger cancel = new JoystickButton(flightController0, SpektrumFlightController.Button.kCancel.value);
+    Trigger shoulderButton = new JoystickButton(flightController0, SpektrumFlightController.Button.kI.value);
 
     reset.onTrue(new ResetGyro(m_Gyro));
     lockWheels.onTrue(new LockWheels(m_Drive));
+    shoulderButton.whileTrue(new DriveInDirection(m_Drive, 1, 0.5));
   }
 
   /**

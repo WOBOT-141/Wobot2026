@@ -96,10 +96,10 @@ public final class Constants {
     public static final boolean backLeftMotorInvert = false; // true
     public static final boolean frontRightMotorInvert = true; // false
     public static final boolean backRightMotorInvert = true; // false
-    public static final int frontLeftEncoderid = 9; // 9
-    public static final int backLeftEncoderid = 10; // 10
-    public static final int backRightEncoderid = 11; // 11
-    public static final int frontRightEncoderid = 12; // 12
+    public static final int frontLeftEncoderid = 9; 
+    public static final int backLeftEncoderid = 10; 
+    public static final int frontRightEncoderid = 11; 
+    public static final int backRightEncoderid = 12;
     public static final int frontLeftSteerMotorID = 1;
     public static final int frontLeftDriveMotorID = 2;
     public static final int backLeftSteerMotorID = 3;

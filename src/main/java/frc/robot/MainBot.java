@@ -28,8 +28,8 @@ public class MainBot implements IBotSelector {
 
         frontLeftOffset  = -0.5498046875; // CAN ID 9
         backLeftOffset   = -0.34521484375; // CAN ID 10
-        backRightOffset  = -0.7451171875; // CAN ID 11
-        frontRightOffset = -0.00244140625; // CAN ID 12
+        frontRightOffset = -0.00244140625; // CAN ID 11
+        backRightOffset  = -0.7451171875; // CAN ID 12
 
         frontLeftLocationX = -.229;
         frontLeftLocationY = .229;
