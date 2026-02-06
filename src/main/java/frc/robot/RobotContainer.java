@@ -191,6 +191,13 @@ public class RobotContainer {
     Trigger bButton = new JoystickButton(xboxController0, XboxController.Button.kB.value);
     Trigger xButton = new JoystickButton(xboxController0, XboxController.Button.kX.value);
     Trigger yButton = new JoystickButton(xboxController0, XboxController.Button.kY.value);
+    
+    aButton.whileTrue(m_wheels[0].sysIdQuasistaticForward());
+    bButton.whileTrue(m_wheels[0].sysIdQuasistaticReverse());
+    xButton.whileTrue(m_wheels[0].sysIdDynamicForward());
+    yButton.whileTrue(m_wheels[0].sysIdDynamicReverse());
+
+    
     Trigger dPadUp = new POVButton(xboxController0, 0);
     Trigger dPadRight = new POVButton(xboxController0, 90);
     Trigger dPadDown = new POVButton(xboxController0, 180);
