@@ -11,34 +11,34 @@ public class Drivetrain extends SubsystemBase {
 
   private SwerveModule[] _wheels;
   private double restAngle_deg;
-  private boolean isTipping = false;
-  private boolean climbing = false;
-  private double tipMagnitude;
-  private double tipDirection;
-  private double tipThreshold = 10;
+  private boolean m_isTipping = false;
+  private boolean m_climbing = false;
+  private double m_tipMagnitude;
+  private double m_tipDirection_deg;
+  private double m_tipThreshold = 10;
 
   public Drivetrain(SwerveModule[] wheels, IGyro gyro) {
     _wheels = wheels;
   }
 
   public void setClimbing(boolean climb){
-    climbing = climb;
+    m_climbing = climb;
   }
 
-  public void driveSwerve(double linearAngle_deg, double linearSpeed_perc, double rotationalSpeed_perc) {
-    driveSwerve(linearAngle_deg, linearSpeed_perc, rotationalSpeed_perc, 0, 0);
+  public void driveSwerve(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+    driveSwerve(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
   }
 
-  public void driveSwerve(double linearAngle_deg, double linearSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY) {
-    if(isTipping && !climbing){
-      linearAngle_deg = tipDirection;
-      linearSpeed_perc = tipMagnitude / (tipThreshold*2);
+  public void driveSwerve(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY) {
+    if(m_isTipping && !m_climbing){
+      translationAngle_deg = m_tipDirection_deg;
+      translationSpeed_perc = m_tipMagnitude / (m_tipThreshold*2);
       rotationalSpeed_perc = 0;
       rotX = 0;
       rotY = 0;
     }
-    SmartDashboard.putNumber("Linear Speed", linearSpeed_perc);
-    SmartDashboard.putNumber("Linear Angle", linearAngle_deg);
+    SmartDashboard.putNumber("translation Speed", translationSpeed_perc);
+    SmartDashboard.putNumber("translation Angle", translationAngle_deg);
     SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_perc);
 
     double rotationalCenterX = rotX;
@@ -47,7 +47,7 @@ public class Drivetrain extends SubsystemBase {
     double[] calcWheelSpeed_perc = new double[_wheels.length];
     double normalizingFactor = 1;
 
-    if (linearAngle_deg == 0 && linearSpeed_perc == 0 && rotationalSpeed_perc == 0) {
+    if (translationAngle_deg == 0 && translationSpeed_perc == 0 && rotationalSpeed_perc == 0) {
       for (int i = 0; i < _wheels.length; ++i) {
         _wheels[i].cancelMovement();
       }
@@ -62,10 +62,10 @@ public class Drivetrain extends SubsystemBase {
       double deltaX = wheelX - rotationalCenterX;
       double deltaY = wheelY - rotationalCenterY;
 
-      XYVector linearVector = getLinearVector(linearSpeed_perc, linearAngle_deg);
-      double rotationAngle = getRotationAngle(deltaX, deltaY, linearAngle_deg, rotationalSpeed_perc);
+      XYVector translationVector = getTranslationVector(translationSpeed_perc, translationAngle_deg);
+      double rotationAngle = getRotationAngle(deltaX, deltaY, translationAngle_deg, rotationalSpeed_perc);
       XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed_perc, deltaX, deltaY);
-      XYVector resultXY = new XYVector(linearVector.X + rotationVector.X, linearVector.Y + rotationVector.Y);
+      XYVector resultXY = new XYVector(translationVector.X + rotationVector.X, translationVector.Y + rotationVector.Y);
 
       double resultSpeed_perc = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2));
 
@@ -126,13 +126,13 @@ public class Drivetrain extends SubsystemBase {
     return new XYVector(rotationalspeedX, rotationalspeedY);
   }
 
-  public XYVector getLinearVector(double linearSpeed_perc, double linearAngle_deg) {
-    double linDeltaY = Math.cos(Math.toRadians(linearAngle_deg)) * linearSpeed_perc;
-    double linDeltaX = Math.sin(Math.toRadians(linearAngle_deg)) * linearSpeed_perc;
+  public XYVector getTranslationVector(double translationSpeed_perc, double translationAngle_deg) {
+    double linDeltaY = Math.cos(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
+    double linDeltaX = Math.sin(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
     return new XYVector(linDeltaX, linDeltaY);
   }
 
-  public double getRotationAngle(double deltaX, double deltaY, double linearAngle_deg, double rotationalSpeed_perc) {
+  public double getRotationAngle(double deltaX, double deltaY, double translationAngle_deg, double rotationalSpeed_perc) {
     // alpha is the angle of the vector to the wheel location
     // with respect forward and in degrees
     double alpha = 0;
@@ -148,8 +148,8 @@ public class Drivetrain extends SubsystemBase {
       alpha = -90;
     } else if (deltaY == 0 && deltaX == 0) {
       // If the wheel is aligned with the center of rotation on both axis the alpha
-      // should be the linear angle
-      alpha = linearAngle_deg;
+      // should be the translation angle
+      alpha = translationAngle_deg;
     } else {
       // Otherwise use atan2 of delta X and delta Y to find angle
       alpha = Math.toDegrees(Math.atan2(deltaX, deltaY));
