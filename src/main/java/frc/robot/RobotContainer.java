@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.SpektrumFlightController;
 import frc.robot.subsystems.Drivetrain;
@@ -23,6 +22,7 @@ import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.commands.TestCommands.DriveInDirection;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -34,7 +34,6 @@ import frc.robot.commands.StickParameters.StickBParameters;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private PneumaticHub pneumaticHub = new PneumaticHub(27);
   private final Drivetrain m_Drive;
 
   public static SpektrumFlightController flightController0;
@@ -43,7 +42,7 @@ public class RobotContainer {
   private final IGyro m_Gyro = new NavxGyro();
   public final SwerveModule[] m_wheels;
 
-  private final IBotSelector _selectedBot = new SummerBot();
+  private final IBotSelector _selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
 
   StickCommand m_StickCommand;
@@ -61,8 +60,6 @@ public class RobotContainer {
             Constants.SteerConstants.frontLeftDriveMotorID,
             Constants.SteerConstants.frontLeftEncoderid,
             _selectedBot.getfrontLeftOffset(),
-            Constants.SteerConstants.frontLeftMotorInvert,
-            Constants.SteerConstants.frontLeftEncoderInvert,
             _selectedBot.getfrontLeftLocationX(),
             _selectedBot.getfrontLeftLocationY()), // front left 0.441650 rotations
 
@@ -70,8 +67,6 @@ public class RobotContainer {
             Constants.SteerConstants.backLeftDriveMotorID,
             Constants.SteerConstants.backLeftEncoderid,
             _selectedBot.getbackLeftOffset(),
-            Constants.SteerConstants.backLeftMotorInvert,
-            Constants.SteerConstants.backLeftEncoderInvert,
             _selectedBot.getbackLeftLocationX(),
             _selectedBot.getbackLeftLocationY()), // back left 0.176270 rotations
 
@@ -79,8 +74,6 @@ public class RobotContainer {
             Constants.SteerConstants.frontRightDriveMotorID,
             Constants.SteerConstants.frontRightEncoderid,
             _selectedBot.getfrontRightOffset(),
-            Constants.SteerConstants.frontRightMotorInvert,
-            Constants.SteerConstants.frontRightEncoderInvert,
             _selectedBot.getfrontRightLocationX(),
             _selectedBot.getfrontRightLocationY()), // front right 0.585205 rotations
 
@@ -88,15 +81,11 @@ public class RobotContainer {
             Constants.SteerConstants.backRightDriveMotorID,
             Constants.SteerConstants.backRightEncoderid,
             _selectedBot.getbackRightOffset(),
-            Constants.SteerConstants.backRightMotorInvert,
-            Constants.SteerConstants.backRightEncoderInvert,
             _selectedBot.getbackRightLocationX(),
             _selectedBot.getbackRightLocationY())// back right 0.506836 rotations
     };
     m_Drive = new Drivetrain(m_wheels, m_Gyro);
     
-    pneumaticHub.enableCompressorDigital();
-
     flightController0 = new SpektrumFlightController(0);
     xboxController0 = new XboxController(1);
     joystick = new Joystick(2);
@@ -121,19 +110,19 @@ public class RobotContainer {
   }
 
   public void wheelSetup() {
-    m_wheels[0].setEncoderOffset(_selectedBot.getfrontLeftOffset());
+    m_wheels[0].setEncoderOffset_rot(_selectedBot.getfrontLeftOffset());
     m_wheels[0].set_xPos(_selectedBot.getfrontLeftLocationX());
     m_wheels[0].set_yPos(_selectedBot.getfrontLeftLocationY());
 
-    m_wheels[1].setEncoderOffset(_selectedBot.getbackLeftOffset());
+    m_wheels[1].setEncoderOffset_rot(_selectedBot.getbackLeftOffset());
     m_wheels[1].set_xPos(_selectedBot.getbackLeftLocationX());
     m_wheels[1].set_yPos(_selectedBot.getbackLeftLocationY());
 
-    m_wheels[2].setEncoderOffset(_selectedBot.getfrontRightOffset());
+    m_wheels[2].setEncoderOffset_rot(_selectedBot.getfrontRightOffset());
     m_wheels[2].set_xPos(_selectedBot.getfrontRightLocationX());
     m_wheels[2].set_yPos(_selectedBot.getfrontRightLocationY());
 
-    m_wheels[3].setEncoderOffset(_selectedBot.getbackRightOffset());
+    m_wheels[3].setEncoderOffset_rot(_selectedBot.getbackRightOffset());
     m_wheels[3].set_xPos(_selectedBot.getbackRightLocationX());
     m_wheels[3].set_yPos(_selectedBot.getbackRightLocationY());
 
@@ -181,7 +170,7 @@ public class RobotContainer {
     configureJoystick();
     configureFlightController();
   }
-
+  
   private void configureXboxController() {
     Trigger leftBumper = new JoystickButton(xboxController0, XboxController.Button.kLeftBumper.value);
     Trigger rightBumper = new JoystickButton(xboxController0, XboxController.Button.kRightBumper.value);
@@ -218,7 +207,7 @@ public class RobotContainer {
     Trigger dPadDown = new POVButton(xboxController0, 180);
     Trigger dPadLeft = new POVButton(xboxController0, 270);
   }
-
+  
   private void configureJoystick() {
     Trigger trigger = new JoystickButton(joystick, Joystick.ButtonType.kTrigger.value);
     Trigger sideButton = new JoystickButton(joystick, 2);
@@ -226,14 +215,16 @@ public class RobotContainer {
     Trigger eight = new JoystickButton(joystick, 8);
     Trigger twelve = new JoystickButton(joystick, 12);
   }
-
+  
   private void configureFlightController() {
     Trigger lockWheels = new JoystickButton(flightController0, SpektrumFlightController.Button.kSelectPress.value);
     Trigger reset = new JoystickButton(flightController0, SpektrumFlightController.Button.kReset.value);
     Trigger cancel = new JoystickButton(flightController0, SpektrumFlightController.Button.kCancel.value);
+    Trigger shoulderButton = new JoystickButton(flightController0, SpektrumFlightController.Button.kI.value);
 
     reset.onTrue(new ResetGyro(m_Gyro));
     lockWheels.onTrue(new LockWheels(m_Drive));
+    shoulderButton.whileTrue(new DriveInDirection(m_Drive, 1, 0.02));
   }
 
   /**

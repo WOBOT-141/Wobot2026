@@ -19,6 +19,7 @@ import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -46,31 +47,24 @@ public class SwerveModule extends SubsystemBase {
   private final CANcoder _cancoder;
   private final RelativeEncoder _wheelDriveEncoder;
 
-  private  double _xPos;
-  private  double _yPos;
-  private  double encoderOffset;
+  private double _xPos;
+  private double _yPos;
+  private double m_encoderOffset_rot;
 
   private int steerMotorID;
   private int driveMotorID;
-  private double maxAmpsBL = 0;
-  private double maxAmpsBR = 0;
-  private double maxAmpsFL = 0;
-  private double maxAmpsFR = 0;
-
-  private SimpleMotorFeedforward feedForward;
+  private double maxAmpsBL_amp = 0;
+  private double maxAmpsBR_amp = 0;
+  private double maxAmpsFL_amp = 0;
+  private double maxAmpsFR_amp = 0;
 
   /** Creates a new Wheel. */
-  public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset, boolean motorInvert,
-    boolean encoderInvert, double xPosition, double yPosition) {
+  public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, double xPosition, double yPosition) {
     steerMotorID = steerId;
     driveMotorID = driveId;
     _xPos = xPosition;
     _yPos = yPosition;
-    encoderOffset = absoluteOffset;
-
-    //Ks = min volts to make motor barely move, Kv = got number from neo documentation 
-    feedForward = new SimpleMotorFeedforward(0.12, .473);
-
+    m_encoderOffset_rot = absoluteOffset_deg;
 
     _cancoder = new CANcoder(cancoderId);
     MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
@@ -85,14 +79,21 @@ public class SwerveModule extends SubsystemBase {
     SparkMaxConfig steerConfig = new SparkMaxConfig();
 
     driveConfig
-        .inverted(motorInvert)
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(50, 50);
     driveConfig.encoder
-        .positionConversionFactor(1.0/WheelConstants.rotationsPerInch)
-        .velocityConversionFactor((1.0/WheelConstants.rotationsPerInch)/60.0);
+        .positionConversionFactor(1.0 / WheelConstants.rotationsPerInch)
+        .velocityConversionFactor((1.0 / WheelConstants.rotationsPerInch) / 60.0);
+
+    FeedForwardConfig driveFF = new FeedForwardConfig();
+    driveFF.kV(WheelConstants.DriveFFKv);
+
     driveConfig.closedLoop
-        .pidf(WheelConstants.DriveP, WheelConstants.DriveI, WheelConstants.DriveD, WheelConstants.DriveFF);
+        .p(WheelConstants.DriveP)
+        .i(WheelConstants.DriveI)
+        .d(WheelConstants.DriveD)
+        .apply(driveFF);
+
     _drivePID = _driveMotor.getClosedLoopController();
 
     steerConfig
@@ -137,8 +138,8 @@ public class SwerveModule extends SubsystemBase {
     settoZero();
   }
 
-  public double getEncoderOffset() {
-    return encoderOffset;
+  public double getEncoderOffset_deg() {
+    return m_encoderOffset_rot;
   }
 
   public double get_xPos() {
@@ -149,8 +150,8 @@ public class SwerveModule extends SubsystemBase {
     return _yPos;
   }
 
-  public void setEncoderOffset(double encoderOffset) {
-    this.encoderOffset = encoderOffset;
+  public void setEncoderOffset_rot(double m_encoderOffset_rot) {
+    this.m_encoderOffset_rot = m_encoderOffset_rot;
   }
 
   public void set_xPos(double _xPos) {
@@ -162,11 +163,11 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public void setSpeed(double speed) {
-    _drivePID.setSetpoint(speed, ControlType.kVelocity, ClosedLoopSlot.kSlot0, feedForward.calculate(speed));
+    _drivePID.setSetpoint(speed, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     SmartDashboard.putNumber("The speed of commanding", speed);
   }
 
-  public void setPos(double pos){
+  public void setPos(double pos) {
     _drivePID.setSetpoint(pos, ControlType.kPosition);
   }
 
@@ -183,14 +184,16 @@ public class SwerveModule extends SubsystemBase {
     return _wheelDriveEncoder.getVelocity();
   }
 
-  public double getAngle() {
-    return 0;
+  public double getAbsoluteEncoderAngle_deg() {
+    double startAngle = _cancoder.getAbsolutePosition().getValueAsDouble();
+    return (startAngle - m_encoderOffset_rot) * 360;
   }
 
   public double getEncoderDistance() {
     return _wheelDriveEncoder.getPosition();
   }
-  public void resetEncoder(){
+
+  public void resetEncoder() {
     _wheelDriveEncoder.setPosition(0);
   }
 
@@ -246,8 +249,8 @@ public class SwerveModule extends SubsystemBase {
     SmartDashboard.putNumber("encoderDist", getEncoderDistance());
     SmartDashboard.putNumber("speeed", getSpeed());
 
-    // steerMotorPosDebug();
-    // absEncoderDebug();
+    steerMotorPosDebug();
+    absEncoderDebug();
     // steerMotorAMPDebug();
   }
 
@@ -257,31 +260,31 @@ public class SwerveModule extends SubsystemBase {
     switch (driveMotorID) {
       case Constants.SteerConstants.backLeftDriveMotorID:
         SmartDashboard.putNumber("Back Left Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsBL) {
-          maxAmpsBL = outputAMPs;
+        if (outputAMPs > maxAmpsBL_amp) {
+          maxAmpsBL_amp = outputAMPs;
         }
-        SmartDashboard.putNumber("Back Left Max Amps: ", maxAmpsBL);
+        SmartDashboard.putNumber("Back Left Max Amps: ", maxAmpsBL_amp);
         break;
       case Constants.SteerConstants.backRightDriveMotorID:
         SmartDashboard.putNumber("Back Right Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsBR) {
-          maxAmpsBR = outputAMPs;
+        if (outputAMPs > maxAmpsBR_amp) {
+          maxAmpsBR_amp = outputAMPs;
         }
-        SmartDashboard.putNumber("Back Right Max Amps: ", maxAmpsBR);
+        SmartDashboard.putNumber("Back Right Max Amps: ", maxAmpsBR_amp);
         break;
       case Constants.SteerConstants.frontLeftDriveMotorID:
         SmartDashboard.putNumber("Front Left Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsFL) {
-          maxAmpsFL = outputAMPs;
+        if (outputAMPs > maxAmpsFL_amp) {
+          maxAmpsFL_amp = outputAMPs;
         }
-        SmartDashboard.putNumber("Front Left Max Amps: ", maxAmpsFL);
+        SmartDashboard.putNumber("Front Left Max Amps: ", maxAmpsFL_amp);
         break;
       case Constants.SteerConstants.frontRightDriveMotorID:
         SmartDashboard.putNumber("Front Right Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsFR) {
-          maxAmpsFR = outputAMPs;
+        if (outputAMPs > maxAmpsFR_amp) {
+          maxAmpsFR_amp = outputAMPs;
         }
-        SmartDashboard.putNumber("Front Right Max Amps: ", maxAmpsFR);
+        SmartDashboard.putNumber("Front Right Max Amps: ", maxAmpsFR_amp);
         break;
     }
   }
@@ -291,15 +294,19 @@ public class SwerveModule extends SubsystemBase {
     switch (steerMotorID) {
       case Constants.SteerConstants.backLeftSteerMotorID:
         SmartDashboard.putNumber("Neo position Back Left", currentAngle);
+        // System.out.printf("Neo position Back Left: %.3f\n", currentAngle);
         break;
       case Constants.SteerConstants.backRightSteerMotorID:
         SmartDashboard.putNumber("Neo position Back Right", currentAngle);
+        // System.out.printf("Neo position Back Right: %.3f\n", currentAngle);
         break;
       case Constants.SteerConstants.frontLeftSteerMotorID:
         SmartDashboard.putNumber("Neo position Front Left", currentAngle);
+        // System.out.printf("Neo position Front Left: %.3f\n", currentAngle);
         break;
       case Constants.SteerConstants.frontRightSteerMotorID:
         SmartDashboard.putNumber("Neo position Front Right", currentAngle);
+        // System.out.printf("Neo position Front Right: %.3f\n", currentAngle);
         break;
     }
   }
@@ -309,20 +316,20 @@ public class SwerveModule extends SubsystemBase {
     double startAngle = _cancoder.getAbsolutePosition().getValueAsDouble();
     switch (steerMotorID) {
       case Constants.SteerConstants.backLeftSteerMotorID:
-        offsetAngle = getEncoderOffset();
-        SmartDashboard.putNumber("Back Left Cancoder: ", (startAngle - offsetAngle) * 360);
+        offsetAngle = getEncoderOffset_deg();
+        SmartDashboard.putNumber("Back Left Cancoder: ", startAngle);
         break;
       case Constants.SteerConstants.backRightSteerMotorID:
-        offsetAngle = getEncoderOffset();
-        SmartDashboard.putNumber("Back Right Cancoder: ", (startAngle - offsetAngle) * 360);
+        offsetAngle = getEncoderOffset_deg();
+        SmartDashboard.putNumber("Back Right Cancoder: ", startAngle);
         break;
       case Constants.SteerConstants.frontLeftSteerMotorID:
-        offsetAngle = getEncoderOffset();
-        SmartDashboard.putNumber("Front Left Cancoder: ", (startAngle - offsetAngle) * 360);
+        offsetAngle = getEncoderOffset_deg();
+        SmartDashboard.putNumber("Front Left Cancoder: ", startAngle);
         break;
       case Constants.SteerConstants.frontRightSteerMotorID:
-        offsetAngle = getEncoderOffset();
-        SmartDashboard.putNumber("Front Right Cancoder: ", (startAngle - offsetAngle) * 360);
+        offsetAngle = getEncoderOffset_deg();
+        SmartDashboard.putNumber("Front Right Cancoder: ", startAngle);
         break;
       default:
         System.out.println("default: " + steerMotorID);
@@ -330,9 +337,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public void settoZero() {
-    double startAngle = _cancoder.getAbsolutePosition().getValueAsDouble();
-    double offsetAngle = encoderOffset;
-    double absoluteAngle = (startAngle - offsetAngle) * 360;
+    double absoluteAngle = getAbsoluteEncoderAngle_deg();
     _steerMotor.getEncoder().setPosition(absoluteAngle);
   }
 
@@ -372,11 +377,12 @@ public class SwerveModule extends SubsystemBase {
 
 
   public static class WheelConstants {
-    public static final double DriveP = 0.0000075; //.0150
+    public static final double DriveP = 0.0000075; // .0150
     public static final double DriveI = 0;
     public static final double DriveD = 0;
     public static final double DriveIz = 0;
-    public static final double DriveFF = 1.0/473 ; //.00060
+    public static final double DriveFFkS = 0.00012; // Ks = min volts to make motor barely move
+    public static final double DriveFFKv = 0.473; // Kv = got number from neo documentation
 
     public static final double SteerP = 0.025;
     public static final double SteerI = 0;
@@ -384,7 +390,7 @@ public class SwerveModule extends SubsystemBase {
     public static final double SteerIz = 0;
     public static final double SteerFF = 0;
 
-    //TODO double check all these numbers 
+    // TODO double check all these numbers
     public static final double wheelCircumference = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
     public static final double rotationsPerInch = driveGearRatio / wheelCircumference;
