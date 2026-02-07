@@ -10,6 +10,7 @@ import frc.robot.Constants.DriveConstants;
 public class Drivetrain extends SubsystemBase {
 
   private SwerveModule[] _wheels;
+  private IGyro m_gyro;
   private double restAngle_deg;
   private boolean m_isTipping = false;
   private boolean m_climbing = false;
@@ -19,17 +20,18 @@ public class Drivetrain extends SubsystemBase {
 
   public Drivetrain(SwerveModule[] wheels, IGyro gyro) {
     _wheels = wheels;
+    m_gyro = gyro;
   }
 
   public void setClimbing(boolean climb){
     m_climbing = climb;
   }
 
-  public void driveSwerve(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
-    driveSwerve(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
+  public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
   }
 
-  public void driveSwerve(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY) {
+  public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY) {
     if(m_isTipping && !m_climbing){
       translationAngle_deg = m_tipDirection_deg;
       translationSpeed_perc = m_tipMagnitude / (m_tipThreshold*2);
@@ -37,6 +39,7 @@ public class Drivetrain extends SubsystemBase {
       rotX = 0;
       rotY = 0;
     }
+    
     SmartDashboard.putNumber("translation Speed", translationSpeed_perc);
     SmartDashboard.putNumber("translation Angle", translationAngle_deg);
     SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_perc);
@@ -96,6 +99,21 @@ public class Drivetrain extends SubsystemBase {
       // System.out.println("speed " + calcWheelSpeed[i] / normalizingFactor);
     }
   }
+
+  public void driveWithGyro(double translationAngle_deg, 
+  double translationSpeed_perc,
+  double rotationalSpeed_perc, 
+  double rotX, double rotY) {
+    // Field-oriented adjustment
+      translationAngle_deg -= m_gyro.getRealGyroAngle();
+      driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY);
+    }
+
+  public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+     translationAngle_deg -= m_gyro.getRealGyroAngle();
+     driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc);
+  }
+  
 
   // Temp command for testing
   public void goDistance(double pos) {
@@ -182,47 +200,7 @@ public class Drivetrain extends SubsystemBase {
     return _wheels;
   }
 
-  /*public void driveWithGyro(IGyro gyro) {
-    // Field-oriented adjustment
-    rightDirectional -= m_gyro.getRealGyroAngle();
-     /* ---------------- Drive ---------------- */
-    /*if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
+}
 
-      double yDist = isRotateCenter ? m_selectedBot.getDistToFront() : 0.0;
-
-      m_drive.driveSwerve(
-          rightDirectional,
-          rampedMagnitude,
-          finalRotationalMagnitude,
-          0.0,
-          yDist
-      );
-
-      lastRightDirectional = rightDirectional;
-
-    } else {
-      rampRate.reset(0);
-      m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);
-    }
-  }*/
-
-  public void driveWithoutGyro() {
-    /*if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
-
-      double yDist = isRotateCenter ? m_selectedBot.getDistToFront() : 0.0;
-
-      m_drive.driveSwerve(
-          rightDirectional,
-          rampedMagnitude,
-          finalRotationalMagnitude,
-          0.0,
-          yDist
-      );
-
-      lastRightDirectional = rightDirectional;
-
-    } else {
-      rampRate.reset(0);
-      m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);*/
-    }
-  }
+  
+    

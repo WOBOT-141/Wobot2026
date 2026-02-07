@@ -109,11 +109,11 @@ public class ConsolidatedStickCommand extends Command {
 
         double yDist = isRotateCenter ? selectedBot.getDistToFront() : 0;
 
-        m_drive.driveSwerve(rightDirectional, rampedMagnitude, finalRotationalMagnitude, 0, yDist);
+        m_drive.driveWithGyro(rightDirectional, rampedMagnitude, finalRotationalMagnitude, 0, yDist);
         lastRightDirectional = rightDirectional;
       } else {
         rampRate.reset(0);
-        m_drive.driveSwerve(lastRightDirectional, 0, 0);
+        m_drive.driveWithGyro(lastRightDirectional, 0, 0);
       }
     }
 
