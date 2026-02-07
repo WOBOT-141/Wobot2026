@@ -75,9 +75,6 @@ public class StickCommand extends Command {
     // Normalize angle
     rightDirectional = (rightDirectional + 360.0) % 360.0;
 
-    // Field-oriented adjustment
-    rightDirectional -= m_gyro.getRealGyroAngle();
-
     /* ---------------- Magnitudes ---------------- */
     double finalLinearMagnitude = rightMagnitude * throttleValue;
     finalLinearMagnitude = Math.max(-1.0, Math.min(1.0, finalLinearMagnitude));
@@ -106,7 +103,7 @@ public class StickCommand extends Command {
 
       double yDist = isRotateCenter ? m_selectedBot.getDistToFront() : 0.0;
 
-      m_drive.driveSwerve(
+      m_drive.driveWithGyro(
           rightDirectional,
           rampedMagnitude,
           finalRotationalMagnitude,
@@ -118,7 +115,7 @@ public class StickCommand extends Command {
 
     } else {
       rampRate.reset(0);
-      m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);
+      m_drive.driveWithGyro(lastRightDirectional, 0.0, 0.0);
     }
   }
 
@@ -135,7 +132,7 @@ public class StickCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);
+    m_drive.driveWithGyro(lastRightDirectional, 0.0, 0.0);
   }
 
   @Override
