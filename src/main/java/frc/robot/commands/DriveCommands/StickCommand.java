@@ -75,9 +75,6 @@ public class StickCommand extends Command {
     // Normalize angle
     rightDirectional = (rightDirectional + 360.0) % 360.0;
 
-    // Field-oriented adjustment
-    rightDirectional -= m_gyro.getRealGyroAngle();
-
     /* ---------------- Magnitudes ---------------- */
     double finalLinearMagnitude = rightMagnitude * throttleValue;
     finalLinearMagnitude = Math.max(-1.0, Math.min(1.0, finalLinearMagnitude));
