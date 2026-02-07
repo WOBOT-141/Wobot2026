@@ -181,4 +181,49 @@ public class Drivetrain extends SubsystemBase {
   public SwerveModule[] getWheels() {
     return _wheels;
   }
+
+  public void driveWithGyro(IGyro gyro) {
+    // Field-oriented adjustment
+    rightDirectional -= m_gyro.getRealGyroAngle();
+     /* ---------------- Drive ---------------- */
+    if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
+
+      double yDist = isRotateCenter ? m_selectedBot.getDistToFront() : 0.0;
+
+      m_drive.driveSwerve(
+          rightDirectional,
+          rampedMagnitude,
+          finalRotationalMagnitude,
+          0.0,
+          yDist
+      );
+
+      lastRightDirectional = rightDirectional;
+
+    } else {
+      rampRate.reset(0);
+      m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);
+    }
+  }
+
+  public void driveWithoutGyro() {
+    if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
+
+      double yDist = isRotateCenter ? m_selectedBot.getDistToFront() : 0.0;
+
+      m_drive.driveSwerve(
+          rightDirectional,
+          rampedMagnitude,
+          finalRotationalMagnitude,
+          0.0,
+          yDist
+      );
+
+      lastRightDirectional = rightDirectional;
+
+    } else {
+      rampRate.reset(0);
+      m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);
+    }
+  }
 }
