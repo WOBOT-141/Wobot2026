@@ -83,7 +83,7 @@ import frc.robot.subsystems.Vision.Detections.ObjectType;
  * - Add methods to retrieve current detections
  * - Break out some of the subclasses into their own files
  */
-public class ServerVision extends SubsystemBase {
+public class VisionServer extends SubsystemBase {
   private static final int PORT = 1190;
 
   private static final String SD_KEY_ACCEPTED = "Accepted?";
@@ -100,7 +100,7 @@ public class ServerVision extends SubsystemBase {
   private long _loopCount;
 
   /** Creates a new ServerVision. */
-  public ServerVision() {
+  public VisionServer() {
     // Attempt to open Socket
     try {
       _serverSocketChannel = ServerSocketChannel.open();
