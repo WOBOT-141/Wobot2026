@@ -6,6 +6,7 @@ package frc.robot.subsystems.Vision.Detections;
 
 /** Add your docs here. */
 public class DetectionList {
+    public static double getDistance;
     private final ObjectType _objectType;
     private final int _capacity;
     private final Detection[] _detections;
