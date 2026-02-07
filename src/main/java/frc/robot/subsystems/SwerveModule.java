@@ -223,28 +223,28 @@ public class SwerveModule extends SubsystemBase {
     double outputAMPs = _driveMotor.getOutputCurrent();
 
     switch (driveMotorID) {
-      case Constants.SteerConstants.backLeftDriveMotorID:
+      case Constants.CANIdConstants.backLeftDriveMotorID:
         SmartDashboard.putNumber("Back Left Amps: ", outputAMPs);
         if (outputAMPs > maxAmpsBL_amp) {
           maxAmpsBL_amp = outputAMPs;
         }
         SmartDashboard.putNumber("Back Left Max Amps: ", maxAmpsBL_amp);
         break;
-      case Constants.SteerConstants.backRightDriveMotorID:
+      case Constants.CANIdConstants.backRightDriveMotorID:
         SmartDashboard.putNumber("Back Right Amps: ", outputAMPs);
         if (outputAMPs > maxAmpsBR_amp) {
           maxAmpsBR_amp = outputAMPs;
         }
         SmartDashboard.putNumber("Back Right Max Amps: ", maxAmpsBR_amp);
         break;
-      case Constants.SteerConstants.frontLeftDriveMotorID:
+      case Constants.CANIdConstants.frontLeftDriveMotorID:
         SmartDashboard.putNumber("Front Left Amps: ", outputAMPs);
         if (outputAMPs > maxAmpsFL_amp) {
           maxAmpsFL_amp = outputAMPs;
         }
         SmartDashboard.putNumber("Front Left Max Amps: ", maxAmpsFL_amp);
         break;
-      case Constants.SteerConstants.frontRightDriveMotorID:
+      case Constants.CANIdConstants.frontRightDriveMotorID:
         SmartDashboard.putNumber("Front Right Amps: ", outputAMPs);
         if (outputAMPs > maxAmpsFR_amp) {
           maxAmpsFR_amp = outputAMPs;
@@ -257,19 +257,19 @@ public class SwerveModule extends SubsystemBase {
   public void steerMotorPosDebug() {
     double currentAngle = (_steerMotor.getEncoder().getPosition());
     switch (steerMotorID) {
-      case Constants.SteerConstants.backLeftSteerMotorID:
+      case Constants.CANIdConstants.backLeftSteerMotorID:
         SmartDashboard.putNumber("Neo position Back Left", currentAngle);
         // System.out.printf("Neo position Back Left: %.3f\n", currentAngle);
         break;
-      case Constants.SteerConstants.backRightSteerMotorID:
+      case Constants.CANIdConstants.backRightSteerMotorID:
         SmartDashboard.putNumber("Neo position Back Right", currentAngle);
         // System.out.printf("Neo position Back Right: %.3f\n", currentAngle);
         break;
-      case Constants.SteerConstants.frontLeftSteerMotorID:
+      case Constants.CANIdConstants.frontLeftSteerMotorID:
         SmartDashboard.putNumber("Neo position Front Left", currentAngle);
         // System.out.printf("Neo position Front Left: %.3f\n", currentAngle);
         break;
-      case Constants.SteerConstants.frontRightSteerMotorID:
+      case Constants.CANIdConstants.frontRightSteerMotorID:
         SmartDashboard.putNumber("Neo position Front Right", currentAngle);
         // System.out.printf("Neo position Front Right: %.3f\n", currentAngle);
         break;
@@ -280,19 +280,19 @@ public class SwerveModule extends SubsystemBase {
     double offsetAngle = 0;
     double startAngle = _cancoder.getAbsolutePosition().getValueAsDouble();
     switch (steerMotorID) {
-      case Constants.SteerConstants.backLeftSteerMotorID:
+      case Constants.CANIdConstants.backLeftSteerMotorID:
         offsetAngle = getEncoderOffset_deg();
         SmartDashboard.putNumber("Back Left Cancoder: ", startAngle);
         break;
-      case Constants.SteerConstants.backRightSteerMotorID:
+      case Constants.CANIdConstants.backRightSteerMotorID:
         offsetAngle = getEncoderOffset_deg();
         SmartDashboard.putNumber("Back Right Cancoder: ", startAngle);
         break;
-      case Constants.SteerConstants.frontLeftSteerMotorID:
+      case Constants.CANIdConstants.frontLeftSteerMotorID:
         offsetAngle = getEncoderOffset_deg();
         SmartDashboard.putNumber("Front Left Cancoder: ", startAngle);
         break;
-      case Constants.SteerConstants.frontRightSteerMotorID:
+      case Constants.CANIdConstants.frontRightSteerMotorID:
         offsetAngle = getEncoderOffset_deg();
         SmartDashboard.putNumber("Front Right Cancoder: ", startAngle);
         break;

@@ -182,11 +182,11 @@ public class Drivetrain extends SubsystemBase {
     return _wheels;
   }
 
-  public void driveWithGyro(IGyro gyro) {
+  /*public void driveWithGyro(IGyro gyro) {
     // Field-oriented adjustment
     rightDirectional -= m_gyro.getRealGyroAngle();
      /* ---------------- Drive ---------------- */
-    if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
+    /*if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
 
       double yDist = isRotateCenter ? m_selectedBot.getDistToFront() : 0.0;
 
@@ -204,10 +204,10 @@ public class Drivetrain extends SubsystemBase {
       rampRate.reset(0);
       m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);
     }
-  }
+  }*/
 
   public void driveWithoutGyro() {
-    if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
+    /*if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
 
       double yDist = isRotateCenter ? m_selectedBot.getDistToFront() : 0.0;
 
@@ -223,7 +223,6 @@ public class Drivetrain extends SubsystemBase {
 
     } else {
       rampRate.reset(0);
-      m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);
+      m_drive.driveSwerve(lastRightDirectional, 0.0, 0.0);*/
     }
   }
-}
