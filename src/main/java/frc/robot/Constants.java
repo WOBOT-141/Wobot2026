@@ -67,7 +67,7 @@ public final class Constants {
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
     // top speed of bot in feet per second converted into meters per second
-    public static final double topSpeed_mps = 25;// 20.36
+    public static final double topSpeed_mps = 1.5; // 20.36 //25 //CHANGED HEAVILY
 
     public static final double autoRotatekP = 0.4; // 0.72
     public static final double autoRotatekI = 0.02;
@@ -130,10 +130,5 @@ public final class Constants {
     public static final double DriveXOffset = 0.039816 + 0.029202; // .075813
     public static final double DriveYOffset = -0.024228;
     public static final double ThrottleOffset = 0;
-
-    // Deadbands for sticks
-    public static final double deadbandRot = 0.025;
-    public static final double deadbandX = 0.025;
-    public static final double deadbandY = 0.025;
   }
 }

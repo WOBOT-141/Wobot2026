@@ -91,7 +91,8 @@ public class SwerveModule extends SubsystemBase {
     steerConfig.encoder
         .positionConversionFactor(SteerConstants.encoderPositionConversionFactor);
     steerConfig.closedLoop
-        .pid(WheelConstants.SteerP, WheelConstants.SteerI, WheelConstants.DriveD);
+        .pid(WheelConstants.SteerP, WheelConstants.SteerI, WheelConstants.DriveD, ClosedLoopSlot.kSlot0)
+        .allowedClosedLoopError(5,ClosedLoopSlot.kSlot0);
 
     _steerPID = _steerMotor.getClosedLoopController();
 

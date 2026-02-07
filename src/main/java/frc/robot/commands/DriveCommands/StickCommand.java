@@ -38,7 +38,7 @@ public class StickCommand extends Command {
       IGyro gyro,
       SpektrumFlightController flightController,
       IBotSelector selectedBot) {
-        
+
     m_drive = drive;
     m_gyro = gyro;
     m_flightController = flightController;
@@ -70,7 +70,8 @@ public class StickCommand extends Command {
     /* ---------------- Vector Math ---------------- */
     double rightMagnitude = Math.hypot(stickX, stickY);
     double rightDirectional = Math.toDegrees(Math.atan2(stickX, stickY));
-    double throttleValue = ((stickThrottle + 1) / 2.0) + 0.1;
+
+    double throttleValue = ((stickThrottle + 1) / 1.5) + 0.25; // (/2 and .01)
 
     // Normalize angle
     rightDirectional = (rightDirectional + 360.0) % 360.0;
@@ -81,6 +82,8 @@ public class StickCommand extends Command {
     /* ---------------- Magnitudes ---------------- */
     double finalLinearMagnitude = rightMagnitude * throttleValue;
     finalLinearMagnitude = Math.max(-1.0, Math.min(1.0, finalLinearMagnitude));
+
+    SmartDashboard.putNumber("finalLinearMagnitude", rightMagnitude * throttleValue);
 
     double rampedMagnitude = rampRate.calculate(finalLinearMagnitude);
 
@@ -111,8 +114,7 @@ public class StickCommand extends Command {
           rampedMagnitude,
           finalRotationalMagnitude,
           0.0,
-          yDist
-      );
+          yDist);
 
       lastRightDirectional = rightDirectional;
 
@@ -131,6 +133,7 @@ public class StickCommand extends Command {
     SmartDashboard.putNumber("STICK Y", m_flightController.getDriveY());
     SmartDashboard.putNumber("STICK ROT", m_flightController.getRotate());
     SmartDashboard.putNumber("STICK THROTTLE", m_flightController.getThrottle());
+
   }
 
   @Override
