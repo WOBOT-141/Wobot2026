@@ -71,7 +71,7 @@ public class StickCommand extends Command {
     double rightMagnitude = Math.hypot(stickX, stickY);
     double rightDirectional = Math.toDegrees(Math.atan2(stickX, stickY));
 
-    double throttleValue = ((stickThrottle + 1) / 1.5) + 0.25; // (/2 and .01)
+    double throttleValue = ((stickThrottle + 1) / 2) + 0.1; // (/2 and .01)
 
     // Normalize angle
     rightDirectional = (rightDirectional + 360.0) % 360.0;
