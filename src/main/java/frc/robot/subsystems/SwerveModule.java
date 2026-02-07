@@ -89,9 +89,10 @@ public class SwerveModule extends SubsystemBase {
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(50, 50);
     steerConfig.encoder
-        .positionConversionFactor(SteerConstants.encoderPositionConversionFactor);
+        .positionConversionFactor(SteerConstants.steerDegPerMotorRotation_deg);
     steerConfig.closedLoop
-        .pid(WheelConstants.SteerP, WheelConstants.SteerI, WheelConstants.DriveD);
+        .pid(WheelConstants.SteerP, WheelConstants.SteerI, WheelConstants.DriveD, ClosedLoopSlot.kSlot0)
+        .allowedClosedLoopError(5, ClosedLoopSlot.kSlot0);
 
     _steerPID = _steerMotor.getClosedLoopController();
 
@@ -115,7 +116,7 @@ public class SwerveModule extends SubsystemBase {
     return _yPos;
   }
 
-  public void setEncoderOffset_rot(double m_encoderOffset_rot) {
+  public void setEncoderOffset(double m_encoderOffset_rot) {
     this.m_encoderOffset_rot = m_encoderOffset_rot;
   }
 
@@ -150,8 +151,8 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public double getAbsoluteEncoderAngle_deg() {
-    double startAngle = _cancoder.getAbsolutePosition().getValueAsDouble();
-    return (startAngle - m_encoderOffset_rot) * 360;
+    double startAngle_rot = _cancoder.getAbsolutePosition().getValueAsDouble();
+    return (startAngle_rot - m_encoderOffset_rot) * 360;
   }
 
   public double getEncoderDistance() {
@@ -163,50 +164,50 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public SwerveModuleState bestAngle(SwerveModuleState wheel) {
-    double currentAngle = _steerMotor.getEncoder().getPosition();
+    double currentAngle_deg = _steerMotor.getEncoder().getPosition();
 
-    int totalRotations = (int) (currentAngle / 360);
-    double wantedAngle = wheel.angle.getDegrees() + 180;
-    double complimentaryAngle = (wantedAngle + 180) % 360;
+    int totalRotations_rot = (int) (currentAngle_deg / 360);
+    double wantedAngle_deg = wheel.angle.getDegrees() + 180;
+    double complimentaryAngle_deg = (wantedAngle_deg + 180) % 360;
 
-    double finalSmallestAngle = 0;
+    double finalSmallestAngle_deg = 0;
     int direction = 0;
 
-    double deltaCurrent = (wantedAngle + (360 * totalRotations)) - currentAngle;
-    double deltaNext = (wantedAngle + (360 * (totalRotations + 1))) - currentAngle;
-    double deltaPrevious = (wantedAngle + (360 * (totalRotations - 1))) - currentAngle;
+    double deltaCurrent_deg = (wantedAngle_deg + (360 * totalRotations_rot)) - currentAngle_deg;
+    double deltaNext_deg = (wantedAngle_deg + (360 * (totalRotations_rot + 1))) - currentAngle_deg;
+    double deltaPrevious_deg = (wantedAngle_deg + (360 * (totalRotations_rot - 1))) - currentAngle_deg;
 
-    double deltaCurrentComp = (complimentaryAngle + (360 * totalRotations)) - currentAngle;
-    double deltaNextComp = (complimentaryAngle + (360 * (totalRotations + 1))) - currentAngle;
-    double deltaPreviousComp = (complimentaryAngle + (360 * (totalRotations - 1))) - currentAngle;
+    double deltaCurrentComp_deg = (complimentaryAngle_deg + (360 * totalRotations_rot)) - currentAngle_deg;
+    double deltaNextComp_deg = (complimentaryAngle_deg + (360 * (totalRotations_rot + 1))) - currentAngle_deg;
+    double deltaPreviousComp_deg = (complimentaryAngle_deg + (360 * (totalRotations_rot - 1))) - currentAngle_deg;
 
-    double smallestAngle = deltaPrevious;
-    if (Math.abs(smallestAngle) > Math.abs(deltaCurrent)) {
-      smallestAngle = deltaCurrent;
+    double smallestAngle_deg = deltaPrevious_deg;
+    if (Math.abs(smallestAngle_deg) > Math.abs(deltaCurrent_deg)) {
+      smallestAngle_deg = deltaCurrent_deg;
     }
-    if (Math.abs(smallestAngle) > Math.abs(deltaNext)) {
-      smallestAngle = deltaNext;
-    }
-
-    double smallestAngleComp = deltaPreviousComp;
-    if (Math.abs(smallestAngleComp) > Math.abs(deltaCurrentComp)) {
-      smallestAngleComp = deltaCurrentComp;
-    }
-    if (Math.abs(smallestAngleComp) > Math.abs(deltaNextComp)) {
-      smallestAngleComp = deltaNextComp;
+    if (Math.abs(smallestAngle_deg) > Math.abs(deltaNext_deg)) {
+      smallestAngle_deg = deltaNext_deg;
     }
 
-    if (Math.abs(smallestAngle) <= Math.abs(smallestAngleComp)) {
-      finalSmallestAngle = smallestAngle;
+    double smallestAngleComp_deg = deltaPreviousComp_deg;
+    if (Math.abs(smallestAngleComp_deg) > Math.abs(deltaCurrentComp_deg)) {
+      smallestAngleComp_deg = deltaCurrentComp_deg;
+    }
+    if (Math.abs(smallestAngleComp_deg) > Math.abs(deltaNextComp_deg)) {
+      smallestAngleComp_deg = deltaNextComp_deg;
+    }
+
+    if (Math.abs(smallestAngle_deg) <= Math.abs(smallestAngleComp_deg)) {
+      finalSmallestAngle_deg = smallestAngle_deg;
       direction = -1;
     } else {
-      finalSmallestAngle = smallestAngleComp;
+      finalSmallestAngle_deg = smallestAngleComp_deg;
       direction = 1;
     }
 
     return new SwerveModuleState(
         wheel.speedMetersPerSecond * direction,
-        new Rotation2d(Units.degreesToRadians(currentAngle + finalSmallestAngle)));
+        new Rotation2d(Units.degreesToRadians(currentAngle_deg + finalSmallestAngle_deg)));
   }
 
   @Override
@@ -220,34 +221,34 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public void steerMotorAMPDebug() {
-    double outputAMPs = _driveMotor.getOutputCurrent();
+    double outputCurrent_amp = _driveMotor.getOutputCurrent();
 
     switch (driveMotorID) {
       case Constants.CANIdConstants.backLeftDriveMotorID:
-        SmartDashboard.putNumber("Back Left Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsBL_amp) {
-          maxAmpsBL_amp = outputAMPs;
+        SmartDashboard.putNumber("Back Left Amps: ", outputCurrent_amp);
+        if (outputCurrent_amp > maxAmpsBL_amp) {
+          maxAmpsBL_amp = outputCurrent_amp;
         }
         SmartDashboard.putNumber("Back Left Max Amps: ", maxAmpsBL_amp);
         break;
       case Constants.CANIdConstants.backRightDriveMotorID:
-        SmartDashboard.putNumber("Back Right Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsBR_amp) {
-          maxAmpsBR_amp = outputAMPs;
+        SmartDashboard.putNumber("Back Right Amps: ", outputCurrent_amp);
+        if (outputCurrent_amp > maxAmpsBR_amp) {
+          maxAmpsBR_amp = outputCurrent_amp;
         }
         SmartDashboard.putNumber("Back Right Max Amps: ", maxAmpsBR_amp);
         break;
       case Constants.CANIdConstants.frontLeftDriveMotorID:
-        SmartDashboard.putNumber("Front Left Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsFL_amp) {
-          maxAmpsFL_amp = outputAMPs;
+        SmartDashboard.putNumber("Front Left Amps: ", outputCurrent_amp);
+        if (outputCurrent_amp > maxAmpsFL_amp) {
+          maxAmpsFL_amp = outputCurrent_amp;
         }
         SmartDashboard.putNumber("Front Left Max Amps: ", maxAmpsFL_amp);
         break;
       case Constants.CANIdConstants.frontRightDriveMotorID:
-        SmartDashboard.putNumber("Front Right Amps: ", outputAMPs);
-        if (outputAMPs > maxAmpsFR_amp) {
-          maxAmpsFR_amp = outputAMPs;
+        SmartDashboard.putNumber("Front Right Amps: ", outputCurrent_amp);
+        if (outputCurrent_amp > maxAmpsFR_amp) {
+          maxAmpsFR_amp = outputCurrent_amp;
         }
         SmartDashboard.putNumber("Front Right Max Amps: ", maxAmpsFR_amp);
         break;
@@ -255,46 +256,45 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public void steerMotorPosDebug() {
-    double currentAngle = (_steerMotor.getEncoder().getPosition());
+    double currentAngle_deg = (_steerMotor.getEncoder().getPosition());
     switch (steerMotorID) {
+
       case Constants.CANIdConstants.backLeftSteerMotorID:
-        SmartDashboard.putNumber("Neo position Back Left", currentAngle);
-        // System.out.printf("Neo position Back Left: %.3f\n", currentAngle);
+        SmartDashboard.putNumber("Neo position Back Left", currentAngle_deg);
+        // System.out.printf("Neo position Back Left: %.3f\n", currentAngle_deg);
         break;
       case Constants.CANIdConstants.backRightSteerMotorID:
-        SmartDashboard.putNumber("Neo position Back Right", currentAngle);
-        // System.out.printf("Neo position Back Right: %.3f\n", currentAngle);
+        SmartDashboard.putNumber("Neo position Back Right", currentAngle_deg);
+        // System.out.printf("Neo position Back Right: %.3f\n", currentAngle_deg);
         break;
       case Constants.CANIdConstants.frontLeftSteerMotorID:
-        SmartDashboard.putNumber("Neo position Front Left", currentAngle);
-        // System.out.printf("Neo position Front Left: %.3f\n", currentAngle);
+        SmartDashboard.putNumber("Neo position Front Left", currentAngle_deg);
+        // System.out.printf("Neo position Front Left: %.3f\n", currentAngle_deg);
         break;
       case Constants.CANIdConstants.frontRightSteerMotorID:
-        SmartDashboard.putNumber("Neo position Front Right", currentAngle);
-        // System.out.printf("Neo position Front Right: %.3f\n", currentAngle);
+        SmartDashboard.putNumber("Neo position Front Right", currentAngle_deg);
+        // System.out.printf("Neo position Front Right: %.3f\n", currentAngle_deg);
         break;
     }
   }
 
   public void absEncoderDebug() {
-    double offsetAngle = 0;
-    double startAngle = _cancoder.getAbsolutePosition().getValueAsDouble();
+    // double offsetAngle = getEncoderOffset_deg();
+    double startAngle_deg = _cancoder.getAbsolutePosition().getValueAsDouble();
+    // double startAngle_deg = ggetEncoderOffset_deg();
     switch (steerMotorID) {
+
       case Constants.CANIdConstants.backLeftSteerMotorID:
-        offsetAngle = getEncoderOffset_deg();
-        SmartDashboard.putNumber("Back Left Cancoder: ", startAngle);
+        SmartDashboard.putNumber("Back Left Cancoder: ", startAngle_deg);
         break;
       case Constants.CANIdConstants.backRightSteerMotorID:
-        offsetAngle = getEncoderOffset_deg();
-        SmartDashboard.putNumber("Back Right Cancoder: ", startAngle);
+        SmartDashboard.putNumber("Back Right Cancoder: ", startAngle_deg);
         break;
       case Constants.CANIdConstants.frontLeftSteerMotorID:
-        offsetAngle = getEncoderOffset_deg();
-        SmartDashboard.putNumber("Front Left Cancoder: ", startAngle);
+        SmartDashboard.putNumber("Front Left Cancoder: ", startAngle_deg);
         break;
       case Constants.CANIdConstants.frontRightSteerMotorID:
-        offsetAngle = getEncoderOffset_deg();
-        SmartDashboard.putNumber("Front Right Cancoder: ", startAngle);
+        SmartDashboard.putNumber("Front Right Cancoder: ", startAngle_deg);
         break;
       default:
         System.out.println("default: " + steerMotorID);
@@ -321,8 +321,8 @@ public class SwerveModule extends SubsystemBase {
     public static final double SteerFF = 0;
 
     // TODO double check all these numbers
-    public static final double wheelCircumference = (Math.PI * 4);
+    public static final double wheelCircumference_in = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
-    public static final double rotationsPerInch = driveGearRatio / wheelCircumference;
+    public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in;
   }
 }

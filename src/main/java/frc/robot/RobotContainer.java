@@ -110,19 +110,19 @@ public class RobotContainer {
   }
 
   public void wheelSetup() {
-    m_wheels[0].setEncoderOffset_rot(_selectedBot.getfrontLeftOffset());
+    m_wheels[0].setEncoderOffset(_selectedBot.getfrontLeftOffset());
     m_wheels[0].set_xPos(_selectedBot.getfrontLeftLocationX());
     m_wheels[0].set_yPos(_selectedBot.getfrontLeftLocationY());
 
-    m_wheels[1].setEncoderOffset_rot(_selectedBot.getbackLeftOffset());
+    m_wheels[1].setEncoderOffset(_selectedBot.getbackLeftOffset());
     m_wheels[1].set_xPos(_selectedBot.getbackLeftLocationX());
     m_wheels[1].set_yPos(_selectedBot.getbackLeftLocationY());
 
-    m_wheels[2].setEncoderOffset_rot(_selectedBot.getfrontRightOffset());
+    m_wheels[2].setEncoderOffset(_selectedBot.getfrontRightOffset());
     m_wheels[2].set_xPos(_selectedBot.getfrontRightLocationX());
     m_wheels[2].set_yPos(_selectedBot.getfrontRightLocationY());
 
-    m_wheels[3].setEncoderOffset_rot(_selectedBot.getbackRightOffset());
+    m_wheels[3].setEncoderOffset(_selectedBot.getbackRightOffset());
     m_wheels[3].set_xPos(_selectedBot.getbackRightLocationX());
     m_wheels[3].set_yPos(_selectedBot.getbackRightLocationY());
 

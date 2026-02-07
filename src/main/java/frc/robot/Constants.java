@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.util.Units;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -67,15 +65,7 @@ public final class Constants {
     public static final double wheelCircumference_in = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
     
-    // Number of inches the first stage moves for every rotation of the motors
-    public static final double inchesPerRotation = driveGearRatio * wheelCircumference_in;
-    
-    // Number of inches carriage moves per rotation of the motors (twice what the first stage moves)
-    public static final double carriageInchesPerRotation = inchesPerRotation * 2;
-
-    public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear ratio
-    public static final double metersToRotationsPerMin = driveGearRatio / Units.inchesToMeters(wheelCircumference_in)
-        * 60; // RPS
+    public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear ratio
     public static final double drivekP = 0.0016;// .00009
     public static final double drivekI = 0.000068;// 0
     public static final double drivekD = 0;
@@ -96,7 +86,10 @@ public final class Constants {
   }
 
   public static class SteerConstants {
-    public static final double encoderPositionConversionFactor = 28.13;
+    public static final double steerGearRatio = 12.8;
+    public static final int neoTicksPerRotation = 42;
+    public static final double steerDegPerMotorRotation_deg = 360 / steerGearRatio;
+    public static final double steerDegPerEncoderTick_deg = steerDegPerMotorRotation_deg / neoTicksPerRotation;
     public static final double kF = 0;
     public static final double kP = .05;
     public static final double kI = 0;
