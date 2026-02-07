@@ -202,7 +202,7 @@ public class RobotContainer {
 
     reset.onTrue(new ResetGyro(m_Gyro));
     lockWheels.onTrue(new LockWheels(m_Drive));
-    shoulderButton.whileTrue(new DriveInDirection(m_Drive, 1, 0.02));
+    shoulderButton.whileTrue(new DriveInDirection(m_Drive, 1, 0.1));
   }
 
   /**
