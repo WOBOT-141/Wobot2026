@@ -15,15 +15,17 @@ public class RotateToAngle extends Command {
   private final double m_rotationAmount_deg;
   private double m_desiredBotAngle_deg;
   SlewRateLimiter m_SlewRateLimiter;
+  boolean m_rotationDone;
 
-  IGyro gyro;
+  IGyro m_gyro;
 
   /** Creates a new RotateToAngle. */
 
   public RotateToAngle(Drivetrain drivetrain, double rotationAmount_deg, IGyro gyro) {
     m_Drivetrain = drivetrain;
     m_rotationAmount_deg = rotationAmount_deg;
-    m_SlewRateLimiter = new SlewRateLimiter(0.9);
+    // m_SlewRateLimiter = new SlewRateLimiter(0.1);
+    m_gyro = gyro;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);
@@ -33,7 +35,7 @@ public class RotateToAngle extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_desiredBotAngle_deg = (gyro.getYaw() + m_rotationAmount_deg);
+    m_desiredBotAngle_deg = (m_gyro.getYaw() + m_rotationAmount_deg);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -41,39 +43,41 @@ public class RotateToAngle extends Command {
   public void execute() {
 
     // Rotation calculations
-    double missingAngle_deg = Math.abs(gyro.getYaw() - m_desiredBotAngle_deg);
+    double missingAngle_deg = Math.abs(m_gyro.getYaw() - m_desiredBotAngle_deg);
     double remainingRotation_perc = missingAngle_deg / m_rotationAmount_deg;
 
     // Speed calculations
-    double slowSpot = 0.3;
-    double m_trapizoidSpeed = 0;
-    boolean rotationDone = false;
+    double slowSpot = 0.4;
+    double rotationSpeed = 0;
+    m_rotationDone = false;
 
-    if (missingAngle_deg == 0) {
-      rotationDone = true;
+    if (missingAngle_deg < 25) {
+      m_rotationDone = true;
     } else {
-      if (remainingRotation_perc > slowSpot) {
-        m_trapizoidSpeed = 1;
+    if (remainingRotation_perc > 0.7) {
+        rotationSpeed = 0.5;
+      } else if (remainingRotation_perc > slowSpot) {
+        rotationSpeed = 0.1;
       } else {
-        m_trapizoidSpeed = 0.1;
+        rotationSpeed = 0.02;
       }
-    }
+    }    
 
-    double rotationSpeed = m_SlewRateLimiter.calculate(m_trapizoidSpeed);
+    //double rotationSpeed = m_SlewRateLimiter.calculate();
 
-    m_Drivetrain.driveSwerve(0, 0, rotationSpeed);
+    m_Drivetrain.driveWithoutGyro(0, 0, rotationSpeed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_Drivetrain.driveSwerve(0, 0, 0);
+    m_Drivetrain.driveWithoutGyro(0, 0, 0);
 
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return m_rotationDone;
   }
 }
