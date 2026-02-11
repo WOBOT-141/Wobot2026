@@ -1,12 +1,11 @@
 package frc.robot.subsystems.Vision;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.networktables.StringTopic;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -80,9 +79,18 @@ public class VisionServer extends SubsystemBase {
     return _detectlist;
   }
 
-  //public Detection getClosestDetection() {
-    //DetectionList detectionList = getDetectionList();
-    //for (double detectionDistance = 0; detectionDistance <= ; detectionDistance++);
+  public IDetection getClosestDetection() {
+    DetectionList detectionList = getDetectionList();
+    IDetection closestDetection = detectionList.getDetection(0);
+    for (int i = 0; i < detectionList.getSize(); i++){
+      IDetection currentDetection = detectionList.getDetection(i);
+      if (currentDetection.getDistance() < closestDetection.getDistance())
+      {
+          closestDetection = currentDetection;
+      }
+    }
+    return closestDetection;
+  }
   
 
   public double angleYaw() {
