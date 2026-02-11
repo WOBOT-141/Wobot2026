@@ -29,7 +29,13 @@ public class Drivetrain extends SubsystemBase {
     driveSwerve(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
   }
 
-  public void driveSwerve(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY) {
+  public void driveSwerve(
+    double translationAngle_deg,
+    double translationSpeed_perc,
+    double rotationalSpeed_perc,
+    double rotX,
+    double rotY
+  ) {
     if(m_isTipping && !m_climbing){
       translationAngle_deg = m_tipDirection_deg;
       translationSpeed_perc = m_tipMagnitude / (m_tipThreshold*2);

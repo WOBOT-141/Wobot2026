@@ -6,27 +6,23 @@ package frc.robot.commands.TestCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.PrototypeShooter;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PrototypeShooterCMD extends Command {
-private PrototypeShooter M_shooter;
-PrototypeShooter PrototypeShooters = new PrototypeShooter();
+public class PrototypeShooterCMD extends InstantCommand {
+private PrototypeShooter m_shooter;
   /** Creates a new DriveInDirection. */
   public void PrototypeShooterCMD(PrototypeShooter shooter) {
-    M_shooter = shooter;
+    m_shooter = shooter;
 
     addRequirements(shooter);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
+  public void initialize() {
     double flywheelP = SmartDashboard.getNumber("flywheelP", 0.0);
     double flywheelI = SmartDashboard.getNumber("flywheelI", 0.0);
     double flywheelD = SmartDashboard.getNumber("flywheelD", 0.0);
@@ -34,8 +30,13 @@ PrototypeShooter PrototypeShooters = new PrototypeShooter();
     double feedMotorI = SmartDashboard.getNumber("feedMotorI", 0.0);
     double feedMotorD = SmartDashboard.getNumber("feedMotorD", 0.0);
     
-    PrototypeShooters.CMDmethod(flywheelP, flywheelI, flywheelD, feedMotorP, feedMotorI, feedMotorD);
+    m_shooter.CMDmethod(flywheelP, flywheelI, flywheelD, feedMotorP, feedMotorI, feedMotorD);
+    
   }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override

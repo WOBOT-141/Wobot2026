@@ -10,6 +10,7 @@ import frc.lib.SpektrumFlightController;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
+import frc.robot.subsystems.PrototypeShooter;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.ChooserHandeling;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,9 +43,9 @@ public class RobotContainer {
   private final IGyro m_Gyro = new NavxGyro();
   public final SwerveModule[] m_wheels;
 
-  private final IBotSelector _selectedBot = new MainBot();
-  // private final IBotSelector _selectedBot = new SummerBot();
-
+  //private final IBotSelector _selectedBot = new MainBot();
+  private final IBotSelector _selectedBot = new SummerBot();
+  public final PrototypeShooter summerBotShooter = new PrototypeShooter();
   StickCommand m_StickCommand;
 
   ChooserHandeling autonSelector;

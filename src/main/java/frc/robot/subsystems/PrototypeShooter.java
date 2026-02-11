@@ -67,26 +67,22 @@ public class PrototypeShooter extends SubsystemBase {
     M_flywheelController = m_flywheelMotor.getClosedLoopController();
     M_feedmotorController = m_feedMotor.getClosedLoopController();
   }
+
   public void setShooterRPM(double flywheelRPM, double feedMotorRPM ){
     M_flywheelController.setSetpoint(flywheelRPM, SparkMax.ControlType.kVelocity);
     M_feedmotorController.setSetpoint(feedMotorRPM,SparkMax.ControlType.kVelocity);
   }  
+
   public double getFlywheelRPM(){
     return M_flywheelEncoder.getVelocity();
   }
+  
   public double getFeedMotorRPM(){
     return M_feedMotorEncoder.getVelocity();
   }
 
-  public void CMDmethod(double flywheelP, double flywheelI, Class<Double> class1){
-    /* 
-    double flywheelP = SmartDashboard.getNumber("flywheelP", 0.0);
-    double flywheelI = SmartDashboard.getNumber("flywheelI", 0.0);
-    double flywheelD = SmartDashboard.getNumber("flywheelD", 0.0);
-    double feedMotorP = SmartDashboard.getNumber("feedMotorP", 0.0);
-    double feedMotorI = SmartDashboard.getNumber("feedMotorI", 0.0);
-    double feedMotorD = SmartDashboard.getNumber("feedMotorD", 0.0);
-    */
+  public void CMDmethod(double flywheelP, double flywheelI, double flywheelD, double feedMotorP, double feedMotorI,
+        double feedMotorD) {
 
     flywheelMotorConfig.closedLoop
     .pid(flywheelP, flywheelI, flywheelD);
@@ -95,10 +91,6 @@ public class PrototypeShooter extends SubsystemBase {
 
     m_flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_feedMotor.configure(feedMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    double flywheelRPM = SmartDashboard.getNumber("flywheelRPM", 0.0);
-    double feedMotorRPM = SmartDashboard.getNumber("feedMotorRPM", 0.0);
-    setShooterRPM(flywheelRPM, feedMotorRPM);
   }
   
 
@@ -108,13 +100,5 @@ public class PrototypeShooter extends SubsystemBase {
     // This method will be called once per scheduler run
 
   }
-public void CMDmethod(double flywheelP, double flywheelI, Class<Double> class1) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'CMDmethod'");
-}
-public void CMDmethod(double flywheelP, double flywheelI, double flywheelD, double feedMotorP, double feedMotorI,
-        double feedMotorD) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'CMDmethod'");
-}
+
 }
