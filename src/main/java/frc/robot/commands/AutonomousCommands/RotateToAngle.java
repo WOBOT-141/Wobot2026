@@ -5,7 +5,6 @@
 package frc.robot.commands.AutonomousCommands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
@@ -15,11 +14,6 @@ public class RotateToAngle extends Command {
   private final Drivetrain m_Drivetrain;
   private final double m_rotationAmount_deg;
   private double m_desiredBotAngle_deg;
-  double m_trapizoidSpeed;
-  double traveledDistance; //set calculations later
-  double stopDistance;
-  double rotationSpeed_perc;
-  double translationSpeed_perc;
   SlewRateLimiter m_SlewRateLimiter;
 
   IGyro gyro;
@@ -46,36 +40,29 @@ public class RotateToAngle extends Command {
   @Override
   public void execute() {
 
-    //Rotation calculations
-    double missingAngle_deg = (gyro.getYaw() - m_desiredBotAngle_deg);
-    rotationSpeed_perc = (missingAngle_deg / m_rotationAmount_deg) % 360;
+    // Rotation calculations
+    double missingAngle_deg = Math.abs(gyro.getYaw() - m_desiredBotAngle_deg);
+    double remainingRotation_perc = missingAngle_deg / m_rotationAmount_deg;
 
-    SmartDashboard.putNumber("Rotationspeed pre rounded", rotationSpeed_perc);
+    // Speed calculations
+    double slowSpot = 0.3;
+    double m_trapizoidSpeed = 0;
+    boolean rotationDone = false;
 
-    if (rotationSpeed_perc > 0.2) {
-      rotationSpeed_perc = 0.2;
-    } 
-
-    if (rotationSpeed_perc < -0.2) {
-      rotationSpeed_perc = -0.2;
-    }
-
-    //Speed calculations
-    stopDistance = 0.3;
-    if (traveledDistance > stopDistance) { 
-      m_trapizoidSpeed = 1;
+    if (missingAngle_deg == 0) {
+      rotationDone = true;
     } else {
-      m_trapizoidSpeed = 0.1;
+      if (remainingRotation_perc > slowSpot) {
+        m_trapizoidSpeed = 1;
+      } else {
+        m_trapizoidSpeed = 0.1;
+      }
     }
-    translationSpeed_perc = m_SlewRateLimiter.calculate(m_trapizoidSpeed);
-    SmartDashboard.putNumber("Cool Speed", translationSpeed_perc);
 
-    //Angle calculations
-    double translationAngle_deg = m_rotationAmount_deg - gyro.getRawGyroAngle();
+    double rotationSpeed = m_SlewRateLimiter.calculate(m_trapizoidSpeed);
 
-    m_Drivetrain.driveSwerve(translationAngle_deg, translationSpeed_perc, rotationSpeed_perc);
+    m_Drivetrain.driveSwerve(0, 0, rotationSpeed);
   }
-
 
   // Called once the command ends or is interrupted.
   @Override

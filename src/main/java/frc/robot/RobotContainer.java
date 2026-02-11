@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
@@ -184,6 +185,8 @@ public class RobotContainer {
     Trigger dPadRight = new POVButton(xboxController0, 90);
     Trigger dPadDown = new POVButton(xboxController0, 180);
     Trigger dPadLeft = new POVButton(xboxController0, 270);
+
+    leftBumper.onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
   }
   
   private void configureJoystick() {
@@ -203,6 +206,7 @@ public class RobotContainer {
     reset.onTrue(new ResetGyro(m_Gyro));
     lockWheels.onTrue(new LockWheels(m_Drive));
     shoulderButton.whileTrue(new DriveInDirection(m_Drive, 1, 0.1));
+    
   }
 
   /**
