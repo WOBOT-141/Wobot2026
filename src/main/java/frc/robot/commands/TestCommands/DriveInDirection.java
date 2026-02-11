@@ -29,7 +29,7 @@ public class DriveInDirection extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_Drivetrain.driveSwerve(m_angle_deg, m_speed_perc, 0);
+    m_Drivetrain.driveWithGyro(m_angle_deg, m_speed_perc, 0);
   }
 
   // Called once the command ends or is interrupted.

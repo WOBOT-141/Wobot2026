@@ -57,30 +57,30 @@ public class RobotContainer {
 
     m_wheels = new SwerveModule[] {
         // assuming that the roborio is the front and the battery is the back
-        new SwerveModule(Constants.SteerConstants.frontLeftSteerMotorID,
-            Constants.SteerConstants.frontLeftDriveMotorID,
-            Constants.SteerConstants.frontLeftEncoderid,
+        new SwerveModule(Constants.CANIdConstants.frontLeftSteerMotorID,
+            Constants.CANIdConstants.frontLeftDriveMotorID,
+            Constants.CANIdConstants.frontLeftEncoderid,
             _selectedBot.getfrontLeftOffset(),
             _selectedBot.getfrontLeftLocationX(),
             _selectedBot.getfrontLeftLocationY()), // front left 0.441650 rotations
 
-        new SwerveModule(Constants.SteerConstants.backLeftSteerMotorID,
-            Constants.SteerConstants.backLeftDriveMotorID,
-            Constants.SteerConstants.backLeftEncoderid,
+        new SwerveModule(Constants.CANIdConstants.backLeftSteerMotorID,
+            Constants.CANIdConstants.backLeftDriveMotorID,
+            Constants.CANIdConstants.backLeftEncoderid,
             _selectedBot.getbackLeftOffset(),
             _selectedBot.getbackLeftLocationX(),
             _selectedBot.getbackLeftLocationY()), // back left 0.176270 rotations
 
-        new SwerveModule(Constants.SteerConstants.frontRightSteerMotorID,
-            Constants.SteerConstants.frontRightDriveMotorID,
-            Constants.SteerConstants.frontRightEncoderid,
+        new SwerveModule(Constants.CANIdConstants.frontRightSteerMotorID,
+            Constants.CANIdConstants.frontRightDriveMotorID,
+            Constants.CANIdConstants.frontRightEncoderid,
             _selectedBot.getfrontRightOffset(),
             _selectedBot.getfrontRightLocationX(),
             _selectedBot.getfrontRightLocationY()), // front right 0.585205 rotations
 
-        new SwerveModule(Constants.SteerConstants.backRightSteerMotorID,
-            Constants.SteerConstants.backRightDriveMotorID,
-            Constants.SteerConstants.backRightEncoderid,
+        new SwerveModule(Constants.CANIdConstants.backRightSteerMotorID,
+            Constants.CANIdConstants.backRightDriveMotorID,
+            Constants.CANIdConstants.backRightEncoderid,
             _selectedBot.getbackRightOffset(),
             _selectedBot.getbackRightLocationX(),
             _selectedBot.getbackRightLocationY())// back right 0.506836 rotations
