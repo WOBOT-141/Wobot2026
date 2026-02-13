@@ -68,7 +68,7 @@ public class SwerveModule extends SubsystemBase {
     SparkMaxConfig steerConfig = new SparkMaxConfig();
 
     driveConfig
-        .idleMode(IdleMode.kCoast)
+        .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(50, 50);
     driveConfig.encoder
         .positionConversionFactor(1.0 / WheelConstants.rotationsPerInch)

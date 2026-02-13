@@ -47,23 +47,23 @@ public class RotateToAngle extends Command {
     double remainingRotation_perc = missingAngle_deg / m_rotationAmount_deg;
 
     // Speed calculations
-    double slowSpot = 0.4;
+    double slowSpot = 0.3;
     double rotationSpeed = 0;
     m_rotationDone = false;
 
-    if (missingAngle_deg < 25) {
+    if (missingAngle_deg < 5) {
       m_rotationDone = true;
     } else {
-    if (remainingRotation_perc > 0.7) {
-        rotationSpeed = 0.5;
-      } else if (remainingRotation_perc > slowSpot) {
+      if (remainingRotation_perc > slowSpot) {
         rotationSpeed = 0.1;
+        // } else if (remainingRotation_perc > slowSpot) {
+        // rotationSpeed = 0.1;
       } else {
-        rotationSpeed = 0.02;
+        rotationSpeed = 0.05;
       }
-    }    
+    }
 
-    //double rotationSpeed = m_SlewRateLimiter.calculate();
+    // double rotationSpeed = m_SlewRateLimiter.calculate();
 
     m_Drivetrain.driveWithoutGyro(0, 0, rotationSpeed);
   }
