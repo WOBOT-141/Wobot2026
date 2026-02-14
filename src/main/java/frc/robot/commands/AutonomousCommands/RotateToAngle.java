@@ -4,6 +4,8 @@
 
 package frc.robot.commands.AutonomousCommands;
 
+import com.ctre.phoenix6.swerve.SwerveModule;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,7 +54,20 @@ public class RotateToAngle extends Command {
     double slowSpot = 0.3;
     double rotationSpeed = 0;
 
-    if (remainingRotation_perc > slowSpot) { //TODO TUNE VALUES
+    // if (m_rotationAmount_deg < 180 && m_rotationAmount_deg > -180) {
+    // if (remainingRotation_perc > slowSpot) { // TODO TUNE VALUES
+    // rotationSpeed = 0.2;
+    // } else {
+    // rotationSpeed = 0.5;
+    // }
+    // } else {
+    // if (remainingRotation_perc > slowSpot) {
+    // rotationSpeed = -0.2;
+    // } else {
+    // rotationSpeed = -0.5;
+    // }
+    // }
+    if (remainingRotation_perc > slowSpot) { // TODO TUNE VALUES
       rotationSpeed = 0.2;
     } else {
       rotationSpeed = 0.5;
