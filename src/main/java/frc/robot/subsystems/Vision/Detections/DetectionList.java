@@ -52,4 +52,16 @@ public class DetectionList {
 
         return _detections[index];
     }
+
+
+    public IDetection getDetectionById(int tagId) {
+            for (int i = 0; i < _size; i++){
+            IDetection currentDetection = getDetection(i);
+            if ((int) currentDetection.getId() == tagId){
+                return currentDetection;
+            }
+        }
+        return NullDetection.Instance;
+
+    }
 }

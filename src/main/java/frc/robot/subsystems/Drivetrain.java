@@ -171,6 +171,10 @@ public class Drivetrain extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  public void stopMotors() {
+    driveSwerve(0, 0, 0);
+  }
+
   public void lockWheels() {
     // Implement wheel-locking logic if needed
     for (int i = 0; i < _wheels.length; i++) {

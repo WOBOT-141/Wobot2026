@@ -11,12 +11,14 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.ChooserHandeling;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.RotateToTag;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
@@ -41,6 +43,7 @@ public class RobotContainer {
   public static Joystick joystick;
   private final IGyro m_Gyro = new NavxGyro();
   public final SwerveModule[] m_wheels;
+  private final VisionServer visionServer;
 
   private final IBotSelector _selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
@@ -53,6 +56,7 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
 
     m_wheels = new SwerveModule[] {
         // assuming that the roborio is the front and the battery is the back
@@ -89,6 +93,7 @@ public class RobotContainer {
     flightController0 = new SpektrumFlightController(0);
     xboxController0 = new XboxController(1);
     joystick = new Joystick(2);
+    visionServer = new VisionServer();
 
     configureBindings();
   }
@@ -184,7 +189,9 @@ public class RobotContainer {
     Trigger dPadRight = new POVButton(xboxController0, 90);
     Trigger dPadDown = new POVButton(xboxController0, 180);
     Trigger dPadLeft = new POVButton(xboxController0, 270);
+    bButton.whileTrue(new RotateToTag(visionServer, m_Drive));
   }
+
   
   private void configureJoystick() {
     Trigger trigger = new JoystickButton(joystick, Joystick.ButtonType.kTrigger.value);
