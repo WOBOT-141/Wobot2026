@@ -7,7 +7,9 @@ package frc.robot.commands;
 import org.ejml.dense.block.MatrixOps_DDRB;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.Constants.RotateCommandConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
@@ -37,16 +39,23 @@ private IDetection m_closestDetection;
   public void initialize() {
      m_closestDetection = m_visionServer.getClosestDetection();
      m_closestTagId = (int) m_closestDetection.getId();
-     m_pidController = new PIDController(PIDProvider.getDriveOmega_P(), PIDProvider.getDriveOmega_I(), PIDProvider.getDriveOmega_D());
+     m_pidController = new PIDController(Constants.RotateCommandConstants.P, Constants.RotateCommandConstants.I, Constants.RotateCommandConstants.D);
+     m_pidController.setSetpoint(0);
+     m_pidController.setTolerance(2.0);
+     m_drivetrain.driveSwerve(0, 0, 0); 
     }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     IDetection currentDetection = m_visionServer.getClosestDetection();
-    double pidOutput = m_pidController.calculate(currentDetection.getYaw());
-    m_drivetrain.driveSwerve(0, 0, pidOutput);
-    
+    double pidOutput = m_pidController.calculate(currentDetection.getAngle());
+    m_drivetrain.driveSwerve(0, 0, -pidOutput);
+    SmartDashboard.putNumber("RotateToTagP", m_pidController.getP());
+    SmartDashboard.putNumber("RotateTotagI", m_pidController.getI());
+    SmartDashboard.putNumber("RotateToTagD", m_pidController.getD());
+    SmartDashboard.putNumber("PIDOutput", pidOutput);
+    SmartDashboard.putNumber("ClosestTagAngle", currentDetection.getAngle());
   }
 
   // Called once the command ends or is interrupted.
@@ -59,5 +68,6 @@ private IDetection m_closestDetection;
   @Override
   public boolean isFinished() {
     return m_pidController.atSetpoint();
+    //return false;
   }
 }
