@@ -10,9 +10,9 @@ public class ShooterCalculations {
         return (Math.atan(angleStep1 / angleStep2));
     }
 
-    public static double calculateInitialVelocity(double shooterAngle_deg,double muzzleToTargetCenter_m) {
+    public static double calculateInitialVelocity(double shooterAngle_deg,double targetDistance_in) {
         double step1 = ShooterConstants.g
-                * ((muzzleToTargetCenter_m - ShooterConstants.drc_m) + ShooterConstants.drt_m / 2);
+                * ((targetDistance_in - ShooterConstants.drc_m) + ShooterConstants.drt_m / 2);
         double step2 = (ShooterConstants.har_m / ShooterConstants.drt_m) * (Math.pow(Math.cos(shooterAngle_deg), 2))
                 + (Math.sin(shooterAngle_deg) * (Math.cos(shooterAngle_deg)));
         double step3 = (step1 / step2);
@@ -34,8 +34,8 @@ public class ShooterCalculations {
     public class ShooterConstants {
         private static final double g = 9.817;
 
-        private static double har_m = 1.228344; //PASS  har_m = height above the rim
-        private static double drt_m = .597154; //PASS ShooterConstants.drt_m = distance rim to penetration of target plane
+        private static double har_m = 1.228344; //MAKE A PARAMETER AT SOME PT  har_m = height above the rim
+        private static double drt_m = .597154; //MAKE A PARAMETER AT SOME PT ShooterConstants.drt_m = distance rim to penetration of target plane
                                               // (how far in should the ball
         
         private static double dmr_m = .3; // ShooterConstants.dmr_m = horiz dist of muzzle to rim
@@ -55,7 +55,7 @@ public class ShooterCalculations {
  * 
  * 
  * 
- * numerator = g((muzzleToTargetCenter_m-drc_m) + (ShooterConstants.drt_m/2))
+ * numerator = g((targetDistance_in-drc_m) + (ShooterConstants.drt_m/2))
  * denominator =
  * (har_m/ShooterConstants.drt_m)(cos(theta))^2(sin(theta))(cos(theta))
  * 
