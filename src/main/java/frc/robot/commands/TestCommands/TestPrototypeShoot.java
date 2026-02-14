@@ -12,27 +12,32 @@ import frc.robot.subsystems.PrototypeShooter;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class TestPrototypeShoot extends InstantCommand {
-  private PrototypeShooter testShooter;
-    private double shooterRPM;
+  private PrototypeShooter m_testShooter;
+    private double m_shooterRPM;
     
     /** Creates a new DriveInDirection. */
     public TestPrototypeShoot(PrototypeShooter shooter, double shootRPM ) {
-      shooterRPM = shootRPM;
+      m_shooterRPM = shootRPM;
+      m_testShooter = shooter;
     }
     // Called when the command is initially scheduled.
     @Override
-    public void initialize() {}
-  
+    public void initialize() {
+      System.out.println("TestPrototypeShoot has Started");
+    }
+      
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-      testShooter.setShooterRPM(shooterRPM, shooterRPM);
+      m_testShooter.setShooterRPM(m_shooterRPM, m_shooterRPM);
     
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    m_testShooter.cancel();
+    System.out.println("TestPrototypeShoot has ended");
   }
 
   // Returns true when the command should end.

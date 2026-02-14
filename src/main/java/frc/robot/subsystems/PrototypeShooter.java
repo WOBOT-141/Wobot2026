@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.PersistMode;
+import com.revrobotics.REVLibError;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
@@ -81,7 +82,7 @@ public class PrototypeShooter extends SubsystemBase {
     return M_feedMotorEncoder.getVelocity();
   }
 
-  public void CMDmethod(double flywheelP, double flywheelI, double flywheelD, double feedMotorP, double feedMotorI,
+  public void setPIDValues(double flywheelP, double flywheelI, double flywheelD, double feedMotorP, double feedMotorI,
         double feedMotorD) {
 
     flywheelMotorConfig.closedLoop
@@ -89,10 +90,15 @@ public class PrototypeShooter extends SubsystemBase {
     feedMotorConfig.closedLoop
     .pid(feedMotorP, feedMotorI, feedMotorD);
 
-    m_flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_feedMotor.configure(feedMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    REVLibError flywheelConfigureError = m_flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    REVLibError feedMotorConfigureError = m_feedMotor.configure(feedMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    System.out.printf("feedMotorConfigureError: %d flywheelConfigureError: %d\n", feedMotorConfigureError.value, flywheelConfigureError.value );
   }
   
+  public void cancel(){
+    m_flywheelMotor.stopMotor();
+    m_feedMotor.stopMotor();
+  }
 
   @Override
   public void periodic() {

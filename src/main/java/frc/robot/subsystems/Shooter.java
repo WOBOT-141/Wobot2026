@@ -5,11 +5,6 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import static edu.wpi.first.units.Units.InchesPerSecond;
-
-import javax.security.auth.login.FailedLoginException;
-
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -18,9 +13,6 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.config.SparkMaxConfig;
-
-
 
 public class Shooter extends SubsystemBase {
   /** Creates a new Shooter.*/
@@ -40,11 +32,12 @@ public class Shooter extends SubsystemBase {
  private final RelativeEncoder m_leftFlywheelEncoder;
  private final RelativeEncoder m_feedMotorEncoder;
  private final RelativeEncoder m_magazineMotorEncoder;
- private final SparkClosedLoopController m_rightFlywheelController;
- private final SparkClosedLoopController m_middleFlywheelController;
- private final SparkClosedLoopController m_leftFlywheelController;
- private final SparkClosedLoopController m_feedMotorController;
- private final SparkClosedLoopController m_magazineMotorController;
+ private final SparkClosedLoopController m_rightFlywheelLoopController;
+ private final SparkClosedLoopController m_middleFlywheelLoopController;
+ private final SparkClosedLoopController m_leftFlywheelLoopController;
+ private final SparkClosedLoopController m_feedMotorLoopController;
+ private final SparkClosedLoopController m_magazineMotorLoopController;
+
 
   public Shooter() {
     m_rightFlywheelMotor = new SparkMax(0, MotorType.kBrushless); //TODO add ids to sparkMaxs
@@ -62,51 +55,33 @@ public class Shooter extends SubsystemBase {
     m_rightFlywheelMotorConfig
     .idleMode(IdleMode.kCoast)
     .smartCurrentLimit(80, 80);
-    m_rightFlywheelMotorConfig.closedLoop
-    .pid(0, 0, 0);
-    
-    m_middleFlywheelMotorConfig
-    .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
-    m_middleFlywheelMotorConfig.closedLoop
-    .pid(0, 0, 0);
 
-    m_leftFlywheelMotorConfig
+    /** 
+    flywheelMotorConfig
     .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
-    m_leftFlywheelMotorConfig.closedLoop
+    .smartCurrentLimit(60, 60);
+    flywheelMotorConfig.closedLoop
     .pid(0, 0, 0);
+    */
 
-    m_feedMotorConfig
-    .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
-    m_feedMotorConfig.closedLoop
-    .pid(0, 0, 0);
-
-    m_magazineMotorConfig
-    .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
-    m_magazineMotorConfig.closedLoop
-    .pid(0, 0, 0);
-    
     m_rightFlywheelMotor.configure(m_rightFlywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_middleFlywheelMotor.configure(m_middleFlywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_leftFlywheelMotor.configure(m_leftFlywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_feedMotor.configure(m_feedMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_feedMotor.configure(m_feedMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_magazineMotor.configure(m_magazineMotorConfig,ResetMode.kResetSafeParameters,PersistMode.kPersistParameters);
 
     m_rightFlywheelEncoder = m_rightFlywheelMotor.getEncoder();
     m_middleFlywheelEncoder = m_middleFlywheelMotor.getEncoder();
-    m_leftFlywheelEncoder = m_middleFlywheelMotor.getEncoder();
+    m_leftFlywheelEncoder = m_leftFlywheelMotor.getEncoder();
     m_feedMotorEncoder = m_feedMotor.getEncoder();
     m_magazineMotorEncoder = m_magazineMotor.getEncoder();
-    
 
-    m_rightFlywheelController = m_rightFlywheelMotor.getClosedLoopController();
-    m_middleFlywheelController = m_middleFlywheelMotor.getClosedLoopController();
-    m_leftFlywheelController = m_leftFlywheelMotor.getClosedLoopController();
-    m_feedMotorController = m_feedMotor.getClosedLoopController();
-    m_magazineMotorController = m_magazineMotor.getClosedLoopController();
+    m_rightFlywheelLoopController = m_rightFlywheelMotor.getClosedLoopController();
+    m_middleFlywheelLoopController = m_middleFlywheelMotor.getClosedLoopController();
+    m_leftFlywheelLoopController = m_leftFlywheelMotor.getClosedLoopController();
+    m_feedMotorLoopController = m_feedMotor.getClosedLoopController();
+    m_magazineMotorLoopController = m_magazineMotor.getClosedLoopController();
+
 
   }
   
@@ -127,7 +102,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void softStartFlywheel(){
-    //spin fly wheel motor one at a time to avoid curent spikes
+    //spin fly wheel motor up one at a time to avoid curent spikes
 
   }
 

@@ -24,6 +24,8 @@ import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.commands.TestCommands.DriveInDirection;
+import frc.robot.commands.TestCommands.SetPIDShooter;
+import frc.robot.commands.TestCommands.TestPrototypeShoot;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -45,7 +47,7 @@ public class RobotContainer {
 
   //private final IBotSelector _selectedBot = new MainBot();
   private final IBotSelector _selectedBot = new SummerBot();
-  public final PrototypeShooter summerBotShooter = new PrototypeShooter();
+  public final PrototypeShooter m_summerBotShooter = new PrototypeShooter();
   StickCommand m_StickCommand;
 
   ChooserHandeling autonSelector;
@@ -185,6 +187,8 @@ public class RobotContainer {
     Trigger dPadRight = new POVButton(xboxController0, 90);
     Trigger dPadDown = new POVButton(xboxController0, 180);
     Trigger dPadLeft = new POVButton(xboxController0, 270);
+    yButton.onTrue(new SetPIDShooter(m_summerBotShooter)); 
+    aButton.whileTrue(new TestPrototypeShoot(m_summerBotShooter, 20));
   }
   
   private void configureJoystick() {
@@ -212,24 +216,19 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    Command selectedCommand = autonSelector.getSelected();
+    // Command selectedCommand = autonSelector.getSelected();
 
-    // Command selectedCommand = new ObliterateCenterTwoA1(m_Drive, m_Gyro,
-    // m_Elevator, m_coralManipulator, serveVis);
+    // // Command selectedCommand = new ObliterateCenterTwoA1(m_Drive, m_Gyro,
+    // // m_Elevator, m_coralManipulator, serveVis);
 
-    if (selectedCommand != null) {
-      System.out.println("Selected auton: " + selectedCommand.toString());
-    } else {
-      System.out.println("Selected auton: <null>");
-    }
+    // if (selectedCommand != null) {
+    //   System.out.println("Selected auton: " + selectedCommand.toString());
+    // } else {
+    //   System.out.println("Selected auton: <null>");
+    // }
 
-    return selectedCommand;
-
-    // return new RotateCommandField(m_Drive, m_Gyro, 180);
-
-    // return new UniversalDriveCommandPicture(m_Drive, m_Gyro, .5, serveVis);
-
-    // return new VisionL4Experimental(m_Drive, serveVis, m_Gyro, m_Elevator,
-    // m_coralManipulator, ReefSide.LEFT);
+    return new Command() {
+      
+    };
   }
 }
