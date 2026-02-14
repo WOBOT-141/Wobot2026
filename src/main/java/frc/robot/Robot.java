@@ -61,7 +61,6 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    // No need to initialize drive command — it's already set.
   }
 
   @Override

@@ -13,23 +13,10 @@ import frc.robot.subsystems.IGyro;
 /**
  * StickCommand
  *
- * 2026 Modern Version
- *
- * Changes:
- * - No longer depends on SpektrumFlightController directly
- * - Uses DoubleSupplier and BooleanSupplier instead
- * - All previous math and logic preserved
- *
- * Why this is better:
- * - Command is now hardware independent
- * - Easier to simulate
- * - Easier to swap controllers
- * - Cleaner architecture
  */
 public class StickCommand extends Command {
 
   private final Drivetrain m_drive;
-  private final IGyro m_gyro;
   private final IBotSelector m_selectedBot;
 
   // Axis suppliers (injected from RobotContainer)
@@ -61,7 +48,6 @@ public class StickCommand extends Command {
       BooleanSupplier selectButtonSupplier) {
 
     m_drive = drive;
-    m_gyro = gyro;
     m_selectedBot = selectedBot;
 
     this.driveXSupplier = driveXSupplier;

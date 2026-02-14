@@ -93,7 +93,7 @@ public class RobotContainer {
 
     configureBindings();
 
-    // ✅ Automatic default drive command (modern approach)
+    // Automatic default drive command (modern approach)
     m_Drive.setDefaultCommand(
         new StickCommand(
             m_Drive,
