@@ -1,19 +1,21 @@
 package frc.robot.Util;
 
+import edu.wpi.first.math.util.Units;
+
 public class ShooterCalculations {
 
     public static double calculateAngleShot(double targetDistance_in) {
-        double angleStep1 = (2 * ShooterConstants.dmr_m + ShooterConstants.drt_m) * (ShooterConstants.deltaHprm_m)
-                + (ShooterConstants.har_m / ShooterConstants.drt_m) * Math.pow(ShooterConstants.dmr_m, 2);
-        double angleStep2 = (2 * ShooterConstants.dmr_m + ShooterConstants.drt_m) * (ShooterConstants.dmr_m)
-                - Math.pow(ShooterConstants.dmr_m, 2);
+        double angleStep1 = (2 * ShooterConstants.dmr_in + ShooterConstants.drt_in) * (ShooterConstants.deltaHprm_in)
+                + (ShooterConstants.har_in / ShooterConstants.drt_in) * Math.pow(ShooterConstants.dmr_in, 2);
+        double angleStep2 = (2 * ShooterConstants.dmr_in + ShooterConstants.drt_in) * (ShooterConstants.dmr_in)
+                - Math.pow(ShooterConstants.dmr_in, 2);
         return (Math.atan(angleStep1 / angleStep2));
     }
 
-    public static double calculateInitialVelocity(double shooterAngle_deg,double targetDistance_in) {
+    public static double calculateInitialVelocity(double shooterAngle_deg,double target) {
         double step1 = ShooterConstants.g
-                * ((targetDistance_in - ShooterConstants.drc_m) + ShooterConstants.drt_m / 2);
-        double step2 = (ShooterConstants.har_m / ShooterConstants.drt_m) * (Math.pow(Math.cos(shooterAngle_deg), 2))
+                * ((target - ShooterConstants.drc_in) + ShooterConstants.drt_in / 2);
+        double step2 = (ShooterConstants.har_in / ShooterConstants.drt_in) * (Math.pow(Math.cos(shooterAngle_deg), 2))
                 + (Math.sin(shooterAngle_deg) * (Math.cos(shooterAngle_deg)));
         double step3 = (step1 / step2);
         return Math.sqrt(step3);
@@ -22,7 +24,7 @@ public class ShooterCalculations {
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
-        return ShooterConstants.drt_m * Math.tan(MissingAngle_deg);
+        return ShooterConstants.drt_in * Math.tan(MissingAngle_deg);
     }
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg, double distanceRimToTarget) {
@@ -34,16 +36,16 @@ public class ShooterCalculations {
     public class ShooterConstants {
         private static final double g = 9.817;
 
-        private static double har_m = 1.228344; //MAKE A PARAMETER AT SOME PT  har_m = height above the rim
-        private static double drt_m = .597154; //MAKE A PARAMETER AT SOME PT ShooterConstants.drt_m = distance rim to penetration of target plane
+        private static double har_in = Units.metersToInches(1.228344); //MAKE A PARAMETER AT SOME PT  har_m = height above the rim
+        private static double drt_in = Units.metersToInches(.597154); //MAKE A PARAMETER AT SOME PT ShooterConstants.drt_m = distance rim to penetration of target plane
                                               // (how far in should the ball
         
-        private static double dmr_m = .3; // ShooterConstants.dmr_m = horiz dist of muzzle to rim
-        private static double drc_m = .597154; // drc_m = horiz dist rim to target center
-        private static double hrm_m = 1.8; // hrm_m = height of rim
-        private static double hm_m = .4; // hm_m = height of muzzle
+        private static double dmr_in = Units.metersToInches(.3); // ShooterConstants.dmr_m = horiz dist of muzzle to rim
+        private static double drc_in = Units.metersToInches(.597154); // drc_m = horiz dist rim to target center
+        private static double hrm_in = Units.metersToInches(1.8); // hrm_m = height of rim
+        private static double hm_in = Units.metersToInches(.4); // hm_m = height of muzzle
         // theta = hood angle
-        private static double deltaHprm_m = hrm_m + har_m - hm_m;
+        private static double deltaHprm_in = hrm_in + har_in - hm_in;
 
     }
 }
@@ -55,7 +57,7 @@ public class ShooterCalculations {
  * 
  * 
  * 
- * numerator = g((targetDistance_in-drc_m) + (ShooterConstants.drt_m/2))
+ * numerator = g((target-drc_m) + (ShooterConstants.drt_m/2))
  * denominator =
  * (har_m/ShooterConstants.drt_m)(cos(theta))^2(sin(theta))(cos(theta))
  * 
