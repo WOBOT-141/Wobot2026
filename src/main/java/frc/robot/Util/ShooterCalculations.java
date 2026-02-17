@@ -4,19 +4,19 @@ import edu.wpi.first.math.util.Units;
 
 public class ShooterCalculations {
 
-    public static double calculateAngleShot(double targetDistance_in) {
+    public static double getLaunchAngle(double targetDistance_in, double targetHeight_in) {
         double angleStep1 = (2 * ShooterConstants.dmr_in + ShooterConstants.drt_in) * (ShooterConstants.deltaHprm_in)
-                + (ShooterConstants.har_in / ShooterConstants.drt_in) * Math.pow(ShooterConstants.dmr_in, 2);
+                + (ShooterConstants.targetHeight_in / ShooterConstants.drt_in) * Math.pow(ShooterConstants.dmr_in, 2);
         double angleStep2 = (2 * ShooterConstants.dmr_in + ShooterConstants.drt_in) * (ShooterConstants.dmr_in)
                 - Math.pow(ShooterConstants.dmr_in, 2);
         return (Math.atan(angleStep1 / angleStep2));
     }
 
-    public static double calculateInitialVelocity(double shooterAngle_deg,double target) {
+    public static double getLaunchSpeed(double launchAngle_deg,double targetDistance_in) {
         double step1 = ShooterConstants.g
-                * ((target - ShooterConstants.drc_in) + ShooterConstants.drt_in / 2);
-        double step2 = (ShooterConstants.har_in / ShooterConstants.drt_in) * (Math.pow(Math.cos(shooterAngle_deg), 2))
-                + (Math.sin(shooterAngle_deg) * (Math.cos(shooterAngle_deg)));
+                * ((targetDistance_in - ShooterConstants.drc_in) + ShooterConstants.drt_in / 2);
+        double step2 = (ShooterConstants.targetHeight_in / ShooterConstants.drt_in) * (Math.pow(Math.cos(launchAngle_deg), 2))
+                + (Math.sin(launchAngle_deg) * (Math.cos(launchAngle_deg)));
         double step3 = (step1 / step2);
         return Math.sqrt(step3);
     }
@@ -36,7 +36,7 @@ public class ShooterCalculations {
     public class ShooterConstants {
         private static final double g = 9.817;
 
-        private static double har_in = Units.metersToInches(1.228344); //MAKE A PARAMETER AT SOME PT  har_m = height above the rim
+        private static double targetHeight_in = Units.metersToInches(1.228344); //MAKE A PARAMETER AT SOME PT  har_m = height above the rim
         private static double drt_in = Units.metersToInches(.597154); //MAKE A PARAMETER AT SOME PT ShooterConstants.drt_m = distance rim to penetration of target plane
                                               // (how far in should the ball
         
@@ -45,7 +45,7 @@ public class ShooterCalculations {
         private static double hrm_in = Units.metersToInches(1.8); // hrm_m = height of rim
         private static double hm_in = Units.metersToInches(.4); // hm_m = height of muzzle
         // theta = hood angle
-        private static double deltaHprm_in = hrm_in + har_in - hm_in;
+        private static double deltaHprm_in = hrm_in + targetHeight_in - hm_in;
 
     }
 }
