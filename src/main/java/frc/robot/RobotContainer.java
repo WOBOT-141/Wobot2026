@@ -39,7 +39,7 @@ public class RobotContainer {
 
   private final IBotSelector _selectedBot = new MainBot();
 
-  ChooserHandeling autonSelector;
+  private ChooserHandeling autonSelector;
 
   public RobotContainer() {
 
@@ -80,11 +80,10 @@ public class RobotContainer {
 
     m_Drive = new Drivetrain(m_wheels, m_Gyro);
 
-    // 🔥 Restore deadband + stick parameter setup
     configureFlightControllerParameters();
-
     configureBindings();
 
+    // Modern automatic default command
     m_Drive.setDefaultCommand(
         new StickCommand(
             m_Drive,
@@ -100,8 +99,7 @@ public class RobotContainer {
   }
 
   /**
-   * Configure Spektrum flight controller scaling and deadbands.
-   * This replaces the old deadbandSetup() method.
+   * Restore flight controller scaling, offsets, and deadbands.
    */
   private void configureFlightControllerParameters() {
 
@@ -121,6 +119,32 @@ public class RobotContainer {
     flightController0.setxDeadBand(p.get_deadbandX());
     flightController0.setyDeadBand(p.get_deadbandY());
     flightController0.setRotationDeadBand(p.get_deadbandRot());
+  }
+
+  /**
+   * Re-zero swerve modules while disabled.
+   */
+  public void wheelSetup() {
+
+    m_wheels[0].setEncoderOffset(_selectedBot.getfrontLeftOffset());
+    m_wheels[0].set_xPos(_selectedBot.getfrontLeftLocationX());
+    m_wheels[0].set_yPos(_selectedBot.getfrontLeftLocationY());
+
+    m_wheels[1].setEncoderOffset(_selectedBot.getbackLeftOffset());
+    m_wheels[1].set_xPos(_selectedBot.getbackLeftLocationX());
+    m_wheels[1].set_yPos(_selectedBot.getbackLeftLocationY());
+
+    m_wheels[2].setEncoderOffset(_selectedBot.getfrontRightOffset());
+    m_wheels[2].set_xPos(_selectedBot.getfrontRightLocationX());
+    m_wheels[2].set_yPos(_selectedBot.getfrontRightLocationY());
+
+    m_wheels[3].setEncoderOffset(_selectedBot.getbackRightOffset());
+    m_wheels[3].set_xPos(_selectedBot.getbackRightLocationX());
+    m_wheels[3].set_yPos(_selectedBot.getbackRightLocationY());
+
+    for (int i = 0; i < 4; i++) {
+      m_wheels[i].settoZero();
+    }
   }
 
   private void configureBindings() {
