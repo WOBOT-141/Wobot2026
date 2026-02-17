@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import com.revrobotics.spark.SparkMax;
+
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -122,5 +127,22 @@ public final class Constants {
     public static final double deadbandRot = 0.025;
     public static final double deadbandX = 0.025;
     public static final double deadbandY = 0.025;
+  }
+   public static class ShooterConstance {
+    public static final double wheelCircumference_in = (Math.PI * 4); 
+    
+    public static final double P = 0.0016;// .00009
+    public static final double I = 0.000068;// 0
+    public static final double D = 0;
+    public static final double FF = 0.00016500000492669642;
+
+    public static final int flyWheelRightMotorID = 13;
+    public static final int flyWheelMiddlehtMotorID = 14;
+    public static final int flyWheelLeftMotorID = 15;
+
+    public static final int flywheelTolernce_ips = 13;
+    public static final int slewRateLimt = 4000;
+    public static final int stallLimt_amp = 60;
+
   }
 }
