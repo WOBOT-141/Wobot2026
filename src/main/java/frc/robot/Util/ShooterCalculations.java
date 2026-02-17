@@ -9,14 +9,14 @@ public class ShooterCalculations {
                 + (ShooterConstants.targetHeight_in / ShooterConstants.drt_in) * Math.pow(ShooterConstants.dmr_in, 2);
         double angleStep2 = (2 * ShooterConstants.dmr_in + ShooterConstants.drt_in) * (ShooterConstants.dmr_in)
                 - Math.pow(ShooterConstants.dmr_in, 2);
-        return (Math.atan(angleStep1 / angleStep2));
+        return (Math.atan(Math.toRadians(angleStep1 / angleStep2)));
     }
 
     public static double getLaunchSpeed(double launchAngle_deg,double targetDistance_in) {
         double step1 = ShooterConstants.g
                 * ((targetDistance_in - ShooterConstants.drc_in) + ShooterConstants.drt_in / 2);
-        double step2 = (ShooterConstants.targetHeight_in / ShooterConstants.drt_in) * (Math.pow(Math.cos(launchAngle_deg), 2))
-                + (Math.sin(launchAngle_deg) * (Math.cos(launchAngle_deg)));
+        double step2 = (ShooterConstants.targetHeight_in / ShooterConstants.drt_in) * (Math.pow(Math.toRadians(Math.cos(launchAngle_deg)), 2))
+                + (Math.sin(Math.toRadians(launchAngle_deg)) * Math.toRadians(Math.cos(launchAngle_deg)));
         double step3 = (step1 / step2);
         return Math.sqrt(step3);
     }
@@ -24,12 +24,12 @@ public class ShooterCalculations {
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
-        return ShooterConstants.drt_in * Math.tan(MissingAngle_deg);
+        return ShooterConstants.drt_in * Math.tan(Math.toRadians(MissingAngle_deg));
     }
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg, double distanceRimToTarget) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
-        return distanceRimToTarget * Math.tan(MissingAngle_deg);
+        return distanceRimToTarget * Math.tan(Math.toRadians(MissingAngle_deg));
 
     }
 
