@@ -18,21 +18,14 @@ import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.TestCommands.DriveInDirection;
+import frc.robot.commands.StickParameters.IStickParameters;
+import frc.robot.commands.StickParameters.StickBParameters;
 
-/**
- * RobotContainer defines:
- * - Subsystems
- * - Default commands
- * - Controller bindings
- *
- * This is the heart of the robot.
- */
 public class RobotContainer {
 
   private final Drivetrain m_Drive;
   private final IGyro m_Gyro = new NavxGyro();
 
-  // Controllers (NOT static — prevents hidden dependencies)
   private final SpektrumFlightController flightController0 =
       new SpektrumFlightController(0);
 
@@ -45,17 +38,13 @@ public class RobotContainer {
   public final SwerveModule[] m_wheels;
 
   private final IBotSelector _selectedBot = new MainBot();
-  // private final IBotSelector _selectedBot = new SummerBot();
 
   ChooserHandeling autonSelector;
 
-  /**
-   * Construct subsystems and configure bindings.
-   */
   public RobotContainer() {
 
     m_wheels = new SwerveModule[] {
-        // assuming that the roborio is the front and the battery is the back
+
         new SwerveModule(
             Constants.CANIdConstants.frontLeftSteerMotorID,
             Constants.CANIdConstants.frontLeftDriveMotorID,
@@ -91,9 +80,11 @@ public class RobotContainer {
 
     m_Drive = new Drivetrain(m_wheels, m_Gyro);
 
+    // 🔥 Restore deadband + stick parameter setup
+    configureFlightControllerParameters();
+
     configureBindings();
 
-    // Automatic default drive command (modern approach)
     m_Drive.setDefaultCommand(
         new StickCommand(
             m_Drive,
@@ -109,34 +100,29 @@ public class RobotContainer {
   }
 
   /**
-   * Re-zero swerve modules (called from Robot.disabledPeriodic()).
+   * Configure Spektrum flight controller scaling and deadbands.
+   * This replaces the old deadbandSetup() method.
    */
-  public void wheelSetup() {
+  private void configureFlightControllerParameters() {
 
-    m_wheels[0].setEncoderOffset(_selectedBot.getfrontLeftOffset());
-    m_wheels[0].set_xPos(_selectedBot.getfrontLeftLocationX());
-    m_wheels[0].set_yPos(_selectedBot.getfrontLeftLocationY());
+    IStickParameters p = new StickBParameters();
 
-    m_wheels[1].setEncoderOffset(_selectedBot.getbackLeftOffset());
-    m_wheels[1].set_xPos(_selectedBot.getbackLeftLocationX());
-    m_wheels[1].set_yPos(_selectedBot.getbackLeftLocationY());
+    flightController0.setRotateFactor(p.get_RotateFactor());
+    flightController0.setDriveXFactor(p.get_DriveXFactor());
+    flightController0.setDriveYFactor(p.get_DriveYFactor());
+    flightController0.setThrottleFactor(p.get_ThrottleFactor());
 
-    m_wheels[2].setEncoderOffset(_selectedBot.getfrontRightOffset());
-    m_wheels[2].set_xPos(_selectedBot.getfrontRightLocationX());
-    m_wheels[2].set_yPos(_selectedBot.getfrontRightLocationY());
+    flightController0.setRotateOffset(p.get_RotateOffset());
+    flightController0.setDriveXOffset(p.get_DriveXOffset());
+    flightController0.setDriveYOffset(p.get_DriveYOffset());
+    flightController0.setThrottleOffset(p.get_ThrottleOffset());
 
-    m_wheels[3].setEncoderOffset(_selectedBot.getbackRightOffset());
-    m_wheels[3].set_xPos(_selectedBot.getbackRightLocationX());
-    m_wheels[3].set_yPos(_selectedBot.getbackRightLocationY());
-
-    for (int i = 0; i < 4; i++) {
-      m_wheels[i].settoZero();
-    }
+    flightController0.setKnobOffset(p.get_knobOffset());
+    flightController0.setxDeadBand(p.get_deadbandX());
+    flightController0.setyDeadBand(p.get_deadbandY());
+    flightController0.setRotationDeadBand(p.get_deadbandRot());
   }
 
-  /**
-   * Configure controller bindings.
-   */
   private void configureBindings() {
     configureXboxController();
     configureJoystick();
@@ -145,31 +131,18 @@ public class RobotContainer {
 
   private void configureXboxController() {
 
-    xboxController0.a()
-        .onTrue(new ResetGyro(m_Gyro));
-
-    xboxController0.rightBumper()
-        .onTrue(new LockWheels(m_Drive));
-
-    xboxController0.leftBumper()
-        .whileTrue(new DriveInDirection(m_Drive, 1, 0.02));
-
-    xboxController0.povUp()
-        .onTrue(Commands.print("POV Up Pressed"));
+    xboxController0.a().onTrue(new ResetGyro(m_Gyro));
+    xboxController0.rightBumper().onTrue(new LockWheels(m_Drive));
+    xboxController0.leftBumper().whileTrue(new DriveInDirection(m_Drive, 1, 0.02));
+    xboxController0.povUp().onTrue(Commands.print("POV Up Pressed"));
   }
 
   private void configureJoystick() {
 
-    joystick.trigger()
-        .onTrue(Commands.print("Joystick Trigger"));
-
-    joystick.button(2)
-        .onTrue(Commands.print("Joystick Button 2"));
+    joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
+    joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
   }
 
-  /**
-   * SpektrumFlightController buttons wrapped manually.
-   */
   private void configureFlightController() {
 
     SmartDashboard.putBoolean(
@@ -182,9 +155,6 @@ public class RobotContainer {
         .onTrue(new ResetGyro(m_Gyro));
   }
 
-  /**
-   * Returns selected autonomous command.
-   */
   public Command getAutonomousCommand() {
 
     Command selectedCommand = autonSelector.getSelected();

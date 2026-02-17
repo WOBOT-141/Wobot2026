@@ -20,11 +20,11 @@ public class StickCommand extends Command {
   private final IBotSelector m_selectedBot;
 
   // Axis suppliers (injected from RobotContainer)
-  private final DoubleSupplier driveXSupplier;
-  private final DoubleSupplier driveYSupplier;
-  private final DoubleSupplier rotateSupplier;
-  private final DoubleSupplier throttleSupplier;
-  private final BooleanSupplier selectButtonSupplier;
+  private final DoubleSupplier m_driveXSupplier;
+  private final DoubleSupplier m_driveYSupplier;
+  private final DoubleSupplier m_rotateSupplier;
+  private final DoubleSupplier m_throttleSupplier;
+  private final BooleanSupplier m_selectButtonSupplier;
 
   // Ramp only linear magnitude (as original code did)
   private final SlewRateLimiter rampRate = new SlewRateLimiter(1.0);
@@ -50,11 +50,11 @@ public class StickCommand extends Command {
     m_drive = drive;
     m_selectedBot = selectedBot;
 
-    this.driveXSupplier = driveXSupplier;
-    this.driveYSupplier = driveYSupplier;
-    this.rotateSupplier = rotateSupplier;
-    this.throttleSupplier = throttleSupplier;
-    this.selectButtonSupplier = selectButtonSupplier;
+    this.m_driveXSupplier = driveXSupplier;
+    this.m_driveYSupplier = driveYSupplier;
+    this.m_rotateSupplier = rotateSupplier;
+    this.m_throttleSupplier = throttleSupplier;
+    this.m_selectButtonSupplier = selectButtonSupplier;
 
     addRequirements(drive);
   }
@@ -74,18 +74,16 @@ public class StickCommand extends Command {
     }
 
     /* ---------------- Read Controller ---------------- */
-    double stickX = driveXSupplier.getAsDouble();
-    double stickY = driveYSupplier.getAsDouble();
-    double stickRotate = rotateSupplier.getAsDouble();
-    double stickThrottle = throttleSupplier.getAsDouble();
+    double stickX = m_driveXSupplier.getAsDouble();
+    double stickY = m_driveYSupplier.getAsDouble();
+    double stickRotate = m_rotateSupplier.getAsDouble();
+    double stickThrottle = m_throttleSupplier.getAsDouble();
 
     /* ---------------- Vector Math ---------------- */
 
     // Convert X/Y to magnitude and direction (polar form)
     double rightMagnitude = Math.hypot(stickX, stickY);
 
-    // NOTE: You intentionally used atan2(stickX, stickY) (swapped order).
-    // This preserves your coordinate system exactly.
     double rightDirectional = Math.toDegrees(Math.atan2(stickX, stickY));
 
     // Convert throttle from [-1,1] to [0,1] with slight boost
@@ -107,7 +105,7 @@ public class StickCommand extends Command {
 
     /* ---------------- Lockdown Logic ---------------- */
 
-    if (selectButtonSupplier.getAsBoolean()) {
+    if (m_selectButtonSupplier.getAsBoolean()) {
       lockdown = true;
     }
 
@@ -150,10 +148,10 @@ public class StickCommand extends Command {
   }
 
   private void stickDebug() {
-    SmartDashboard.putNumber("STICK X", driveXSupplier.getAsDouble());
-    SmartDashboard.putNumber("STICK Y", driveYSupplier.getAsDouble());
-    SmartDashboard.putNumber("STICK ROT", rotateSupplier.getAsDouble());
-    SmartDashboard.putNumber("STICK THROTTLE", throttleSupplier.getAsDouble());
+    SmartDashboard.putNumber("STICK X", m_driveXSupplier.getAsDouble());
+    SmartDashboard.putNumber("STICK Y", m_driveYSupplier.getAsDouble());
+    SmartDashboard.putNumber("STICK ROT", m_rotateSupplier.getAsDouble());
+    SmartDashboard.putNumber("STICK THROTTLE", m_throttleSupplier.getAsDouble());
   }
 
   @Override
