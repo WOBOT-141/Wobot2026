@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.SpektrumFlightController;
@@ -11,6 +12,8 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
+import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
 import frc.robot.subsystems.ChooserHandeling;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -36,12 +39,13 @@ import frc.robot.commands.TestCommands.DriveInDirection;
 public class RobotContainer {
   private final Drivetrain m_Drive;
 
-  public static SpektrumFlightController flightController0;
-  public static XboxController xboxController0;
-  public static Joystick joystick;
+  private final SpektrumFlightController flightController0;
+  private final XboxController xboxController0;
+  private final Joystick joystick;
   private final IGyro m_Gyro = new NavxGyro();
-  public final SwerveModule[] m_wheels;
+  private final SwerveModule[] m_wheels;
 
+  private final AprilTagFilter m_AprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
   private final IBotSelector _selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
 

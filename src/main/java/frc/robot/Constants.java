@@ -71,7 +71,6 @@ public final class Constants {
     public static final double drivekD = 0;
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
-    // top speed of bot in feet per second converted into meters per second
     public static final double topSpeed_mps = 25;// 20.36
 
     public static final double autoRotatekP = 0.4; // 0.72
