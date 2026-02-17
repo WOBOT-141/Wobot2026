@@ -13,17 +13,16 @@ import frc.robot.subsystems.SwerveModule;
 public class StraightLineDrive extends Command {
   private final Drivetrain m_drivetrain;
   private final double m_distance_in;
-  private final double m_angle_deg;
   private double distanceTraveled;
   private SwerveModule[] m_wheels;
   private double[] StartingEncoderPos_in;
   double desiredBotDistance;
+  double DistanceLeftOver_perc;
 
   /** Creates a new StraightLineDrive. */
-  public StraightLineDrive(Drivetrain drivetrain, double distance, double angle, SwerveModule wheels[]) {
+  public StraightLineDrive(Drivetrain drivetrain, double distance, SwerveModule wheels[]) {
     m_drivetrain = drivetrain;
     m_distance_in = distance;
-    m_angle_deg = angle;
     m_wheels = wheels;
     StartingEncoderPos_in = new double[m_wheels.length];
     // Use addRequirements() here to declare subsystem dependencies.
@@ -34,7 +33,7 @@ public class StraightLineDrive extends Command {
   @Override
   public void initialize() {
     for (int i = 0; i < m_wheels.length; i++) {
-      StartingEncoderPos_in[i] += m_wheels[i].getEncoderDistance();
+      StartingEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
       SmartDashboard.putNumber("StartingEncoderPos_" + i, StartingEncoderPos_in[i]);
     }
     desiredBotDistance = m_distance_in + distanceTraveled;
@@ -45,47 +44,48 @@ public class StraightLineDrive extends Command {
   public void execute() {
 
     double[] CurrentEncoderPos_in = new double[m_wheels.length];
-    double DistanceLeftOver_perc;
     double DistanceFound_perc = 1;
-    distanceTraveled = 0;
     double TotalSubstractedDistance = 0;
     for (int i = 0; i < m_wheels.length; i++) {
-      CurrentEncoderPos_in[i] += m_wheels[i].getEncoderDistance();
+      CurrentEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
       SmartDashboard.putNumber("CurrentEncoderPos_" + i, CurrentEncoderPos_in[i]);
-      TotalSubstractedDistance += CurrentEncoderPos_in[i] - StartingEncoderPos_in[i];
-      distanceTraveled += CurrentEncoderPos_in[i];
+      TotalSubstractedDistance += StartingEncoderPos_in[i] - CurrentEncoderPos_in[i];
     }
-    distanceTraveled = Math.abs(distanceTraveled /= m_wheels.length);
-    double AvgSubstractedDistance = TotalSubstractedDistance / m_wheels.length; //fix soon
-    DistanceLeftOver_perc = desiredBotDistance / distanceTraveled;
-    //DistanceFound_perc = Math.abs(DistanceLeftOver_perc / desiredBotDistance);
 
-    SmartDashboard.putNumber("distanceTraveled", distanceTraveled);
-    SmartDashboard.putNumber("distanceLeftOver", DistanceLeftOver_perc);
-    SmartDashboard.putNumber("AvgSubtractedDistance", AvgSubstractedDistance);
+    double AvgSubstractedDistance = TotalSubstractedDistance / m_wheels.length;
+    DistanceLeftOver_perc = Math.abs(AvgSubstractedDistance / desiredBotDistance);
+
+
+    SmartDashboard.putNumber("distanceLeftOver_perc", DistanceLeftOver_perc);
+    SmartDashboard.putNumber("TotalSubtractedDistance", AvgSubstractedDistance);
     SmartDashboard.putNumber("DistanceFound_perc", DistanceFound_perc);
     SmartDashboard.putNumber("m_distance_in", desiredBotDistance);
 
     double slowSpot = 0.3;
-    double driveSpeed = 0.25;
+    double driveSpeed = 0.05;
 
-    if (DistanceLeftOver_perc > 0.95 || DistanceLeftOver_perc < 0.05) {
-      driveSpeed = 0.05;
-    } else if (DistanceFound_perc < slowSpot) {
-      driveSpeed = 0.1;
+    if (CurrentEncoderPos_in[1] != StartingEncoderPos_in[1]) {
+      if (DistanceLeftOver_perc > 0.95 || 0.05 > DistanceLeftOver_perc) {
+        driveSpeed = 0.05;
+      } else if (DistanceFound_perc < slowSpot) {
+        driveSpeed = 0.2;
+      } else {
+        driveSpeed = 0.5;
+      }
     }
- 
-    m_drivetrain.driveWithGyro(0, driveSpeed, 0);
+
+    m_drivetrain.driveWithoutGyro(0, driveSpeed, 0);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    m_drivetrain.driveWithoutGyro(0, 0, 0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return ((distanceTraveled + 5) >= desiredBotDistance && (distanceTraveled - 5) <= desiredBotDistance);
+    return DistanceLeftOver_perc > 0.97;
   }
 }
