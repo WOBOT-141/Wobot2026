@@ -50,7 +50,7 @@ private IDetection m_closestDetection;
   public void execute() {
     IDetection currentDetection = m_visionServer.getClosestDetection();
     double pidOutput = m_pidController.calculate(currentDetection.getAngle());
-    m_drivetrain.driveSwerve(0, 0, -pidOutput);
+    m_drivetrain.driveSwerve(0, 0, pidOutput);
     SmartDashboard.putNumber("RotateToTagP", m_pidController.getP());
     SmartDashboard.putNumber("RotateTotagI", m_pidController.getI());
     SmartDashboard.putNumber("RotateToTagD", m_pidController.getD());
