@@ -13,18 +13,19 @@ import frc.robot.subsystems.SwerveModule;
 public class StraightLineDrive extends Command {
   private final Drivetrain m_drivetrain;
   private final double m_distance_in;
-  private double distanceTraveled;
-  private SwerveModule[] m_wheels;
-  private double[] StartingEncoderPos_in;
-  double desiredBotDistance;
-  double DistanceLeftOver_perc;
+  private final SwerveModule[] m_wheels;
+ 
+  private double m_distanceTraveled_in;
+  private double[] m_startingEncoderPos_in;
+  private double m_desiredBotDistance_in;
+  private double m_avgSubstractedDistance_in;
 
   /** Creates a new StraightLineDrive. */
   public StraightLineDrive(Drivetrain drivetrain, double distance, SwerveModule wheels[]) {
     m_drivetrain = drivetrain;
     m_distance_in = distance;
     m_wheels = wheels;
-    StartingEncoderPos_in = new double[m_wheels.length];
+    m_startingEncoderPos_in = new double[m_wheels.length];
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);
   }
@@ -33,41 +34,39 @@ public class StraightLineDrive extends Command {
   @Override
   public void initialize() {
     for (int i = 0; i < m_wheels.length; i++) {
-      StartingEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
-      SmartDashboard.putNumber("StartingEncoderPos_" + i, StartingEncoderPos_in[i]);
+      m_startingEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
+      SmartDashboard.putNumber("StartingEncoderPos_" + i, m_startingEncoderPos_in[i]);
     }
-    desiredBotDistance = m_distance_in + distanceTraveled;
+    m_desiredBotDistance_in = m_distance_in + m_distanceTraveled_in;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    double[] CurrentEncoderPos_in = new double[m_wheels.length];
-    double DistanceFound_perc = 1;
-    double TotalSubstractedDistance = 0;
+    double[] currentEncoderPos_in = new double[m_wheels.length];
+    double totalSubstractedDistance_in = 0;
     for (int i = 0; i < m_wheels.length; i++) {
-      CurrentEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
-      SmartDashboard.putNumber("CurrentEncoderPos_" + i, CurrentEncoderPos_in[i]);
-      TotalSubstractedDistance += StartingEncoderPos_in[i] - CurrentEncoderPos_in[i];
+      currentEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
+      SmartDashboard.putNumber("CurrentEncoderPos_" + i, currentEncoderPos_in[i]);
+      totalSubstractedDistance_in += Math.abs(m_startingEncoderPos_in[i] - currentEncoderPos_in[i]);
     }
 
-    double AvgSubstractedDistance = TotalSubstractedDistance / m_wheels.length;
-    DistanceLeftOver_perc = Math.abs(AvgSubstractedDistance / desiredBotDistance);
+    m_avgSubstractedDistance_in = totalSubstractedDistance_in / m_wheels.length;
+    double distanceLeftOver_perc = m_avgSubstractedDistance_in / m_desiredBotDistance_in;
 
 
-    SmartDashboard.putNumber("distanceLeftOver_perc", DistanceLeftOver_perc);
-    SmartDashboard.putNumber("TotalSubtractedDistance", AvgSubstractedDistance);
-    SmartDashboard.putNumber("DistanceFound_perc", DistanceFound_perc);
-    SmartDashboard.putNumber("m_distance_in", desiredBotDistance);
+    SmartDashboard.putNumber("distanceLeftOver_perc", distanceLeftOver_perc);
+    SmartDashboard.putNumber("m_AvgSubtractedDistance", m_avgSubstractedDistance_in);
+    SmartDashboard.putNumber("m_distance_in", m_desiredBotDistance_in);
 
     double slowSpot = 0.3;
     double driveSpeed = 0.05;
 
-    if (CurrentEncoderPos_in[1] != StartingEncoderPos_in[1]) {
-      if (DistanceLeftOver_perc > 0.95 || 0.05 > DistanceLeftOver_perc) {
+    if (currentEncoderPos_in[1] != m_startingEncoderPos_in[1]) {
+      if (distanceLeftOver_perc > 0.92 || 0.05 > distanceLeftOver_perc) {
         driveSpeed = 0.05;
-      } else if (DistanceFound_perc < slowSpot) {
+      } else if (distanceLeftOver_perc < slowSpot) {
         driveSpeed = 0.2;
       } else {
         driveSpeed = 0.5;
@@ -86,6 +85,6 @@ public class StraightLineDrive extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return DistanceLeftOver_perc > 0.97;
+    return Math.abs(m_avgSubstractedDistance_in - m_distance_in) < 1;
   }
 }

@@ -188,7 +188,7 @@ public class RobotContainer {
     Trigger dPadLeft = new POVButton(xboxController0, 270);
 
     leftBumper.onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
-    rightBumper.onTrue(new StraightLineDrive(m_Drive, 1, 0, m_wheels));
+    rightBumper.onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
   }
   
   private void configureJoystick() {
