@@ -128,7 +128,8 @@ public final class Constants {
     public static final double deadbandX = 0.025;
     public static final double deadbandY = 0.025;
   }
-   public static class ShooterConstance {
+  
+   public static class ShooterConstants {
     public static final double wheelCircumference_in = (Math.PI * 4); 
     
     public static final double P = 0.0016;// .00009
