@@ -22,7 +22,7 @@ public final class Constants {
   }
 
   public final class CANIdConstants {
-     public static final int frontLeftSteerMotorID = 1;
+    public static final int frontLeftSteerMotorID = 1;
     public static final int frontLeftDriveMotorID = 2;
     public static final int backLeftSteerMotorID = 3;
     public static final int backLeftDriveMotorID = 4;
@@ -30,9 +30,9 @@ public final class Constants {
     public static final int frontRightDriveMotorID = 6;
     public static final int backRightSteerMotorID = 7;
     public static final int backRightDriveMotorID = 8;
-    public static final int frontLeftEncoderid = 9; 
-    public static final int backLeftEncoderid = 10; 
-    public static final int frontRightEncoderid = 11; 
+    public static final int frontLeftEncoderid = 9;
+    public static final int backLeftEncoderid = 10;
+    public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
   }
 
@@ -64,8 +64,9 @@ public final class Constants {
     // wheel diameter multiplied by pi = circumference
     public static final double wheelCircumference_in = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
-    
-    public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear ratio
+
+    public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear
+                                                                                              // ratio
     public static final double drivekP = 0.0016;// .00009
     public static final double drivekI = 0.000068;// 0
     public static final double drivekD = 0;
@@ -97,7 +98,24 @@ public final class Constants {
     public static final int steerContCurrentLim_amp = 4;
     public static final int steerPeakCurrentLim_amp = 6;
   }
-  
+
+  public static class ShooterConstants {
+    public static final int flywheelRightMotorID = 13;
+    public static final int flywheelMiddleMotorID = 14;
+    public static final int flywheelLeftMotorID = 15;
+    public static final double P = 0.00005;
+    public static final double I = 0.00000;
+    public static final double D = 0.00000;
+    public static final double kF = 0.00017; // starting estimate
+    public static final double FlywheelDiameterInches = 4.12; // TODO update the flywheel diameter
+    public static final double FlywheelRPMTolerance = 100;
+    public static final int slewRateLimit = 4000;
+    public static final int stallLimit_amp = 60;
+    public static final int freeLimit_amp = 60;
+    public static final double BrownoutStartVoltage = 10.5;
+    public static final double BrownoutCriticalVoltage = 9.0;
+  }
+
   public static class ControllerOneConstants {
     /**
      * Factors used in the spektrum flight controller to multiply the raw stick
