@@ -13,7 +13,13 @@ import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.ChooserHandeling;
-
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutonomousCommands.RotateToAngle;
+import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
@@ -154,29 +160,20 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-
-    xboxController0.a().onTrue(new ResetGyro(m_Gyro));
-    xboxController0.rightBumper().onTrue(new LockWheels(m_Drive));
-    xboxController0.leftBumper().whileTrue(new DriveInDirection(m_Drive, 1, 0.02));
-    xboxController0.povUp().onTrue(Commands.print("POV Up Pressed"));
+    xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
+    xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
   }
 
   private void configureJoystick() {
-
     joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
     joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
   }
 
   private void configureFlightController() {
-
-    SmartDashboard.putBoolean(
-        "Flight Controller Connected",
-        flightController0.isConnected());
-
-    new Trigger(
-        () -> flightController0.getRawButton(
-            SpektrumFlightController.Button.kReset.value))
+    new Trigger(() -> flightController0.getRawButton(SpektrumFlightController.Button.kReset.value))
         .onTrue(new ResetGyro(m_Gyro));
+    new Trigger(() -> flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
+        .onTrue(new LockWheels(m_Drive));
   }
 
   public Command getAutonomousCommand() {

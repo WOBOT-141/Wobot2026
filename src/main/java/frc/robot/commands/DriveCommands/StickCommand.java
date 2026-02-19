@@ -49,12 +49,11 @@ public class StickCommand extends Command {
 
     m_drive = drive;
     m_selectedBot = selectedBot;
-
-    this.m_driveXSupplier = driveXSupplier;
-    this.m_driveYSupplier = driveYSupplier;
-    this.m_rotateSupplier = rotateSupplier;
-    this.m_throttleSupplier = throttleSupplier;
-    this.m_selectButtonSupplier = selectButtonSupplier;
+    m_driveXSupplier = driveXSupplier;
+    m_driveYSupplier = driveYSupplier;
+    m_rotateSupplier = rotateSupplier;
+    m_throttleSupplier = throttleSupplier;
+    m_selectButtonSupplier = selectButtonSupplier;
 
     addRequirements(drive);
   }
@@ -96,6 +95,8 @@ public class StickCommand extends Command {
 
     double finalLinearMagnitude = rightMagnitude * throttleValue;
     finalLinearMagnitude = Math.max(-1.0, Math.min(1.0, finalLinearMagnitude));
+
+    SmartDashboard.putNumber("finalLinearMagnitude", rightMagnitude * throttleValue);
 
     double rampedMagnitude = rampRate.calculate(finalLinearMagnitude);
 
