@@ -6,17 +6,10 @@ package frc.robot;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
- * numerical or boolean
- * constants. This class should not be used for any other purpose. All constants
- * should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>
- * It is advised to statically import this class (or one of its inner classes)
- * wherever the
- * constants are needed, to reduce verbosity.
+ * numerical or boolean constants.
  */
 public final class Constants {
+
   public static class OperatorConstants {
     public static final int driverControllerPort = 0;
   }
@@ -40,19 +33,18 @@ public final class Constants {
     public static final double P = 0.0035;
     public static final double I = 0.00000;
     public static final double D = 0.00000;
-    public static final double rotateTargetTolerance_deg = 3.0; // 2.0
+    public static final double rotateTargetTolerance_deg = 3.0;
   }
 
   public static class RotateVisionConstants {
     public static final double P = 0.004;
-    public static final double I = 0.002;// .00001
+    public static final double I = 0.002;
     public static final double D = 0.00000;
-    public static final double rotateTargetTolerance_deg = 2; // 2.0
+    public static final double rotateTargetTolerance_deg = 2;
   }
 
   public static class DriveCommandConstants {
-
-    public static final double P = 0.024;// .0024
+    public static final double P = 0.024;
     public static final double I = 0.0008;
     public static final double D = 0;
 
@@ -61,21 +53,20 @@ public final class Constants {
   }
 
   public static class DriveConstants {
-    // wheel diameter multiplied by pi = circumference
     public static final double wheelCircumference_in = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
 
-    public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear
-                                                                                              // ratio
-    public static final double drivekP = 0.0016;// .00009
-    public static final double drivekI = 0.000068;// 0
+    public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in;
+
+    public static final double drivekP = 0.0016;
+    public static final double drivekI = 0.000068;
     public static final double drivekD = 0;
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
-    // top speed of bot in feet per second converted into meters per second
-    public static final double topSpeed_mps = 25;// 20.36
 
-    public static final double autoRotatekP = 0.4; // 0.72
+    public static final double topSpeed_mps = 25;
+
+    public static final double autoRotatekP = 0.4;
     public static final double autoRotatekI = 0.02;
     public static final double autoRotatekD = 0;
     public static final int driveCurrentLim_amp = 80;
@@ -91,52 +82,85 @@ public final class Constants {
     public static final int neoTicksPerRotation = 42;
     public static final double steerDegPerMotorRotation_deg = 360 / steerGearRatio;
     public static final double steerDegPerEncoderTick_deg = steerDegPerMotorRotation_deg / neoTicksPerRotation;
+
     public static final double kF = 0;
     public static final double kP = .05;
     public static final double kI = 0;
     public static final double kD = 0;
+
     public static final int steerContCurrentLim_amp = 4;
     public static final int steerPeakCurrentLim_amp = 6;
   }
 
   public static class ShooterConstants {
+    // Motor IDs
     public static final int flywheelRightMotorID = 13;
     public static final int flywheelMiddleMotorID = 14;
     public static final int flywheelLeftMotorID = 15;
+
+    // PID / Feedforward
     public static final double P = 0.00005;
     public static final double I = 0.00000;
     public static final double D = 0.00000;
-    public static final double kF = 0.00017; // starting estimate
-    public static final double FlywheelDiameterInches = 4.12; // TODO update the flywheel diameter
-    public static final double FlywheelRPMTolerance = 100;
-    public static final int slewRateLimit = 4000;
+    public static final double kF = 0.00017;
+
+    // Physical properties
+    public static final double FlywheelDiameter_in = 4.12;
+
+    // Control tuning
+    public static final double FlywheelRPMTolerance_rpm = 100.0;
+    public static final double slewRateLimit_rpmps = 4000.0;
+
+    // Current limits
     public static final int stallLimit_amp = 60;
     public static final int freeLimit_amp = 60;
-    public static final double BrownoutStartVoltage = 10.5;
-    public static final double BrownoutCriticalVoltage = 9.0;
+
+    // Brownout protection
+    public static final double BrownoutStartVoltage_V = 10.5;
+    public static final double BrownoutCriticalVoltage_V = 9.0;
+
+    // Shot detection via RPM dip
+    public static final double shotDipThreshold_rpm = 250.0;
+    public static final double shotMinSeparation_sec = 0.08;
+  }
+
+  public static final class FeederConstants {
+    // Motor IDs
+    public static final int feedMotorID = 16;
+    public static final int magazineMotorID = 17;
+
+    // Current limits
+    public static final int freeLimit_amp = 40;
+
+    // Jam detection
+    public static final double jamRPMThreshold_rpm = 200.0;
+    public static final double jamTime_sec = 0.40;
+    public static final double jamClearTime_sec = 0.25;
+
+    // Feed behavior
+    public static final double reverseSpeed_perc = -0.40;
+    public static final double shooterNominalRPM_rpm = 5000.0;
+    public static final double shotRecoveryTime_sec = 0.15;
+
+    // Brownout protection
+    public static final double BrownoutStartVoltage_V = 10.5;
+    public static final double BrownoutCriticalVoltage_V = 9.0;
+
+    // Scaling when voltage is low
+    public static final double brownoutScale_perc = 0.5;
   }
 
   public static class ControllerOneConstants {
-    /**
-     * Factors used in the spektrum flight controller to multiply the raw stick
-     * outputs in order to scale them up or down.
-     * These can be found by dividing 1 by the raw stick output of that direction
-     */
     public static final double RotateFactor = 1.35;
     public static final double DriveXFactor = 1.26;
     public static final double DriveYFactor = 1.23;
     public static final double ThrottleFactor = 1.55;
-    /**
-     * Offsets used to add or subtract from a raw stick value in the spektrum flight
-     * controller to make their resting postion 0
-     * These should be equal to the raw stick output at rest.
-     */
+
     public static final double RotateOffset = -0.056375;
-    public static final double DriveXOffset = 0.039816 + 0.029202; // .075813
+    public static final double DriveXOffset = 0.039816 + 0.029202;
     public static final double DriveYOffset = -0.024228;
     public static final double ThrottleOffset = 0;
 
-    // Deadbands for sticks
     public static final double deadbandRot = 0.025;
     public static final double deadbandX = 0.025;
     public static final double deadbandY = 0.025;
