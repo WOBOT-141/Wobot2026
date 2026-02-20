@@ -1,11 +1,5 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.Timer;
-
-import frc.robot.Constants.ShooterConstants;
-
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -17,11 +11,13 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.ClosedLoopSlot;
 
-public class Shooter extends SubsystemBase {
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.Timer;
 
-  // =========================
-  // Hardware
-  // =========================
+import frc.robot.Constants.ShooterConstants;
+
+public class Shooter extends SubsystemBase {
 
   private final SparkMax m_rightMotor;
   private final SparkMax m_middleMotor;

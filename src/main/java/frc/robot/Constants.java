@@ -10,10 +10,6 @@ package frc.robot;
  */
 public final class Constants {
 
-  public static class OperatorConstants {
-    public static final int driverControllerPort = 0;
-  }
-
   public static final class CANIdConstants {
     public static final int frontLeftSteerMotorID = 1;
     public static final int frontLeftDriveMotorID = 2;
@@ -29,18 +25,20 @@ public final class Constants {
     public static final int backRightEncoderid = 12;
   }
 
-  public static class RotateCommandConstants {
-    public static final double P = 0.0035;
-    public static final double I = 0.00000;
-    public static final double D = 0.00000;
-    public static final double rotateTargetTolerance_deg = 3.0;
-  }
+  public static class ControllerOneConstants {
+    public static final double RotateFactor = 1.35;
+    public static final double DriveXFactor = 1.26;
+    public static final double DriveYFactor = 1.23;
+    public static final double ThrottleFactor = 1.55;
 
-  public static class RotateVisionConstants {
-    public static final double P = 0.004;
-    public static final double I = 0.002;
-    public static final double D = 0.00000;
-    public static final double rotateTargetTolerance_deg = 2;
+    public static final double RotateOffset = -0.056375;
+    public static final double DriveXOffset = 0.039816 + 0.029202;
+    public static final double DriveYOffset = -0.024228;
+    public static final double ThrottleOffset = 0;
+
+    public static final double deadbandRot = 0.025;
+    public static final double deadbandX = 0.025;
+    public static final double deadbandY = 0.025;
   }
 
   public static class DriveCommandConstants {
@@ -77,19 +75,48 @@ public final class Constants {
     public static final double visionDrivekD = 0.00015;
   }
 
-  public static class SteerConstants {
-    public static final double steerGearRatio = 12.8;
-    public static final int neoTicksPerRotation = 42;
-    public static final double steerDegPerMotorRotation_deg = 360 / steerGearRatio;
-    public static final double steerDegPerEncoderTick_deg = steerDegPerMotorRotation_deg / neoTicksPerRotation;
+  public static final class FeederConstants {
+    // Motor IDs
+    public static final int feedMotorID = 16;
+    public static final int magazineMotorID = 17;
 
-    public static final double kF = 0;
-    public static final double kP = .05;
-    public static final double kI = 0;
-    public static final double kD = 0;
+    // Current limits
+    public static final int freeLimit_amp = 40;
 
-    public static final int steerContCurrentLim_amp = 4;
-    public static final int steerPeakCurrentLim_amp = 6;
+    // Jam detection
+    public static final double jamRPMThreshold_rpm = 200.0;
+    public static final double jamTime_sec = 0.40;
+    public static final double jamClearTime_sec = 0.25;
+
+    // Feed behavior
+    public static final double reverseSpeed_perc = -0.40;
+    public static final double shooterNominalRPM_rpm = 5000.0;
+    public static final double shotRecoveryTime_sec = 0.15;
+
+    // Brownout protection
+    public static final double BrownoutStartVoltage_V = 10.5;
+    public static final double BrownoutCriticalVoltage_V = 9.0;
+
+    // Scaling when voltage is low
+    public static final double brownoutScale_perc = 0.5;
+  }
+
+  public static class OperatorConstants {
+    public static final int driverControllerPort = 0;
+  }
+
+  public static class RotateCommandConstants {
+    public static final double P = 0.0035;
+    public static final double I = 0.00000;
+    public static final double D = 0.00000;
+    public static final double rotateTargetTolerance_deg = 3.0;
+  }
+
+  public static class RotateVisionConstants {
+    public static final double P = 0.004;
+    public static final double I = 0.002;
+    public static final double D = 0.00000;
+    public static final double rotateTargetTolerance_deg = 2;
   }
 
   public static class ShooterConstants {
@@ -124,45 +151,39 @@ public final class Constants {
     public static final double shotMinSeparation_sec = 0.08;
   }
 
-  public static final class FeederConstants {
-    // Motor IDs
-    public static final int feedMotorID = 16;
-    public static final int magazineMotorID = 17;
+  public static class SteerConstants {
+    public static final double steerGearRatio = 12.8;
+    public static final int neoTicksPerRotation = 42;
+    public static final double steerDegPerMotorRotation_deg = 360 / steerGearRatio;
+    public static final double steerDegPerEncoderTick_deg = steerDegPerMotorRotation_deg / neoTicksPerRotation;
 
-    // Current limits
-    public static final int freeLimit_amp = 40;
+    public static final double kF = 0;
+    public static final double kP = .05;
+    public static final double kI = 0;
+    public static final double kD = 0;
 
-    // Jam detection
-    public static final double jamRPMThreshold_rpm = 200.0;
-    public static final double jamTime_sec = 0.40;
-    public static final double jamClearTime_sec = 0.25;
-
-    // Feed behavior
-    public static final double reverseSpeed_perc = -0.40;
-    public static final double shooterNominalRPM_rpm = 5000.0;
-    public static final double shotRecoveryTime_sec = 0.15;
-
-    // Brownout protection
-    public static final double BrownoutStartVoltage_V = 10.5;
-    public static final double BrownoutCriticalVoltage_V = 9.0;
-
-    // Scaling when voltage is low
-    public static final double brownoutScale_perc = 0.5;
+    public static final int steerContCurrentLim_amp = 4;
+    public static final int steerPeakCurrentLim_amp = 6;
   }
 
-  public static class ControllerOneConstants {
-    public static final double RotateFactor = 1.35;
-    public static final double DriveXFactor = 1.26;
-    public static final double DriveYFactor = 1.23;
-    public static final double ThrottleFactor = 1.55;
+  public static class WheelConstants {
+    public static final double DriveP = 0.0000075; // .0150
+    public static final double DriveI = 0;
+    public static final double DriveD = 0;
+    public static final double DriveIz = 0;
+    public static final double DriveFFkS = 0.00012; // Ks = min volts to make motor barely move
+    public static final double DriveFFKv = 0.473; // Kv = got number from neo documentation
 
-    public static final double RotateOffset = -0.056375;
-    public static final double DriveXOffset = 0.039816 + 0.029202;
-    public static final double DriveYOffset = -0.024228;
-    public static final double ThrottleOffset = 0;
+    public static final double SteerP = 0.025;
+    public static final double SteerI = 0;
+    public static final double SteerD = 0;
+    public static final double SteerIz = 0;
+    public static final double SteerFF = 0;
 
-    public static final double deadbandRot = 0.025;
-    public static final double deadbandX = 0.025;
-    public static final double deadbandY = 0.025;
+    // TODO double check all these numbers
+    public static final double wheelCircumference_in = (Math.PI * 4);
+    public static final double driveGearRatio = 5.14;
+    public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in;
   }
+
 }
