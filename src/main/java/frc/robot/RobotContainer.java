@@ -17,9 +17,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.DriveCommands.ConsolidatedStickCommand;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.DriveCommands.MultiStickCommand;
+import frc.robot.commands.DriveCommands.NormalizedStickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.commands.TestCommands.DriveInDirection;
@@ -45,7 +48,7 @@ public class RobotContainer {
   private final IBotSelector _selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
 
-  StickCommand m_StickCommand;
+  MultiStickCommand m_MultiStickCommand;
 
   ChooserHandeling autonSelector;
 
@@ -137,9 +140,12 @@ public class RobotContainer {
 
   public void stickCommandInit() {
     deadbandSetup();
+    NormalizedStickCommand m_normalizedStickCommand = new NormalizedStickCommand(flightController0, m_Drive);
+    StickCommand m_stickCommand = new StickCommand(m_Drive, m_Gyro, flightController0, _selectedBot);
+    ConsolidatedStickCommand m_consolidatedStickCommand = new ConsolidatedStickCommand(m_Drive, m_Gyro, flightController0);
 
-    m_StickCommand = new StickCommand(m_Drive, m_Gyro, flightController0, _selectedBot);
-    m_Drive.setDefaultCommand(m_StickCommand);
+    m_MultiStickCommand = new MultiStickCommand(m_normalizedStickCommand, m_stickCommand, m_consolidatedStickCommand);
+    m_Drive.setDefaultCommand(m_MultiStickCommand);
     configureRotateBindings();
   }
 
