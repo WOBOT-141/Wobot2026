@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,12 +21,15 @@ public class Drivetrain extends SubsystemBase {
   private double m_tipDirection_deg;
   private double m_tipThreshold = 10;
 
+  SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
+      getWheelPositions());
+  ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0, 0, 0);
   public Drivetrain(SwerveModule[] wheels, IGyro gyro) {
     _wheels = wheels;
     m_gyro = gyro;
   }
 
-  public void setClimbing(boolean climb){
+  public void setClimbing(boolean climb) {
     m_climbing = climb;
   }
 
@@ -31,15 +37,16 @@ public class Drivetrain extends SubsystemBase {
     driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
   }
 
-  public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY) {
-    if(m_isTipping && !m_climbing){
+  public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
+      double rotX, double rotY) {
+    if (m_isTipping && !m_climbing) {
       translationAngle_deg = m_tipDirection_deg;
-      translationSpeed_perc = m_tipMagnitude / (m_tipThreshold*2);
+      translationSpeed_perc = m_tipMagnitude / (m_tipThreshold * 2);
       rotationalSpeed_perc = 0;
       rotX = 0;
       rotY = 0;
     }
-    
+
     SmartDashboard.putNumber("translation Speed", translationSpeed_perc);
     SmartDashboard.putNumber("translation Angle", translationAngle_deg);
     SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_perc);
@@ -87,6 +94,15 @@ public class Drivetrain extends SubsystemBase {
       var inputState = new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_perc[i] / normalizingFactor),
           Rotation2d.fromDegrees(calcWheelAngle_deg[i]));
       var outputState = _wheels[i].bestAngle(inputState);
+      m_chassisSpeeds = m_kinematics.toChassisSpeeds(
+          new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_perc[0] / normalizingFactor),
+              Rotation2d.fromDegrees(calcWheelAngle_deg[0])),
+          new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_perc[1] / normalizingFactor),
+              Rotation2d.fromDegrees(calcWheelAngle_deg[1])),
+          new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_perc[2] / normalizingFactor),
+              Rotation2d.fromDegrees(calcWheelAngle_deg[2])),
+          new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_perc[3] / normalizingFactor),
+              Rotation2d.fromDegrees(calcWheelAngle_deg[3])));
       // _wheels[i].setAngle(outputState.angle.getDegrees());
       // _wheels[i].setSpeed(outputState.speedMetersPerSecond);
       // if (i == 3) {
@@ -100,20 +116,19 @@ public class Drivetrain extends SubsystemBase {
     }
   }
 
-  public void driveWithGyro(double translationAngle_deg, 
-  double translationSpeed_perc,
-  double rotationalSpeed_perc, 
-  double rotX, double rotY) {
+  public void driveWithGyro(double translationAngle_deg,
+      double translationSpeed_perc,
+      double rotationalSpeed_perc,
+      double rotX, double rotY) {
     // Field-oriented adjustment
-      translationAngle_deg -= m_gyro.getRealGyroAngle();
-      driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY);
-    }
+    translationAngle_deg -= m_gyro.getRealGyroAngle();
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY);
+  }
 
   public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
-     translationAngle_deg -= m_gyro.getRealGyroAngle();
-     driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc);
+    translationAngle_deg -= m_gyro.getRealGyroAngle();
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc);
   }
-  
 
   // Temp command for testing
   public void goDistance(double pos) {
@@ -134,7 +149,8 @@ public class Drivetrain extends SubsystemBase {
     return resultAngle_deg;
   }
 
-  public XYVector getRotationVector(double rotationAngle_deg, double rotationalSpeed_perc, double deltaX, double deltaY) {
+  public XYVector getRotationVector(double rotationAngle_deg, double rotationalSpeed_perc, double deltaX,
+      double deltaY) {
     double rotationalspeedY = Math.cos(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
     double rotationalspeedX = Math.sin(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
     if (deltaX == 0 && deltaY == 0) {
@@ -150,7 +166,8 @@ public class Drivetrain extends SubsystemBase {
     return new XYVector(linDeltaX, linDeltaY);
   }
 
-  public double getRotationAngle(double deltaX, double deltaY, double translationAngle_deg, double rotationalSpeed_perc) {
+  public double getRotationAngle(double deltaX, double deltaY, double translationAngle_deg,
+      double rotationalSpeed_perc) {
     // alpha is the angle of the vector to the wheel location
     // with respect forward and in degrees
     double alpha = 0;
@@ -187,6 +204,9 @@ public class Drivetrain extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    DashboardPublisher.publishDouble("LinearSpeedX", m_chassisSpeeds.vxMetersPerSecond);
+    DashboardPublisher.publishDouble("LinearSpeedY", m_chassisSpeeds.vyMetersPerSecond);
+    DashboardPublisher.publishDouble("RotationalSpeed", m_chassisSpeeds.omegaRadiansPerSecond);
   }
 
   public void lockWheels() {
@@ -200,7 +220,12 @@ public class Drivetrain extends SubsystemBase {
     return _wheels;
   }
 
-}
+  public Translation2d[] getWheelPositions() {
+    Translation2d[] translations = new Translation2d[_wheels.length];
+    for (int i = 0; i < _wheels.length; i++) {
+      translations[i] = _wheels[i].getTranslation();
+    }
+    return translations;
 
-  
-    
+  }
+}
