@@ -14,7 +14,7 @@ public final class Constants {
     public static final int driverControllerPort = 0;
   }
 
-  public final class CANIdConstants {
+  public static final class CANIdConstants {
     public static final int frontLeftSteerMotorID = 1;
     public static final int frontLeftDriveMotorID = 2;
     public static final int backLeftSteerMotorID = 3;
@@ -64,7 +64,7 @@ public final class Constants {
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
 
-    public static final double topSpeed_mps = 25;
+    public static final double topSpeed_mps = 1.5;
 
     public static final double autoRotatekP = 0.4;
     public static final double autoRotatekI = 0.02;
