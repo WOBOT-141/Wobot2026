@@ -189,7 +189,7 @@ public class RobotContainer {
     Trigger dPadRight = new POVButton(xboxController0, 90);
     Trigger dPadDown = new POVButton(xboxController0, 180);
     Trigger dPadLeft = new POVButton(xboxController0, 270);
-    bButton.onTrue(new RotateToTag(visionServer, m_Drive));
+    bButton.whileTrue(new RotateToTag(visionServer, m_Drive));
   }
 
   
