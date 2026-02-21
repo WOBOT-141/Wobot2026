@@ -21,6 +21,21 @@ public final class Constants {
     public static final int driverControllerPort = 0;
   }
 
+  public final class CANIdConstants {
+     public static final int frontLeftSteerMotorID = 1;
+    public static final int frontLeftDriveMotorID = 2;
+    public static final int backLeftSteerMotorID = 3;
+    public static final int backLeftDriveMotorID = 4;
+    public static final int frontRightSteerMotorID = 5;
+    public static final int frontRightDriveMotorID = 6;
+    public static final int backRightSteerMotorID = 7;
+    public static final int backRightDriveMotorID = 8;
+    public static final int frontLeftEncoderid = 9; 
+    public static final int backLeftEncoderid = 10; 
+    public static final int frontRightEncoderid = 11; 
+    public static final int backRightEncoderid = 12;
+  }
+
   public static class RotateCommandConstants {
     public static final double P = 0.0022;
     public static final double I = 0.00000;
@@ -57,7 +72,7 @@ public final class Constants {
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
     // top speed of bot in feet per second converted into meters per second
-    public static final double topSpeed_mps = 25;// 20.36
+    public static final double topSpeed_mps = 1.5; // 20.36 //25 //CHANGED HEAVILY
 
     public static final double autoRotatekP = 0.4; // 0.72
     public static final double autoRotatekI = 0.02;
@@ -81,29 +96,8 @@ public final class Constants {
     public static final double kD = 0;
     public static final int steerContCurrentLim_amp = 4;
     public static final int steerPeakCurrentLim_amp = 6;
-
-    public static final int frontLeftEncoderid = 9; 
-    public static final int backLeftEncoderid = 10; 
-    public static final int frontRightEncoderid = 11; 
-    public static final int backRightEncoderid = 12;
-
-    public static final int frontLeftSteerMotorID = 1;
-    public static final int frontLeftDriveMotorID = 2;
-    public static final int backLeftSteerMotorID = 3;
-    public static final int backLeftDriveMotorID = 4;
-    public static final int frontRightSteerMotorID = 5;
-    public static final int frontRightDriveMotorID = 6;
-    public static final int backRightSteerMotorID = 7;
-    public static final int backRightDriveMotorID = 8;
   }
-
-  public static class ManipulatorConstants {
-    public static final int rightIntakeMotor = 18;
-    public static final int leftIntakeMotor = 19;
-    public static final int climbMotorLeftId = 21;
-    public static final int climbMotorRightId = 22;
-  }
-
+  
   public static class ControllerOneConstants {
     /**
      * Factors used in the spektrum flight controller to multiply the raw stick
@@ -123,10 +117,5 @@ public final class Constants {
     public static final double DriveXOffset = 0.039816 + 0.029202; // .075813
     public static final double DriveYOffset = -0.024228;
     public static final double ThrottleOffset = 0;
-
-    // Deadbands for sticks
-    public static final double deadbandRot = 0.025;
-    public static final double deadbandX = 0.025;
-    public static final double deadbandY = 0.025;
   }
 }

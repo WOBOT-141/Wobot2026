@@ -217,35 +217,35 @@ public class SwerveModule extends SubsystemBase {
 
     steerMotorPosDebug();
     absEncoderDebug();
-    // steerMotorAMPDebug();
+    tractionMotorAMPDebug();
   }
 
-  public void steerMotorAMPDebug() {
+  public void tractionMotorAMPDebug() {
     double outputCurrent_amp = _driveMotor.getOutputCurrent();
 
     switch (driveMotorID) {
-      case Constants.SteerConstants.backLeftDriveMotorID:
+      case Constants.CANIdConstants.backLeftDriveMotorID:
         SmartDashboard.putNumber("Back Left Amps: ", outputCurrent_amp);
         if (outputCurrent_amp > maxAmpsBL_amp) {
           maxAmpsBL_amp = outputCurrent_amp;
         }
         SmartDashboard.putNumber("Back Left Max Amps: ", maxAmpsBL_amp);
         break;
-      case Constants.SteerConstants.backRightDriveMotorID:
+      case Constants.CANIdConstants.backRightDriveMotorID:
         SmartDashboard.putNumber("Back Right Amps: ", outputCurrent_amp);
         if (outputCurrent_amp > maxAmpsBR_amp) {
           maxAmpsBR_amp = outputCurrent_amp;
         }
         SmartDashboard.putNumber("Back Right Max Amps: ", maxAmpsBR_amp);
         break;
-      case Constants.SteerConstants.frontLeftDriveMotorID:
+      case Constants.CANIdConstants.frontLeftDriveMotorID:
         SmartDashboard.putNumber("Front Left Amps: ", outputCurrent_amp);
         if (outputCurrent_amp > maxAmpsFL_amp) {
           maxAmpsFL_amp = outputCurrent_amp;
         }
         SmartDashboard.putNumber("Front Left Max Amps: ", maxAmpsFL_amp);
         break;
-      case Constants.SteerConstants.frontRightDriveMotorID:
+      case Constants.CANIdConstants.frontRightDriveMotorID:
         SmartDashboard.putNumber("Front Right Amps: ", outputCurrent_amp);
         if (outputCurrent_amp > maxAmpsFR_amp) {
           maxAmpsFR_amp = outputCurrent_amp;
@@ -258,19 +258,20 @@ public class SwerveModule extends SubsystemBase {
   public void steerMotorPosDebug() {
     double currentAngle_deg = (_steerMotor.getEncoder().getPosition());
     switch (steerMotorID) {
-      case Constants.SteerConstants.backLeftSteerMotorID:
+
+      case Constants.CANIdConstants.backLeftSteerMotorID:
         SmartDashboard.putNumber("Neo position Back Left", currentAngle_deg);
         // System.out.printf("Neo position Back Left: %.3f\n", currentAngle_deg);
         break;
-      case Constants.SteerConstants.backRightSteerMotorID:
+      case Constants.CANIdConstants.backRightSteerMotorID:
         SmartDashboard.putNumber("Neo position Back Right", currentAngle_deg);
         // System.out.printf("Neo position Back Right: %.3f\n", currentAngle_deg);
         break;
-      case Constants.SteerConstants.frontLeftSteerMotorID:
+      case Constants.CANIdConstants.frontLeftSteerMotorID:
         SmartDashboard.putNumber("Neo position Front Left", currentAngle_deg);
         // System.out.printf("Neo position Front Left: %.3f\n", currentAngle_deg);
         break;
-      case Constants.SteerConstants.frontRightSteerMotorID:
+      case Constants.CANIdConstants.frontRightSteerMotorID:
         SmartDashboard.putNumber("Neo position Front Right", currentAngle_deg);
         // System.out.printf("Neo position Front Right: %.3f\n", currentAngle_deg);
         break;
@@ -282,16 +283,17 @@ public class SwerveModule extends SubsystemBase {
     double startAngle_deg = _cancoder.getAbsolutePosition().getValueAsDouble();
     // double startAngle_deg = ggetEncoderOffset_deg();
     switch (steerMotorID) {
-      case Constants.SteerConstants.backLeftSteerMotorID:
+
+      case Constants.CANIdConstants.backLeftSteerMotorID:
         SmartDashboard.putNumber("Back Left Cancoder: ", startAngle_deg);
         break;
-      case Constants.SteerConstants.backRightSteerMotorID:
+      case Constants.CANIdConstants.backRightSteerMotorID:
         SmartDashboard.putNumber("Back Right Cancoder: ", startAngle_deg);
         break;
-      case Constants.SteerConstants.frontLeftSteerMotorID:
+      case Constants.CANIdConstants.frontLeftSteerMotorID:
         SmartDashboard.putNumber("Front Left Cancoder: ", startAngle_deg);
         break;
-      case Constants.SteerConstants.frontRightSteerMotorID:
+      case Constants.CANIdConstants.frontRightSteerMotorID:
         SmartDashboard.putNumber("Front Right Cancoder: ", startAngle_deg);
         break;
       default:

@@ -42,7 +42,7 @@ private IDetection m_closestDetection;
      m_pidController = new PIDController(Constants.RotateCommandConstants.P, Constants.RotateCommandConstants.I, Constants.RotateCommandConstants.D);
      m_pidController.setSetpoint(0);
      m_pidController.setTolerance(2.0);
-     m_drivetrain.driveSwerve(0, 0, 0); 
+     m_drivetrain.driveWithGyro(0, 0, 0); 
     }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -50,7 +50,7 @@ private IDetection m_closestDetection;
   public void execute() {
     IDetection currentDetection = m_visionServer.getClosestDetection();
     double pidOutput = m_pidController.calculate(currentDetection.getAngle());
-    m_drivetrain.driveSwerve(0, 0, pidOutput);
+    m_drivetrain.driveWithoutGyro(0, 0, pidOutput);
     SmartDashboard.putNumber("RotateToTagP", m_pidController.getP());
     SmartDashboard.putNumber("RotateTotagI", m_pidController.getI());
     SmartDashboard.putNumber("RotateToTagD", m_pidController.getD());
