@@ -50,7 +50,7 @@ private IDetection m_closestDetection;
   public void execute() {
     IDetection currentDetection = m_visionServer.getClosestDetection();
     double pidOutput = m_pidController.calculate(currentDetection.getAngle());
-    m_drivetrain.driveWithoutGyro(0, 0, pidOutput);
+    m_drivetrain.driveWithoutGyro(0, 0, -pidOutput);
     SmartDashboard.putNumber("RotateToTagP", m_pidController.getP());
     SmartDashboard.putNumber("RotateTotagI", m_pidController.getI());
     SmartDashboard.putNumber("RotateToTagD", m_pidController.getD());
@@ -67,7 +67,9 @@ private IDetection m_closestDetection;
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_pidController.atSetpoint();
-    //return false;
+    //return m_pidController.atSetpoint();
+    return false;
   }
+
+
 }
