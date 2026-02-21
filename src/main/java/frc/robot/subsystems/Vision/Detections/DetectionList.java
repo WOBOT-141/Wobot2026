@@ -6,6 +6,7 @@ package frc.robot.subsystems.Vision.Detections;
 
 /** Add your docs here. */
 public class DetectionList {
+    public static double getDistance;
     private final ObjectType _objectType;
     private final int _capacity;
     private final Detection[] _detections;
@@ -50,5 +51,17 @@ public class DetectionList {
             return NullDetection.Instance;
 
         return _detections[index];
+    }
+
+
+    public IDetection getDetectionById(int tagId) {
+            for (int i = 0; i < _size; i++){
+            IDetection currentDetection = getDetection(i);
+            if ((int) currentDetection.getId() == tagId){
+                return currentDetection;
+            }
+        }
+        return NullDetection.Instance;
+
     }
 }
