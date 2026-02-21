@@ -37,7 +37,7 @@ public final class Constants {
   }
 
   public static class RotateCommandConstants {
-    public static final double P = 0.0035;
+    public static final double P = 0.00025;
     public static final double I = 0.00000;
     public static final double D = 0.00000;
     public static final double rotateTargetTolerance_deg = 3.0; // 2.0
@@ -116,10 +116,5 @@ public final class Constants {
     public static final double DriveXOffset = 0.039816 + 0.029202; // .075813
     public static final double DriveYOffset = -0.024228;
     public static final double ThrottleOffset = 0;
-
-    // Deadbands for sticks
-    public static final double deadbandRot = 0.025;
-    public static final double deadbandX = 0.025;
-    public static final double deadbandY = 0.025;
   }
 }
