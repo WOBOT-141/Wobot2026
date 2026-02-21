@@ -47,6 +47,18 @@ public class Intake extends SubsystemBase {
 
   }
 
+  public void extend() {
+
+  }
+
+  public void retract() {
+
+  }
+  
+  public void run(double percent) {
+
+  }
+
   // public void fuelIntaking() {
   // rollerMotor.set(0.1);
   // }
