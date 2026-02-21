@@ -117,5 +117,14 @@ public final class Constants {
     public static final double DriveXOffset = 0.039816 + 0.029202; // .075813
     public static final double DriveYOffset = -0.024228;
     public static final double ThrottleOffset = 0;
+
+    public static class climberConstants {
+      public static final int leftMotor1ID = 0;
+      public static final int leftMotor2ID = 0;
+      public static final int rightMotor1ID = 0;
+      public static final int rightMotor2ID = 0;
+  
+      public static final int l1Climb
+    }
   }
 }
