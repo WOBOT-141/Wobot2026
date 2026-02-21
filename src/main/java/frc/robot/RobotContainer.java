@@ -12,6 +12,7 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.Vision.ServerVisionNT;
 import frc.robot.subsystems.ChooserHandeling;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -46,6 +47,8 @@ public class RobotContainer {
   private final IBotSelector _selectedBot = new MainBot();
 
   private ChooserHandeling autonSelector;
+
+  private ServerVisionNT m_VisionServer = new ServerVisionNT();
 
   public RobotContainer() {
 
