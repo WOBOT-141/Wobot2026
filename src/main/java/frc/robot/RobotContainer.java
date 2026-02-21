@@ -10,11 +10,14 @@ import frc.lib.SpektrumFlightController;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
 import frc.robot.subsystems.ChooserHandeling;
+import frc.robot.commands.AimAtHubCommand;
+import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.RotateToTag;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
@@ -29,26 +32,22 @@ public class RobotContainer {
   private final Drivetrain m_Drive;
   private final IGyro m_Gyro = new NavxGyro();
 
-  private final SpektrumFlightController flightController0 =
-      new SpektrumFlightController(0);
-
-  private final CommandXboxController xboxController0 =
-      new CommandXboxController(1);
-
-  private final CommandJoystick joystick =
-      new CommandJoystick(2);
+  private final SpektrumFlightController flightController0 = new SpektrumFlightController(0);
+  private final CommandXboxController xboxController0 = new CommandXboxController(1);
+  private final CommandJoystick joystick = new CommandJoystick(2);
+  private final StickCommand m_stickCommand;
 
   public final SwerveModule[] m_wheels;
   private final VisionServer visionServer = new VisionServer();
+  // private final Shooter m_shooter = new Shooter(); TODO uncomment when CAN Ids are assigned
 
   private final AprilTagFilter m_AprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
   private final IBotSelector _selectedBot = new MainBot();
-  //private final IBotSelector _selectedBot = new SummerBot();
+  // private final IBotSelector _selectedBot = new SummerBot();
 
   private ChooserHandeling autonSelector;
 
   public RobotContainer() {
-
 
     m_wheels = new SwerveModule[] {
 
@@ -88,21 +87,21 @@ public class RobotContainer {
     m_Drive = new Drivetrain(m_wheels, m_Gyro);
 
     configureFlightControllerParameters();
+
+    m_stickCommand = new StickCommand(
+        m_Drive,
+        m_Gyro,
+        _selectedBot,
+        () -> flightController0.getDriveX(),
+        () -> flightController0.getDriveY(),
+        () -> flightController0.getRotate(),
+        () -> flightController0.getThrottle(),
+        () -> flightController0.getSelectPressButton());
+    
     configureBindings();
 
     // Modern automatic default command
-    m_Drive.setDefaultCommand(
-        new StickCommand(
-            m_Drive,
-            m_Gyro,
-            _selectedBot,
-            () -> flightController0.getDriveX(),
-            () -> flightController0.getDriveY(),
-            () -> flightController0.getRotate(),
-            () -> flightController0.getThrottle(),
-            () -> flightController0.getSelectPressButton()
-        )
-    );
+    m_Drive.setDefaultCommand(m_stickCommand);
   }
 
   /**
@@ -176,6 +175,8 @@ public class RobotContainer {
         .onTrue(new ResetGyro(m_Gyro));
     new Trigger(() -> flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(new LockWheels(m_Drive));
+    new Trigger(() -> flightController0.getIButton())
+        .whileTrue(new MovingRotateToTag(visionServer, m_stickCommand));
   }
 
   public Command getAutonomousCommand() {
@@ -191,4 +192,3 @@ public class RobotContainer {
     return selectedCommand;
   }
 }
-
