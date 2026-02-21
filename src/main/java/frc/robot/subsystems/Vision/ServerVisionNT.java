@@ -2,21 +2,18 @@ package frc.robot.subsystems.Vision;
 
 import java.nio.ByteBuffer;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.networktables.StringTopic;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Vision.Detections.DetectionList;
-import frc.robot.subsystems.Vision.Detections.IDetection;
 import frc.robot.subsystems.Vision.Detections.ObjectType;
 
 public class ServerVisionNT extends SubsystemBase {
 
-    private final boolean DEBUG_LOG = false;
+    private final boolean DEBUG_LOG = true;
 
     NetworkTableInstance m_nt_Instance;
     NetworkTable m_nt_table;
@@ -31,9 +28,6 @@ public class ServerVisionNT extends SubsystemBase {
         m_nt_Instance = NetworkTableInstance.getDefault();
         m_nt_table = m_nt_Instance.getTable("Vision");
         aprilTagEntry = m_nt_table.getEntry("Apriltag");
-        // aprilTagStringTopic = m_nt_Instance.getStringTopic("/Vision/Apriltag");
-        // subscriber = aprilTagStringTopic.subscribe("skippyskippyskippy",
-        // PubSubOption.keepDuplicates(true), PubSubOption.pollStorage(10));
     }
 
     public DetectionList getdDetectionList() {
@@ -76,9 +70,11 @@ public class ServerVisionNT extends SubsystemBase {
         }
         return _detectlist;
     }
-public double angleYaw(){
-return m_nt_table.getEntry("yaw").getDouble(0);
-}
+
+    public double angleYaw() {
+        return m_nt_table.getEntry("yaw").getDouble(0);
+    }
+
     @Override
     public void periodic() {
         getdDetectionList();
