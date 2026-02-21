@@ -22,7 +22,7 @@ public final class Constants {
   }
 
   public final class CANIdConstants {
-     public static final int frontLeftSteerMotorID = 1;
+    public static final int frontLeftSteerMotorID = 1;
     public static final int frontLeftDriveMotorID = 2;
     public static final int backLeftSteerMotorID = 3;
     public static final int backLeftDriveMotorID = 4;
@@ -34,6 +34,8 @@ public final class Constants {
     public static final int backLeftEncoderid = 10; 
     public static final int frontRightEncoderid = 11; 
     public static final int backRightEncoderid = 12;
+    public static final int intakeSlapdownMotor = 13;
+    public static final int intakeRollerMotor = 14;
   }
 
   public static class RotateCommandConstants {
