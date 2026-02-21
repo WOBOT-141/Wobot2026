@@ -11,16 +11,16 @@ import javax.print.attribute.standard.PrinterIsAcceptingJobs;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Vision.ServerVision;
+import frc.robot.subsystems.Vision.VisionServer;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AimAtHubCommand extends Command {
 
   private final StickCommand m_stickCommand;
-  private final ServerVision m_visionServer;
+  private final VisionServer m_visionServer;
   private final Shooter m_shooter;
 
-  public AimAtHubCommand(StickCommand stickCommand, ServerVision visionServer, Shooter shooter) {
+  public AimAtHubCommand(StickCommand stickCommand, VisionServer visionServer, Shooter shooter) {
 
     m_stickCommand = stickCommand;
     m_shooter = shooter;
