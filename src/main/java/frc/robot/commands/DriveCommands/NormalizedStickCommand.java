@@ -33,7 +33,7 @@ public class NormalizedStickCommand extends Command {
         linearAngle = (linearAngle+360)%360;
         rotationSpeed = rotationSpeed*throttlePercentage;
         
-        _driveSubsystem.driveSwerve(linearAngle, linearSpeed, rotationSpeed);
+        _driveSubsystem.driveWithGyro(linearAngle, linearSpeed, rotationSpeed);
         /* TO DO LIST:
          * 1. Anything else we need to do that we find out in the middle of coding/other stuff
          */

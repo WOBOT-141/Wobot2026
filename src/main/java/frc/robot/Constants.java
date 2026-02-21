@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.util.Units;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -21,6 +19,21 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
   public static class OperatorConstants {
     public static final int driverControllerPort = 0;
+  }
+
+  public final class CANIdConstants {
+     public static final int frontLeftSteerMotorID = 1;
+    public static final int frontLeftDriveMotorID = 2;
+    public static final int backLeftSteerMotorID = 3;
+    public static final int backLeftDriveMotorID = 4;
+    public static final int frontRightSteerMotorID = 5;
+    public static final int frontRightDriveMotorID = 6;
+    public static final int backRightSteerMotorID = 7;
+    public static final int backRightDriveMotorID = 8;
+    public static final int frontLeftEncoderid = 9; 
+    public static final int backLeftEncoderid = 10; 
+    public static final int frontRightEncoderid = 11; 
+    public static final int backRightEncoderid = 12;
   }
 
   public static class RotateCommandConstants {
@@ -52,22 +65,14 @@ public final class Constants {
     public static final double wheelCircumference_in = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
     
-    // Number of inches the first stage moves for every rotation of the motors
-    public static final double inchesPerRotation = driveGearRatio * wheelCircumference_in;
-    
-    // Number of inches carriage moves per rotation of the motors (twice what the first stage moves)
-    public static final double carriageInchesPerRotation = inchesPerRotation * 2;
-
-    public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear ratio
-    public static final double metersToRotationsPerMin = driveGearRatio / Units.inchesToMeters(wheelCircumference_in)
-        * 60; // RPS
+    public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear ratio
     public static final double drivekP = 0.0016;// .00009
     public static final double drivekI = 0.000068;// 0
     public static final double drivekD = 0;
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
     // top speed of bot in feet per second converted into meters per second
-    public static final double topSpeed_mps = 25;// 20.36
+    public static final double topSpeed_mps = 1.5; // 20.36 //25 //CHANGED HEAVILY
 
     public static final double autoRotatekP = 0.4; // 0.72
     public static final double autoRotatekI = 0.02;
@@ -81,36 +86,18 @@ public final class Constants {
   }
 
   public static class SteerConstants {
-    public static final double encoderPositionConversionFactor = 28.13;
+    public static final double steerGearRatio = 12.8;
+    public static final int neoTicksPerRotation = 42;
+    public static final double steerDegPerMotorRotation_deg = 360 / steerGearRatio;
+    public static final double steerDegPerEncoderTick_deg = steerDegPerMotorRotation_deg / neoTicksPerRotation;
     public static final double kF = 0;
     public static final double kP = .05;
     public static final double kI = 0;
     public static final double kD = 0;
     public static final int steerContCurrentLim_amp = 4;
     public static final int steerPeakCurrentLim_amp = 6;
-
-    public static final int frontLeftEncoderid = 9; 
-    public static final int backLeftEncoderid = 10; 
-    public static final int frontRightEncoderid = 11; 
-    public static final int backRightEncoderid = 12;
-
-    public static final int frontLeftSteerMotorID = 1;
-    public static final int frontLeftDriveMotorID = 2;
-    public static final int backLeftSteerMotorID = 3;
-    public static final int backLeftDriveMotorID = 4;
-    public static final int frontRightSteerMotorID = 5;
-    public static final int frontRightDriveMotorID = 6;
-    public static final int backRightSteerMotorID = 7;
-    public static final int backRightDriveMotorID = 8;
   }
-
-  public static class ManipulatorConstants {
-    public static final int rightIntakeMotor = 18;
-    public static final int leftIntakeMotor = 19;
-    public static final int climbMotorLeftId = 21;
-    public static final int climbMotorRightId = 22;
-  }
-
+  
   public static class ControllerOneConstants {
     /**
      * Factors used in the spektrum flight controller to multiply the raw stick
@@ -130,10 +117,5 @@ public final class Constants {
     public static final double DriveXOffset = 0.039816 + 0.029202; // .075813
     public static final double DriveYOffset = -0.024228;
     public static final double ThrottleOffset = 0;
-
-    // Deadbands for sticks
-    public static final double deadbandRot = 0.025;
-    public static final double deadbandX = 0.025;
-    public static final double deadbandY = 0.025;
   }
 }
