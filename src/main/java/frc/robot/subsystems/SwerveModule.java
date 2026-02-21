@@ -322,7 +322,7 @@ public class SwerveModule extends SubsystemBase {
 
     // TODO double check all these numbers
     public static final double wheelCircumference_in = (Math.PI * 4);
-    public static final double driveGearRatio = 5.14;
+    public static final double driveGearRatio = 6.12; //5.14
     public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in;
   }
 }

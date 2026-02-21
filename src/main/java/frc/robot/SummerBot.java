@@ -25,10 +25,10 @@ public class SummerBot implements IBotSelector {
     public SummerBot() {
         distToFront = Units.inchesToMeters(15.25);
 
-        frontLeftOffset  = 0.445312;
-        backLeftOffset   = 0.176270;
-        frontRightOffset = 0.507324;
-        backRightOffset  = 0.584473;
+        frontLeftOffset  = 0.444092; //9 //0.443848; //0.445312; 
+        backLeftOffset   = 0.174316; //10 //0.176025; //0.176270;
+        frontRightOffset = 0.008301; //11 //0.507568; //0.087646; //0.507324; //front right and back right need to be swapped
+        backRightOffset  = 0.088867; //12 //0.087891;
 
         frontLeftLocationX = -.229;
         frontLeftLocationY = .229;

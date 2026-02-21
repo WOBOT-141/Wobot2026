@@ -20,6 +20,8 @@ public class StraightLineDrive extends Command {
   private double m_desiredBotDistance_in;
   private double m_avgSubstractedDistance_in;
 
+  private double distanceLeftOver_perc = 0; // change
+
   /** Creates a new StraightLineDrive. */
   public StraightLineDrive(Drivetrain drivetrain, double distance, SwerveModule wheels[]) {
     m_drivetrain = drivetrain;
@@ -34,6 +36,7 @@ public class StraightLineDrive extends Command {
   @Override
   public void initialize() {
     for (int i = 0; i < m_wheels.length; i++) {
+      m_wheels[i].resetEncoder();
       m_startingEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
       SmartDashboard.putNumber("StartingEncoderPos_" + i, m_startingEncoderPos_in[i]);
     }
@@ -53,38 +56,43 @@ public class StraightLineDrive extends Command {
     }
 
     m_avgSubstractedDistance_in = totalSubstractedDistance_in / m_wheels.length;
-    double distanceLeftOver_perc = m_avgSubstractedDistance_in / m_desiredBotDistance_in;
+    distanceLeftOver_perc = m_avgSubstractedDistance_in / m_desiredBotDistance_in;
 
 
     SmartDashboard.putNumber("distanceLeftOver_perc", distanceLeftOver_perc);
     SmartDashboard.putNumber("m_AvgSubtractedDistance", m_avgSubstractedDistance_in);
     SmartDashboard.putNumber("m_distance_in", m_desiredBotDistance_in);
 
-    double slowSpot = 0.3;
-    double driveSpeed = 0.05;
+    double slowSpot = 0.2;
+    double driveSpeed = 0.1;
 
     if (currentEncoderPos_in[1] != m_startingEncoderPos_in[1]) {
-      if (distanceLeftOver_perc > 0.92 || 0.05 > distanceLeftOver_perc) {
+      if (distanceLeftOver_perc > 0.95 || 0.05 > distanceLeftOver_perc) {
         driveSpeed = 0.05;
-      } else if (distanceLeftOver_perc < slowSpot) {
+      } else if (distanceLeftOver_perc < 0.1 || 0.9 < distanceLeftOver_perc) {
+        driveSpeed = 0.1;
+      } else if (distanceLeftOver_perc < slowSpot || 0.8 < distanceLeftOver_perc) {
         driveSpeed = 0.2;
-      } else {
+      } else if (distanceLeftOver_perc < 0.4 || 0.7 < distanceLeftOver_perc) {
         driveSpeed = 0.5;
+      } else {
+        driveSpeed = 0.7;
       }
     }
 
-    m_drivetrain.driveWithoutGyro(0, driveSpeed, 0);
+    m_drivetrain.driveWithGyro(0, driveSpeed, 0);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drivetrain.driveWithoutGyro(0, 0, 0);
+    m_drivetrain.driveWithGyro(0, 0, 0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(m_avgSubstractedDistance_in - m_distance_in) < 1;
+    //return Math.abs(m_avgSubstractedDistance_in - m_distance_in) < 1;
+    return distanceLeftOver_perc >= 1;
   }
 }

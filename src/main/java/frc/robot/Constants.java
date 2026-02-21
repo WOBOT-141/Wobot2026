@@ -62,8 +62,8 @@ public final class Constants {
 
   public static class DriveConstants {
     // wheel diameter multiplied by pi = circumference
-    public static final double wheelCircumference_in = (Math.PI * 4);
-    public static final double driveGearRatio = 5.14;
+    public static final double wheelCircumference_in = (Math.PI * 3.85); //4
+    public static final double driveGearRatio = 6.12; //TODO change later back to 5.14
     
     public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear ratio
     public static final double drivekP = 0.0016;// .00009

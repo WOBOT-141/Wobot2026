@@ -43,7 +43,7 @@ public class RobotContainer {
 
   public final SwerveModule[] m_wheels;
 
-  private final IBotSelector _selectedBot = new MainBot();
+  private final IBotSelector _selectedBot = new SummerBot();
 
   private ChooserHandeling autonSelector;
 
