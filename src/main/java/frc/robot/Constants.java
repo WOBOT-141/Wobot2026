@@ -101,6 +101,58 @@ public final class Constants {
     public static final double brownoutScale_perc = 0.5;
   }
 
+  public static final class IntakeConstants {
+    
+    // Motor IDs
+    public static final int intakeMotorID = 18;
+    public static final int intakeRollerMotorID = 19;
+    
+    // Current limits
+    public static final int freeLimit_amp = 40;
+
+    // Homing (current-based)
+    public static final double homingSpeed_perc = -0.20;
+    public static final double homingCurrentThreshold_amp = 25.0;
+    public static final double homingTimeout_sec = 2.0;
+
+    // Intake positions
+    // =========================
+    public static final double upAngle_deg = 0.0;
+    public static final double downAngle_deg = 95.0;
+
+    /** Allowed error band for position checks */
+    public static final double positionTolerance_deg = 3.0;
+
+    // Motion speeds
+    public static final double intakeUpSpeed_perc = -0.4;
+    public static final double intakeDownSpeed_perc = 0.4;
+
+    /** Safety timeout while moving */
+    public static final double moveTimeout_sec = 2.5;
+
+    // Brownout protection
+    
+    /** Voltage where we start scaling */
+    public static final double brownoutStartVoltage_V = 10.5;
+
+    /** Voltage where we heavily limit */
+    public static final double brownoutCriticalVoltage_V = 9.5;
+
+    /** Scale factor when in brownout */
+    public static final double brownoutScale_perc = 0.5;
+
+    // Encoder conversion
+    
+    /**
+     * Degrees of intake arm per motor rotation.
+     *
+     * ⚠️ UPDATE THIS when gear ratio is known.
+     * If direct drive: 360
+     * If 5:1 gearbox: 360 / 5 = 72
+     */
+    public static final double degPerMotorRotation_deg = 360.0;
+  }
+
   public static class OperatorConstants {
     public static final int driverControllerPort = 0;
   }
@@ -126,7 +178,7 @@ public final class Constants {
     public static final int flywheelLeftMotorID = 15;
 
     // PID / Feedforward
-    public static final double P = 0.00005;
+    public static final double P = 0.00000;
     public static final double I = 0.00000;
     public static final double D = 0.00000;
     public static final double kF = 0.00017;
