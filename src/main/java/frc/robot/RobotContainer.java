@@ -12,6 +12,8 @@ import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Vision.VisionServer;
+import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
+import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
 import frc.robot.subsystems.ChooserHandeling;
 import frc.robot.commands.RotateToTag;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
@@ -39,6 +41,7 @@ public class RobotContainer {
   public final SwerveModule[] m_wheels;
   private final VisionServer visionServer = new VisionServer();
 
+  private final AprilTagFilter m_AprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
   private final IBotSelector _selectedBot = new MainBot();
   //private final IBotSelector _selectedBot = new SummerBot();
 
