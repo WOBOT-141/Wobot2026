@@ -8,8 +8,11 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import com.studica.frc.AHRS.NavXUpdateRate;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 
 public class NavxGyro extends SubsystemBase implements IGyro {
 
@@ -90,6 +93,14 @@ public class NavxGyro extends SubsystemBase implements IGyro {
   @Override
   public double getRoll() {
     return gyro.getRoll();
+  }
+
+  @Override
+  public Rotation2d getRotationAs2d() {
+    SmartDashboard.putNumber("NAVXGYROANG", getYaw());
+    SmartDashboard.putNumber("NAVXROT2DVALUE", new Rotation2d(Units.degreesToRadians(getYaw())).getDegrees());
+
+    return new Rotation2d(Units.degreesToRadians(getYaw()));
   }
 
   /**

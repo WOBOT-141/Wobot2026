@@ -6,11 +6,11 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -19,7 +19,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
@@ -155,7 +154,10 @@ public class SwerveModule extends SubsystemBase {
     double startAngle_rot = _cancoder.getAbsolutePosition().getValueAsDouble();
     return (startAngle_rot - m_encoderOffset_rot) * 360;
   }
-
+/**
+ * Gets the distance the wheel has driven in inches, based on the drive motor encoder.
+ * @return the distance the wheel has driven in inches
+ */
   public double getEncoderDistance() {
     return _wheelDriveEncoder.getPosition();
   }

@@ -1,32 +1,86 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
 import frc.robot.Constants.DriveConstants;
 
 public class Drivetrain extends SubsystemBase {
 
-  private SwerveModule[] _wheels;
-  private IGyro m_gyro;
-  private double restAngle_deg;
+  public static final double driveBaseRadius = Math.hypot(.232 / 2.0, .3556 / 2.0);
+  public static final double driveMotorReduction = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
+  public static final double maxSpeedMetersPerSec = 5676.0 / 60.0 / driveMotorReduction * 2.0 * Math.PI
+      * Units.inchesToMeters(4) * 0.95;
+
+  private final SwerveModule[] _wheels;
+  private final IGyro m_gyro;
+
   private boolean m_isTipping = false;
   private boolean m_climbing = false;
+  private double pitchAngle;
+  private double rollAngle;
   private double m_tipMagnitude;
   private double m_tipDirection_deg;
   private double m_tipThreshold = 10;
 
-  SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
-      getWheelPositions());
-  ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+  private SwerveDriveKinematics m_kinematics;
+  private SwerveDriveOdometry odometry;
+  private SwerveDrivePoseEstimator poseEstimator;
+  private Rotation2d rawGyroRotation = new Rotation2d();
+
+  private Pose2d lastPose = new Pose2d();
+  private double restAngle_deg;
+
+  StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault().getStructTopic("MyPose", Pose2d.struct)
+      .publish();
+  StructArrayPublisher<SwerveModuleState> arrayPublisher = NetworkTableInstance.getDefault()
+      .getStructArrayTopic("swerveModuleState", SwerveModuleState.struct).publish();
+
   public Drivetrain(SwerveModule[] wheels, IGyro gyro) {
     _wheels = wheels;
     m_gyro = gyro;
+
+    m_kinematics = new SwerveDriveKinematics(getWheelPositions());
+    makeOdometryItems(m_kinematics);
+
+    resetWheelPositions();
+  }
+
+  private void makeOdometryItems(SwerveDriveKinematics kinematics) {
+    poseEstimator = new SwerveDrivePoseEstimator(
+        kinematics,
+        rawGyroRotation,
+        getModulePositions(),
+        lastPose);
+
+    odometry = new SwerveDriveOdometry(
+        kinematics,
+        rawGyroRotation,
+        getModulePositions());
+  }
+
+  public void antiTip() {
+    pitchAngle = m_gyro.getPitch();
+    rollAngle = m_gyro.getRoll();
+
+    m_tipMagnitude = Math.sqrt(pitchAngle * pitchAngle + rollAngle * rollAngle);
+    m_tipDirection_deg = Math.toDegrees(Math.atan2(rollAngle, pitchAngle)) + 90;
+
+    m_isTipping = m_tipMagnitude > m_tipThreshold;
   }
 
   public void setClimbing(boolean climb) {
@@ -37,8 +91,11 @@ public class Drivetrain extends SubsystemBase {
     driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
   }
 
-  public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
+  public void driveWithoutGyro(double translationAngle_deg,
+      double translationSpeed_perc,
+      double rotationalSpeed_perc,
       double rotX, double rotY) {
+
     if (m_isTipping && !m_climbing) {
       translationAngle_deg = m_tipDirection_deg;
       translationSpeed_perc = m_tipMagnitude / (m_tipThreshold * 2);
@@ -47,72 +104,47 @@ public class Drivetrain extends SubsystemBase {
       rotY = 0;
     }
 
-    SmartDashboard.putNumber("translation Speed", translationSpeed_perc);
-    SmartDashboard.putNumber("translation Angle", translationAngle_deg);
-    SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_perc);
-
-    double rotationalCenterX = rotX;
-    double rotationalCenterY = rotY;
-    double[] calcWheelAngle_deg = new double[_wheels.length];
-    double[] calcWheelSpeed_perc = new double[_wheels.length];
+    double[] calcWheelAngle = new double[_wheels.length];
+    double[] calcWheelSpeed = new double[_wheels.length];
     double normalizingFactor = 1;
 
     if (translationAngle_deg == 0 && translationSpeed_perc == 0 && rotationalSpeed_perc == 0) {
-      for (int i = 0; i < _wheels.length; ++i) {
-        _wheels[i].cancelMovement();
-      }
+      stop();
       return;
     }
 
-    // Calculate each wheel's angle and speed
     for (int i = 0; i < _wheels.length; ++i) {
       double wheelX = _wheels[i].get_xPos();
       double wheelY = _wheels[i].get_yPos();
 
-      double deltaX = wheelX - rotationalCenterX;
-      double deltaY = wheelY - rotationalCenterY;
+      double deltaX = wheelX - rotX;
+      double deltaY = wheelY - rotY;
 
-      XYVector translationVector = getTranslationVector(translationSpeed_perc, translationAngle_deg);
+      XYVector linearVector = getTranslationVector(translationSpeed_perc, translationAngle_deg);
       double rotationAngle = getRotationAngle(deltaX, deltaY, translationAngle_deg, rotationalSpeed_perc);
       XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed_perc, deltaX, deltaY);
-      XYVector resultXY = new XYVector(translationVector.X + rotationVector.X, translationVector.Y + rotationVector.Y);
 
-      double resultSpeed_perc = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2));
+      XYVector resultXY = new XYVector(
+          linearVector.X + rotationVector.X,
+          linearVector.Y + rotationVector.Y);
 
-      double resultAngle_deg = getResultAngle(resultXY);
+      double resultSpeed = Math.hypot(resultXY.X, resultXY.Y);
+      double resultAngle = getResultAngle(resultXY);
 
-      calcWheelAngle_deg[i] = resultAngle_deg;
-      calcWheelSpeed_perc[i] = resultSpeed_perc;
-
-      // normalizing the vectors
-      if (resultSpeed_perc > normalizingFactor) {
-        normalizingFactor = resultSpeed_perc;
-      }
+      calcWheelAngle[i] = resultAngle;
+      calcWheelSpeed[i] = resultSpeed;
+      normalizingFactor = Math.max(normalizingFactor, resultSpeed);
     }
 
     for (int i = 0; i < _wheels.length; i++) {
-      var inputState = new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_perc[i] / normalizingFactor),
-          Rotation2d.fromDegrees(calcWheelAngle_deg[i]));
+      var inputState = new SwerveModuleState(
+          DriveConstants.topSpeed_mps * (calcWheelSpeed[i] / normalizingFactor),
+          Rotation2d.fromDegrees(calcWheelAngle[i]));
+
       var outputState = _wheels[i].bestAngle(inputState);
-      m_chassisSpeeds = m_kinematics.toChassisSpeeds(
-          new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_perc[0] / normalizingFactor),
-              Rotation2d.fromDegrees(calcWheelAngle_deg[0])),
-          new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_perc[1] / normalizingFactor),
-              Rotation2d.fromDegrees(calcWheelAngle_deg[1])),
-          new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_perc[2] / normalizingFactor),
-              Rotation2d.fromDegrees(calcWheelAngle_deg[2])),
-          new SwerveModuleState(DriveConstants.topSpeed_mps * (calcWheelSpeed_perc[3] / normalizingFactor),
-              Rotation2d.fromDegrees(calcWheelAngle_deg[3])));
-      // _wheels[i].setAngle(outputState.angle.getDegrees());
-      // _wheels[i].setSpeed(outputState.speedMetersPerSecond);
-      // if (i == 3) {
+
       _wheels[i].setAngle(outputState.angle.getDegrees());
       _wheels[i].setSpeed(outputState.speedMetersPerSecond);
-      // System.out.println("angle " + calcWheelAngle[i]);
-      // }
-      // System.out.println(_wheels[i]);
-      // System.out.println("angle " + calcWheelAngle[i]);
-      // System.out.println("speed " + calcWheelSpeed[i] / normalizingFactor);
     }
   }
 
@@ -120,28 +152,19 @@ public class Drivetrain extends SubsystemBase {
       double translationSpeed_perc,
       double rotationalSpeed_perc,
       double rotX, double rotY) {
-    // Field-oriented adjustment
     translationAngle_deg -= m_gyro.getRealGyroAngle();
     driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY);
   }
 
   public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
-    translationAngle_deg -= m_gyro.getRealGyroAngle();
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc);
-  }
-
-  // Temp command for testing
-  public void goDistance(double pos) {
-    for (int i = 0; i < _wheels.length; i++) {
-      _wheels[i].setPos(pos);
-    }
+    driveWithGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
   }
 
   public double getResultAngle(XYVector resultXY) {
     double resultAngle_deg = Math.toDegrees(Math.atan2(resultXY.Y, resultXY.X));
     resultAngle_deg = -(90 - resultAngle_deg);
 
-    if (resultXY.Y == 0 && resultXY.X == 0) {
+    if (resultXY.X == 0 && resultXY.Y == 0) {
       resultAngle_deg = restAngle_deg;
     } else {
       restAngle_deg = resultAngle_deg;
@@ -149,75 +172,59 @@ public class Drivetrain extends SubsystemBase {
     return resultAngle_deg;
   }
 
-  public XYVector getRotationVector(double rotationAngle_deg, double rotationalSpeed_perc, double deltaX,
-      double deltaY) {
-    double rotationalspeedY = Math.cos(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
-    double rotationalspeedX = Math.sin(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
+  public XYVector getRotationVector(double rotationAngle_deg, double rotationalSpeed_perc,
+      double deltaX, double deltaY) {
+    double y = Math.cos(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
+    double x = Math.sin(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
+
     if (deltaX == 0 && deltaY == 0) {
-      rotationalspeedX = 0;
-      rotationalspeedY = 0;
+      x = 0;
+      y = 0;
     }
-    return new XYVector(rotationalspeedX, rotationalspeedY);
+    return new XYVector(x, y);
   }
 
   public XYVector getTranslationVector(double translationSpeed_perc, double translationAngle_deg) {
-    double linDeltaY = Math.cos(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
-    double linDeltaX = Math.sin(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
-    return new XYVector(linDeltaX, linDeltaY);
+    double y = Math.cos(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
+    double x = Math.sin(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
+    return new XYVector(x, y);
   }
 
-  public double getRotationAngle(double deltaX, double deltaY, double translationAngle_deg,
+  public double getRotationAngle(double deltaX, double deltaY,
+      double translationAngle_deg,
       double rotationalSpeed_perc) {
-    // alpha is the angle of the vector to the wheel location
-    // with respect forward and in degrees
-    double alpha = 0;
-    double RotationAngle_deg = 0.0;
 
-    if (deltaY == 0 && deltaX > 0) {
-      // If the wheel is aligned with the center of rotation on the Y axis and
-      // positive on the X axis alpha = 90
+    double alpha;
+    if (deltaY == 0 && deltaX > 0)
       alpha = 90;
-    } else if (deltaY == 0 && deltaX < 0) {
-      // If the wheel is aligned with the center of rotation on the Y axis and
-      // negative on the X axis alpha = -90
+    else if (deltaY == 0 && deltaX < 0)
       alpha = -90;
-    } else if (deltaY == 0 && deltaX == 0) {
-      // If the wheel is aligned with the center of rotation on both axis the alpha
-      // should be the translation angle
+    else if (deltaY == 0 && deltaX == 0)
       alpha = translationAngle_deg;
-    } else {
-      // Otherwise use atan2 of delta X and delta Y to find angle
+    else
       alpha = Math.toDegrees(Math.atan2(deltaX, deltaY));
-    }
 
-    if (rotationalSpeed_perc > 0) {
-      // If rotating clockwise add 90 to alpha to get angle
-      RotationAngle_deg = alpha + 90;
-    } else if (rotationalSpeed_perc < 0) {
-      // If rotating counter clockwise subtract 90 from alpha to get angle
-      RotationAngle_deg = alpha - 90;
-    }
-
-    return RotationAngle_deg;
+    if (rotationalSpeed_perc > 0)
+      return alpha + 90;
+    if (rotationalSpeed_perc < 0)
+      return alpha - 90;
+    return alpha;
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    DashboardPublisher.publishDouble("LinearSpeedX", m_chassisSpeeds.vxMetersPerSecond);
-    DashboardPublisher.publishDouble("LinearSpeedY", m_chassisSpeeds.vyMetersPerSecond);
-    DashboardPublisher.publishDouble("RotationalSpeed", m_chassisSpeeds.omegaRadiansPerSecond);
-  }
+    var modulePositions = getModulePositions();
+    rawGyroRotation = m_gyro.getRotationAs2d();
 
-  public void lockWheels() {
-    // Implement wheel-locking logic if needed
-    for (int i = 0; i < _wheels.length; i++) {
-      _wheels[i].setAngle((i + 45) * 90);
-    }
-  }
+    odometry.update(rawGyroRotation, modulePositions);
+    poseEstimator.update(rawGyroRotation, modulePositions);
 
-  public SwerveModule[] getWheels() {
-    return _wheels;
+    lastPose = odometry.getPoseMeters();
+
+    antiTip();
+
+    publisher.set(lastPose);
+    Logger.recordOutput("MyPose", lastPose);
   }
 
   public Translation2d[] getWheelPositions() {
@@ -226,6 +233,71 @@ public class Drivetrain extends SubsystemBase {
       translations[i] = _wheels[i].getTranslation();
     }
     return translations;
+  }
 
+  public SwerveModulePosition[] getModulePositions() {
+    SwerveModulePosition[] positions = new SwerveModulePosition[_wheels.length];
+
+    for (int i = 0; i < _wheels.length; i++) {
+      double distanceMeters = Units.inchesToMeters(_wheels[i].getEncoderDistance());
+      Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
+      positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
+    }
+    return positions;
+  }
+
+  public Pose2d getPose() {
+    return poseEstimator.getEstimatedPosition();
+  }
+
+  public void resetWheelPositions() {
+    for (SwerveModule wheel : _wheels) {
+      wheel.resetEncoder();
+    }
+
+    Pose2d resetPose = new Pose2d(0, 0, new Rotation2d());
+
+    odometry.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
+    poseEstimator.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
+
+    lastPose = resetPose;
+  }
+
+  public void stop() {
+    for (SwerveModule wheel : _wheels) {
+      wheel.cancelMovement();
+    }
+  }
+
+  public void lockWheels() {
+    for (int i = 0; i < _wheels.length; i++) {
+      _wheels[i].setAngle((i * 90) + 45);
+      _wheels[i].setSpeed(0);
+    }
+  }
+
+  public Rotation2d getRotation() {
+    return getPose().getRotation();
+  }
+
+  public double getMaxAngularSpeedRadPerSec() {
+    return maxSpeedMetersPerSec / driveBaseRadius;
+  }
+
+  public double getMaxLinearSpeedMetersPerSec() {
+    return maxSpeedMetersPerSec;
+  }
+
+  public void runVelocity(ChassisSpeeds speeds) {
+    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+    SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, maxSpeedMetersPerSec);
+
+    Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
+
+    for (int i = 0; i < 4; i++) {
+      _wheels[i].setSpeed(setpointStates[i].speedMetersPerSecond);
+    }
   }
 }
