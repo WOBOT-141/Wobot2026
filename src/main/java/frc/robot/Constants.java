@@ -39,6 +39,9 @@ public final class Constants {
     public static final int backLeftEncoderid = 10; 
     public static final int frontRightEncoderid = 11; 
     public static final int backRightEncoderid = 12;
+    public static final int flyWheelRightMotorID = 13;
+    public static final int flyWheelMiddlehtMotorID = 14;
+    public static final int flyWheelLeftMotorID = 15;
   }
 
   public static class RotateCommandConstants {
@@ -130,10 +133,6 @@ public final class Constants {
     public static final double I = 0.000068;// 0
     public static final double D = 0;
     public static final double FF = 0.00016500000492669642;
-
-    public static final int flyWheelRightMotorID = 13;
-    public static final int flyWheelMiddlehtMotorID = 14;
-    public static final int flyWheelLeftMotorID = 15;
 
     public static final int flywheelTolernce_ips = 13;
     public static final int slewRateLimt = 4000;
