@@ -5,7 +5,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants;
-
+import frc.robot.Constants.CANIdConstants;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -58,9 +58,9 @@ public class Shooter extends SubsystemBase {
   public boolean m_lastLeftAtSpeed = false;
 
   public Shooter() {
-    m_rightFlywheelMotor = new SparkMax(0, MotorType.kBrushless); // TODO add ids to sparkMaxs
-    m_middleFlywheelMotor = new SparkMax(0, MotorType.kBrushless);
-    m_leftFlywheelMotor = new SparkMax(0, MotorType.kBrushless);
+    m_rightFlywheelMotor = new SparkMax(CANIdConstants.flyWheelRightMotorID, MotorType.kBrushless); // TODO add ids to sparkMaxs
+    m_middleFlywheelMotor = new SparkMax(CANIdConstants.flyWheelRightMotorID, MotorType.kBrushless);
+    m_leftFlywheelMotor = new SparkMax(CANIdConstants.flyWheelLeftMotorID, MotorType.kBrushless);
 
     m_rightFlywheelMotorConfig = new SparkMaxConfig();
     m_middleFlywheelMotorConfig = new SparkMaxConfig();
