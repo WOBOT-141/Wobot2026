@@ -217,10 +217,10 @@ public class SwerveModule extends SubsystemBase {
 
     steerMotorPosDebug();
     absEncoderDebug();
-    // steerMotorAMPDebug();
+    tractionMotorAMPDebug();
   }
 
-  public void steerMotorAMPDebug() {
+  public void tractionMotorAMPDebug() {
     double outputCurrent_amp = _driveMotor.getOutputCurrent();
 
     switch (driveMotorID) {
