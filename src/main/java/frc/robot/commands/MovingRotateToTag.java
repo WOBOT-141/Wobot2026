@@ -34,7 +34,7 @@ private IDetection m_closestDetection;
     m_visionServer = visionServer; 
     m_stickCommand = stickCommand;
      
-    m_pidController = new PIDController(Constants.RotateCommandConstants.P, Constants.RotateCommandConstants.I, Constants.RotateCommandConstants.D);
+    m_pidController = new PIDController(RotateCommandConstants.P, RotateCommandConstants.I, RotateCommandConstants.D);
      m_pidController.setSetpoint(0);
      m_pidController.setTolerance(2.0);
   }
@@ -71,6 +71,4 @@ private IDetection m_closestDetection;
   public boolean isFinished() {
     return false;
   }
-
-
 }
