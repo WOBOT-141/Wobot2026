@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -12,18 +11,16 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.Vision.VisionServer;
+import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
+import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
 import frc.robot.subsystems.ChooserHandeling;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.RotateToTag;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.commands.TestCommands.DriveInDirection;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 
@@ -42,12 +39,16 @@ public class RobotContainer {
       new CommandJoystick(2);
 
   public final SwerveModule[] m_wheels;
+  private final VisionServer visionServer = new VisionServer();
 
+  private final AprilTagFilter m_AprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
   private final IBotSelector _selectedBot = new MainBot();
+  //private final IBotSelector _selectedBot = new SummerBot();
 
   private ChooserHandeling autonSelector;
 
   public RobotContainer() {
+
 
     m_wheels = new SwerveModule[] {
 
@@ -162,6 +163,7 @@ public class RobotContainer {
   private void configureXboxController() {
     xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
     xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
+    xboxController0.b().onTrue(new RotateToTag(visionServer, m_Drive));
   }
 
   private void configureJoystick() {
