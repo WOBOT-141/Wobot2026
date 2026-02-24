@@ -27,6 +27,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.SteerConstants;
 
+import frc.robot.IBotSelector;
+import frc.robot.SummerBot;
+import frc.robot.MainBot;
+
 public class SwerveModule extends SubsystemBase {
 
   private final SparkMax _driveMotor;
@@ -47,13 +51,17 @@ public class SwerveModule extends SubsystemBase {
   private double maxAmpsFL_amp = 0;
   private double maxAmpsFR_amp = 0;
 
+  private static IBotSelector m_selectedBot;
+
   /** Creates a new Wheel. */
-  public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, double xPosition, double yPosition) {
+  public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, double xPosition,
+      double yPosition, IBotSelector _selectedBot) {
     steerMotorID = steerId;
     driveMotorID = driveId;
     _xPos = xPosition;
     _yPos = yPosition;
     m_encoderOffset_rot = absoluteOffset_deg;
+    m_selectedBot = _selectedBot;
 
     _cancoder = new CANcoder(cancoderId);
     MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
@@ -320,9 +328,7 @@ public class SwerveModule extends SubsystemBase {
     public static final double SteerIz = 0;
     public static final double SteerFF = 0;
 
-    // TODO double check all these numbers
-    public static final double wheelCircumference_in = (Math.PI * 4);
-    public static final double driveGearRatio = 6.12; //5.14
-    public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in;
+    public static double rotationsPerInch = m_selectedBot.rotationsPerInch_rot();
+    // static double rotationsPerInch = 5.14 / 4;
   }
 }

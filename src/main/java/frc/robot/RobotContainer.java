@@ -33,17 +33,18 @@ public class RobotContainer {
   private final IGyro m_Gyro = new NavxGyro();
 
   private final SpektrumFlightController flightController0 =
-      new SpektrumFlightController(0);
+   new SpektrumFlightController(0);
 
   private final CommandXboxController xboxController0 =
-      new CommandXboxController(1);
+   new CommandXboxController(1);
 
   private final CommandJoystick joystick =
-      new CommandJoystick(2);
+   new CommandJoystick(2);
 
   public final SwerveModule[] m_wheels;
 
-  private final IBotSelector _selectedBot = new SummerBot();
+  private final IBotSelector _selectedBot = new MainBot(5.14, 4);
+  // private final IBotSelector _selectedBot = new SummerBot(6.12, 4)
 
   private ChooserHandeling autonSelector;
 
@@ -57,7 +58,8 @@ public class RobotContainer {
             Constants.CANIdConstants.frontLeftEncoderid,
             _selectedBot.getfrontLeftOffset(),
             _selectedBot.getfrontLeftLocationX(),
-            _selectedBot.getfrontLeftLocationY()),
+            _selectedBot.getfrontLeftLocationY(),
+            _selectedBot),
 
         new SwerveModule(
             Constants.CANIdConstants.backLeftSteerMotorID,
@@ -65,7 +67,8 @@ public class RobotContainer {
             Constants.CANIdConstants.backLeftEncoderid,
             _selectedBot.getbackLeftOffset(),
             _selectedBot.getbackLeftLocationX(),
-            _selectedBot.getbackLeftLocationY()),
+            _selectedBot.getbackLeftLocationY(),
+            _selectedBot),
 
         new SwerveModule(
             Constants.CANIdConstants.frontRightSteerMotorID,
@@ -73,7 +76,8 @@ public class RobotContainer {
             Constants.CANIdConstants.frontRightEncoderid,
             _selectedBot.getfrontRightOffset(),
             _selectedBot.getfrontRightLocationX(),
-            _selectedBot.getfrontRightLocationY()),
+            _selectedBot.getfrontRightLocationY(),
+            _selectedBot),
 
         new SwerveModule(
             Constants.CANIdConstants.backRightSteerMotorID,
@@ -81,7 +85,8 @@ public class RobotContainer {
             Constants.CANIdConstants.backRightEncoderid,
             _selectedBot.getbackRightOffset(),
             _selectedBot.getbackRightLocationX(),
-            _selectedBot.getbackRightLocationY())
+            _selectedBot.getbackRightLocationY(),
+            _selectedBot)
     };
 
     m_Drive = new Drivetrain(m_wheels, m_Gyro);
@@ -161,7 +166,9 @@ public class RobotContainer {
 
   private void configureXboxController() {
     xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
-    xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
+    xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 60, m_wheels));
+    xboxController0.y().onTrue(new StraightLineDrive(m_Drive, 120, m_wheels));
+    xboxController0.a().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
   }
 
   private void configureJoystick() {
@@ -189,4 +196,3 @@ public class RobotContainer {
     return selectedCommand;
   }
 }
-
