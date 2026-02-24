@@ -103,8 +103,6 @@ public class StickCommand extends Command {
     double finalLinearMagnitude = rightMagnitude * throttleValue;
     finalLinearMagnitude = Math.max(-1.0, Math.min(1.0, finalLinearMagnitude));
 
-    SmartDashboard.putNumber("finalLinearMagnitude", rightMagnitude * throttleValue);
-
     double rampedMagnitude = m_rampRate.calculate(finalLinearMagnitude);
 
     double finalRotationalMagnitude = stickRotate * throttleValue * 0.85;

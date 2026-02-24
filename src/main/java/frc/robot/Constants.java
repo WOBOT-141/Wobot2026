@@ -21,8 +21,8 @@ public final class Constants {
     public static final int driverControllerPort = 0;
   }
 
-  public final class CANIdConstants {
-     public static final int frontLeftSteerMotorID = 1;
+  public static class CANIdConstants {
+    public static final int frontLeftSteerMotorID = 1;
     public static final int frontLeftDriveMotorID = 2;
     public static final int backLeftSteerMotorID = 3;
     public static final int backLeftDriveMotorID = 4;
