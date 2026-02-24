@@ -13,6 +13,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.CANIdConstants;
 
 public class Intake extends SubsystemBase {
   private final SparkMax m_slapdownMotor;
@@ -21,8 +22,8 @@ public class Intake extends SubsystemBase {
 
   /** Creates a new Intake. */
   public Intake() { // TODO set ids
-    m_slapdownMotor = new SparkMax(0, MotorType.kBrushless);
-    m_rollerMotor = new SparkMax(0, MotorType.kBrushless);
+    m_slapdownMotor = new SparkMax(CANIdConstants.intakeSlapdownMotor, MotorType.kBrushless);
+    m_rollerMotor = new SparkMax(CANIdConstants.intakeRollerMotor, MotorType.kBrushless);
 
     SparkMaxConfig slapdownMotorConfig = new SparkMaxConfig();
     SparkMaxConfig rollerMotorConfig = new SparkMaxConfig();
@@ -44,6 +45,18 @@ public class Intake extends SubsystemBase {
     m_rollerMotor.configure(rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     m_absoluteEncoder = m_slapdownMotor.getAbsoluteEncoder();
+
+  }
+
+  public void extend() {
+
+  }
+
+  public void retract() {
+
+  }
+
+  public void run(double percent) {
 
   }
 
