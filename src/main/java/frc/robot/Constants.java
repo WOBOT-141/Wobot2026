@@ -34,6 +34,10 @@ public final class Constants {
     public static final int backLeftEncoderid = 10; 
     public static final int frontRightEncoderid = 11; 
     public static final int backRightEncoderid = 12;
+    public static final int leftMotor1ID = 0;
+    public static final int leftMotor2ID = 0;
+    public static final int rightMotor1ID = 0; //TODO add can ids
+    public static final int rightMotor2ID = 0;
   }
 
   public static class RotateCommandConstants {
@@ -119,12 +123,9 @@ public final class Constants {
     public static final double ThrottleOffset = 0;
 
     public static class climberConstants {
-      public static final int leftMotor1ID = 0;
-      public static final int leftMotor2ID = 0;
-      public static final int rightMotor1ID = 0;
-      public static final int rightMotor2ID = 0;
-  
-      public static final int l1Climb
+      public static final int l1climb_IN = 0; //TODO find actual hight 
+      public static final int l2AndL3climb_IN = 0;
+
     }
   }
 }
