@@ -4,11 +4,6 @@
 
 package frc.robot;
 
-import com.revrobotics.spark.SparkMax;
-
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -26,7 +21,7 @@ public final class Constants {
     public static final int driverControllerPort = 0;
   }
 
-  public final class CANIdConstants {
+  public static class CANIdConstants {
     public static final int frontLeftSteerMotorID = 1;
     public static final int frontLeftDriveMotorID = 2;
     public static final int backLeftSteerMotorID = 3;
@@ -81,7 +76,7 @@ public final class Constants {
     public static final double drivekD = 0;
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
-    public static final double topSpeed_mps = 25;// 20.36
+    public static final double topSpeed_mps = 20.36;
 
     public static final double autoRotatekP = 0.4; // 0.72
     public static final double autoRotatekI = 0.02;
