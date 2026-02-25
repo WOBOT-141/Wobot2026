@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
+import frc.robot.commands.AutonomousCommands.RuntoRotate;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
@@ -166,9 +167,10 @@ public class RobotContainer {
 
   private void configureXboxController() {
     xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
-    xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 60, m_wheels));
-    xboxController0.y().onTrue(new StraightLineDrive(m_Drive, 120, m_wheels));
-    xboxController0.a().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
+    xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 60, m_wheels, m_Gyro));
+    xboxController0.y().onTrue(new StraightLineDrive(m_Drive, 120, m_wheels, m_Gyro));
+    xboxController0.a().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels, m_Gyro));
+    xboxController0.b().onTrue(new RuntoRotate(m_Drive, m_wheels, m_Gyro));
   }
 
   private void configureJoystick() {

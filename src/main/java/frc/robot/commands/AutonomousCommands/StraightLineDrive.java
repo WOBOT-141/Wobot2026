@@ -7,6 +7,7 @@ package frc.robot.commands.AutonomousCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.SwerveModule;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -14,6 +15,7 @@ public class StraightLineDrive extends Command {
   private final Drivetrain m_drivetrain;
   private final double m_distance_in;
   private final SwerveModule[] m_wheels;
+  private final IGyro m_gyro;
 
   private double m_distanceTraveled_in;
   private double[] m_startingEncoderPos_in;
@@ -23,10 +25,11 @@ public class StraightLineDrive extends Command {
   private double distanceLeftOver_perc = 0; // change
 
   /** Creates a new StraightLineDrive. */
-  public StraightLineDrive(Drivetrain drivetrain, double distance, SwerveModule wheels[]) {
+  public StraightLineDrive(Drivetrain drivetrain, double distance, SwerveModule wheels[], IGyro gyro) {
     m_drivetrain = drivetrain;
     m_distance_in = distance;
     m_wheels = wheels;
+    m_gyro = gyro;
     m_startingEncoderPos_in = new double[m_wheels.length];
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);
@@ -35,6 +38,7 @@ public class StraightLineDrive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    m_gyro.ResetGyro();
     for (int i = 0; i < m_wheels.length; i++) {
       m_wheels[i].resetEncoder();
       m_startingEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
@@ -62,32 +66,17 @@ public class StraightLineDrive extends Command {
     SmartDashboard.putNumber("m_AvgSubtractedDistance", m_avgSubstractedDistance_in);
     SmartDashboard.putNumber("m_distance_in", m_desiredBotDistance_in);
 
-    double slowSpot = 0.2;
     double driveSpeed = 0.05;
 
     if (currentEncoderPos_in[1] != m_startingEncoderPos_in[1]) {
-      // if (distanceLeftOver_perc > 0.95 || 0.05 > distanceLeftOver_perc) {
-      // driveSpeed = 0.05;
-      // } else if (distanceLeftOver_perc < 0.1 || 0.9 < distanceLeftOver_perc) {
-      // driveSpeed = 0.1;
-      // } else if (distanceLeftOver_perc < slowSpot || 0.8 < distanceLeftOver_perc) {
-      // driveSpeed = 0.2;
-      // } else if (distanceLeftOver_perc < 0.4 || 0.7 < distanceLeftOver_perc) {
-      // driveSpeed = 0.5;
-      // } else {
-      // driveSpeed = 0.7;
-      // }
-
-      // if (distanceLeftOver_perc > 0.95 || 0.05 > distanceLeftOver_perc){
-      // driveSpeed = 0.05;
-      // } else if (distanceLeftOver_perc > slowSpot) {
-      // driveSpeed = 0.2;
-      // } else {
-      // driveSpeed = 0.5;
-      // }
-
-      if (distanceLeftOver_perc < 0.95 || 0.05 < distanceLeftOver_perc) {
-        driveSpeed = (0.95 - distanceLeftOver_perc) * 0.7;
+      if (0.05 < distanceLeftOver_perc && 0.25 > distanceLeftOver_perc) {
+        driveSpeed = (distanceLeftOver_perc * 3.25) - 0.1125;
+      } else if (0.1 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.9) {
+        driveSpeed = 0.7;
+      } else if (0.6 < distanceLeftOver_perc && 0.95 >= distanceLeftOver_perc) {
+        driveSpeed = (distanceLeftOver_perc * -2.16667) + 2.10833;
+      } else if (distanceLeftOver_perc < 0.95) {
+        driveSpeed = 0.05;
       }
     }
 

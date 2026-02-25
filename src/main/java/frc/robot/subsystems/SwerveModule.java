@@ -26,10 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.SteerConstants;
-
 import frc.robot.IBotSelector;
-import frc.robot.SummerBot;
-import frc.robot.MainBot;
 
 public class SwerveModule extends SubsystemBase {
 

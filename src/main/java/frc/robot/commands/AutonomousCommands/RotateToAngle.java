@@ -52,7 +52,7 @@ public class RotateToAngle extends Command {
 
     // Speed calculations
     double slowSpot = 0.3;
-    double rotationSpeed = 0;
+    double rotationSpeed = 0.1;
 
     // if (m_rotationAmount_deg < 180 && m_rotationAmount_deg > -180) {
     // if (remainingRotation_perc > slowSpot) { // TODO TUNE VALUES
@@ -67,11 +67,13 @@ public class RotateToAngle extends Command {
     // rotationSpeed = -0.5;
     // }
     // }
-    if (remainingRotation_perc > slowSpot) { // TODO TUNE VALUES
-      rotationSpeed = 0.2;
-    } else {
-      rotationSpeed = 0.5;
-    }
+
+
+    // if (remainingRotation_perc > slowSpot) { // TODO TUNE VALUES
+    //   rotationSpeed = 0.2;
+    // } else {
+    //   rotationSpeed = 0.5;
+    // }
 
     // double rotationSpeed = m_SlewRateLimiter.calculate();
     SmartDashboard.putNumber("m_desiredBotAngle_deg", m_desiredBotAngle_deg);
