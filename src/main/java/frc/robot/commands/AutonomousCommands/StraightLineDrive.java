@@ -16,14 +16,12 @@ public class StraightLineDrive extends Command {
   private final double m_distance_in;
   private final SwerveModule[] m_wheels;
   private final IGyro m_gyro;
-
-  private double m_distanceTraveled_in;
   private double[] m_startingEncoderPos_in;
-  private double m_desiredBotDistance_in;
 
-  private double distanceLeftOver_perc = 0.01;
+  private double distanceLeftOver_perc;
 
   private double driveSpeed;
+  private double finalDriveSpeed;
 
   /** Creates a new StraightLineDrive. */
   public StraightLineDrive(Drivetrain drivetrain, double distance, SwerveModule wheels[], IGyro gyro) {
@@ -41,12 +39,11 @@ public class StraightLineDrive extends Command {
   public void initialize() {
     m_gyro.ResetGyro();
     for (int i = 0; i < m_wheels.length; i++) {
-      m_wheels[i].resetEncoder();
+      // m_wheels[i].resetEncoder();
       m_startingEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
       SmartDashboard.putNumber("StartingEncoderPos_" + i, m_startingEncoderPos_in[i]);
     }
-    m_desiredBotDistance_in = m_distance_in + m_distanceTraveled_in;
-    driveSpeed = 0.5;
+    finalDriveSpeed = 0.05;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -55,39 +52,50 @@ public class StraightLineDrive extends Command {
 
     double[] currentEncoderPos_in = new double[m_wheels.length];
     double totalSubstractedDistance_in = 0;
+
     for (int i = 0; i < m_wheels.length; i++) {
       currentEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
-      SmartDashboard.putNumber("CurrentEncoderPos_" + i, currentEncoderPos_in[i]);
-      totalSubstractedDistance_in += Math.abs(m_startingEncoderPos_in[i] - currentEncoderPos_in[i]);
+      // SmartDashboard.putNumber("CurrentEncoderPos_" + i, currentEncoderPos_in[i]);
+      double encoderDifference_in = Math.abs(m_startingEncoderPos_in[i] - currentEncoderPos_in[i]);
+      SmartDashboard.putNumber("Encoder difference " + i, encoderDifference_in);
+      totalSubstractedDistance_in += encoderDifference_in;
     }
 
     double m_avgSubstractedDistance_in = totalSubstractedDistance_in / m_wheels.length;
-    distanceLeftOver_perc = m_avgSubstractedDistance_in / m_desiredBotDistance_in;
+    distanceLeftOver_perc = m_avgSubstractedDistance_in / m_distance_in;
 
     SmartDashboard.putNumber("distanceLeftOver_perc", distanceLeftOver_perc);
     SmartDashboard.putNumber("m_AvgSubtractedDistance", m_avgSubstractedDistance_in);
-    SmartDashboard.putNumber("m_distance_in", m_desiredBotDistance_in);
+    SmartDashboard.putNumber("m_distance_in", m_distance_in);
     SmartDashboard.putNumber("driveSpeed", driveSpeed);
 
-    // if (m_distance_in <= -1) {
-    //   distanceLeftOver_perc *= Math.abs(distanceLeftOver_perc);
-    //   driveSpeed *= -1;
-    // }
+    if (currentEncoderPos_in[1] != m_startingEncoderPos_in[1]) {
+      TrapizoidCalculations();
+    }
 
-    // if (currentEncoderPos_in[1] != m_startingEncoderPos_in[1]) {
-      // if (0.05 < distanceLeftOver_perc && 0.25 > distanceLeftOver_perc) {
-      //   driveSpeed = (distanceLeftOver_perc * 3.25) - 0.1125;
-      // } else if (0.1 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.9) {
-      //   driveSpeed = 0.7;
-      // } else if (0.6 < distanceLeftOver_perc && 0.95 >= distanceLeftOver_perc) {
-      //   driveSpeed = (distanceLeftOver_perc * -2.16667) + 2.10833;
-      // } else if (distanceLeftOver_perc > 0.95) {
-      //   driveSpeed = 0.05;
-      // }
-      // driveSpeed = driveSpeed * 0.00714286 - 0.309524;
-   // }
+    m_drivetrain.driveWithGyro(0, finalDriveSpeed, 0);
+  }
 
-    m_drivetrain.driveWithGyro(0, driveSpeed, 0);
+  private double TrapizoidCalculations() {
+    if (m_distance_in <= -1) {
+      distanceLeftOver_perc *= Math.abs(distanceLeftOver_perc);
+      driveSpeed *= -1;
+    }
+
+    if (0.05 < distanceLeftOver_perc && 0.25 > distanceLeftOver_perc) {
+      driveSpeed = (distanceLeftOver_perc * 3.25) - 0.1125;
+    } else if (0.1 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.9) {
+      driveSpeed = 0.7;
+    } else if (0.6 < distanceLeftOver_perc && 0.95 >= distanceLeftOver_perc) {
+      driveSpeed = (distanceLeftOver_perc * -2.16667) + 2.10833;
+    }
+    finalDriveSpeed = driveSpeed * (m_distance_in * 0.00544306);
+
+    if (distanceLeftOver_perc < 0.05 || distanceLeftOver_perc > 0.95) {
+      finalDriveSpeed = 0.05;
+    }
+
+    return finalDriveSpeed;
   }
 
   // Called once the command ends or is interrupted.

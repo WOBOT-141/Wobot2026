@@ -61,7 +61,7 @@ public class RotateToAngle extends Command {
     } else if (0.1 <= remainingRotation_perc && remainingRotation_perc <= 0.9) {
       rotationSpeed = 0.7;
     } else if (0.6 < remainingRotation_perc && 0.95 >= remainingRotation_perc) {
-      rotationSpeed = (rotationSpeed * -1.28571) + 1.27143;
+      rotationSpeed = (remainingRotation_perc * -1.28571) + 1.27143;
     } else {
       rotationSpeed = 0.05;
     }
@@ -70,14 +70,16 @@ public class RotateToAngle extends Command {
     }
 
     //rotationSpeed = (rotationSpeed * 0.00533858) + 0.0443945; // Fancy acceleration limiter
-    rotationSpeed = (rotationSpeed * 0.0101124) + 0.0898876;
+    
+    double finalRotationSpeed = rotationSpeed * (m_rotationAmount_deg * 0.00544306);
+    //rotationSpeed = (rotationSpeed * 0.0101124) + 0.0898876;
 
     SmartDashboard.putNumber("m_desiredBotAngle_deg", m_desiredBotAngle_deg);
     SmartDashboard.putNumber("gyroyaw", gyroyaw);
     SmartDashboard.putNumber("missingAngle_deg", missingAngle_deg);
     SmartDashboard.putNumber("remainingRotation_perc", remainingRotation_perc);
 
-    m_Drivetrain.driveWithoutGyro(0, 0, rotationSpeed);
+    m_Drivetrain.driveWithoutGyro(0, 0, finalRotationSpeed);
   }
 
   // Called once the command ends or is interrupted.
