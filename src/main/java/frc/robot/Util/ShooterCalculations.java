@@ -43,23 +43,16 @@ return getLaunchAngle(targetDistance_in, ShooterConstants.deltaHprm_in);
     }
 
     public class ShooterConstants {
-        private static final double g = 9.817;
-        private static final double gf = 32.174; // gravity in ft/s^2
+        private static final double g = Units.metersToInches(9.807);
 
-        private static double har_m = 1.228344; // PASS har_m = height above the rim
-        private static double drt_m = Units.inchesToMeters(23.51); // PASS ShooterConstants.drt_m = distance rim to
-                                                                   // penetration of target
-        // plane
-        // (how far in should the ball
-
-        private static double targetHeight_in = Units.metersToInches(1.228344); //MAKE A PARAMETER AT SOME PT  har_m = height above the rim
-        private static double drt_in = Units.metersToInches(.597154); //MAKE A PARAMETER AT SOME PT ShooterConstants.drt_m = distance rim to penetration of target plane
+        private static double targetHeight_in = 48.36; //MAKE A PARAMETER AT SOME PT  har_m = height above the rim
+        private static double drt_in = 23.51; //MAKE A PARAMETER AT SOME PT ShooterConstants.drt_m = distance rim to penetration of target plane
                                               // (how far in should the ball
         
-        private static double dmr_in = Units.metersToInches(.3); // ShooterConstants.dmr_m = horiz dist of muzzle to rim
-        private static double drc_in = Units.metersToInches(.597154); // drc_m = horiz dist rim to target center
-        private static double hrm_in = Units.metersToInches(1.8); // hrm_m = height of rim
-        private static double hm_in = Units.metersToInches(.4); // hm_m = height of muzzle
+        private static double dmr_in = 11.811; // ShooterConstants.dmr_m = horiz dist of muzzle to rim
+        private static double drc_in = 23.51; // drc_m = horiz dist rim to target center
+        private static double hrm_in = 70.8661; // hrm_m = height of rim
+        private static double hm_in = 24.3359; // hm_m = height of muzzle
         // theta = hood angle
         private static double deltaHprm_in = hrm_in + targetHeight_in - hm_in;
 
