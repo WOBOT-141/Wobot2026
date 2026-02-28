@@ -3,15 +3,18 @@ package frc.robot.Util;
 import edu.wpi.first.math.util.Units;
 
 public class ShooterCalculations {
+    public double getLaunchAngle(double targetDistance_in){
+return getLaunchAngle(targetDistance_in, ShooterConstants.deltaHprm_in);
+    }
 
-    public static double getLaunchAngle(double targetDistance_in, double targetHeight_in) {
-        double angleStep1 = (2 * ShooterConstants.dmr_in + ShooterConstants.drt_in) * (ShooterConstants.deltaHprm_in)
-                + (ShooterConstants.targetHeight_in / ShooterConstants.drt_in) * Math.pow(ShooterConstants.dmr_in, 2);
+    public static double getLaunchAngle(double targetDistance_in, double deltaHeight_in) {
+        double angleStep1 = (2 * ShooterConstants.dmr_in + ShooterConstants.drt_in) * (deltaHeight_in)
+                + (ShooterConstants.targetHeight_in / ShooterConstants.drt_in) * Math.pow(ShooterConstants.dmr_in,2);
         double angleStep2 = (2 * ShooterConstants.dmr_in + ShooterConstants.drt_in) * (ShooterConstants.dmr_in)
                 - Math.pow(ShooterConstants.dmr_in, 2);
         return (Math.atan(Math.toRadians(angleStep1 / angleStep2)));
     }
-
+    
     public static double getLaunchSpeed(double launchAngle_deg,double targetDistance_in) {
         double step1 = ShooterConstants.g
                 * ((targetDistance_in - ShooterConstants.drc_in) + ShooterConstants.drt_in / 2);
