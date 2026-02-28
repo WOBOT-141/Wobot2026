@@ -43,6 +43,7 @@ public class ShooterCalculations {
 
     }
 
+
     public class ShooterConstants {
         private static final double g = 9.817;
         private static final double gf = 32.174; // gravity in ft/s^2

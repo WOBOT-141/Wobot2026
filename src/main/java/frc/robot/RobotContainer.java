@@ -19,6 +19,7 @@ import frc.robot.subsystems.ChooserHandeling;
 import frc.robot.commands.AimAtHubCommand;
 import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.RotateToTag;
+import frc.robot.commands.AimAtHubCommand;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.commands.DriveCommands.LockWheels;
@@ -163,6 +164,8 @@ public class RobotContainer {
     xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
     xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
     xboxController0.b().onTrue(new RotateToTag(visionServer, m_Drive));
+    xboxController0.a().onTrue(new AimAtHubCommand(m_stickCommand, visionServer, null, m_AprilTagFilter));
+
   }
 
   private void configureJoystick() {

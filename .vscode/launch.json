@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "HubVectorTests",
+      "request": "launch",
+      "mainClass": "frc.robot.Util.HubVectorTests",
+      "projectName": "Wobot2026"
+    },
+    {
+      "type": "java",
       "name": "ShooterCalculations",
       "request": "launch",
       "mainClass": "frc.robot.Util.ShooterCalculations",
