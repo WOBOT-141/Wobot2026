@@ -45,7 +45,7 @@ public class SummerBot implements IBotSelector {
         backRightLocationY = -.229;
 
         driveGearRatio = 6.12;
-        wheelCircumference_in = 4 * Math.PI;
+        wheelCircumference_in = 3.88 * Math.PI;
     }
 
     @Override

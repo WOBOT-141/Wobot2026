@@ -92,6 +92,6 @@ public class RotateToAngle extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return ((m_desiredBotAngle_deg + 2) >= gyroyaw && (m_desiredBotAngle_deg - 2) <= gyroyaw);
+    return ((m_desiredBotAngle_deg + 5) >= gyroyaw && (m_desiredBotAngle_deg - 5) <= gyroyaw);
   }
 }

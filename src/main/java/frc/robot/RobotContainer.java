@@ -22,6 +22,7 @@ import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ForwardandBack;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SquareUp;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ZeeClimb;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
@@ -162,10 +163,10 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    xboxController0.rightBumper().onTrue(new StraightLineDrive(m_Drive, 12,m_wheels, m_Gyro));
+    xboxController0.rightBumper().onTrue(new ZeeClimb(m_Drive, m_wheels, m_Gyro));
     xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 60, m_wheels, m_Gyro));
     xboxController0.y().onTrue(new StraightLineDrive(m_Drive, 120, m_wheels, m_Gyro));
-    xboxController0.a().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels, m_Gyro));
+    xboxController0.a().onTrue(new StraightLineDrive(m_Drive, 131, m_wheels, m_Gyro));
     xboxController0.b().onTrue(new ForwardandBack(m_Drive, m_wheels, m_Gyro));
     xboxController0.x().onTrue(new SquareUp(m_Drive, m_wheels, m_Gyro));
   }

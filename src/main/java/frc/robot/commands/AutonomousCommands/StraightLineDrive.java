@@ -62,7 +62,7 @@ public class StraightLineDrive extends Command {
     }
 
     double m_avgSubstractedDistance_in = totalSubstractedDistance_in / m_wheels.length;
-    distanceLeftOver_perc = m_avgSubstractedDistance_in / m_distance_in;
+    distanceLeftOver_perc = Math.abs(m_avgSubstractedDistance_in / m_distance_in);
 
     SmartDashboard.putNumber("distanceLeftOver_perc", distanceLeftOver_perc);
     SmartDashboard.putNumber("m_AvgSubtractedDistance", m_avgSubstractedDistance_in);
@@ -77,22 +77,21 @@ public class StraightLineDrive extends Command {
   }
 
   private double TrapizoidCalculations() {
-    if (m_distance_in <= -1) {
-      distanceLeftOver_perc *= Math.abs(distanceLeftOver_perc);
-      driveSpeed *= -1;
-    }
 
     if (0.05 < distanceLeftOver_perc && 0.25 > distanceLeftOver_perc) {
-      driveSpeed = (distanceLeftOver_perc * 3.25) - 0.1125;
-    } else if (0.1 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.9) {
-      driveSpeed = 0.7;
-    } else if (0.6 < distanceLeftOver_perc && 0.95 >= distanceLeftOver_perc) {
-      driveSpeed = (distanceLeftOver_perc * -2.16667) + 2.10833;
+      driveSpeed = distanceLeftOver_perc * 4.75 - 0.1875;
+    } else if (0.25 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.6) {
+      driveSpeed = 1.0;
+    } else if (0.6 < distanceLeftOver_perc) {
+      driveSpeed = distanceLeftOver_perc * -2.5 + 2.5;
     }
     finalDriveSpeed = driveSpeed * (m_distance_in * 0.00544306);
 
-    if (distanceLeftOver_perc < 0.05 || distanceLeftOver_perc > 0.95) {
+    if (distanceLeftOver_perc < 0.05) {
       finalDriveSpeed = 0.05;
+      if (m_distance_in < -1){
+        finalDriveSpeed *= -1;
+      }
     }
 
     return finalDriveSpeed;
