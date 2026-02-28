@@ -76,8 +76,8 @@ public class SwerveModule extends SubsystemBase {
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(50, 50);
     driveConfig.encoder
-        .positionConversionFactor(1.0 / WheelConstants.rotationsPerInch)
-        .velocityConversionFactor((1.0 / WheelConstants.rotationsPerInch) / 60.0);
+        .positionConversionFactor(1.0 / m_selectedBot.rotationsPerInch_rot())
+        .velocityConversionFactor((1.0 / m_selectedBot.rotationsPerInch_rot()) / 60.0);
 
     FeedForwardConfig driveFF = new FeedForwardConfig();
     driveFF.kV(WheelConstants.DriveFFKv);
@@ -324,8 +324,5 @@ public class SwerveModule extends SubsystemBase {
     public static final double SteerD = 0;
     public static final double SteerIz = 0;
     public static final double SteerFF = 0;
-
-    public static double rotationsPerInch = m_selectedBot.rotationsPerInch_rot();
-    // static double rotationsPerInch = 5.14 / 4;
   }
 }

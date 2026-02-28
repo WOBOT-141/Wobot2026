@@ -23,9 +23,10 @@ public class SummerBot implements IBotSelector {
     double backRightLocationX;
     double backRightLocationY;
 
-    public static double rotationsPerInch;
+    double driveGearRatio;
+    double wheelCircumference_in;
 
-    public SummerBot(double driveGearRatio, double wheelCircumference_in) {
+    public SummerBot() {
         distToFront = Units.inchesToMeters(15.25);
 
         frontLeftOffset = 0.444092; // 9 //0.443848; //0.445312;
@@ -43,7 +44,8 @@ public class SummerBot implements IBotSelector {
         backRightLocationX = .229;
         backRightLocationY = -.229;
 
-        rotationsPerInch = driveGearRatio / (wheelCircumference_in * Math.PI);
+        driveGearRatio = 6.12;
+        wheelCircumference_in = 4 * Math.PI;
     }
 
     @Override
@@ -118,7 +120,7 @@ public class SummerBot implements IBotSelector {
 
     @Override
     public double rotationsPerInch_rot() {
-        return rotationsPerInch;
+        return driveGearRatio / wheelCircumference_in;
     }
 
     @Override

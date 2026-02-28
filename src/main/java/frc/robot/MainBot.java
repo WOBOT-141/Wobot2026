@@ -23,9 +23,10 @@ public class MainBot implements IBotSelector {
     double backRightLocationX;
     double backRightLocationY;
 
-    public static double rotationsPerInch;
+    double driveGearRatio;
+    double wheelCircumference_in;
 
-    public MainBot(double driveGearRatio, double wheelCircumference_in) {
+    public MainBot() {
         distToFront = Units.inchesToMeters(15.25);
 
         frontLeftOffset  = 0.551025;
@@ -42,7 +43,8 @@ public class MainBot implements IBotSelector {
         backRightLocationX = .229;
         backRightLocationY = -.229;
 
-        rotationsPerInch = driveGearRatio / (wheelCircumference_in * Math.PI);
+        driveGearRatio = 5.14;
+        wheelCircumference_in = 4 * Math.PI;
     }
 
     @Override
@@ -117,7 +119,7 @@ public class MainBot implements IBotSelector {
 
     @Override
     public double rotationsPerInch_rot() {
-        return rotationsPerInch;
+        return driveGearRatio / wheelCircumference_in;
     }
 
     @Override

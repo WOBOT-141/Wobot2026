@@ -2,24 +2,24 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.AutonomousCommands;
+package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.SwerveModule;
+
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class RuntoRotate extends SequentialCommandGroup {
+public class ForwardandBack extends SequentialCommandGroup {
   /** Creates a new RuntoRotate. */
-  public RuntoRotate(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro) {
+  public ForwardandBack(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new StraightLineDrive(drivetrain, 60, wheels, gyro),
-      new RotateToAngle(drivetrain, 180, gyro),
-      new StraightLineDrive(drivetrain, 60, wheels, gyro)
-    );
+        new StraightLineDrive(drivetrain, 60, wheels, gyro),
+        new StraightLineDrive(drivetrain, -60, wheels, gyro));
   }
 }

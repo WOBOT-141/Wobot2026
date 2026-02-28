@@ -19,8 +19,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
-import frc.robot.commands.AutonomousCommands.RuntoRotate;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ForwardandBack;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SquareUp;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
@@ -33,19 +34,16 @@ public class RobotContainer {
   private final Drivetrain m_Drive;
   private final IGyro m_Gyro = new NavxGyro();
 
-  private final SpektrumFlightController flightController0 =
-   new SpektrumFlightController(0);
+  private final SpektrumFlightController flightController0 = new SpektrumFlightController(0);
 
-  private final CommandXboxController xboxController0 =
-   new CommandXboxController(1);
+  private final CommandXboxController xboxController0 = new CommandXboxController(1);
 
-  private final CommandJoystick joystick =
-   new CommandJoystick(2);
+  private final CommandJoystick joystick = new CommandJoystick(2);
 
   public final SwerveModule[] m_wheels;
 
-  private final IBotSelector _selectedBot = new MainBot(5.14, 4);
-  // private final IBotSelector _selectedBot = new SummerBot(6.12, 4)
+  //private final IBotSelector _selectedBot = new MainBot();
+  private final IBotSelector _selectedBot = new SummerBot();
 
   private ChooserHandeling autonSelector;
 
@@ -105,9 +103,7 @@ public class RobotContainer {
             () -> flightController0.getDriveY(),
             () -> flightController0.getRotate(),
             () -> flightController0.getThrottle(),
-            () -> flightController0.getSelectPressButton()
-        )
-    );
+            () -> flightController0.getSelectPressButton()));
   }
 
   /**
@@ -166,11 +162,12 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
+    xboxController0.rightBumper().onTrue(new StraightLineDrive(m_Drive, 12,m_wheels, m_Gyro));
     xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 60, m_wheels, m_Gyro));
     xboxController0.y().onTrue(new StraightLineDrive(m_Drive, 120, m_wheels, m_Gyro));
     xboxController0.a().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels, m_Gyro));
-    xboxController0.b().onTrue(new RuntoRotate(m_Drive, m_wheels, m_Gyro));
+    xboxController0.b().onTrue(new ForwardandBack(m_Drive, m_wheels, m_Gyro));
+    xboxController0.x().onTrue(new SquareUp(m_Drive, m_wheels, m_Gyro));
   }
 
   private void configureJoystick() {

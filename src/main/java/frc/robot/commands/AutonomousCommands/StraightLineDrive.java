@@ -20,9 +20,10 @@ public class StraightLineDrive extends Command {
   private double m_distanceTraveled_in;
   private double[] m_startingEncoderPos_in;
   private double m_desiredBotDistance_in;
-  private double m_avgSubstractedDistance_in;
 
-  private double distanceLeftOver_perc = 0; // change
+  private double distanceLeftOver_perc = 0.01;
+
+  private double driveSpeed;
 
   /** Creates a new StraightLineDrive. */
   public StraightLineDrive(Drivetrain drivetrain, double distance, SwerveModule wheels[], IGyro gyro) {
@@ -45,6 +46,7 @@ public class StraightLineDrive extends Command {
       SmartDashboard.putNumber("StartingEncoderPos_" + i, m_startingEncoderPos_in[i]);
     }
     m_desiredBotDistance_in = m_distance_in + m_distanceTraveled_in;
+    driveSpeed = 0.5;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -59,26 +61,31 @@ public class StraightLineDrive extends Command {
       totalSubstractedDistance_in += Math.abs(m_startingEncoderPos_in[i] - currentEncoderPos_in[i]);
     }
 
-    m_avgSubstractedDistance_in = totalSubstractedDistance_in / m_wheels.length;
+    double m_avgSubstractedDistance_in = totalSubstractedDistance_in / m_wheels.length;
     distanceLeftOver_perc = m_avgSubstractedDistance_in / m_desiredBotDistance_in;
 
     SmartDashboard.putNumber("distanceLeftOver_perc", distanceLeftOver_perc);
     SmartDashboard.putNumber("m_AvgSubtractedDistance", m_avgSubstractedDistance_in);
     SmartDashboard.putNumber("m_distance_in", m_desiredBotDistance_in);
+    SmartDashboard.putNumber("driveSpeed", driveSpeed);
 
-    double driveSpeed = 0.05;
+    // if (m_distance_in <= -1) {
+    //   distanceLeftOver_perc *= Math.abs(distanceLeftOver_perc);
+    //   driveSpeed *= -1;
+    // }
 
-    if (currentEncoderPos_in[1] != m_startingEncoderPos_in[1]) {
-      if (0.05 < distanceLeftOver_perc && 0.25 > distanceLeftOver_perc) {
-        driveSpeed = (distanceLeftOver_perc * 3.25) - 0.1125;
-      } else if (0.1 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.9) {
-        driveSpeed = 0.7;
-      } else if (0.6 < distanceLeftOver_perc && 0.95 >= distanceLeftOver_perc) {
-        driveSpeed = (distanceLeftOver_perc * -2.16667) + 2.10833;
-      } else if (distanceLeftOver_perc < 0.95) {
-        driveSpeed = 0.05;
-      }
-    }
+    // if (currentEncoderPos_in[1] != m_startingEncoderPos_in[1]) {
+      // if (0.05 < distanceLeftOver_perc && 0.25 > distanceLeftOver_perc) {
+      //   driveSpeed = (distanceLeftOver_perc * 3.25) - 0.1125;
+      // } else if (0.1 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.9) {
+      //   driveSpeed = 0.7;
+      // } else if (0.6 < distanceLeftOver_perc && 0.95 >= distanceLeftOver_perc) {
+      //   driveSpeed = (distanceLeftOver_perc * -2.16667) + 2.10833;
+      // } else if (distanceLeftOver_perc > 0.95) {
+      //   driveSpeed = 0.05;
+      // }
+      // driveSpeed = driveSpeed * 0.00714286 - 0.309524;
+   // }
 
     m_drivetrain.driveWithGyro(0, driveSpeed, 0);
   }
@@ -93,6 +100,6 @@ public class StraightLineDrive extends Command {
   @Override
   public boolean isFinished() {
     // return Math.abs(m_avgSubstractedDistance_in - m_distance_in) < 1;
-    return distanceLeftOver_perc >= 1;
+    return distanceLeftOver_perc >= 1 || distanceLeftOver_perc < -0;
   }
 }
