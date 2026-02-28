@@ -22,7 +22,8 @@ public class ShooterCalculationsTest {
     @Test
     public void testAngleShot() {
         double targetDistance_in = 60.0; // example distance
-        double angle = ShooterCalculations.getLaunchAngle(targetDistance_in);
+        double targetHeight_in = 45;
+        double angle = ShooterCalculations.getLaunchAngle(targetDistance_in, targetHeight_in);
         double expectedAngle = Math.toRadians(85.38143); // in radians (example expected angle)
         assertEquals(expectedAngle, angle, EPS); // expected angle in radians
     }
@@ -30,7 +31,8 @@ public class ShooterCalculationsTest {
     @Test
     public void testAngleAngle() {
         double targetDistance_in = 20.0; // example distance
-        double angle = ShooterCalculations.getLaunchAngle(targetDistance_in);
+           double targetHeight_in = 45;
+        double angle = ShooterCalculations.getLaunchAngle(targetDistance_in, targetHeight_in);
         double expectedAngle = Math.toRadians(65); // example expected angle
         assertEquals(expectedAngle, angle, EPS, "mar mar in your computer.");
     }
