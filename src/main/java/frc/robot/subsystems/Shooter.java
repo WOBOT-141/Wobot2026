@@ -1,4 +1,15 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it.
+
 package frc.robot.subsystems;
+
+import static frc.robot.Constants.ShooterConstants;
+
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -11,17 +22,12 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.ClosedLoopSlot;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.Timer;
-
-import frc.robot.Constants.ShooterConstants;
-
 public class Shooter extends SubsystemBase {
 
-  private final SparkMax m_rightMotor;
-  private final SparkMax m_middleMotor;
-  private final SparkMax m_leftMotor;
+  // Hardware
+  private final SparkMax m_rightFlywheelMotor;
+  private final SparkMax m_middleFlywheelMotor;
+  private final SparkMax m_leftFlywheelMotor;
 
   private final RelativeEncoder m_rightEncoder;
   private final RelativeEncoder m_middleEncoder;
@@ -31,72 +37,108 @@ public class Shooter extends SubsystemBase {
   private final SparkClosedLoopController m_middleController;
   private final SparkClosedLoopController m_leftController;
 
-  private double m_targetVelocity_rpm = 0.0;
+  // Slew limiting (RPM/sec)
+  private final SlewRateLimiter m_rightLimiter =
+      new SlewRateLimiter(ShooterConstants.slewRateLimit_rpmps);
+
+  private final SlewRateLimiter m_middleLimiter =
+      new SlewRateLimiter(ShooterConstants.slewRateLimit_rpmps);
+
+  private final SlewRateLimiter m_leftLimiter =
+      new SlewRateLimiter(ShooterConstants.slewRateLimit_rpmps);
+
+  // State
+  private double m_targetVelocityRPM = 0.0;
+
+  private double m_softStartStartTime_sec = 0.0;
+  private boolean m_softStartActive = false;
 
   // Shot detection
-  private double m_lastAvgRPM_rpm = 0.0;
-  private boolean m_shotDetected = false;
-  private double m_lastShotTime_sec = -1.0;
+  private double m_lastAverageRPM = 0.0;
+  private double m_lastShotTime_sec = -999.0;
 
-  public Shooter() {
+  // Dashboard change detection
+  private boolean m_lastRightAtSpeed = false;
+  private boolean m_lastMiddleAtSpeed = false;
+  private boolean m_lastLeftAtSpeed = false;
+  private boolean m_lastAllAtSpeed = false;
 
-    m_rightMotor = new SparkMax(ShooterConstants.flywheelRightMotorID, MotorType.kBrushless);
-    m_middleMotor = new SparkMax(ShooterConstants.flywheelMiddleMotorID, MotorType.kBrushless);
-    m_leftMotor = new SparkMax(ShooterConstants.flywheelLeftMotorID, MotorType.kBrushless);
+  // Constructor
+   public Shooter() {
 
-    configureMotor(m_rightMotor);
-    configureMotor(m_middleMotor);
-    configureMotor(m_leftMotor);
+    m_rightFlywheelMotor =
+        new SparkMax(ShooterConstants.flywheelRightMotorID, MotorType.kBrushless);
 
-    m_rightEncoder = m_rightMotor.getEncoder();
-    m_middleEncoder = m_middleMotor.getEncoder();
-    m_leftEncoder = m_leftMotor.getEncoder();
+    m_middleFlywheelMotor =
+        new SparkMax(ShooterConstants.flywheelMiddleMotorID, MotorType.kBrushless);
 
-    m_rightController = m_rightMotor.getClosedLoopController();
-    m_middleController = m_middleMotor.getClosedLoopController();
-    m_leftController = m_leftMotor.getClosedLoopController();
+    m_leftFlywheelMotor =
+        new SparkMax(ShooterConstants.flywheelLeftMotorID, MotorType.kBrushless);
+
+    configureMotor(m_rightFlywheelMotor);
+    configureMotor(m_middleFlywheelMotor);
+    configureMotor(m_leftFlywheelMotor);
+
+    m_rightEncoder = m_rightFlywheelMotor.getEncoder();
+    m_middleEncoder = m_middleFlywheelMotor.getEncoder();
+    m_leftEncoder = m_leftFlywheelMotor.getEncoder();
+
+    m_rightController = m_rightFlywheelMotor.getClosedLoopController();
+    m_middleController = m_middleFlywheelMotor.getClosedLoopController();
+    m_leftController = m_leftFlywheelMotor.getClosedLoopController();
   }
 
+  // Motor configuration
   private void configureMotor(SparkMax motor) {
 
     SparkMaxConfig config = new SparkMaxConfig();
 
-    config.idleMode(IdleMode.kCoast);
+    config.idleMode(IdleMode.kCoast)
+        .smartCurrentLimit(ShooterConstants.stallLimit_amp, ShooterConstants.freeLimit_amp);
 
     config.closedLoop
-        .pid(ShooterConstants.P,
-             ShooterConstants.I,
-             ShooterConstants.D)
+        .pid(ShooterConstants.P, ShooterConstants.I, ShooterConstants.D)
         .velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
 
-    motor.configure(config,
+    motor.configure(
+        config,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
   }
 
-  public void setShooterRPM(double targetRPM_rpm) {
+  // Public API
+  /** Command shooter using IPS */
+  public void setShooterVelocity_ips(double targetVelocity_ips) {
 
-    m_targetVelocity_rpm = targetRPM_rpm;
+    m_targetVelocityRPM =
+        (targetVelocity_ips * 60.0) /
+        (Math.PI * ShooterConstants.FlywheelDiameter_in);
 
-    m_rightController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
-    m_middleController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
-    m_leftController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    m_softStartStartTime_sec = Timer.getFPGATimestamp();
+    m_softStartActive = true;
   }
 
- 
-  // Speed checks
+  public double getAverageRPM() {
+    return (m_rightEncoder.getVelocity()
+        + m_middleEncoder.getVelocity()
+        + m_leftEncoder.getVelocity()) / 3.0;
+  }
+
   public boolean rightAtSpeed() {
-    return Math.abs(m_rightEncoder.getVelocity() - m_targetVelocity_rpm)
+    return Math.abs(
+        m_rightEncoder.getVelocity() - m_targetVelocityRPM)
         < ShooterConstants.FlywheelRPMTolerance_rpm;
   }
 
   public boolean middleAtSpeed() {
-    return Math.abs(m_middleEncoder.getVelocity() - m_targetVelocity_rpm)
+    return Math.abs(
+        m_middleEncoder.getVelocity() - m_targetVelocityRPM)
         < ShooterConstants.FlywheelRPMTolerance_rpm;
   }
 
   public boolean leftAtSpeed() {
-    return Math.abs(m_leftEncoder.getVelocity() - m_targetVelocity_rpm)
+    return Math.abs(
+        m_leftEncoder.getVelocity() - m_targetVelocityRPM)
         < ShooterConstants.FlywheelRPMTolerance_rpm;
   }
 
@@ -104,47 +146,128 @@ public class Shooter extends SubsystemBase {
     return rightAtSpeed() && middleAtSpeed() && leftAtSpeed();
   }
 
-  public double getAverageRPM() {
-    return (m_rightEncoder.getVelocity()
-          + m_middleEncoder.getVelocity()
-          + m_leftEncoder.getVelocity()) / 3.0;
-  }
-  
-  // Shot detection via RPM dip
-  public boolean updateShotDetection() {
+  /** Shot detection via RPM dip */
+  public boolean didJustShoot() {
 
-    double currentRPM_rpm = getAverageRPM();
+    double avgRPM = getAverageRPM();
     double now_sec = Timer.getFPGATimestamp();
 
-    m_shotDetected = false;
+    boolean dipDetected =
+        (m_lastAverageRPM - avgRPM) > ShooterConstants.shotDipThreshold_rpm;
 
-    if ((m_lastAvgRPM_rpm - currentRPM_rpm)
-        > ShooterConstants.shotDipThreshold_rpm) {
+    boolean separationOK =
+        (now_sec - m_lastShotTime_sec) > ShooterConstants.shotMinSeparation_sec;
 
-      if (m_lastShotTime_sec < 0 ||
-          (now_sec - m_lastShotTime_sec)
-              > ShooterConstants.shotMinSeparation_sec) {
-
-        m_shotDetected = true;
-        m_lastShotTime_sec = now_sec;
-      }
+    if (dipDetected && separationOK) {
+      m_lastShotTime_sec = now_sec;
+      m_lastAverageRPM = avgRPM;
+      return true;
     }
 
-    m_lastAvgRPM_rpm = currentRPM_rpm;
-    return m_shotDetected;
+    m_lastAverageRPM = avgRPM;
+    return false;
   }
 
-  public double getLastShotTime_sec() {
-    return m_lastShotTime_sec;
+  public void cancel() {
+    m_softStartActive = false;
+
+    m_rightFlywheelMotor.stopMotor();
+    m_middleFlywheelMotor.stopMotor();
+    m_leftFlywheelMotor.stopMotor();
   }
 
+  // Soft start (staggered)
+  private void softStartFlywheel() {
+
+    double elapsed_sec =
+        Timer.getFPGATimestamp() - m_softStartStartTime_sec;
+
+    double rightRPM =
+        m_rightLimiter.calculate(m_targetVelocityRPM);
+
+    double middleRPM =
+        m_middleLimiter.calculate(m_targetVelocityRPM);
+
+    double leftRPM =
+        m_leftLimiter.calculate(m_targetVelocityRPM);
+
+    if (elapsed_sec > 0.0) {
+      m_rightController.setSetpoint(
+          rightRPM,
+          ControlType.kVelocity,
+          ClosedLoopSlot.kSlot0);
+    }
+
+    if (elapsed_sec > 0.05) {
+      m_middleController.setSetpoint(
+          middleRPM,
+          ControlType.kVelocity,
+          ClosedLoopSlot.kSlot0);
+    }
+
+    if (elapsed_sec > 0.10) {
+      m_leftController.setSetpoint(
+          leftRPM,
+          ControlType.kVelocity,
+          ClosedLoopSlot.kSlot0);
+    }
+  }
+
+  // Brownout scaling helper
+  private double getBrownoutScale_perc() {
+
+    double voltage_V = RobotController.getBatteryVoltage();
+
+    if (voltage_V < ShooterConstants.BrownoutCriticalVoltage_V) {
+      return 0.0;
+    }
+
+    if (voltage_V < ShooterConstants.BrownoutStartVoltage_V) {
+      return 0.6;
+    }
+
+    return 1.0;
+  }
+
+  // Periodic
   @Override
   public void periodic() {
 
-    updateShotDetection();
+    if (m_softStartActive) {
+      softStartFlywheel();
+    }
 
-    SmartDashboard.putNumber("Shooter Avg RPM", getAverageRPM());
-    SmartDashboard.putBoolean("Shot Detected", m_shotDetected);
+    // Dashboard numbers
+    SmartDashboard.putNumber("Shooter Target RPM", m_targetVelocityRPM);
+    SmartDashboard.putNumber("Shooter Right RPM", m_rightEncoder.getVelocity());
+    SmartDashboard.putNumber("Shooter Middle RPM", m_middleEncoder.getVelocity());
+    SmartDashboard.putNumber("Shooter Left RPM", m_leftEncoder.getVelocity());
+
+    // Change-only booleans
+    boolean rightNow = rightAtSpeed();
+    boolean middleNow = middleAtSpeed();
+    boolean leftNow = leftAtSpeed();
+    boolean allNow = allAtSpeed();
+
+    if (rightNow != m_lastRightAtSpeed) {
+      SmartDashboard.putBoolean("Right At Speed", rightNow);
+      m_lastRightAtSpeed = rightNow;
+    }
+
+    if (middleNow != m_lastMiddleAtSpeed) {
+      SmartDashboard.putBoolean("Middle At Speed", middleNow);
+      m_lastMiddleAtSpeed = middleNow;
+    }
+
+    if (leftNow != m_lastLeftAtSpeed) {
+      SmartDashboard.putBoolean("Left At Speed", leftNow);
+      m_lastLeftAtSpeed = leftNow;
+    }
+
+    if (allNow != m_lastAllAtSpeed) {
+      SmartDashboard.putBoolean("Shooter All At Speed", allNow);
+      m_lastAllAtSpeed = allNow;
+    }
   }
 }
 
