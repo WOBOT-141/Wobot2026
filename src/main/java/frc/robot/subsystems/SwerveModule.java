@@ -24,8 +24,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.CANIdConstants;
 import frc.robot.Constants.SteerConstants;
+import frc.robot.Constants.WheelConstants;
 
 public class SwerveModule extends SubsystemBase {
 
@@ -227,28 +228,28 @@ public class SwerveModule extends SubsystemBase {
     double outputCurrent_amp = _driveMotor.getOutputCurrent();
 
     switch (driveMotorID) {
-      case Constants.CANIdConstants.backLeftDriveMotorID:
+      case CANIdConstants.backLeftDriveMotorID:
         SmartDashboard.putNumber("Back Left Amps: ", outputCurrent_amp);
         if (outputCurrent_amp > maxAmpsBL_amp) {
           maxAmpsBL_amp = outputCurrent_amp;
         }
         SmartDashboard.putNumber("Back Left Max Amps: ", maxAmpsBL_amp);
         break;
-      case Constants.CANIdConstants.backRightDriveMotorID:
+      case CANIdConstants.backRightDriveMotorID:
         SmartDashboard.putNumber("Back Right Amps: ", outputCurrent_amp);
         if (outputCurrent_amp > maxAmpsBR_amp) {
           maxAmpsBR_amp = outputCurrent_amp;
         }
         SmartDashboard.putNumber("Back Right Max Amps: ", maxAmpsBR_amp);
         break;
-      case Constants.CANIdConstants.frontLeftDriveMotorID:
+      case CANIdConstants.frontLeftDriveMotorID:
         SmartDashboard.putNumber("Front Left Amps: ", outputCurrent_amp);
         if (outputCurrent_amp > maxAmpsFL_amp) {
           maxAmpsFL_amp = outputCurrent_amp;
         }
         SmartDashboard.putNumber("Front Left Max Amps: ", maxAmpsFL_amp);
         break;
-      case Constants.CANIdConstants.frontRightDriveMotorID:
+      case CANIdConstants.frontRightDriveMotorID:
         SmartDashboard.putNumber("Front Right Amps: ", outputCurrent_amp);
         if (outputCurrent_amp > maxAmpsFR_amp) {
           maxAmpsFR_amp = outputCurrent_amp;
@@ -262,19 +263,19 @@ public class SwerveModule extends SubsystemBase {
     double currentAngle_deg = (_steerMotor.getEncoder().getPosition());
     switch (steerMotorID) {
 
-      case Constants.CANIdConstants.backLeftSteerMotorID:
+      case CANIdConstants.backLeftSteerMotorID:
         SmartDashboard.putNumber("Neo position Back Left", currentAngle_deg);
         // System.out.printf("Neo position Back Left: %.3f\n", currentAngle_deg);
         break;
-      case Constants.CANIdConstants.backRightSteerMotorID:
+      case CANIdConstants.backRightSteerMotorID:
         SmartDashboard.putNumber("Neo position Back Right", currentAngle_deg);
         // System.out.printf("Neo position Back Right: %.3f\n", currentAngle_deg);
         break;
-      case Constants.CANIdConstants.frontLeftSteerMotorID:
+      case CANIdConstants.frontLeftSteerMotorID:
         SmartDashboard.putNumber("Neo position Front Left", currentAngle_deg);
         // System.out.printf("Neo position Front Left: %.3f\n", currentAngle_deg);
         break;
-      case Constants.CANIdConstants.frontRightSteerMotorID:
+      case CANIdConstants.frontRightSteerMotorID:
         SmartDashboard.putNumber("Neo position Front Right", currentAngle_deg);
         // System.out.printf("Neo position Front Right: %.3f\n", currentAngle_deg);
         break;
@@ -287,16 +288,16 @@ public class SwerveModule extends SubsystemBase {
     // double startAngle_deg = ggetEncoderOffset_deg();
     switch (steerMotorID) {
 
-      case Constants.CANIdConstants.backLeftSteerMotorID:
+      case CANIdConstants.backLeftSteerMotorID:
         SmartDashboard.putNumber("Back Left Cancoder: ", startAngle_deg);
         break;
-      case Constants.CANIdConstants.backRightSteerMotorID:
+      case CANIdConstants.backRightSteerMotorID:
         SmartDashboard.putNumber("Back Right Cancoder: ", startAngle_deg);
         break;
-      case Constants.CANIdConstants.frontLeftSteerMotorID:
+      case CANIdConstants.frontLeftSteerMotorID:
         SmartDashboard.putNumber("Front Left Cancoder: ", startAngle_deg);
         break;
-      case Constants.CANIdConstants.frontRightSteerMotorID:
+      case CANIdConstants.frontRightSteerMotorID:
         SmartDashboard.putNumber("Front Right Cancoder: ", startAngle_deg);
         break;
       default:
@@ -317,23 +318,4 @@ public class SwerveModule extends SubsystemBase {
   }
 
 
-  public static class WheelConstants {
-    public static final double DriveP = 0.0000075; // .0150
-    public static final double DriveI = 0;
-    public static final double DriveD = 0;
-    public static final double DriveIz = 0;
-    public static final double DriveFFkS = 0.00012; // Ks = min volts to make motor barely move
-    public static final double DriveFFKv = 0.473; // Kv = got number from neo documentation
-
-    public static final double SteerP = 0.025;
-    public static final double SteerI = 0;
-    public static final double SteerD = 0;
-    public static final double SteerIz = 0;
-    public static final double SteerFF = 0;
-
-    // TODO double check all these numbers
-    public static final double wheelCircumference_in = (Math.PI * 4);
-    public static final double driveGearRatio = 5.14;
-    public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in;
-  }
 }
