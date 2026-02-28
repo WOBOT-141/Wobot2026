@@ -1,138 +1,150 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import static edu.wpi.first.units.Units.InchesPerSecond;
-
-import javax.security.auth.login.FailedLoginException;
-
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.ClosedLoopSlot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.Timer;
 
+import frc.robot.Constants.ShooterConstants;
 
 public class Shooter extends SubsystemBase {
-  /** Creates a new Shooter.*/
- private final SparkMax m_rightFlywheelMotor;
- private final SparkMax m_middleFlywheelMotor;
- private final SparkMax m_leftFlywheelMotor; 
- private final SparkMax m_feedMotor;
- private final SparkMax m_magazineMotor;
- private final SparkMaxConfig m_rightFlywheelMotorConfig;
- private final SparkMaxConfig m_middleFlywheelMotorConfig;
- private final SparkMaxConfig m_leftFlywheelMotorConfig;
- private final SparkMaxConfig m_feedMotorConfig;
- private final SparkMaxConfig m_magazineMotorConfig;
 
- private final RelativeEncoder m_rightFlywheelEncoder;
- private final RelativeEncoder m_middleFlywheelEncoder;
- private final RelativeEncoder m_leftFlywheelEncoder;
- private final RelativeEncoder m_feedMotorEncoder;
- private final RelativeEncoder m_magazineMotorEncoder;
- private final SparkClosedLoopController m_rightFlywheelController;
- private final SparkClosedLoopController m_middleFlywheelController;
- private final SparkClosedLoopController m_leftFlywheelController;
- private final SparkClosedLoopController m_feedMotorController;
- private final SparkClosedLoopController m_magazineMotorController;
+  private final SparkMax m_rightMotor;
+  private final SparkMax m_middleMotor;
+  private final SparkMax m_leftMotor;
+
+  private final RelativeEncoder m_rightEncoder;
+  private final RelativeEncoder m_middleEncoder;
+  private final RelativeEncoder m_leftEncoder;
+
+  private final SparkClosedLoopController m_rightController;
+  private final SparkClosedLoopController m_middleController;
+  private final SparkClosedLoopController m_leftController;
+
+  private double m_targetVelocity_rpm = 0.0;
+
+  // Shot detection
+  private double m_lastAvgRPM_rpm = 0.0;
+  private boolean m_shotDetected = false;
+  private double m_lastShotTime_sec = -1.0;
 
   public Shooter() {
-    m_rightFlywheelMotor = new SparkMax(0, MotorType.kBrushless); //TODO add ids to sparkMaxs
-    m_middleFlywheelMotor = new SparkMax(0,  MotorType.kBrushless);
-    m_leftFlywheelMotor = new SparkMax(0,  MotorType.kBrushless);
-    m_feedMotor = new SparkMax(0,  MotorType.kBrushless);
-    m_magazineMotor = new SparkMax(0, MotorType.kBrushless );
 
-    m_rightFlywheelMotorConfig = new SparkMaxConfig();
-    m_middleFlywheelMotorConfig = new SparkMaxConfig();
-    m_leftFlywheelMotorConfig = new SparkMaxConfig();
-    m_feedMotorConfig = new SparkMaxConfig();
-    m_magazineMotorConfig = new SparkMaxConfig();
-    
-    m_rightFlywheelMotorConfig
-    .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
-    m_rightFlywheelMotorConfig.closedLoop
-    .pid(0, 0, 0);
-    
-    m_middleFlywheelMotorConfig
-    .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
-    m_middleFlywheelMotorConfig.closedLoop
-    .pid(0, 0, 0);
+    m_rightMotor = new SparkMax(ShooterConstants.flywheelRightMotorID, MotorType.kBrushless);
+    m_middleMotor = new SparkMax(ShooterConstants.flywheelMiddleMotorID, MotorType.kBrushless);
+    m_leftMotor = new SparkMax(ShooterConstants.flywheelLeftMotorID, MotorType.kBrushless);
 
-    m_leftFlywheelMotorConfig
-    .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
-    m_leftFlywheelMotorConfig.closedLoop
-    .pid(0, 0, 0);
+    configureMotor(m_rightMotor);
+    configureMotor(m_middleMotor);
+    configureMotor(m_leftMotor);
 
-    m_feedMotorConfig
-    .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
-    m_feedMotorConfig.closedLoop
-    .pid(0, 0, 0);
+    m_rightEncoder = m_rightMotor.getEncoder();
+    m_middleEncoder = m_middleMotor.getEncoder();
+    m_leftEncoder = m_leftMotor.getEncoder();
 
-    m_magazineMotorConfig
-    .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
-    m_magazineMotorConfig.closedLoop
-    .pid(0, 0, 0);
-    
-    m_rightFlywheelMotor.configure(m_rightFlywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_middleFlywheelMotor.configure(m_middleFlywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_leftFlywheelMotor.configure(m_leftFlywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_feedMotor.configure(m_feedMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_feedMotor.configure(m_feedMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_rightController = m_rightMotor.getClosedLoopController();
+    m_middleController = m_middleMotor.getClosedLoopController();
+    m_leftController = m_leftMotor.getClosedLoopController();
+  }
 
-    m_rightFlywheelEncoder = m_rightFlywheelMotor.getEncoder();
-    m_middleFlywheelEncoder = m_middleFlywheelMotor.getEncoder();
-    m_leftFlywheelEncoder = m_middleFlywheelMotor.getEncoder();
-    m_feedMotorEncoder = m_feedMotor.getEncoder();
-    m_magazineMotorEncoder = m_magazineMotor.getEncoder();
-    
+  private void configureMotor(SparkMax motor) {
 
-    m_rightFlywheelController = m_rightFlywheelMotor.getClosedLoopController();
-    m_middleFlywheelController = m_middleFlywheelMotor.getClosedLoopController();
-    m_leftFlywheelController = m_leftFlywheelMotor.getClosedLoopController();
-    m_feedMotorController = m_feedMotor.getClosedLoopController();
-    m_magazineMotorController = m_magazineMotor.getClosedLoopController();
+    SparkMaxConfig config = new SparkMaxConfig();
 
+    config.idleMode(IdleMode.kCoast);
+
+    config.closedLoop
+        .pid(ShooterConstants.P,
+             ShooterConstants.I,
+             ShooterConstants.D)
+        .velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+
+    motor.configure(config,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
+  }
+
+  public void setShooterRPM(double targetRPM_rpm) {
+
+    m_targetVelocity_rpm = targetRPM_rpm;
+
+    m_rightController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    m_middleController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    m_leftController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+  }
+
+ 
+  // Speed checks
+  public boolean rightAtSpeed() {
+    return Math.abs(m_rightEncoder.getVelocity() - m_targetVelocity_rpm)
+        < ShooterConstants.FlywheelRPMTolerance_rpm;
+  }
+
+  public boolean middleAtSpeed() {
+    return Math.abs(m_middleEncoder.getVelocity() - m_targetVelocity_rpm)
+        < ShooterConstants.FlywheelRPMTolerance_rpm;
+  }
+
+  public boolean leftAtSpeed() {
+    return Math.abs(m_leftEncoder.getVelocity() - m_targetVelocity_rpm)
+        < ShooterConstants.FlywheelRPMTolerance_rpm;
+  }
+
+  public boolean allAtSpeed() {
+    return rightAtSpeed() && middleAtSpeed() && leftAtSpeed();
+  }
+
+  public double getAverageRPM() {
+    return (m_rightEncoder.getVelocity()
+          + m_middleEncoder.getVelocity()
+          + m_leftEncoder.getVelocity()) / 3.0;
   }
   
-  public void setFlywheelVelocity(double targetVelocity_ips){
+  // Shot detection via RPM dip
+  public boolean updateShotDetection() {
 
+    double currentRPM_rpm = getAverageRPM();
+    double now_sec = Timer.getFPGATimestamp();
+
+    m_shotDetected = false;
+
+    if ((m_lastAvgRPM_rpm - currentRPM_rpm)
+        > ShooterConstants.shotDipThreshold_rpm) {
+
+      if (m_lastShotTime_sec < 0 ||
+          (now_sec - m_lastShotTime_sec)
+              > ShooterConstants.shotMinSeparation_sec) {
+
+        m_shotDetected = true;
+        m_lastShotTime_sec = now_sec;
+      }
+    }
+
+    m_lastAvgRPM_rpm = currentRPM_rpm;
+    return m_shotDetected;
   }
-  
-  public void advanceFuel(){
 
-  }
-
-  public void canclel(){
-    m_rightFlywheelMotor.stopMotor();
-    m_middleFlywheelMotor.stopMotor();
-    m_leftFlywheelMotor.stopMotor();
-    m_feedMotor.stopMotor();
-    m_magazineMotor.stopMotor();
-  }
-
-  public void softStartFlywheel(){
-    //spin fly wheel motor one at a time to avoid curent spikes
-
+  public double getLastShotTime_sec() {
+    return m_lastShotTime_sec;
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+
+    updateShotDetection();
+
+    SmartDashboard.putNumber("Shooter Avg RPM", getAverageRPM());
+    SmartDashboard.putBoolean("Shot Detected", m_shotDetected);
   }
 }
+

@@ -21,6 +21,12 @@ public class ShooterCalculations {
         return Math.sqrt(step3);
     }
 
+    public static void main(String[] args) {
+
+        double angleOfCenterTarget_deg = 45.0; // example angle
+        double initialVelocity = calculateInitialVelocity(angleOfCenterTarget_deg, 60.0); // example distance
+        System.out.println("Initial velocity: " + initialVelocity + " m/s");
+    }
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
@@ -35,6 +41,13 @@ public class ShooterCalculations {
 
     public class ShooterConstants {
         private static final double g = 9.817;
+        private static final double gf = 32.174; // gravity in ft/s^2
+
+        private static double har_m = 1.228344; // PASS har_m = height above the rim
+        private static double drt_m = Units.inchesToMeters(23.51); // PASS ShooterConstants.drt_m = distance rim to
+                                                                   // penetration of target
+        // plane
+        // (how far in should the ball
 
         private static double targetHeight_in = Units.metersToInches(1.228344); //MAKE A PARAMETER AT SOME PT  har_m = height above the rim
         private static double drt_in = Units.metersToInches(.597154); //MAKE A PARAMETER AT SOME PT ShooterConstants.drt_m = distance rim to penetration of target plane
@@ -48,6 +61,9 @@ public class ShooterCalculations {
         private static double deltaHprm_in = hrm_in + targetHeight_in - hm_in;
 
     }
+
+
+
 }
 
 // MAX ANGLE OF 89 deg, MIN OF 44.5 according to mason
