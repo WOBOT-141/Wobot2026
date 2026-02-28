@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -24,6 +25,11 @@ public class Climber extends SubsystemBase {
     private Servo m_rightHookTopServo;
     private Servo m_rightHookBottomServo;
     private Servo m_rightRatchetServo;
+    private final  DigitalInput m_topLeftLimitSwitch = new DigitalInput(climberConstants.topLeftLimitSwitchID);
+    private final  DigitalInput m_bottomLeftLimitSwitch = new DigitalInput(climberConstants.bottomLeftLimitSwitchID);
+    private final  DigitalInput m_topRightLimitSwitch = new DigitalInput(climberConstants.topRightLimitSwitchID);
+    private final  DigitalInput m_bottomRightLimitSwitch = new DigitalInput(climberConstants.bottomRightLimitSwitchID);
+    
     private SparkMaxConfig m_climberMotorConfig;
     private SparkMaxConfig m_followMotorConfig;
     private double m_moveTo;
@@ -50,8 +56,7 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean climberHome() {
-        boolean LimitSwitch = false; //TODO add limit switch to detect when at home position
-        if (LimitSwitch) {
+        if (m_bottomLeftLimitSwitch.get() && m_bottomRightLimitSwitch.get()) {
             m_climberMotor.set(0);
             m_climberMotorRealtiveEncoder.setPosition(0);
             return true;
@@ -60,11 +65,17 @@ public class Climber extends SubsystemBase {
             return false;
     }
 
-    public void moveToPosition(double position) {
-        
+    public boolean moveToPosition(double position) {
+        if(position >= m_climberMotorRealtiveEncoder.getPosition()){
+                    m_climberMotor.set(climberConstants.motorRPM);
+                    stopClimber();
+        }
+        //TODO check if our desired position is greater than our current position if so move up and check if we are at position if we are at position stop motor and return true if not return false
+        //TODO is set point current postive or negtive compared to current position if positive move up if negative move down
+        //TODO 
         
        
-       
+       return false;
         //TODO move to a position 
         //TODO check if position is within limits
         //TODO read encoder position to know if its where supposed tobe
@@ -122,6 +133,10 @@ public class Climber extends SubsystemBase {
     public void ratchetUnlock() {
        m_leftRatchetServo.set(climberConstants.ratchetServoUnlock);
        m_rightRatchetServo.set(climberConstants.ratchetServoUnlock);
+    }
+
+    public void stopClimber(){
+        m_climberMotor.stopMotor();
     }
 
 

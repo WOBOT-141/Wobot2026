@@ -56,6 +56,11 @@ public final class Constants {
       public static final double hookServoOn = 0;
       public static final double hookServoOff = 0;
       public static final double ratchetServoUnlock = 0;
+
+      public static final int topLeftLimitSwitchID = 0;
+      public static final int bottomLeftLimitSwitchID = 1;
+      public static final int topRightLimitSwitchID = 2;
+      public static final int bottomRightLimitSwitchID = 3;
     }
 
   public static class RotateCommandConstants {
