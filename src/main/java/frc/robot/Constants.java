@@ -34,9 +34,29 @@ public final class Constants {
     public static final int backLeftEncoderid = 10; 
     public static final int frontRightEncoderid = 11; 
     public static final int backRightEncoderid = 12;
-    public static final int leftMotorID = 0; //TODO add can ids
-    public static final int rightMotorID = 0;
+    public static final int ClimberMotorID = 0; //TODO add can ids
+    public static final int ClimbFollowerMotorID = 0;
   }
+
+  public static class climberConstants {
+      public static final double homeRPM = 0;
+      
+      public static final double extendClimberToL1_IN = 0; 
+      public static final double l1climb_IN = 0; 
+      public static final double l2AndL3climb_IN = 0;
+      public static final double retractClimberL1_IN = 0;
+      public static final double retractClimberL2AndL3_IN = 0;
+
+      public static final double gearRatio = 0; 
+
+      public static final double motorRPM = 0;
+      public static final int  motorFreeLimit = 20;
+      public static final int motorStallLimit = 20;
+
+      public static final double hookServoOn = 0;
+      public static final double hookServoOff = 0;
+      public static final double ratchetServoUnlock = 0;
+    }
 
   public static class RotateCommandConstants {
     public static final double P = 0.0035;
@@ -119,19 +139,5 @@ public final class Constants {
     public static final double DriveXOffset = 0.039816 + 0.029202; // .075813
     public static final double DriveYOffset = -0.024228;
     public static final double ThrottleOffset = 0;
-
-    public static class climberConstants {
-      public static final double extendClimberToL1_IN = 0; //TODO find actual values
-      public static final double homePosition_IN = 0;
-      public static final double l1climb_IN = 0; 
-      public static final double l2AndL3climb_IN = 0;
-
-      public static final double gearRatio = 0; 
-
-      public static final double motorRPM = 0;
-
-      public static final double hookServoOn = 0;
-      public static final double hookServoOff = 0;
-    }
   }
 }
