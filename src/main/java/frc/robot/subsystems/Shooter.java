@@ -83,10 +83,8 @@ public class Shooter extends SubsystemBase {
     m_leftController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
 
-  // =========================
+ 
   // Speed checks
-  // =========================
-
   public boolean rightAtSpeed() {
     return Math.abs(m_rightEncoder.getVelocity() - m_targetVelocity_rpm)
         < ShooterConstants.FlywheelRPMTolerance_rpm;

@@ -1,8 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
-
 import frc.lib.SpektrumFlightController;
 
 import frc.robot.subsystems.ChooserHandeling;
@@ -11,7 +8,6 @@ import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
-import frc.robot.commands.TestCommands.DriveInDirection;
 
 import java.util.Map;
 
@@ -21,18 +17,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-import frc.lib.SpektrumFlightController;
-import frc.robot.subsystems.ChooserHandeling;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.SwerveModule;
 
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -50,11 +39,6 @@ import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.RotateToTag;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
-import frc.robot.commands.DriveCommands.LockWheels;
-import frc.robot.commands.DriveCommands.ResetGyro;
-import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.commands.StickParameters.IStickParameters;
-import frc.robot.commands.StickParameters.StickBParameters;
 
 public class RobotContainer {
 
