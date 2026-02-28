@@ -16,26 +16,19 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.CANIdConstants;
 
 import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
 
-  // =========================
   // Hardware
-  // =========================
-
   private final SparkMax m_intakeMotor;
   private final SparkMax m_intakeRollerMotor;
 
   private final RelativeEncoder m_intakeEncoder;
   private final RelativeEncoder m_intakeRollerEncoder;
 
-  // =========================
   // State
-  // =========================
-
   private boolean m_isHomed = false;
   private boolean m_homingActive = false;
 
@@ -45,11 +38,8 @@ public class Intake extends SubsystemBase {
   private boolean m_lastAtUp = false;
   private boolean m_lastAtDown = false;
 
-  // =========================
   // Constructor
-  // =========================
-
-  public Intake() {
+   public Intake() {
 
     m_intakeMotor =
         new SparkMax(IntakeConstants.intakeMotorID, MotorType.kBrushless);
@@ -64,10 +54,8 @@ public class Intake extends SubsystemBase {
     m_intakeRollerEncoder = m_intakeRollerMotor.getEncoder();
   }
 
-  // =========================
+ 
   // Motor configuration
-  // =========================
-
   private void configureMotor(SparkMax motor) {
 
     SparkMaxConfig config = new SparkMaxConfig();
@@ -81,10 +69,8 @@ public class Intake extends SubsystemBase {
         PersistMode.kPersistParameters);
   }
 
-  // =========================
+  
   // Angle helpers
-  // =========================
-
   /** Returns intake arm angle in degrees */
   public double getIntakeAngle_deg() {
     return m_intakeEncoder.getPosition()
@@ -101,11 +87,9 @@ public class Intake extends SubsystemBase {
         < IntakeConstants.positionTolerance_deg;
   }
 
-  // =========================
+ 
   // Roller control
-  // =========================
-
-  public void intakeRun(double speed_perc) {
+   public void intakeRun(double speed_perc) {
     m_intakeRollerMotor.set(speed_perc);
   }
 
@@ -113,20 +97,14 @@ public class Intake extends SubsystemBase {
     m_intakeRollerMotor.stopMotor();
   }
 
-  // =========================
+ 
   // Arm control
-  // =========================
-
   public void intakeDown() {
 
     if (!m_isHomed)
       return;
 
     m_moveStartTime_sec = Timer.getFPGATimestamp();
-  /** Creates a new Intake. */
-  public Intake() { // TODO set ids
-    m_slapdownMotor = new SparkMax(CANIdConstants.intakeSlapdownMotor, MotorType.kBrushless);
-    m_rollerMotor = new SparkMax(CANIdConstants.intakeRollerMotor, MotorType.kBrushless);
 
     m_intakeMotor.set(
         applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
@@ -147,10 +125,7 @@ public class Intake extends SubsystemBase {
     m_intakeMotor.stopMotor();
   }
 
-  // =========================
   // Homing (current based)
-  // =========================
-
   public void intakeHome() {
 
     m_homingActive = true;
@@ -181,10 +156,8 @@ public class Intake extends SubsystemBase {
     }
   }
 
-  // =========================
-  // Brownout protection
-  // =========================
 
+  // Brownout protection
   private double applyBrownoutScale(double commandedSpeed_perc) {
 
     double voltage_V = RobotController.getBatteryVoltage();
@@ -200,38 +173,6 @@ public class Intake extends SubsystemBase {
 
     return commandedSpeed_perc;
   }
-
-  // =========================
-  // Periodic
-  // =========================
-  public void extend() {
-
-  }
-
-  public void retract() {
-
-  }
-
-  public void run(double percent) {
-
-  }
-
-  // public void fuelIntaking() {
-  // rollerMotor.set(0.1);
-  // }
-
-  /*
-   * public void SlappingDown() {
-   * slapdownMotor.set(0.1);
-   * 
-   * }
-   * 
-   * public void PullingUp() { //if slapdwon motor is
-   * if (slapdownMotor >)
-   * slapdownMotor.set(-0.1);
-   * 
-   * }
-   */
 
   @Override
   public void periodic() {

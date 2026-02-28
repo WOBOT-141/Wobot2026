@@ -251,4 +251,3 @@ public class FeederMagazine extends SubsystemBase {
         RobotController.getBatteryVoltage());
   }
 }
-
