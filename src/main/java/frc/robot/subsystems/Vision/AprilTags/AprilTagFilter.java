@@ -1,8 +1,8 @@
 package frc.robot.subsystems.Vision.AprilTags;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
-import edu.wpi.first.apriltag.AprilTagDetection;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.lib.AngleMagVector;
@@ -47,36 +47,55 @@ public class AprilTagFilter {
     }
 
     public Optional<AngleMagVector> getFloorVectorFromTag(DetectionList detectionList, FieldElement element) {
+        ArrayList<AngleMagVector> floorVectorList = new ArrayList<AngleMagVector>();
         for (int i = 0; i <= detectionList.getSize(); i++){
             IDetection detection = detectionList.getDetection(i);
             if (0 != getTagInfoIfElementAndAlliance(((int)detection.getId()), element).get().Id){
-                getFloorVectorFromTag(detection);
-                //return Optional.of()
-            }
-            else {
-                return Optional.empty();
+                AngleMagVector floorVector = getFloorVectorFromTag(detection);
+                floorVectorList.add(floorVector);
             }
         }
+        if (floorVectorList.size() == 0) {
+            return Optional.empty();
+        };
+        double totalMagnitude_in = 0;
+        double totalAngle_deg = 0;
+        for (int i = 0; i <= floorVectorList.size(); i++) {
+            AngleMagVector floorVector = floorVectorList.get(i);
+           totalMagnitude_in += floorVector.Magnitude;
+           totalAngle_deg += floorVector.Angle; 
+        }
+        double averageMagnitude_in = totalMagnitude_in/floorVectorList.size();
+        double averageAngle_in = totalAngle_deg/floorVectorList.size();
+        return Optional.of(new AngleMagVector(averageAngle_in, averageMagnitude_in));
 
-        // TODO Iterate through the detectionList, use getTagInfoIfElementAndAlliance to determine if the detection is relevant.
-        // If so, call getFloorVectorFromTag method to get the vector based on that detection.
-        // Then return the average of all those vectors in an Optional.
-        // If there are no relevant detections, return an empty Optional
-
-
-        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     public AngleMagVector getFloorVectorFromTag(IDetection tagDetection) {
-
+        //This currently only works on center tags
         AprilTagFieldInfo tagInfo = m_tags[((int)tagDetection.getId())];
-        double distanceToTag = tagInfo.XToElement;
-        double distanceToCenter_in = 24.5;
+        double distanceToTag_in = tagDetection.getDistance();
+        double tagToCenter_in = Math.sqrt(Math.pow(tagInfo.XToElement , 2) + Math.pow(tagInfo.YToElement, 2));
+        double tagToCenterAngle_deg = 180 - Math.abs(tagDetection.getYaw());
+        double hubDistance_in = LawOfCosines(tagToCenter_in, distanceToTag_in, tagToCenterAngle_deg);
+        double angleToHub_deg = FindSSSAngle(tagToCenter_in, distanceToTag_in, hubDistance_in);
 
         // TODO Use the Law of Cosines to calculate the vector from the bot to the center of the specified field element
         // based on the information in the provided AprilTagDetection.
         // Only XtoElement and YtoElement matter. Ignore ZtoElement
 
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public double FindSSSAngle(double sideA, double sideB, double sideC) {
+        double numerator = Math.pow(sideA, 2) + Math.pow(sideB, 2) - Math.pow(sideC, 2);
+        double denominator = 2 * sideA * sideB;
+        return Math.toDegrees(Math.acos(numerator/denominator));
+        
+    }
+
+    public double LawOfCosines(double sideA, double sideB, double angleC) {
+        double sideC = Math.sqrt((Math.pow(sideB, 2) + Math.pow(sideA, 2)) - (2 * sideA * sideB * Math.toDegrees(Math.cos(angleC))));
+        return sideC;
     }
 }
