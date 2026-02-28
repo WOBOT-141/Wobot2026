@@ -2,27 +2,26 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 import frc.lib.SpektrumFlightController;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.IGyro;
-import frc.robot.subsystems.NavxGyro;
-import frc.robot.subsystems.SwerveModule;
-import frc.robot.subsystems.Vision.VisionServer;
-import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
-import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
-import frc.robot.subsystems.ChooserHandeling;
-import frc.robot.commands.RotateToTag;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.RotateToTag;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.subsystems.ChooserHandeling;
+import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.IGyro;
+import frc.robot.subsystems.NavxGyro;
+import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
+import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
+import frc.robot.subsystems.Vision.VisionServer;
 
 public class RobotContainer {
 
@@ -85,7 +84,7 @@ public class RobotContainer {
             _selectedBot.getbackRightLocationY())
     };
 
-    m_Drive = new Drivetrain(m_wheels, m_Gyro);
+    m_Drive = new Drivetrain(m_wheels, m_Gyro, visionServer);
 
     configureFlightControllerParameters();
     configureBindings();
@@ -176,6 +175,8 @@ public class RobotContainer {
         .onTrue(new ResetGyro(m_Gyro));
     new Trigger(() -> flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(new LockWheels(m_Drive));
+    // new Trigger(() -> flightController0.getRawButton(SpektrumFlightController.Button.kI.value))
+    //     .whileTrue(new DriveToPose(m_Drive, new Pose2d(2.0, 0.0, new Rotation2d(Math.toRadians(180)))));
   }
 
   public Command getAutonomousCommand() {

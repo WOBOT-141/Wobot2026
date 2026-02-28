@@ -311,6 +311,10 @@ public class SwerveModule extends SubsystemBase {
   public Translation2d getTranslation() {
     return new Translation2d(_xPos, _yPos);
   }
+    public void runSetpoint(SwerveModuleState state) {
+    setSpeed(state.speedMetersPerSecond);
+    setAngle(state.angle.getDegrees());
+  }
 
 
   public static class WheelConstants {

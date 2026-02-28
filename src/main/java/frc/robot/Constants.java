@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+import edu.wpi.first.wpilibj.RobotBase;
+
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -17,12 +19,25 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final Mode simMode = Mode.SIM;
+  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+  public static enum Mode {
+    /** Running on a real robot. */
+    REAL,
+
+    /** Running a physics simulator. */
+    SIM,
+
+    /** Replaying from a log file. */
+    REPLAY
+  }
+
   public static class OperatorConstants {
     public static final int driverControllerPort = 0;
   }
 
   public final class CANIdConstants {
-     public static final int frontLeftSteerMotorID = 1;
+    public static final int frontLeftSteerMotorID = 1;
     public static final int frontLeftDriveMotorID = 2;
     public static final int backLeftSteerMotorID = 3;
     public static final int backLeftDriveMotorID = 4;
@@ -30,9 +45,9 @@ public final class Constants {
     public static final int frontRightDriveMotorID = 6;
     public static final int backRightSteerMotorID = 7;
     public static final int backRightDriveMotorID = 8;
-    public static final int frontLeftEncoderid = 9; 
-    public static final int backLeftEncoderid = 10; 
-    public static final int frontRightEncoderid = 11; 
+    public static final int frontLeftEncoderid = 9;
+    public static final int backLeftEncoderid = 10;
+    public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
   }
 
@@ -64,8 +79,9 @@ public final class Constants {
     // wheel diameter multiplied by pi = circumference
     public static final double wheelCircumference_in = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
-    
-    public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear ratio
+
+    public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in; // 3.6 might be the gear
+                                                                                              // ratio
     public static final double drivekP = 0.0016;// .00009
     public static final double drivekI = 0.000068;// 0
     public static final double drivekD = 0;
@@ -96,7 +112,7 @@ public final class Constants {
     public static final int steerContCurrentLim_amp = 4;
     public static final int steerPeakCurrentLim_amp = 6;
   }
-  
+
   public static class ControllerOneConstants {
     /**
      * Factors used in the spektrum flight controller to multiply the raw stick

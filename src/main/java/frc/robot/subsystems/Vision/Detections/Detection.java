@@ -40,8 +40,8 @@ public class Detection implements IDetection {
     }
 
     @Override
-    public double getId() {
-        return _id;
+    public int getId() {
+        return (int) _id;
     }
 
     @Override

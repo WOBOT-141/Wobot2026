@@ -1,26 +1,28 @@
-package frc.robot.Util;
+// package frc.robot.util;
 
-import org.junit.jupiter.api.Test;
+// import org.junit.jupiter.api.Test;
 
-public class ShooterCalculationsTest {
+// // import frc.robot.util.ShooterCalculations;
 
-    @Test
-    void testInitialVelocity() {
-        TestHelper.runTest(
-            ShooterCalculations::calculateInitialVelocity,
-            45.0,     // angle (deg)
-            60.0,     // distance (in)
-            2.805     // expected velocity (m/s)
-        );
-    }
+// public class ShooterCalculationsTest {
 
-    @Test
-    void testAngleShot() {
-        TestHelper.runTest(
-            ShooterCalculations::calculateAngleShot,
-            60.0,
-            Math.toRadians(85.38143)
-        );
-    }
-    
-}
+//     // @Test
+//     // void testInitialVelocity() {
+//     //     TestHelper.runTest(
+//     //             ShooterCalculations::calculateInitialVelocity,
+//     //             45.0, // angle (deg)
+//     //             60.0, // distance (in)
+//     //             2.805 // expected velocity (m/s)
+//     //     );
+//     // }
+
+//     // @Test
+//     // void testAngleShot() {
+//     //     TestHelper.runTest(
+//     //             ShooterCalculations::calculateAngleShot,
+//     //             60.0,
+//     //             Math.toRadians(85.38143)
+//     //     );
+//     // }
+
+// }

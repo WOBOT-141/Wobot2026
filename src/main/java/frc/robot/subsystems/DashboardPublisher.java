@@ -312,4 +312,15 @@ public final class DashboardPublisher {
     }
     return converted;
   }
+  public static String getStringFromTable(String tableName, String key, String defaultValue) {
+    NetworkTable customTable = inst.getTable(tableName);
+    var v = customTable.getValue(key);
+    return v != null ? v.getString() : defaultValue;
+  }
+  public static int getIntFromTable(String tableName, String key, int defaultValue) {
+    NetworkTable customTable = inst.getTable(tableName);
+    var v = customTable.getValue(key);
+    return v != null ? (int) v.getDouble() : defaultValue;
+  }
+  
 }

@@ -26,7 +26,7 @@ public class NullDetection implements IDetection {
     }
 
     @Override
-    public double getId() {
+    public int getId() {
         return 0;
     }
 

@@ -8,7 +8,7 @@ public interface IDetection {
     public ObjectType getTag();
     public double getAngle();
     public double getDistance();
-    public double getId();
+    public int getId();
     public double getYaw();
     public double getPitch();
     public double getCameraNum();

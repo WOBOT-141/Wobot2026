@@ -17,287 +17,360 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.subsystems.Vision.VisionServer;
 
 public class Drivetrain extends SubsystemBase {
 
-  public static final double driveBaseRadius = Math.hypot(.232 / 2.0, .3556 / 2.0);
-  public static final double driveMotorReduction = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
-  public static final double maxSpeedMetersPerSec = 5676.0 / 60.0 / driveMotorReduction * 2.0 * Math.PI
-      * Units.inchesToMeters(4) * 0.95;
+    public static final double driveBaseRadius = Math.hypot(.232 / 2.0, .3556 / 2.0);
+    public static final double driveMotorReduction = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
+    public static final double maxSpeedMetersPerSec = 5676.0 / 60.0 / driveMotorReduction * 2.0 * Math.PI
+            * Units.inchesToMeters(4) * 0.95;
 
-  private final SwerveModule[] _wheels;
-  private final IGyro m_gyro;
+    private final SwerveModule[] _wheels;
+    private final IGyro m_gyro;
+    private final VisionServer m_visionServer;
 
-  private boolean m_isTipping = false;
-  private boolean m_climbing = false;
-  private double pitchAngle;
-  private double rollAngle;
-  private double m_tipMagnitude;
-  private double m_tipDirection_deg;
-  private double m_tipThreshold = 10;
+    private boolean m_isTipping = false;
+    private boolean m_climbing = false;
+    private double pitchAngle;
+    private double rollAngle;
+    private double m_tipMagnitude;
+    private double m_tipDirection_deg;
+    private double m_tipThreshold = 10;
 
-  private SwerveDriveKinematics m_kinematics;
-  private SwerveDriveOdometry odometry;
-  private SwerveDrivePoseEstimator poseEstimator;
-  private Rotation2d rawGyroRotation = new Rotation2d();
+    private SwerveDriveKinematics m_kinematics;
+    private SwerveDriveOdometry odometry;
+    private SwerveDrivePoseEstimator poseEstimator;
+    private Rotation2d rawGyroRotation = new Rotation2d();
 
-  private Pose2d lastPose = new Pose2d();
-  private double restAngle_deg;
+    private Pose2d lastPose = new Pose2d();
+    private double restAngle_deg;
 
-  StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault().getStructTopic("MyPose", Pose2d.struct)
-      .publish();
-  StructArrayPublisher<SwerveModuleState> arrayPublisher = NetworkTableInstance.getDefault()
-      .getStructArrayTopic("swerveModuleState", SwerveModuleState.struct).publish();
+    public int counter = 0;
 
-  public Drivetrain(SwerveModule[] wheels, IGyro gyro) {
-    _wheels = wheels;
-    m_gyro = gyro;
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault().getStructTopic("MyPoseNTVersion", Pose2d.struct)
+            .publish();
+    StructArrayPublisher<SwerveModuleState> arrayPublisher = NetworkTableInstance.getDefault()
+            .getStructArrayTopic("swerveModuleState", SwerveModuleState.struct).publish();
 
-    m_kinematics = new SwerveDriveKinematics(getWheelPositions());
-    makeOdometryItems(m_kinematics);
+    private double _lastSimTime = 0;
+    private double[] _simDistances;
+    private boolean _simInitialized = false;
 
-    resetWheelPositions();
-  }
+    public Drivetrain(SwerveModule[] wheels, IGyro gyro, VisionServer visionServer) {
+        _wheels = wheels;
+        m_gyro = gyro;
+        m_visionServer = visionServer;
 
-  private void makeOdometryItems(SwerveDriveKinematics kinematics) {
-    poseEstimator = new SwerveDrivePoseEstimator(
-        kinematics,
-        rawGyroRotation,
-        getModulePositions(),
-        lastPose);
+        m_kinematics = new SwerveDriveKinematics(getWheelPositions());
+        makeOdometryItems(m_kinematics);
 
-    odometry = new SwerveDriveOdometry(
-        kinematics,
-        rawGyroRotation,
-        getModulePositions());
-  }
-
-  public void antiTip() {
-    pitchAngle = m_gyro.getPitch();
-    rollAngle = m_gyro.getRoll();
-
-    m_tipMagnitude = Math.sqrt(pitchAngle * pitchAngle + rollAngle * rollAngle);
-    m_tipDirection_deg = Math.toDegrees(Math.atan2(rollAngle, pitchAngle)) + 90;
-
-    m_isTipping = m_tipMagnitude > m_tipThreshold;
-  }
-
-  public void setClimbing(boolean climb) {
-    m_climbing = climb;
-  }
-
-  public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
-  }
-
-  public void driveWithoutGyro(double translationAngle_deg,
-      double translationSpeed_perc,
-      double rotationalSpeed_perc,
-      double rotX, double rotY) {
-
-    if (m_isTipping && !m_climbing) {
-      translationAngle_deg = m_tipDirection_deg;
-      translationSpeed_perc = m_tipMagnitude / (m_tipThreshold * 2);
-      rotationalSpeed_perc = 0;
-      rotX = 0;
-      rotY = 0;
+        resetWheelPositions();
     }
 
-    double[] calcWheelAngle = new double[_wheels.length];
-    double[] calcWheelSpeed = new double[_wheels.length];
-    double normalizingFactor = 1;
+    private void makeOdometryItems(SwerveDriveKinematics kinematics) {
+        poseEstimator = new SwerveDrivePoseEstimator(
+                kinematics,
+                rawGyroRotation,
+                getModulePositions(),
+                lastPose);
 
-    if (translationAngle_deg == 0 && translationSpeed_perc == 0 && rotationalSpeed_perc == 0) {
-      stop();
-      return;
+        odometry = new SwerveDriveOdometry(
+                kinematics,
+                rawGyroRotation,
+                getModulePositions());
     }
 
-    for (int i = 0; i < _wheels.length; ++i) {
-      double wheelX = _wheels[i].get_xPos();
-      double wheelY = _wheels[i].get_yPos();
+    public void antiTip() {
+        pitchAngle = m_gyro.getPitch();
+        rollAngle = m_gyro.getRoll();
 
-      double deltaX = wheelX - rotX;
-      double deltaY = wheelY - rotY;
+        m_tipMagnitude = Math.sqrt(pitchAngle * pitchAngle + rollAngle * rollAngle);
+        m_tipDirection_deg = Math.toDegrees(Math.atan2(rollAngle, pitchAngle)) + 90;
 
-      XYVector linearVector = getTranslationVector(translationSpeed_perc, translationAngle_deg);
-      double rotationAngle = getRotationAngle(deltaX, deltaY, translationAngle_deg, rotationalSpeed_perc);
-      XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed_perc, deltaX, deltaY);
-
-      XYVector resultXY = new XYVector(
-          linearVector.X + rotationVector.X,
-          linearVector.Y + rotationVector.Y);
-
-      double resultSpeed = Math.hypot(resultXY.X, resultXY.Y);
-      double resultAngle = getResultAngle(resultXY);
-
-      calcWheelAngle[i] = resultAngle;
-      calcWheelSpeed[i] = resultSpeed;
-      normalizingFactor = Math.max(normalizingFactor, resultSpeed);
+        m_isTipping = m_tipMagnitude > m_tipThreshold;
     }
 
-    for (int i = 0; i < _wheels.length; i++) {
-      var inputState = new SwerveModuleState(
-          DriveConstants.topSpeed_mps * (calcWheelSpeed[i] / normalizingFactor),
-          Rotation2d.fromDegrees(calcWheelAngle[i]));
-
-      var outputState = _wheels[i].bestAngle(inputState);
-
-      _wheels[i].setAngle(outputState.angle.getDegrees());
-      _wheels[i].setSpeed(outputState.speedMetersPerSecond);
+    public void setClimbing(boolean climb) {
+        m_climbing = climb;
     }
-  }
 
-  public void driveWithGyro(double translationAngle_deg,
-      double translationSpeed_perc,
-      double rotationalSpeed_perc,
-      double rotX, double rotY) {
-    translationAngle_deg -= m_gyro.getRealGyroAngle();
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY);
-  }
-
-  public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
-    driveWithGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
-  }
-
-  public double getResultAngle(XYVector resultXY) {
-    double resultAngle_deg = Math.toDegrees(Math.atan2(resultXY.Y, resultXY.X));
-    resultAngle_deg = -(90 - resultAngle_deg);
-
-    if (resultXY.X == 0 && resultXY.Y == 0) {
-      resultAngle_deg = restAngle_deg;
-    } else {
-      restAngle_deg = resultAngle_deg;
+    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
     }
-    return resultAngle_deg;
-  }
 
-  public XYVector getRotationVector(double rotationAngle_deg, double rotationalSpeed_perc,
-      double deltaX, double deltaY) {
-    double y = Math.cos(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
-    double x = Math.sin(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
+    public void driveWithoutGyro(double translationAngle_deg,
+            double translationSpeed_perc,
+            double rotationalSpeed_perc,
+            double rotX, double rotY) {
 
-    if (deltaX == 0 && deltaY == 0) {
-      x = 0;
-      y = 0;
+        if (m_isTipping && !m_climbing) {
+            translationAngle_deg = m_tipDirection_deg;
+            translationSpeed_perc = m_tipMagnitude / (m_tipThreshold * 2);
+            rotationalSpeed_perc = 0;
+            rotX = 0;
+            rotY = 0;
+        }
+
+        double[] calcWheelAngle = new double[_wheels.length];
+        double[] calcWheelSpeed = new double[_wheels.length];
+        double normalizingFactor = 1;
+
+        if (translationAngle_deg == 0 && translationSpeed_perc == 0 && rotationalSpeed_perc == 0) {
+            stop();
+            return;
+        }
+
+        for (int i = 0; i < _wheels.length; ++i) {
+            double wheelX = _wheels[i].get_xPos();
+            double wheelY = _wheels[i].get_yPos();
+
+            double deltaX = wheelX - rotX;
+            double deltaY = wheelY - rotY;
+
+            XYVector linearVector = getTranslationVector(translationSpeed_perc, translationAngle_deg);
+            double rotationAngle = getRotationAngle(deltaX, deltaY, translationAngle_deg, rotationalSpeed_perc);
+            XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed_perc, deltaX, deltaY);
+
+            XYVector resultXY = new XYVector(
+                    linearVector.X + rotationVector.X,
+                    linearVector.Y + rotationVector.Y);
+
+            double resultSpeed = Math.hypot(resultXY.X, resultXY.Y);
+            double resultAngle = getResultAngle(resultXY);
+
+            calcWheelAngle[i] = resultAngle;
+            calcWheelSpeed[i] = resultSpeed;
+            normalizingFactor = Math.max(normalizingFactor, resultSpeed);
+        }
+
+        for (int i = 0; i < _wheels.length; i++) {
+
+            var inputState = new SwerveModuleState(
+                    DriveConstants.topSpeed_mps * (calcWheelSpeed[i] / normalizingFactor),
+                    Rotation2d.fromDegrees(calcWheelAngle[i]));
+
+            var outputState = _wheels[i].bestAngle(inputState);
+
+            _wheels[i].setAngle(outputState.angle.getDegrees());
+            _wheels[i].setSpeed(outputState.speedMetersPerSecond);
+
+            Logger.recordOutput("wheel " + i + " angle", outputState.angle.getDegrees());
+            Logger.recordOutput("wheel " + i + " speed", outputState.speedMetersPerSecond);
+
+        }
     }
-    return new XYVector(x, y);
-  }
 
-  public XYVector getTranslationVector(double translationSpeed_perc, double translationAngle_deg) {
-    double y = Math.cos(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
-    double x = Math.sin(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
-    return new XYVector(x, y);
-  }
-
-  public double getRotationAngle(double deltaX, double deltaY,
-      double translationAngle_deg,
-      double rotationalSpeed_perc) {
-
-    double alpha;
-    if (deltaY == 0 && deltaX > 0)
-      alpha = 90;
-    else if (deltaY == 0 && deltaX < 0)
-      alpha = -90;
-    else if (deltaY == 0 && deltaX == 0)
-      alpha = translationAngle_deg;
-    else
-      alpha = Math.toDegrees(Math.atan2(deltaX, deltaY));
-
-    if (rotationalSpeed_perc > 0)
-      return alpha + 90;
-    if (rotationalSpeed_perc < 0)
-      return alpha - 90;
-    return alpha;
-  }
-
-  @Override
-  public void periodic() {
-    var modulePositions = getModulePositions();
-    rawGyroRotation = m_gyro.getRotationAs2d();
-
-    odometry.update(rawGyroRotation, modulePositions);
-    poseEstimator.update(rawGyroRotation, modulePositions);
-
-    lastPose = odometry.getPoseMeters();
-
-    antiTip();
-
-    publisher.set(lastPose);
-    Logger.recordOutput("MyPose", lastPose);
-  }
-
-  public Translation2d[] getWheelPositions() {
-    Translation2d[] translations = new Translation2d[_wheels.length];
-    for (int i = 0; i < _wheels.length; i++) {
-      translations[i] = _wheels[i].getTranslation();
+    public void driveWithGyro(double translationAngle_deg,
+            double translationSpeed_perc,
+            double rotationalSpeed_perc,
+            double rotX, double rotY) {
+        translationAngle_deg -= m_gyro.getRealGyroAngle();
+        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY);
     }
-    return translations;
-  }
 
-  public SwerveModulePosition[] getModulePositions() {
+    public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+        driveWithGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
+    }
+
+    public double getResultAngle(XYVector resultXY) {
+        double resultAngle_deg = Math.toDegrees(Math.atan2(resultXY.Y, resultXY.X));
+        resultAngle_deg = -(90 - resultAngle_deg);
+
+        if (resultXY.X == 0 && resultXY.Y == 0) {
+            resultAngle_deg = restAngle_deg;
+        } else {
+            restAngle_deg = resultAngle_deg;
+        }
+        return resultAngle_deg;
+    }
+
+    public XYVector getRotationVector(double rotationAngle_deg, double rotationalSpeed_perc,
+            double deltaX, double deltaY) {
+        double y = Math.cos(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
+        double x = Math.sin(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
+
+        if (deltaX == 0 && deltaY == 0) {
+            x = 0;
+            y = 0;
+        }
+        return new XYVector(x, y);
+    }
+
+    public XYVector getTranslationVector(double translationSpeed_perc, double translationAngle_deg) {
+        double y = Math.cos(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
+        double x = Math.sin(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
+        return new XYVector(x, y);
+    }
+
+    public double getRotationAngle(double deltaX, double deltaY,
+            double translationAngle_deg,
+            double rotationalSpeed_perc) {
+
+        double alpha;
+        if (deltaY == 0 && deltaX > 0) {
+            alpha = 90;
+        } else if (deltaY == 0 && deltaX < 0) {
+            alpha = -90;
+        } else if (deltaY == 0 && deltaX == 0) {
+            alpha = translationAngle_deg;
+        } else {
+            alpha = Math.toDegrees(Math.atan2(deltaX, deltaY));
+        }
+
+        if (rotationalSpeed_perc > 0) {
+            return alpha + 90;
+        }
+        if (rotationalSpeed_perc < 0) {
+            return alpha - 90;
+        }
+        return alpha;
+    }
+
+    @Override
+    public void periodic() {
+        var modulePositions = getModulePositions();
+        rawGyroRotation = m_gyro.getRotationAs2d();
+
+        // Log module positions for debugging
+        for (int i = 0; i < modulePositions.length; i++) {
+            Logger.recordOutput("Module" + i + "/Distance", modulePositions[i].distanceMeters);
+            Logger.recordOutput("Module" + i + "/Angle", modulePositions[i].angle.getDegrees());
+        }
+
+        // Log gyro
+        Logger.recordOutput("Gyro/Angle", rawGyroRotation.getDegrees());
+
+        Logger.recordOutput("ClosestTag/Pose", m_visionServer.getTagPose());
+
+        odometry.update(rawGyroRotation, modulePositions);
+        poseEstimator.update(rawGyroRotation, modulePositions);
+
+        lastPose = odometry.getPoseMeters();
+
+        poseEstimator.addVisionMeasurement(getRobotRelativeToTag(), m_visionServer.getTimestamp());
+
+        // Log detailed pose info
+        Logger.recordOutput("Pose/X", lastPose.getX());
+        Logger.recordOutput("Pose/Y", lastPose.getY());
+        Logger.recordOutput("Pose/Rotation", lastPose.getRotation().getDegrees());
+
+        antiTip();
+
+        publisher.set(lastPose);
+        Logger.recordOutput("MyPose", lastPose);
+        Logger.recordOutput("Counter", counter);
+
+        Logger.recordOutput("SwerveModuleStates/Current", getModuleStates());
+
+        counter++;
+    }
+
+    public Translation2d[] getWheelPositions() {
+        Translation2d[] translations = new Translation2d[_wheels.length];
+        for (int i = 0; i < _wheels.length; i++) {
+            translations[i] = _wheels[i].getTranslation();
+        }
+        return translations;
+    }
+
+    public SwerveModuleState[] getModuleStates() {
+        SwerveModuleState[] states = new SwerveModuleState[_wheels.length];
+        for (int i = 0; i < _wheels.length; i++) {
+            double speedMetersPerSecond = Units.inchesToMeters(_wheels[i].getEncoderDistance()) / 0.02;
+            Rotation2d angle = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
+            states[i] = new SwerveModuleState(speedMetersPerSecond, angle);
+        }
+        return states;
+    }
+
+public SwerveModulePosition[] getModulePositions() {
     SwerveModulePosition[] positions = new SwerveModulePosition[_wheels.length];
 
-    for (int i = 0; i < _wheels.length; i++) {
-      double distanceMeters = Units.inchesToMeters(_wheels[i].getEncoderDistance());
-      Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
-      positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
+    if (Constants.currentMode == Constants.Mode.REAL) {
+        for (int i = 0; i < _wheels.length; i++) {
+            double distanceMeters = Units.inchesToMeters(_wheels[i].getEncoderDistance());
+            Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
+            positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
+        }
+    } else {
+        // For simulation, provide default positions
+        for (int i = 0; i < _wheels.length; i++) {
+            positions[i] = new SwerveModulePosition(0.0, new Rotation2d());
+        }
     }
+    
     return positions;
-  }
+}
 
-  public Pose2d getPose() {
-    return poseEstimator.getEstimatedPosition();
-  }
-
-  public void resetWheelPositions() {
-    for (SwerveModule wheel : _wheels) {
-      wheel.resetEncoder();
+    public Pose2d getPose() {
+        return poseEstimator.getEstimatedPosition();
     }
 
-    Pose2d resetPose = new Pose2d(0, 0, new Rotation2d());
-
-    odometry.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
-    poseEstimator.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
-
-    lastPose = resetPose;
-  }
-
-  public void stop() {
-    for (SwerveModule wheel : _wheels) {
-      wheel.cancelMovement();
+    public Pose2d getRobotRelativeToTag() {
+        return getPose().relativeTo(m_visionServer.getTagPose());
     }
-  }
 
-  public void lockWheels() {
-    for (int i = 0; i < _wheels.length; i++) {
-      _wheels[i].setAngle((i * 90) + 45);
-      _wheels[i].setSpeed(0);
+    public void resetWheelPositions() {
+        for (SwerveModule wheel : _wheels) {
+            wheel.resetEncoder();
+        }
+
+        Pose2d resetPose = new Pose2d(0, 0, new Rotation2d());
+
+        odometry.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
+        poseEstimator.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
+
+        lastPose = resetPose;
     }
-  }
 
-  public Rotation2d getRotation() {
-    return getPose().getRotation();
-  }
-
-  public double getMaxAngularSpeedRadPerSec() {
-    return maxSpeedMetersPerSec / driveBaseRadius;
-  }
-
-  public double getMaxLinearSpeedMetersPerSec() {
-    return maxSpeedMetersPerSec;
-  }
-
-  public void runVelocity(ChassisSpeeds speeds) {
-    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-    SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, maxSpeedMetersPerSec);
-
-    Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
-
-    for (int i = 0; i < 4; i++) {
-      _wheels[i].setSpeed(setpointStates[i].speedMetersPerSecond);
+    public void stop() {
+        for (SwerveModule wheel : _wheels) {
+            wheel.cancelMovement();
+        }
     }
-  }
+
+    public void stopMotors() {
+        driveWithoutGyro(0, 0, 0);
+    }
+
+    public void lockWheels() {
+        for (int i = 0; i < _wheels.length; i++) {
+            _wheels[i].setAngle((i * 90) + 45);
+            _wheels[i].setSpeed(0);
+        }
+    }
+
+    public Rotation2d getRotation() {
+        return getPose().getRotation();
+    }
+
+    public double getMaxAngularSpeedRadPerSec() {
+        return maxSpeedMetersPerSec / driveBaseRadius;
+    }
+
+    public double getMaxLinearSpeedMetersPerSec() {
+        return maxSpeedMetersPerSec;
+    }
+
+    public void runVelocity(ChassisSpeeds speeds) {
+        // Calculate module setpoints
+        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+        SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, maxSpeedMetersPerSec);
+
+        // Log unoptimized setpoints
+        Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+        Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
+
+        // Send setpoints to modules
+        for (int i = 0; i < 4; i++) {
+            _wheels[i].runSetpoint(setpointStates[i]);
+        }
+
+        // Log optimized setpoints (runSetpoint mutates each state)
+        Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
+    }
 }
