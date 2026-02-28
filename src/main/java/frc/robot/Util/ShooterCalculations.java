@@ -24,7 +24,7 @@ public class ShooterCalculations {
     public static void main(String[] args) {
 
         double angleOfCenterTarget_deg = 45.0; // example angle
-        double initialVelocity = calculateInitialVelocity(angleOfCenterTarget_deg, 60.0); // example distance
+        double initialVelocity = getLaunchSpeed(angleOfCenterTarget_deg, 60.0); // example distance
         System.out.println("Initial velocity: " + initialVelocity + " m/s");
     }
 
