@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.CANIdConstants;
 
 import frc.robot.Constants.IntakeConstants;
 
@@ -122,6 +123,10 @@ public class Intake extends SubsystemBase {
       return;
 
     m_moveStartTime_sec = Timer.getFPGATimestamp();
+  /** Creates a new Intake. */
+  public Intake() { // TODO set ids
+    m_slapdownMotor = new SparkMax(CANIdConstants.intakeSlapdownMotor, MotorType.kBrushless);
+    m_rollerMotor = new SparkMax(CANIdConstants.intakeRollerMotor, MotorType.kBrushless);
 
     m_intakeMotor.set(
         applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
@@ -199,6 +204,34 @@ public class Intake extends SubsystemBase {
   // =========================
   // Periodic
   // =========================
+  public void extend() {
+
+  }
+
+  public void retract() {
+
+  }
+
+  public void run(double percent) {
+
+  }
+
+  // public void fuelIntaking() {
+  // rollerMotor.set(0.1);
+  // }
+
+  /*
+   * public void SlappingDown() {
+   * slapdownMotor.set(0.1);
+   * 
+   * }
+   * 
+   * public void PullingUp() { //if slapdwon motor is
+   * if (slapdownMotor >)
+   * slapdownMotor.set(-0.1);
+   * 
+   * }
+   */
 
   @Override
   public void periodic() {

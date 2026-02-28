@@ -11,6 +11,7 @@ package frc.robot;
 public final class Constants {
 
   public static final class CANIdConstants {
+  public static class CANIdConstants {
     public static final int frontLeftSteerMotorID = 1;
     public static final int frontLeftDriveMotorID = 2;
     public static final int backLeftSteerMotorID = 3;
@@ -23,6 +24,11 @@ public final class Constants {
     public static final int backLeftEncoderid = 10;
     public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
+    public static final int intakeSlapdownMotor = 13;
+    public static final int intakeRollerMotor = 14;
+    public static final int flyWheelRightMotorID = 15;
+    public static final int flyWheelMiddlehtMotorID = 16;
+    public static final int flyWheelLeftMotorID = 17;
   }
 
   public static class ControllerOneConstants {
@@ -30,6 +36,12 @@ public final class Constants {
     public static final double DriveXFactor = 1.26;
     public static final double DriveYFactor = 1.23;
     public static final double ThrottleFactor = 1.55;
+  public static class RotateCommandConstants {
+    public static final double P = 0.00025;
+    public static final double I = 0.00000;
+    public static final double D = 0.00000;
+    public static final double rotateTargetTolerance_deg = 3.0; // 2.0
+  }
 
     public static final double RotateOffset = -0.056375;
     public static final double DriveXOffset = 0.039816 + 0.029202;
@@ -61,7 +73,6 @@ public final class Constants {
     public static final double drivekD = 0;
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
-
     public static final double topSpeed_mps = 1.5;
 
     public static final double autoRotatekP = 0.4;
@@ -236,6 +247,40 @@ public final class Constants {
     public static final double wheelCircumference_in = (Math.PI * 4);
     public static final double driveGearRatio = 5.14;
     public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in;
+  
+  public static class ControllerOneConstants {
+    /**
+     * Factors used in the spektrum flight controller to multiply the raw stick
+     * outputs in order to scale them up or down.
+     * These can be found by dividing 1 by the raw stick output of that direction
+     */
+    public static final double RotateFactor = 1.35;
+    public static final double DriveXFactor = 1.26;
+    public static final double DriveYFactor = 1.23;
+    public static final double ThrottleFactor = 1.55;
+    /**
+     * Offsets used to add or subtract from a raw stick value in the spektrum flight
+     * controller to make their resting postion 0
+     * These should be equal to the raw stick output at rest.
+     */
+    public static final double RotateOffset = -0.056375;
+    public static final double DriveXOffset = 0.039816 + 0.029202; // .075813
+    public static final double DriveYOffset = -0.024228;
+    public static final double ThrottleOffset = 0;
+  }
+  
+   public static class ShooterConstants {
+    public static final double wheelCircumference_in = (Math.PI * 4); 
+    
+    public static final double P = 0.0016;// .00009
+    public static final double I = 0.000068;// 0
+    public static final double D = 0;
+    public static final double FF = 0.00016500000492669642;
+
+    public static final int flywheelTolernce_ips = 13;
+    public static final int slewRateLimt = 4000;
+    public static final int stallLimt_amp = 60;
+
   }
 
 }
