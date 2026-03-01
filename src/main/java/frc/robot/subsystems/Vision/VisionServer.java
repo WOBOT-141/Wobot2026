@@ -4,9 +4,15 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -33,6 +39,13 @@ public class VisionServer extends SubsystemBase {
 
     ByteBuffer m_buffer_from_table;
 
+    private static final Transform2d CAMERA_TO_ROBOT
+            = new Transform2d(
+                    new Translation2d(0.1295, 0.0),
+                    new Rotation2d()
+            );
+    //this is in meters 
+
     public VisionServer() {
         m_buffer_from_table = ByteBuffer.allocate(8192);
         m_nt_Instance = NetworkTableInstance.getDefault();
@@ -42,7 +55,7 @@ public class VisionServer extends SubsystemBase {
         // subscriber = aprilTagStringTopic.subscribe("skippyskippyskippy",
         // PubSubOption.keepDuplicates(true), PubSubOption.pollStorage(10));
         try {
-             m_aprilTagFieldLayout = new AprilTagFieldLayout(
+            m_aprilTagFieldLayout = new AprilTagFieldLayout(
                     Filesystem.getDeployDirectory().toPath().resolve("2026-official.json")
             );
         } catch (IOException e) {
@@ -128,16 +141,76 @@ public class VisionServer extends SubsystemBase {
      * returns (0, 0, 0).
      */
     public Pose2d getTagPose() {
-        Optional<Pose3d> pose = m_aprilTagFieldLayout.getTagPose(getClosestDetection().getId());
-        if (pose.isPresent()) {
-            return new Pose2d(pose.get().getX(), pose.get().getY(), m_aprilTagFieldLayout.getTagPose(getClosestDetection().getId()).get().getRotation().toRotation2d());
-        } else {
-            return new Pose2d();
+        IDetection detection = getClosestDetection();
+        if (detection == null) {
+            return null;
         }
+
+        return getTagPose(detection.getId());
+    }
+
+    public Pose2d getTagPose(int tagID) {
+        Optional<Pose3d> pose
+                = m_aprilTagFieldLayout.getTagPose(tagID);
+
+        if (pose.isEmpty()) {
+            return null;
+        }
+
+        Pose3d p = pose.get();
+        return new Pose2d(
+                p.getX(),
+                p.getY(),
+                p.getRotation().toRotation2d()
+        );
+    }
+
+    public Pose2d getEstimatedGlobalRobotPose() {
+
+        IDetection detection = getClosestDetection();
+        if (detection == null) {
+            return null;
+        }
+
+        Pose2d fieldToTag = getTagPose(detection.getId());
+        if (fieldToTag == null) {
+            return null;
+        }
+
+        double distanceraw = detection.getDistance();
+        double distance = Units.inchesToMeters(distanceraw); 
+        double angleDeg = detection.getAngle();
+
+        double x = distance * Math.cos(Math.toRadians(angleDeg));
+        double y = distance * Math.sin(Math.toRadians(angleDeg));
+
+        Transform2d cameraToTag
+                = new Transform2d(
+                        new Translation2d(x, y),
+                        new Rotation2d()
+                );
+
+        Transform2d tagToCamera = cameraToTag.inverse();
+
+        Pose2d fieldToCamera
+                = fieldToTag.transformBy(tagToCamera);
+
+        Pose2d fieldToRobot
+                = fieldToCamera.transformBy(CAMERA_TO_ROBOT);
+
+        Logger.recordOutput("Vision/EstimatedRobotPose",
+                fieldToRobot);
+
+        return fieldToRobot;
     }
 
     public double getTimestamp() {
         return Timer.getFPGATimestamp();
+    }
+
+    public boolean hasTargets() {
+        IDetection detection = getClosestDetection();
+        return detection != null;
     }
 
     @Override

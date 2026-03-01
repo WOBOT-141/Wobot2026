@@ -229,45 +229,34 @@ public class Drivetrain extends SubsystemBase {
         return alpha;
     }
 
-    @Override
-    public void periodic() {
-        var modulePositions = getModulePositions();
-        rawGyroRotation = m_gyro.getRotationAs2d();
+@Override
+public void periodic() {
 
-        // Log module positions for debugging
-        for (int i = 0; i < modulePositions.length; i++) {
-            Logger.recordOutput("Module" + i + "/Distance", modulePositions[i].distanceMeters);
-            Logger.recordOutput("Module" + i + "/Angle", modulePositions[i].angle.getDegrees());
+    var modulePositions = getModulePositions();
+    rawGyroRotation = m_gyro.getRotationAs2d();
+
+    poseEstimator.update(rawGyroRotation, modulePositions);
+
+    if (m_visionServer.hasTargets()) {
+
+        Pose2d visionPose =
+            m_visionServer.getEstimatedGlobalRobotPose();
+
+        if (visionPose != null) {
+            poseEstimator.addVisionMeasurement(
+                visionPose,
+                m_visionServer.getTimestamp()
+            );
         }
-
-        // Log gyro
-        Logger.recordOutput("Gyro/Angle", rawGyroRotation.getDegrees());
-
-        Logger.recordOutput("ClosestTag/Pose", m_visionServer.getTagPose());
-
-        odometry.update(rawGyroRotation, modulePositions);
-        poseEstimator.update(rawGyroRotation, modulePositions);
-
-        lastPose = odometry.getPoseMeters();
-
-        poseEstimator.addVisionMeasurement(getRobotRelativeToTag(), m_visionServer.getTimestamp());
-
-        // Log detailed pose info
-        Logger.recordOutput("Pose/X", lastPose.getX());
-        Logger.recordOutput("Pose/Y", lastPose.getY());
-        Logger.recordOutput("Pose/Rotation", lastPose.getRotation().getDegrees());
-
-        antiTip();
-
-        publisher.set(lastPose);
-        Logger.recordOutput("MyPose", lastPose);
-        Logger.recordOutput("Counter", counter);
-
-        Logger.recordOutput("SwerveModuleStates/Current", getModuleStates());
-
-        counter++;
     }
 
+    lastPose = poseEstimator.getEstimatedPosition();
+
+    Logger.recordOutput("Pose/X", lastPose.getX());
+    Logger.recordOutput("Pose/Y", lastPose.getY());
+    Logger.recordOutput("Pose/Rotation",
+                        lastPose.getRotation().getDegrees());
+}
     public Translation2d[] getWheelPositions() {
         Translation2d[] translations = new Translation2d[_wheels.length];
         for (int i = 0; i < _wheels.length; i++) {
@@ -286,27 +275,39 @@ public class Drivetrain extends SubsystemBase {
         return states;
     }
 
-public SwerveModulePosition[] getModulePositions() {
-    SwerveModulePosition[] positions = new SwerveModulePosition[_wheels.length];
+    public SwerveModulePosition[] getModulePositions() {
+        SwerveModulePosition[] positions = new SwerveModulePosition[_wheels.length];
 
-    if (Constants.currentMode == Constants.Mode.REAL) {
-        for (int i = 0; i < _wheels.length; i++) {
-            double distanceMeters = Units.inchesToMeters(_wheels[i].getEncoderDistance());
-            Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
-            positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
+        if (Constants.currentMode == Constants.Mode.REAL) {
+            for (int i = 0; i < _wheels.length; i++) {
+                double distanceMeters = Units.inchesToMeters(_wheels[i].getEncoderDistance());
+                Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
+                positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
+            }
+        } else {
+            // For simulation, provide default positions
+            for (int i = 0; i < _wheels.length; i++) {
+                positions[i] = new SwerveModulePosition(0.0, new Rotation2d());
+            }
         }
-    } else {
-        // For simulation, provide default positions
-        for (int i = 0; i < _wheels.length; i++) {
-            positions[i] = new SwerveModulePosition(0.0, new Rotation2d());
-        }
+
+        return positions;
     }
-    
-    return positions;
-}
 
     public Pose2d getPose() {
-        return poseEstimator.getEstimatedPosition();
+        return lastPose;
+    }
+
+    public double getPoseX() {
+        return getPose().getX();
+    }
+
+    public double getPoseY() {
+        return getPose().getY();
+    }
+    
+    public Rotation2d getPoseRotation() {
+        return getPose().getRotation();
     }
 
     public Pose2d getRobotRelativeToTag() {
@@ -372,5 +373,17 @@ public SwerveModulePosition[] getModulePositions() {
 
         // Log optimized setpoints (runSetpoint mutates each state)
         Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
+    }
+
+    public void driveToPose(Pose2d targetPose) {
+        Pose2d error = targetPose.relativeTo(getPose());
+
+        double kP = 2.0;
+
+        double vx = error.getX() * kP;
+        double vy = error.getY() * kP;
+        double omega = error.getRotation().getRadians() * kP;
+
+        runVelocity(new ChassisSpeeds(vx, vy, omega));
     }
 }
