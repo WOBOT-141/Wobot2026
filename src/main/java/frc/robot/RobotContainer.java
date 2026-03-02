@@ -179,12 +179,12 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
-    xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
-    Trigger aButton = xboxController0.a();
-    Trigger bButton = xboxController0.b();
-    Trigger xButton = xboxController0.x();
-    Trigger yButton = xboxController0.y();
+    m_xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
+    m_xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
+    Trigger aButton = m_xboxController0.a();
+    Trigger bButton = m_xboxController0.b();
+    Trigger xButton = m_xboxController0.x();
+    Trigger yButton = m_xboxController0.y();
     
     aButton.whileTrue(m_wheels[0].sysIdQuasistaticForward());
     bButton.whileTrue(m_wheels[0].sysIdQuasistaticReverse());
