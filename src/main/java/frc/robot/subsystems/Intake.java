@@ -4,81 +4,216 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.ResetMode;
 import com.revrobotics.PersistMode;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.CANIdConstants;
+
+import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
-  private final SparkMax m_slapdownMotor;
-  private final SparkMax m_rollerMotor;
-  private AbsoluteEncoder m_absoluteEncoder;
 
-  /** Creates a new Intake. */
-  public Intake() { // TODO set ids
-    m_slapdownMotor = new SparkMax(CANIdConstants.intakeSlapdownMotor, MotorType.kBrushless);
-    m_rollerMotor = new SparkMax(CANIdConstants.intakeRollerMotor, MotorType.kBrushless);
+  // Hardware
+  private final SparkMax m_intakeMotor;
+  private final SparkMax m_intakeRollerMotor;
 
-    SparkMaxConfig slapdownMotorConfig = new SparkMaxConfig();
-    SparkMaxConfig rollerMotorConfig = new SparkMaxConfig();
+  private final RelativeEncoder m_intakeEncoder;
+  private final RelativeEncoder m_intakeRollerEncoder;
 
-    slapdownMotorConfig
-        .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(20, 20);
-    slapdownMotorConfig.closedLoop
-        .pid(0.001, 0, 0);
-    slapdownMotorConfig.encoder.positionConversionFactor(0); // TODO set factor
+  // State
+  private boolean m_isHomed = false;
+  private boolean m_homingActive = false;
 
-    rollerMotorConfig
-        .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(20, 20);
-    rollerMotorConfig.closedLoop
-        .pid(0.001, 0, 0);
+  private double m_moveStartTime_sec = 0.0;
 
-    m_slapdownMotor.configure(slapdownMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_rollerMotor.configure(rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  // Dashboard change detection
+  private boolean m_lastAtUp = false;
+  private boolean m_lastAtDown = false;
 
-    m_absoluteEncoder = m_slapdownMotor.getAbsoluteEncoder();
+  // Constructor
+   public Intake() {
 
+    m_intakeMotor =
+        new SparkMax(IntakeConstants.intakeMotorID, MotorType.kBrushless);
+
+    m_intakeRollerMotor =
+        new SparkMax(IntakeConstants.intakeRollerMotorID, MotorType.kBrushless);
+
+    configureMotor(m_intakeMotor);
+    configureMotor(m_intakeRollerMotor);
+
+    m_intakeEncoder = m_intakeMotor.getEncoder();
+    m_intakeRollerEncoder = m_intakeRollerMotor.getEncoder();
   }
 
-  public void extend() {
+ 
+  // Motor configuration
+  private void configureMotor(SparkMax motor) {
 
+    SparkMaxConfig config = new SparkMaxConfig();
+
+    config.idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(IntakeConstants.freeLimit_amp);
+
+    motor.configure(
+        config,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
   }
 
-  public void retract() {
-
+  
+  // Angle helpers
+  /** Returns intake arm angle in degrees */
+  public double getIntakeAngle_deg() {
+    return m_intakeEncoder.getPosition()
+        * IntakeConstants.degPerMotorRotation_deg;
   }
 
-  public void run(double percent) {
-
+  public boolean isAtUpPosition() {
+    return Math.abs(getIntakeAngle_deg() - IntakeConstants.upAngle_deg)
+        < IntakeConstants.positionTolerance_deg;
   }
 
-  // public void fuelIntaking() {
-  // rollerMotor.set(0.1);
-  // }
+  public boolean isAtDownPosition() {
+    return Math.abs(getIntakeAngle_deg() - IntakeConstants.downAngle_deg)
+        < IntakeConstants.positionTolerance_deg;
+  }
 
-  /*
-   * public void SlappingDown() {
-   * slapdownMotor.set(0.1);
-   * 
-   * }
-   * 
-   * public void PullingUp() { //if slapdwon motor is
-   * if (slapdownMotor >)
-   * slapdownMotor.set(-0.1);
-   * 
-   * }
-   */
+ 
+  // Roller control
+   public void intakeRun(double speed_perc) {
+    m_intakeRollerMotor.set(speed_perc);
+  }
+
+  public void intakeStop() {
+    m_intakeRollerMotor.stopMotor();
+  }
+
+ 
+  // Arm control
+  public void intakeDown() {
+
+    if (!m_isHomed)
+      return;
+
+    m_moveStartTime_sec = Timer.getFPGATimestamp();
+
+    m_intakeMotor.set(
+        applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
+  }
+
+  public void intakeUp() {
+
+    if (!m_isHomed)
+      return;
+
+    m_moveStartTime_sec = Timer.getFPGATimestamp();
+
+    m_intakeMotor.set(
+        applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
+  }
+
+  public void stopArm() {
+    m_intakeMotor.stopMotor();
+  }
+
+  // Homing (current based)
+  public void intakeHome() {
+
+    m_homingActive = true;
+    m_isHomed = false;
+
+    m_intakeMotor.set(
+        applyBrownoutScale(IntakeConstants.homingSpeed_perc));
+  }
+
+  private void updateHoming() {
+
+    if (!m_homingActive)
+      return;
+
+    double current_amp = m_intakeMotor.getOutputCurrent();
+
+    if (current_amp > IntakeConstants.homingCurrentThreshold_amp) {
+
+      // HARD STOP detected
+      m_intakeEncoder.setPosition(0.0);
+
+      m_isHomed = true;
+      m_homingActive = false;
+
+      m_intakeMotor.stopMotor();
+
+      SmartDashboard.putBoolean("Intake Homed", true);
+    }
+  }
+
+
+  // Brownout protection
+  private double applyBrownoutScale(double commandedSpeed_perc) {
+
+    double voltage_V = RobotController.getBatteryVoltage();
+
+    if (voltage_V < IntakeConstants.brownoutCriticalVoltage_V) {
+      return commandedSpeed_perc
+          * IntakeConstants.brownoutScale_perc;
+    }
+
+    if (voltage_V < IntakeConstants.brownoutStartVoltage_V) {
+      return commandedSpeed_perc * 0.7;
+    }
+
+    return commandedSpeed_perc;
+  }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+
+    updateHoming();
+
+    // Safety timeout while moving
+    if (Math.abs(m_intakeMotor.get()) > 0.01) {
+      double elapsed_sec =
+          Timer.getFPGATimestamp() - m_moveStartTime_sec;
+
+      if (elapsed_sec > IntakeConstants.moveTimeout_sec) {
+        m_intakeMotor.stopMotor();
+      }
+    }
+
+    // Dashboard numbers
+    SmartDashboard.putNumber(
+        "Intake Angle deg",
+        getIntakeAngle_deg());
+
+    SmartDashboard.putNumber(
+        "Intake Motor RPM",
+        m_intakeEncoder.getVelocity());
+
+    SmartDashboard.putNumber(
+        "Intake Roller RPM",
+        m_intakeRollerEncoder.getVelocity());
+
+    // Change-only status updates
+    boolean atUpNow = isAtUpPosition();
+    boolean atDownNow = isAtDownPosition();
+
+    if (atUpNow != m_lastAtUp) {
+      SmartDashboard.putBoolean("Intake At Up", atUpNow);
+      m_lastAtUp = atUpNow;
+    }
+
+    if (atDownNow != m_lastAtDown) {
+      SmartDashboard.putBoolean("Intake At Down", atDownNow);
+      m_lastAtDown = atDownNow;
+    }
   }
 }
