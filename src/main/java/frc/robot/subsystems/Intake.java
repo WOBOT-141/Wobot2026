@@ -41,11 +41,8 @@ public class Intake extends SubsystemBase {
   // Constructor
    public Intake() {
 
-    m_intakeMotor =
-        new SparkMax(IntakeConstants.intakeMotorID, MotorType.kBrushless);
-
-    m_intakeRollerMotor =
-        new SparkMax(IntakeConstants.intakeRollerMotorID, MotorType.kBrushless);
+    m_intakeMotor = new SparkMax(IntakeConstants.intakeMotorID, MotorType.kBrushless);
+    m_intakeRollerMotor = new SparkMax(IntakeConstants.intakeRollerMotorID, MotorType.kBrushless);
 
     configureMotor(m_intakeMotor);
     configureMotor(m_intakeRollerMotor);
@@ -96,9 +93,8 @@ public class Intake extends SubsystemBase {
   public void intakeStop() {
     m_intakeRollerMotor.stopMotor();
   }
-
  
-  // Arm control
+  // Intake control
   public void intakeDown() {
 
     if (!m_isHomed)
@@ -106,8 +102,7 @@ public class Intake extends SubsystemBase {
 
     m_moveStartTime_sec = Timer.getFPGATimestamp();
 
-    m_intakeMotor.set(
-        applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
+    m_intakeMotor.set(applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
   }
 
   public void intakeUp() {
@@ -117,8 +112,7 @@ public class Intake extends SubsystemBase {
 
     m_moveStartTime_sec = Timer.getFPGATimestamp();
 
-    m_intakeMotor.set(
-        applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
+    m_intakeMotor.set(applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
   }
 
   public void stopArm() {
@@ -131,8 +125,7 @@ public class Intake extends SubsystemBase {
     m_homingActive = true;
     m_isHomed = false;
 
-    m_intakeMotor.set(
-        applyBrownoutScale(IntakeConstants.homingSpeed_perc));
+    m_intakeMotor.set(applyBrownoutScale(IntakeConstants.homingSpeed_perc));
   }
 
   private void updateHoming() {
@@ -155,7 +148,6 @@ public class Intake extends SubsystemBase {
       SmartDashboard.putBoolean("Intake Homed", true);
     }
   }
-
 
   // Brownout protection
   private double applyBrownoutScale(double commandedSpeed_perc) {
@@ -190,17 +182,9 @@ public class Intake extends SubsystemBase {
     }
 
     // Dashboard numbers
-    SmartDashboard.putNumber(
-        "Intake Angle deg",
-        getIntakeAngle_deg());
-
-    SmartDashboard.putNumber(
-        "Intake Motor RPM",
-        m_intakeEncoder.getVelocity());
-
-    SmartDashboard.putNumber(
-        "Intake Roller RPM",
-        m_intakeRollerEncoder.getVelocity());
+    SmartDashboard.putNumber("Intake Angle deg", getIntakeAngle_deg());
+    SmartDashboard.putNumber("Intake Motor RPM", m_intakeEncoder.getVelocity());
+    SmartDashboard.putNumber("Intake Roller RPM", m_intakeRollerEncoder.getVelocity());
 
     // Change-only status updates
     boolean atUpNow = isAtUpPosition();

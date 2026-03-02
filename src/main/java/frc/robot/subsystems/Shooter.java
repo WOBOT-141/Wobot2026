@@ -3,7 +3,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.ShooterConstants;
+import static frc.robot.Constants.ShooterConstants.*;
 
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
@@ -23,7 +23,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.ClosedLoopSlot;
 
 public class Shooter extends SubsystemBase {
-
+  
   // Hardware
   private final SparkMax m_rightFlywheelMotor;
   private final SparkMax m_middleFlywheelMotor;
@@ -36,17 +36,12 @@ public class Shooter extends SubsystemBase {
   private final SparkClosedLoopController m_rightController;
   private final SparkClosedLoopController m_middleController;
   private final SparkClosedLoopController m_leftController;
-
+  
   // Slew limiting (RPM/sec)
-  private final SlewRateLimiter m_rightLimiter =
-      new SlewRateLimiter(ShooterConstants.slewRateLimit_rpmps);
-
-  private final SlewRateLimiter m_middleLimiter =
-      new SlewRateLimiter(ShooterConstants.slewRateLimit_rpmps);
-
-  private final SlewRateLimiter m_leftLimiter =
-      new SlewRateLimiter(ShooterConstants.slewRateLimit_rpmps);
-
+  private final SlewRateLimiter m_rightLimiter = new SlewRateLimiter(slewRateLimit_rpmps);
+  private final SlewRateLimiter m_middleLimiter = new SlewRateLimiter(slewRateLimit_rpmps);
+  private final SlewRateLimiter m_leftLimiter = new SlewRateLimiter(slewRateLimit_rpmps);
+ 
   // State
   private double m_targetVelocityRPM = 0.0;
 
@@ -55,25 +50,20 @@ public class Shooter extends SubsystemBase {
 
   // Shot detection
   private double m_lastAverageRPM = 0.0;
-  private double m_lastShotTime_sec = -999.0;
+  private double m_lastShotTime_sec = -1.0;
 
   // Dashboard change detection
   private boolean m_lastRightAtSpeed = false;
   private boolean m_lastMiddleAtSpeed = false;
   private boolean m_lastLeftAtSpeed = false;
   private boolean m_lastAllAtSpeed = false;
-
+  
   // Constructor
-   public Shooter() {
+  public Shooter() {
 
-    m_rightFlywheelMotor =
-        new SparkMax(ShooterConstants.flywheelRightMotorID, MotorType.kBrushless);
-
-    m_middleFlywheelMotor =
-        new SparkMax(ShooterConstants.flywheelMiddleMotorID, MotorType.kBrushless);
-
-    m_leftFlywheelMotor =
-        new SparkMax(ShooterConstants.flywheelLeftMotorID, MotorType.kBrushless);
+    m_rightFlywheelMotor = new SparkMax(flywheelRightMotorID, MotorType.kBrushless);
+    m_middleFlywheelMotor = new SparkMax(flywheelMiddleMotorID, MotorType.kBrushless);
+    m_leftFlywheelMotor = new SparkMax(flywheelLeftMotorID, MotorType.kBrushless);
 
     configureMotor(m_rightFlywheelMotor);
     configureMotor(m_middleFlywheelMotor);
@@ -88,31 +78,32 @@ public class Shooter extends SubsystemBase {
     m_leftController = m_leftFlywheelMotor.getClosedLoopController();
   }
 
+ 
   // Motor configuration
   private void configureMotor(SparkMax motor) {
 
     SparkMaxConfig config = new SparkMaxConfig();
 
     config.idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(ShooterConstants.stallLimit_amp, ShooterConstants.freeLimit_amp);
+        .smartCurrentLimit(stallLimit_amp, freeLimit_amp);
 
     config.closedLoop
-        .pid(ShooterConstants.P, ShooterConstants.I, ShooterConstants.D)
-        .velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+        .pid(P, I, D)
+        .velocityFF(kF, ClosedLoopSlot.kSlot0);
 
     motor.configure(
         config,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
   }
-
+  
   // Public API
   /** Command shooter using IPS */
   public void setShooterVelocity_ips(double targetVelocity_ips) {
 
     m_targetVelocityRPM =
         (targetVelocity_ips * 60.0) /
-        (Math.PI * ShooterConstants.FlywheelDiameter_in);
+        (Math.PI * FlywheelDiameter_in);
 
     m_softStartStartTime_sec = Timer.getFPGATimestamp();
     m_softStartActive = true;
@@ -127,19 +118,19 @@ public class Shooter extends SubsystemBase {
   public boolean rightAtSpeed() {
     return Math.abs(
         m_rightEncoder.getVelocity() - m_targetVelocityRPM)
-        < ShooterConstants.FlywheelRPMTolerance_rpm;
+        < FlywheelRPMTolerance_rpm;
   }
 
   public boolean middleAtSpeed() {
     return Math.abs(
         m_middleEncoder.getVelocity() - m_targetVelocityRPM)
-        < ShooterConstants.FlywheelRPMTolerance_rpm;
+        < FlywheelRPMTolerance_rpm;
   }
 
   public boolean leftAtSpeed() {
     return Math.abs(
         m_leftEncoder.getVelocity() - m_targetVelocityRPM)
-        < ShooterConstants.FlywheelRPMTolerance_rpm;
+        < FlywheelRPMTolerance_rpm;
   }
 
   public boolean allAtSpeed() {
@@ -153,10 +144,10 @@ public class Shooter extends SubsystemBase {
     double now_sec = Timer.getFPGATimestamp();
 
     boolean dipDetected =
-        (m_lastAverageRPM - avgRPM) > ShooterConstants.shotDipThreshold_rpm;
+        (m_lastAverageRPM - avgRPM) > shotDipThreshold_rpm;
 
     boolean separationOK =
-        (now_sec - m_lastShotTime_sec) > ShooterConstants.shotMinSeparation_sec;
+        (now_sec - m_lastShotTime_sec) > shotMinSeparation_sec;
 
     if (dipDetected && separationOK) {
       m_lastShotTime_sec = now_sec;
@@ -175,61 +166,44 @@ public class Shooter extends SubsystemBase {
     m_middleFlywheelMotor.stopMotor();
     m_leftFlywheelMotor.stopMotor();
   }
-
+  
   // Soft start (staggered)
   private void softStartFlywheel() {
 
-    double elapsed_sec =
-        Timer.getFPGATimestamp() - m_softStartStartTime_sec;
-
-    double rightRPM =
-        m_rightLimiter.calculate(m_targetVelocityRPM);
-
-    double middleRPM =
-        m_middleLimiter.calculate(m_targetVelocityRPM);
-
-    double leftRPM =
-        m_leftLimiter.calculate(m_targetVelocityRPM);
+    double elapsed_sec = Timer.getFPGATimestamp() - m_softStartStartTime_sec;
+    double rightRPM = m_rightLimiter.calculate(m_targetVelocityRPM);
+    double middleRPM = m_middleLimiter.calculate(m_targetVelocityRPM);
+    double leftRPM = m_leftLimiter.calculate(m_targetVelocityRPM);
 
     if (elapsed_sec > 0.0) {
-      m_rightController.setSetpoint(
-          rightRPM,
-          ControlType.kVelocity,
-          ClosedLoopSlot.kSlot0);
+      m_rightController.setSetpoint(rightRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
 
     if (elapsed_sec > 0.05) {
-      m_middleController.setSetpoint(
-          middleRPM,
-          ControlType.kVelocity,
-          ClosedLoopSlot.kSlot0);
+      m_middleController.setSetpoint(middleRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
 
     if (elapsed_sec > 0.10) {
-      m_leftController.setSetpoint(
-          leftRPM,
-          ControlType.kVelocity,
-          ClosedLoopSlot.kSlot0);
+      m_leftController.setSetpoint(leftRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
   }
-
+  
   // Brownout scaling helper
   private double getBrownoutScale_perc() {
 
     double voltage_V = RobotController.getBatteryVoltage();
 
-    if (voltage_V < ShooterConstants.BrownoutCriticalVoltage_V) {
+    if (voltage_V < BrownoutCriticalVoltage_V) {
       return 0.0;
     }
 
-    if (voltage_V < ShooterConstants.BrownoutStartVoltage_V) {
+    if (voltage_V < BrownoutStartVoltage_V) {
       return 0.6;
     }
 
     return 1.0;
   }
-
-  // Periodic
+  
   @Override
   public void periodic() {
 
@@ -238,10 +212,21 @@ public class Shooter extends SubsystemBase {
     }
 
     // Dashboard numbers
-    SmartDashboard.putNumber("Shooter Target RPM", m_targetVelocityRPM);
-    SmartDashboard.putNumber("Shooter Right RPM", m_rightEncoder.getVelocity());
-    SmartDashboard.putNumber("Shooter Middle RPM", m_middleEncoder.getVelocity());
-    SmartDashboard.putNumber("Shooter Left RPM", m_leftEncoder.getVelocity());
+    SmartDashboard.putNumber(
+        "Shooter Target RPM",
+        m_targetVelocityRPM);
+
+    SmartDashboard.putNumber(
+        "Shooter Right RPM",
+        m_rightEncoder.getVelocity());
+
+    SmartDashboard.putNumber(
+        "Shooter Middle RPM",
+        m_middleEncoder.getVelocity());
+
+    SmartDashboard.putNumber(
+        "Shooter Left RPM",
+        m_leftEncoder.getVelocity());
 
     // Change-only booleans
     boolean rightNow = rightAtSpeed();
@@ -270,4 +255,3 @@ public class Shooter extends SubsystemBase {
     }
   }
 }
-
