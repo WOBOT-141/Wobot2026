@@ -62,7 +62,7 @@ public final class Constants {
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
 
-    public static final double topSpeed_mps = 1.5;
+    public static final double topSpeed_fps = 21; //TODO verify this
 
     public static final double autoRotatekP = 0.4;
     public static final double autoRotatekI = 0.02;
