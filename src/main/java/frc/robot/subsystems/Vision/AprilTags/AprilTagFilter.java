@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Vision.AprilTags;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Optional;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -28,6 +29,10 @@ public class AprilTagFilter {
     public boolean isTagOnElement(int tagId, FieldElement fieldElement) {
         return getTag(tagId).FieldElement == fieldElement;
     }
+    
+    public boolean isCenterTag(int tagId) {
+        return m_tags[tagId].XToElement == 0;
+    }
 
     public Optional<AprilTagFieldInfo> getTagInfoIfElementAndAlliance(int tagId, FieldElement fieldElement) {
         AprilTagFieldInfo tag = getTag(tagId);
@@ -47,6 +52,11 @@ public class AprilTagFilter {
     }
 
     public Optional<AngleMagVector> getFloorVectorFromTag(DetectionList detectionList, FieldElement element) {
+      
+        // TODO: Ethan, you will need to check if the detectionList contains both the center tag and side tag for any hub side
+        // (note that I added an "isCenterTag" method).
+        // If both pairs exist in the detectionList, use SSSAngle to find the angle between the two detections.
+        // From there, find the vector to the center of the hub.
         ArrayList<AngleMagVector> floorVectorList = new ArrayList<AngleMagVector>();
         for (int i = 0; i <= detectionList.getSize(); i++) {
             IDetection detection = detectionList.getDetection(i);
@@ -55,10 +65,11 @@ public class AprilTagFilter {
                 floorVectorList.add(floorVector);
             }
         }
+
         if (floorVectorList.size() == 0) {
             return Optional.empty();
-        }
-        ;
+        };
+
         double totalMagnitude_in = 0;
         double totalAngle_deg = 0;
         for (int i = 0; i <= floorVectorList.size(); i++) {

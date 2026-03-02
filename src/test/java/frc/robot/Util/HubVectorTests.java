@@ -52,7 +52,7 @@ public class HubVectorTests {
 
     public static void getFloorVectorFromTag_StraightOn() {
         int tagId = 0;
-        AprilTagFieldInfo[] tags = {new AprilTagFieldInfo(tagId, null, FieldElement.HUB, 0, 1, 0)};
+        AprilTagFieldInfo[] tags = {new AprilTagFieldInfo(tagId,  , null, FieldElement.HUB, 0, 1, 0)}; //TODO: Add a second tag to each of these test methods
         Detection detection = new Detection();
         detection.update(ObjectType.APRILTAG, 0, 1, tagId, 0, 0, 0);
 
@@ -64,7 +64,7 @@ public class HubVectorTests {
 
     public static void getFloorVectorFromTag_90DegreeAngle() {
         int tagId = 0;
-        AprilTagFieldInfo[] tags = {new AprilTagFieldInfo(tagId, null, FieldElement.HUB, 0, 1, 0)};
+        AprilTagFieldInfo[] tags = {new AprilTagFieldInfo(tagId,  , null, FieldElement.HUB, 0, 1, 0)};
         Detection detection = new Detection();
         detection.update(ObjectType.APRILTAG, 0, 1, tagId, 90, 0, 0);
         AprilTagFilter filter = new AprilTagFilter(tags);

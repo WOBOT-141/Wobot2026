@@ -42,7 +42,7 @@ public class RobotContainer {
   private final VisionServer visionServer = new VisionServer();
   // private final Shooter m_shooter = new Shooter(); TODO uncomment when CAN Ids are assigned
 
-  private final AprilTagFilter m_AprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
+  private final AprilTagFilter m_AprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags);
   private final IBotSelector _selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
 
