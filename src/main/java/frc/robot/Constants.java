@@ -53,8 +53,8 @@ public final class Constants {
       public static final int  motorFreeLimit = 20;
       public static final int motorStallLimit = 20;
 
-      public static final double hookServoOn = 0;
-      public static final double hookServoOff = 0;
+      public static final double hookServoExtend = 0;
+      public static final double hookServoRetract = 0;
       public static final double ratchetServoUnlock = 0;
 
       public static final int topLeftLimitSwitchID = 0;

@@ -88,16 +88,16 @@ public class Climber extends SubsystemBase {
 
      public void extendHooks() {
         // code to extend the climber outwards using the motor.
-       m_leftHookTopServo.setAngle(climberConstants.hookServoOn);
-       m_leftHookBottomServo.setAngle(climberConstants.hookServoOn);
-       m_rightHookTopServo.setAngle(climberConstants.hookServoOn);
-       m_rightHookBottomServo.setAngle(climberConstants.hookServoOn);
+       m_leftHookTopServo.setAngle(climberConstants.hookServoExtend);
+       m_leftHookBottomServo.setAngle(climberConstants.hookServoExtend);
+       m_rightHookTopServo.setAngle(climberConstants.hookServoExtend);
+       m_rightHookBottomServo.setAngle(climberConstants.hookServoExtend);
     }
 
      public void retractHooks() {
-       m_leftHookTopServo.setAngle(climberConstants.hookServoOff);
-       m_leftHookBottomServo.setAngle(climberConstants.hookServoOff);
-       m_rightHookTopServo.setAngle(climberConstants.hookServoOff);
+       m_leftHookTopServo.setAngle(climberConstants.hookServoRetract);
+       m_leftHookBottomServo.setAngle(climberConstants.hookServoRetract);
+       m_rightHookTopServo.setAngle(climberConstants.hookServoRetract);
        m_rightHookBottomServo.set(0);
        //TODO read encoder pulses to count howfar hooks are and retract them
        //TODO set inches to retract and read encoder pulses to know when to stop retracting //servo in servo out 
