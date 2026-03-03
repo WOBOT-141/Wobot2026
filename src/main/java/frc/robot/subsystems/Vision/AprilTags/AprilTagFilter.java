@@ -1,7 +1,6 @@
 package frc.robot.subsystems.Vision.AprilTags;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Optional;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -9,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.lib.AngleMagVector;
 import frc.robot.subsystems.Vision.Detections.DetectionList;
 import frc.robot.subsystems.Vision.Detections.IDetection;
+import frc.robot.subsystems.Vision.Detections.NullDetection;
 
 public class AprilTagFilter {
 
@@ -30,7 +30,20 @@ public class AprilTagFilter {
         return getTag(tagId).FieldElement == fieldElement;
     }
     
-    public boolean isCenterTag(int tagId) {
+    public boolean isCenterTag(int tagId, DetectionList detectionList) {
+        
+    for (int i = 0; i < detectionList.getSize(); i++) {
+        IDetection detection = detectionList.getDetection(i);
+        AprilTagFieldInfo tag = getTagInfoIfElementAndAlliance((int) detection.getId(), FieldElement.HUB).get();
+        if (tag != null){
+
+                if (detectionList.getDetectionById(tag.PairedId) != NullDetection.Instance) {
+                    
+                }
+            
+        }
+
+    }
         return m_tags[tagId].XToElement == 0;
     }
 
