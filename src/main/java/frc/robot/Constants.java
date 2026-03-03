@@ -61,6 +61,8 @@ public final class Constants {
       public static final int bottomLeftLimitSwitchID = 1;
       public static final int topRightLimitSwitchID = 2;
       public static final int bottomRightLimitSwitchID = 3;
+
+      public static double positionTolerance_IN;
     }
 
   public static class RotateCommandConstants {

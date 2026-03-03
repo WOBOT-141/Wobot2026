@@ -38,8 +38,7 @@ public class Climber extends SubsystemBase {
 
     public Climber() {
         // initialize motors, encoders, configs, etc. here
-        m_climberMotor = new SparkMax(CANIdConstants.ClimberMotorID, MotorType.kBrushless); //TODO add ids to sparkMaxs addto constants 
-        
+        m_climberMotor = new SparkMax(CANIdConstants.ClimberMotorID, MotorType.kBrushless); 
         m_climberMotorConfig = new SparkMaxConfig();
         m_followMotorConfig = new SparkMaxConfig();
         
@@ -66,21 +65,25 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean moveToPosition(double position) {
-        if(position >= m_climberMotorRealtiveEncoder.getPosition()){
-                    m_climberMotor.set(climberConstants.motorRPM);
+        if(Math.abs(position - m_climberMotorRealtiveEncoder.getPosition()) < climberConstants.positionTolerance_IN) {
                     stopClimber();
+                    return true;
         }
-        //TODO check if our desired position is greater than our current position if so move up and check if we are at position if we are at position stop motor and return true if not return false
-        //TODO is set point current postive or negtive compared to current position if positive move up if negative move down
-        //TODO 
+        else if(position > m_climberMotorRealtiveEncoder.getPosition()) {
+            m_climberMotor.set(climberConstants.motorRPM);
+        }
+        else if(position < m_climberMotorRealtiveEncoder.getPosition()) {
+            m_climberMotor.set(-climberConstants.motorRPM);
+        }
         
-       
-       return false;
-        //TODO move to a position 
-        //TODO check if position is within limits
-        //TODO read encoder position to know if its where supposed tobe
-        //TODO check motor position to see if at position and stop motor if at position 
-        //TODO return true if at position false if not at position tolernce of inches to see if true 
+        if(m_topLeftLimitSwitch.get() || m_topRightLimitSwitch.get()) {
+            m_climberMotor.stopMotor();
+        }
+
+         if(m_bottomLeftLimitSwitch.get() || m_bottomRightLimitSwitch.get()) {
+            m_climberMotor.stopMotor();
+        }
+         return false;
     }
 
      public void extendHooks() {
@@ -89,18 +92,15 @@ public class Climber extends SubsystemBase {
        m_leftHookBottomServo.setAngle(climberConstants.hookServoOn);
        m_rightHookTopServo.setAngle(climberConstants.hookServoOn);
        m_rightHookBottomServo.setAngle(climberConstants.hookServoOn);
-       //TODO set digital outputs make one command to tell them all on 
-
     }
 
      public void retractHooks() {
-        // code to extend the climber outwards using the motor.
        m_leftHookTopServo.setAngle(climberConstants.hookServoOff);
        m_leftHookBottomServo.setAngle(climberConstants.hookServoOff);
        m_rightHookTopServo.setAngle(climberConstants.hookServoOff);
        m_rightHookBottomServo.set(0);
        //TODO read encoder pulses to count howfar hooks are and retract them
-       //TODO set inches to retract and read encoder pulses to know when to stop retracting
+       //TODO set inches to retract and read encoder pulses to know when to stop retracting //servo in servo out 
     }
 
     
