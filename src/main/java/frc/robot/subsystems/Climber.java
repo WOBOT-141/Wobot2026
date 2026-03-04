@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.CANIdConstants;
-import frc.robot.Constants.climberConstants;
+import frc.robot.Constants.ClimberConstants;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -14,9 +14,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
 
-
-
-
 public class Climber extends SubsystemBase {
     private final SparkMax m_climberMotor;
     private Servo m_leftHookTopServo;
@@ -25,10 +22,10 @@ public class Climber extends SubsystemBase {
     private Servo m_rightHookTopServo;
     private Servo m_rightHookBottomServo;
     private Servo m_rightRatchetServo;
-    private final  DigitalInput m_topLeftLimitSwitch = new DigitalInput(climberConstants.topLeftLimitSwitchID);
-    private final  DigitalInput m_bottomLeftLimitSwitch = new DigitalInput(climberConstants.bottomLeftLimitSwitchID);
-    private final  DigitalInput m_topRightLimitSwitch = new DigitalInput(climberConstants.topRightLimitSwitchID);
-    private final  DigitalInput m_bottomRightLimitSwitch = new DigitalInput(climberConstants.bottomRightLimitSwitchID);
+    private final  DigitalInput m_topLeftLimitSwitch = new DigitalInput(ClimberConstants.topLeftLimitSwitchID);
+    private final  DigitalInput m_bottomLeftLimitSwitch = new DigitalInput(ClimberConstants.bottomLeftLimitSwitchID);
+    private final  DigitalInput m_topRightLimitSwitch = new DigitalInput(ClimberConstants.topRightLimitSwitchID);
+    private final  DigitalInput m_bottomRightLimitSwitch = new DigitalInput(ClimberConstants.bottomRightLimitSwitchID);
     
     private SparkMaxConfig m_climberMotorConfig;
     private SparkMaxConfig m_followMotorConfig;
@@ -44,36 +41,36 @@ public class Climber extends SubsystemBase {
         
         m_climberMotorConfig
         .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(climberConstants.motorStallLimit, climberConstants.motorFreeLimit);
+        .smartCurrentLimit(ClimberConstants.motorStallLimit, ClimberConstants.motorFreeLimit);
         
         m_followMotorConfig.follow(CANIdConstants.ClimberMotorID, true); //Todo check if it needs to be inverted
 
         m_climberMotorRealtiveEncoder = m_climberMotor.getEncoder();
 
          m_climberMotorConfig.encoder
-        .positionConversionFactor(1.0 / climberConstants.gearRatio);
+        .positionConversionFactor(1.0 / ClimberConstants.gearRatio);
     }
 
     public boolean climberHome() {
-        if (m_bottomLeftLimitSwitch.get() && m_bottomRightLimitSwitch.get()) {
+        if (m_bottomLeftLimitSwitch.get() && m_bottomRightLimitSwitch.get()) { //TO
             m_climberMotor.set(0);
             m_climberMotorRealtiveEncoder.setPosition(0);
             return true;
         }
-         m_climberMotor.set(climberConstants.homeRPM);
+         m_climberMotor.set(ClimberConstants.homeRPM);
             return false;
     }
 
     public boolean moveToPosition(double position) {
-        if(Math.abs(position - m_climberMotorRealtiveEncoder.getPosition()) < climberConstants.positionTolerance_IN) {
+        if(Math.abs(position - m_climberMotorRealtiveEncoder.getPosition()) < ClimberConstants.positionTolerance_IN) {
                     stopClimber();
                     return true;
         }
         else if(position > m_climberMotorRealtiveEncoder.getPosition()) {
-            m_climberMotor.set(climberConstants.motorRPM);
+            m_climberMotor.set(ClimberConstants.motorRPM);
         }
         else if(position < m_climberMotorRealtiveEncoder.getPosition()) {
-            m_climberMotor.set(-climberConstants.motorRPM);
+            m_climberMotor.set(-ClimberConstants.motorRPM);
         }
         
         if(m_topLeftLimitSwitch.get() || m_topRightLimitSwitch.get()) {
@@ -88,40 +85,38 @@ public class Climber extends SubsystemBase {
 
      public void extendHooks() {
         // code to extend the climber outwards using the motor.
-       m_leftHookTopServo.setAngle(climberConstants.hookServoExtend);
-       m_leftHookBottomServo.setAngle(climberConstants.hookServoExtend);
-       m_rightHookTopServo.setAngle(climberConstants.hookServoExtend);
-       m_rightHookBottomServo.setAngle(climberConstants.hookServoExtend);
+       m_leftHookTopServo.setAngle(ClimberConstants.hookServoExtend);
+       m_leftHookBottomServo.setAngle(ClimberConstants.hookServoExtend);
+       m_rightHookTopServo.setAngle(ClimberConstants.hookServoExtend);
+       m_rightHookBottomServo.setAngle(ClimberConstants.hookServoExtend);
     }
 
      public void retractHooks() {
-       m_leftHookTopServo.setAngle(climberConstants.hookServoRetract);
-       m_leftHookBottomServo.setAngle(climberConstants.hookServoRetract);
-       m_rightHookTopServo.setAngle(climberConstants.hookServoRetract);
-       m_rightHookBottomServo.set(0);
+       m_leftHookTopServo.setAngle(ClimberConstants.hookServoRetract);
+       m_leftHookBottomServo.setAngle(ClimberConstants.hookServoRetract);
+       m_rightHookTopServo.setAngle(ClimberConstants.hookServoRetract);
+       m_rightHookBottomServo.setAngle(ClimberConstants.hookServoRetract);
        //TODO read encoder pulses to count howfar hooks are and retract them
        //TODO set inches to retract and read encoder pulses to know when to stop retracting //servo in servo out 
     }
 
-    
-
     public void extendClimberL1() {
         // code to extend the climber outwards using the motor.
-        m_climberMotorRealtiveEncoder.setPosition( climberConstants.extendClimberToL1_IN);
+        m_climberMotorRealtiveEncoder.setPosition( ClimberConstants.extendClimberToL1_IN);
     }
 
     public void hookClimberL1() {
-        m_climberMotor.set( climberConstants.l1climb_IN);
+        m_climberMotor.set( ClimberConstants.l1climb_IN);
         // code to extend the climber using the motors and servos
     }
 
     public void hookClimberL2AndL3() {
-          m_climberMotor.set( climberConstants.l2AndL3climb_IN);
+          m_climberMotor.set( ClimberConstants.l2AndL3climb_IN);
           // code to extend the climber using the motors and servos
     }
 
     public void retractClimberL1() {
-         m_climberMotor.set( climberConstants.homeRPM);
+         m_climberMotor.set( ClimberConstants.homeRPM);
         // code to retract the climber using the motors and servos
     }
 
@@ -131,16 +126,9 @@ public class Climber extends SubsystemBase {
     }
 
     public void ratchetUnlock() {
-       m_leftRatchetServo.set(climberConstants.ratchetServoUnlock);
-       m_rightRatchetServo.set(climberConstants.ratchetServoUnlock);
-    }
-
+       m_leftRatchetServo.set(ClimberConstants.ratchetServoUnlock); 
+       m_rightRatchetServo.set(ClimberConstants.ratchetServoUnlock); // code to unlock the ratchet when going down, lock when going up 
     public void stopClimber(){
         m_climberMotor.stopMotor();
     }
-
-
-        
-   
-
 }

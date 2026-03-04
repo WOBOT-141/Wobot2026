@@ -38,7 +38,7 @@ public final class Constants {
     public static final int ClimbFollowerMotorID = 0;
   }
 
-  public static class climberConstants {
+  public static class ClimberConstants {
       public static final double homeRPM = 0;
       
       public static final double extendClimberToL1_IN = 0; 
@@ -50,8 +50,8 @@ public final class Constants {
       public static final double gearRatio = 0; 
 
       public static final double motorRPM = 0;
-      public static final int  motorFreeLimit = 20;
-      public static final int motorStallLimit = 20;
+      public static final int  motorFreeLimit = 40;
+      public static final int motorStallLimit = 40;
 
       public static final double hookServoExtend = 0;
       public static final double hookServoRetract = 0;
