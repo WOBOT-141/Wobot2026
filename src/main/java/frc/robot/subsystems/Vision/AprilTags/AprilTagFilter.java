@@ -31,19 +31,6 @@ public class AprilTagFilter {
     }
     
     public boolean isCenterTag(int tagId, DetectionList detectionList) {
-        
-    for (int i = 0; i < detectionList.getSize(); i++) {
-        IDetection detection = detectionList.getDetection(i);
-        AprilTagFieldInfo tag = getTagInfoIfElementAndAlliance((int) detection.getId(), FieldElement.HUB).get();
-        if (tag != null){
-
-                if (detectionList.getDetectionById(tag.PairedId) != NullDetection.Instance) {
-                    
-                }
-            
-        }
-
-    }
         return m_tags[tagId].XToElement == 0;
     }
 
@@ -64,8 +51,32 @@ public class AprilTagFilter {
         return Optional.of(tag);
     }
 
-    public Optional<AngleMagVector> getFloorVectorFromTag(DetectionList detectionList, FieldElement element) {
+    public Optional<AngleMagVector> getFloorVectorToTaggedElement(DetectionList detectionList, FieldElement element) {
       
+        
+    for (int i = 0; i < detectionList.getSize(); i++) {
+        IDetection detection = detectionList.getDetection(i);
+        if (!isCenterTag(i, detectionList)) {
+            continue;
+        }
+        Optional<AprilTagFieldInfo> tagInfoOptional = getTagInfoIfElementAndAlliance((int) detection.getId(), FieldElement.HUB);
+        if (tagInfoOptional.isEmpty()){
+            continue;
+        }
+        AprilTagFieldInfo centerTagInfo = tagInfoOptional.get();
+        IDetection pairedDetection = detectionList.getDetectionById(centerTagInfo.PairedId);
+        if (pairedDetection == NullDetection.Instance) {
+            continue;
+        }
+        Optional<AprilTagFieldInfo> pairedtagInfoOptional = getTagInfoIfElementAndAlliance((int) pairedDetection.getId(), FieldElement.HUB);
+ 
+            
+        
+        double angleBetweenDetections = FindSSSAngle(detection.getDistance(), pairedtagInfoOptional.get().XToElement, pairedDetection.getDistance());
+
+    }
+
+
         // TODO: Ethan, you will need to check if the detectionList contains both the center tag and side tag for any hub side
         // (note that I added an "isCenterTag" method).
         // If both pairs exist in the detectionList, use SSSAngle to find the angle between the two detections.

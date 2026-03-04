@@ -53,7 +53,7 @@ public class AimAtHubCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Optional<AngleMagVector> vectorToHubOptional = m_aprilTagFilter.getFloorVectorFromTag(m_visionServer.getDetectionList(), FieldElement.HUB);
+    Optional<AngleMagVector> vectorToHubOptional = m_aprilTagFilter.getFloorVectorToTaggedElement(m_visionServer.getDetectionList(), FieldElement.HUB);
     if (vectorToHubOptional.isEmpty()){
       return;
     }
