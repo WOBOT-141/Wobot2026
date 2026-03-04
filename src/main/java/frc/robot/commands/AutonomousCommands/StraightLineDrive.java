@@ -19,8 +19,6 @@ public class StraightLineDrive extends Command {
   private double[] m_startingEncoderPos_in;
 
   private double distanceLeftOver_perc;
-
-  private double driveSpeed;
   private double finalDriveSpeed;
 
   /** Creates a new StraightLineDrive. */
@@ -37,19 +35,17 @@ public class StraightLineDrive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_gyro.ResetGyro();
     for (int i = 0; i < m_wheels.length; i++) {
-      // m_wheels[i].resetEncoder();
       m_startingEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
       SmartDashboard.putNumber("StartingEncoderPos_" + i, m_startingEncoderPos_in[i]);
     }
     finalDriveSpeed = 0.05;
+    distanceLeftOver_perc = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
     double[] currentEncoderPos_in = new double[m_wheels.length];
     double totalSubstractedDistance_in = 0;
 
@@ -67,29 +63,26 @@ public class StraightLineDrive extends Command {
     SmartDashboard.putNumber("distanceLeftOver_perc", distanceLeftOver_perc);
     SmartDashboard.putNumber("m_AvgSubtractedDistance", m_avgSubstractedDistance_in);
     SmartDashboard.putNumber("m_distance_in", m_distance_in);
-    SmartDashboard.putNumber("driveSpeed", driveSpeed);
 
-    if (currentEncoderPos_in[1] != m_startingEncoderPos_in[1]) {
-      TrapizoidCalculations();
-    }
-
-    m_drivetrain.driveWithGyro(0, finalDriveSpeed, 0);
+    m_drivetrain.driveWithoutGyro(0, TrapizoidCalculations(), 0);
   }
 
   private double TrapizoidCalculations() {
+    double driveSpeed = 0.05;
 
-    if (0.05 < distanceLeftOver_perc && 0.25 > distanceLeftOver_perc) {
-      driveSpeed = distanceLeftOver_perc * 4.75 - 0.1875;
-    } else if (0.25 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.6) {
+    if (0.05 < distanceLeftOver_perc && 0.10 > distanceLeftOver_perc) {
+      driveSpeed = distanceLeftOver_perc * 19 - 0.9;
+    } else if (0.10 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.8) {
       driveSpeed = 1.0;
-    } else if (0.6 < distanceLeftOver_perc) {
-      driveSpeed = distanceLeftOver_perc * -2.5 + 2.5;
-    }
-    finalDriveSpeed = driveSpeed * (m_distance_in * 0.00544306);
+    } else if (0.8 < distanceLeftOver_perc) {
+      driveSpeed = distanceLeftOver_perc*(-4.75)+4.8;
+    } // faster
+
+    finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00544306);
 
     if (distanceLeftOver_perc < 0.05) {
       finalDriveSpeed = 0.05;
-      if (m_distance_in < -1){
+      if (m_distance_in < -1) {
         finalDriveSpeed *= -1;
       }
     }
@@ -106,7 +99,6 @@ public class StraightLineDrive extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // return Math.abs(m_avgSubstractedDistance_in - m_distance_in) < 1;
-    return distanceLeftOver_perc >= 1 || distanceLeftOver_perc < -0;
+    return distanceLeftOver_perc >= .95 || distanceLeftOver_perc < -0;
   }
 }

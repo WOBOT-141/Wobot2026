@@ -20,12 +20,13 @@ public class ZeeClimb extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new StraightLineDrive(drivetrain, 130, wheels, gyro)
-            .andThen(new RotateToAngle(drivetrain, 40, gyro)) //-
-            .andThen(new StraightLineDrive(drivetrain, 95, wheels, gyro))//-
-            .andThen(new StraightLineDrive(drivetrain, 97, wheels, gyro))
-            .andThen(new StraightLineDrive(drivetrain, 80, wheels, gyro))
-            .andThen(new RotateToAngle(drivetrain, 80, gyro))//-
-            .andThen(new StraightLineDrive(drivetrain, 80, wheels, gyro)));
+        new StraightLineDrive(drivetrain, 130, wheels, gyro).andThen(
+        new RotateToAngle(drivetrain,-40,gyro)).andThen(
+        new StraightLineDrive(drivetrain, -95, wheels, gyro)).andThen(
+        new RotateToAngle(drivetrain, 45, gyro)).andThen(
+        new StraightLineDrive(drivetrain, 60, wheels, gyro)).andThen(
+        new RotateToAngle(drivetrain, 75, gyro)).andThen(
+        new StraightLineDrive(drivetrain, 64, wheels, gyro))
+      );
   }
 }
