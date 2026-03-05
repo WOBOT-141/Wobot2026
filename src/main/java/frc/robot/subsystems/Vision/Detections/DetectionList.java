@@ -40,6 +40,12 @@ public class DetectionList {
         _size = 0;
     }
 
+    public boolean addDetection(IDetection detection) {
+        _detections[_size] = (Detection) detection;
+        ++_size;
+        return _size < _capacity;
+    }
+
     public boolean addDetection
         (
         ObjectType tag,

@@ -26,7 +26,7 @@ public class VisionServer extends SubsystemBase {
   int m_number_of_cameras;
   int m_number_of_Apriltags;
 
-  DetectionList[] m_detection_lists;
+  DetectionList[] m_detections_Apriltag;
 
   public VisionServer(int ANumberOfCameras, int AnumberOfTags) {
     m_buffer_from_table = ByteBuffer.allocate(8192);
@@ -37,14 +37,35 @@ public class VisionServer extends SubsystemBase {
     m_number_of_cameras = ANumberOfCameras;
     m_number_of_Apriltags = AnumberOfTags;
 
-    m_detection_lists = new DetectionList[ANumberOfCameras];
-    for (int i = 0; i < m_detection_lists.length; ++i) {
-      m_detection_lists[i] = new DetectionList(ObjectType.APRILTAG, AnumberOfTags);
+    m_detections_Apriltag = new DetectionList[ANumberOfCameras];
+    for (int i = 0; i < m_detections_Apriltag.length; ++i) {
+      m_detections_Apriltag[i] = new DetectionList(ObjectType.APRILTAG, AnumberOfTags);
     }
   }
 
   public void updateDetectionLists() {
 
+  }
+
+  public DetectionList getApriltagDetectionList() {
+    int _size_needed = m_number_of_cameras * m_number_of_Apriltags;
+    DetectionList _detectlist = new DetectionList(ObjectType.APRILTAG, _size_needed);
+
+    for (int i = 0; i < m_detections_Apriltag.length; ++i) {
+
+      int tagCountForThisCamera = m_detections_Apriltag[i].getSize();
+
+      if (tagCountForThisCamera > 0) {
+
+        for (int j = 0; j < tagCountForThisCamera; ++j) {
+          _detectlist.addDetection(m_detections_Apriltag[i].getDetection(j));
+        }
+
+      }
+
+    }
+
+    return _detectlist;
   }
 
   public DetectionList getDetectionList() {
