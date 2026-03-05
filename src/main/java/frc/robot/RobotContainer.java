@@ -164,8 +164,7 @@ public class RobotContainer {
 
   private void configureXboxController() {
     xboxController0.rightBumper().onTrue(new ZeeClimb(m_Drive, m_wheels, m_Gyro));
-    xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, -60, m_wheels, m_Gyro));
-    xboxController0.y().onTrue(new StraightLineDrive(m_Drive, 120, m_wheels, m_Gyro));
+    xboxController0.y().onTrue(new StraightLineDrive(m_Drive, 0, 120, m_wheels, m_Gyro));
     xboxController0.a().onTrue(new RotateToAngle(m_Drive, 270, m_Gyro));
     xboxController0.b().onTrue(new ForwardandBack(m_Drive, m_wheels, m_Gyro));
     xboxController0.x().onTrue(new SquareUp(m_Drive, m_wheels, m_Gyro));

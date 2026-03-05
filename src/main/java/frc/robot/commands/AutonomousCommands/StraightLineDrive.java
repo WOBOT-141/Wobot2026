@@ -13,6 +13,7 @@ import frc.robot.subsystems.SwerveModule;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class StraightLineDrive extends Command {
   private final Drivetrain m_drivetrain;
+  private final double m_translationAngle;
   private final double m_distance_in;
   private final SwerveModule[] m_wheels;
   private final IGyro m_gyro;
@@ -22,8 +23,9 @@ public class StraightLineDrive extends Command {
   private double finalDriveSpeed;
 
   /** Creates a new StraightLineDrive. */
-  public StraightLineDrive(Drivetrain drivetrain, double distance, SwerveModule wheels[], IGyro gyro) {
+  public StraightLineDrive(Drivetrain drivetrain, double translationAngle, double distance, SwerveModule wheels[], IGyro gyro) {
     m_drivetrain = drivetrain;
+    m_translationAngle = translationAngle;
     m_distance_in = distance;
     m_wheels = wheels;
     m_gyro = gyro;
@@ -64,28 +66,22 @@ public class StraightLineDrive extends Command {
     SmartDashboard.putNumber("m_AvgSubtractedDistance", m_avgSubstractedDistance_in);
     SmartDashboard.putNumber("m_distance_in", m_distance_in);
 
-    m_drivetrain.driveWithoutGyro(0, TrapizoidCalculations(), 0);
+    m_drivetrain.driveWithGyro(m_translationAngle, TrapizoidCalculations(), 0);
   }
 
   private double TrapizoidCalculations() {
     double driveSpeed = 0.05;
 
-    if (0.05 < distanceLeftOver_perc && 0.10 > distanceLeftOver_perc) {
-      driveSpeed = distanceLeftOver_perc * 19 - 0.9;
+    if (0.10 > distanceLeftOver_perc) {
+      driveSpeed = distanceLeftOver_perc * 9.5 + 0.05;
     } else if (0.10 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.8) {
       driveSpeed = 1.0;
     } else if (0.8 < distanceLeftOver_perc) {
-      driveSpeed = distanceLeftOver_perc*(-4.75)+4.8;
+      driveSpeed = distanceLeftOver_perc* (-4.52381) + 4.61905;
     } // faster
 
     finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00544306);
 
-    if (distanceLeftOver_perc < 0.05) {
-      finalDriveSpeed = 0.05;
-      if (m_distance_in < -1) {
-        finalDriveSpeed *= -1;
-      }
-    }
 
     return finalDriveSpeed;
   }
@@ -99,6 +95,6 @@ public class StraightLineDrive extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return distanceLeftOver_perc >= .95 || distanceLeftOver_perc < -0;
+    return distanceLeftOver_perc >= 1 || distanceLeftOver_perc < -0;
   }
 }

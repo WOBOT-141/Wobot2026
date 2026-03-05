@@ -19,14 +19,14 @@ public class ZeeClimb extends SequentialCommandGroup {
   public ZeeClimb(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
+    double startPos = gyro.getRealGyroAngle();
     addCommands(
-        new StraightLineDrive(drivetrain, 130, wheels, gyro).andThen(
-        new RotateToAngle(drivetrain,-40,gyro)).andThen(
-        new StraightLineDrive(drivetrain, -95, wheels, gyro)).andThen(
-        new RotateToAngle(drivetrain, 45, gyro)).andThen(
-        new StraightLineDrive(drivetrain, 60, wheels, gyro)).andThen(
-        new RotateToAngle(drivetrain, 75, gyro)).andThen(
-        new StraightLineDrive(drivetrain, 64, wheels, gyro))
+        new StraightLineDrive(drivetrain, 0, 130, wheels, gyro).andThen(
+        new StraightLineDrive(drivetrain, -45, -95, wheels, gyro)).andThen(
+        new StraightLineDrive(drivetrain,0, 60, wheels, gyro)).andThen(
+        new StraightLineDrive(drivetrain, 90, 62, wheels, gyro)).andThen(
+        new RotateToAngle(drivetrain, startPos, gyro)).andThen(
+        new StraightLineDrive(drivetrain, 0, -12, wheels, gyro))
       );
   }
 }

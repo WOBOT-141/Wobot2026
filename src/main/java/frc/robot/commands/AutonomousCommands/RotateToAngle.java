@@ -42,7 +42,8 @@ public class RotateToAngle extends Command {
     // } else if (m_rotationAmount_deg < -180) {
     //   m_rotationAmount_deg = (m_rotationAmount_deg % 360) + 360;
     // }
-    m_desiredBotAngle_deg = (m_gyro.getRealGyroAngle() + m_rotationAmount_deg) % 360;
+    //m_desiredBotAngle_deg = Math.abs((m_gyro.getRealGyroAngle() + m_rotationAmount_deg) % 360);
+    m_desiredBotAngle_deg = m_rotationAmount_deg;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -51,7 +52,7 @@ public class RotateToAngle extends Command {
 
     // Rotation calculations
     gyroyaw = m_gyro.getRealGyroAngle();
-    double missingAngle_deg = ((gyroyaw - m_desiredBotAngle_deg)) % 360; //m_rotationAmount_deg
+    double missingAngle_deg = (gyroyaw - m_desiredBotAngle_deg) % 360; //m_rotationAmount_deg
 
     SmartDashboard.putNumber("gyroyaw", gyroyaw);
     SmartDashboard.putNumber("m_desiredBotAngle_deg", m_desiredBotAngle_deg);
@@ -71,8 +72,6 @@ public class RotateToAngle extends Command {
       rotationSpeed = remainingRotation_perc * (-1.25) + 1.25;
     } 
 
-    //rotationSpeed = (rotationSpeed * 0.00533858) + 0.0443945; // Fancy acceleration limiter
-    
     finalRotationSpeed = rotationSpeed * ((m_rotationAmount_deg) * 0.011111);
     if (remainingRotation_perc < 0.05) {
       finalRotationSpeed = 0.05;
@@ -80,11 +79,7 @@ public class RotateToAngle extends Command {
         finalRotationSpeed *= -1;
       }
     } 
-    //rotationSpeed = (rotationSpeed * 0.0101124) + 0.0898876;
 
-    SmartDashboard.putNumber("m_desiredBotAngle_deg", m_desiredBotAngle_deg);
-    SmartDashboard.putNumber("gyroyaw", gyroyaw);
-    SmartDashboard.putNumber("missingAngle_deg", missingAngle_deg);
     SmartDashboard.putNumber("remainingRotation_perc", remainingRotation_perc);
     SmartDashboard.putNumber("finalRotationSpeed", finalRotationSpeed);
 
@@ -101,7 +96,7 @@ public class RotateToAngle extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (((m_desiredBotAngle_deg + 5) >= gyroyaw && (m_desiredBotAngle_deg - 5) <= gyroyaw));
+    return (m_desiredBotAngle_deg + 5) >= gyroyaw && (m_desiredBotAngle_deg - 5) <= gyroyaw;
     //return remainingRotation_perc > 1;
     //return false;
   }

@@ -20,8 +20,8 @@ public class ForwardandBack extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new StraightLineDrive(drivetrain, 30, wheels, gyro).andThen(
-        new StraightLineDrive(drivetrain, -30, wheels, gyro)).andThen(
-        new RotateToAngle(drivetrain, 360, gyro)));
+        new StraightLineDrive(drivetrain,90, 30, wheels, gyro).andThen(
+        new StraightLineDrive(drivetrain, 90, -30, wheels, gyro))
+        );
   }
 }
