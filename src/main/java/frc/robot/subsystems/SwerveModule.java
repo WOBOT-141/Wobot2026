@@ -4,6 +4,11 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.Second;
+
+import java.util.concurrent.TimeUnit;
+
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 
@@ -22,14 +27,20 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANIdConstants;
 import frc.robot.Constants.SteerConstants;
 import frc.robot.Constants.WheelConstants;
 
 public class SwerveModule extends SubsystemBase {
+
+  private final SysIdRoutine driveSysId;
 
   private final SparkMax _driveMotor;
   private final SparkMax _steerMotor;
@@ -102,6 +113,31 @@ public class SwerveModule extends SubsystemBase {
     _steerMotor.configure(steerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     _wheelDriveEncoder = _driveMotor.getEncoder();
+
+    driveSysId =
+    new SysIdRoutine(
+        new SysIdRoutine.Config(
+          edu.wpi.first.units.Units.Volts.of(1.0).per(Second),
+          edu.wpi.first.units.Units.Volts.of(7.0),
+          edu.wpi.first.units.Units.Second.of(10.0)
+        ),
+        new SysIdRoutine.Mechanism(
+            volts -> {
+              // Disable steering during SysId
+              //_steerMotor.stopMotor();
+              setAngle(0);
+              setDriveVoltage(volts.in(edu.wpi.first.units.Units.Volts));
+            },
+            log -> {
+              log.motor("drive")
+                  .voltage(edu.wpi.first.units.Units.Volts.of(getAppliedDriveVoltage()))
+                  .linearPosition(edu.wpi.first.units.Units.Meters.of(getDrivePositionMeters()))
+                  .linearVelocity(edu.wpi.first.units.Units.MetersPerSecond.of(getDriveVelocityMetersPerSec()));
+            },
+            this
+        )
+    );
+
 
     settoZero();
   }
@@ -306,6 +342,40 @@ public class SwerveModule extends SubsystemBase {
   public void settoZero() {
     double absoluteAngle = getAbsoluteEncoderAngle_deg();
     _steerMotor.getEncoder().setPosition(absoluteAngle);
+  }
+
+  // ---- SYSID HELPERS ----
+
+  public void setDriveVoltage(double volts) {
+    _driveMotor.setVoltage(volts);
+  }  
+
+  public double getDrivePositionMeters() {
+    return _wheelDriveEncoder.getPosition();
+  }  
+
+  public double getDriveVelocityMetersPerSec() {
+    return _wheelDriveEncoder.getVelocity();
+  }  
+
+  public double getAppliedDriveVoltage() {
+    return _driveMotor.getAppliedOutput() * _driveMotor.getBusVoltage();
+  }
+
+  public Command sysIdQuasistaticForward() {
+    return driveSysId.quasistatic(SysIdRoutine.Direction.kForward);
+  }
+  
+  public Command sysIdQuasistaticReverse() {
+    return driveSysId.quasistatic(SysIdRoutine.Direction.kReverse);
+  }
+  
+  public Command sysIdDynamicForward() {
+    return driveSysId.dynamic(SysIdRoutine.Direction.kForward);
+  }
+  
+  public Command sysIdDynamicReverse() {
+    return driveSysId.dynamic(SysIdRoutine.Direction.kReverse);
   }
 
 }
