@@ -146,7 +146,7 @@ public final class Constants {
     /**
      * Degrees of intake arm per motor rotation.
      *
-     * ⚠️ UPDATE THIS when gear ratio is known.
+     * UPDATE THIS when gear ratio is known.
      * If direct drive: 360
      * If 5:1 gearbox: 360 / 5 = 72
      */
