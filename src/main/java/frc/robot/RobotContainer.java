@@ -181,30 +181,10 @@ public class RobotContainer {
   private void configureXboxController() {
     m_xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
     m_xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
-    Trigger aButton = m_xboxController0.a();
-    Trigger bButton = m_xboxController0.b();
-    Trigger xButton = m_xboxController0.x();
-    Trigger yButton = m_xboxController0.y();
-    
-    aButton.whileTrue(m_wheels[0].sysIdQuasistaticForward());
-    bButton.whileTrue(m_wheels[0].sysIdQuasistaticReverse());
-    xButton.whileTrue(m_wheels[0].sysIdDynamicForward());
-    yButton.whileTrue(m_wheels[0].sysIdDynamicReverse());
-    
-    aButton.whileTrue(m_wheels[1].sysIdQuasistaticForward());
-    bButton.whileTrue(m_wheels[1].sysIdQuasistaticReverse());
-    xButton.whileTrue(m_wheels[1].sysIdDynamicForward());
-    yButton.whileTrue(m_wheels[1].sysIdDynamicReverse());
-
-    aButton.whileTrue(m_wheels[2].sysIdQuasistaticForward());
-    bButton.whileTrue(m_wheels[2].sysIdQuasistaticReverse());
-    xButton.whileTrue(m_wheels[2].sysIdDynamicForward());
-    yButton.whileTrue(m_wheels[2].sysIdDynamicReverse());
-
-    aButton.whileTrue(m_wheels[3].sysIdQuasistaticForward());
-    bButton.whileTrue(m_wheels[3].sysIdQuasistaticReverse());
-    xButton.whileTrue(m_wheels[3].sysIdDynamicForward());
-    yButton.whileTrue(m_wheels[3].sysIdDynamicReverse());
+    m_xboxController0.a().whileTrue(Commands.run(() -> m_Drive.sysIdQuasistaticForward(), m_Drive));
+    m_xboxController0.b().whileTrue(Commands.run(() -> m_Drive.sysIdQuasistaticReverse(), m_Drive));
+    m_xboxController0.x().whileTrue(Commands.run(() -> m_Drive.sysIdDynamicForward(), m_Drive));
+    m_xboxController0.y().whileTrue(Commands.run(() -> m_Drive.sysIdDynamicReverse(), m_Drive));
   }
 
   private void configureJoystick() {

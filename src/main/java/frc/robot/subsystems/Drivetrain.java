@@ -196,4 +196,27 @@ public class Drivetrain extends SubsystemBase {
     return _wheels;
   }
 
+  public void sysIdQuasistaticForward(){
+    for (int i = 0; i < _wheels.length; i++){
+      _wheels[i].sysIdQuasistaticForward();
+    }
+  }
+
+  public void sysIdQuasistaticReverse(){
+    for (int i = 0; i < _wheels.length; i++){
+      _wheels[i].sysIdQuasistaticReverse();
+    }
+  }
+
+  public void sysIdDynamicForward(){
+    for (int i = 0; i < _wheels.length; i++){
+      _wheels[i].sysIdDynamicForward();
+    }
+  }
+
+  public void sysIdDynamicReverse(){
+    for (int i = 0; i < _wheels.length; i++){
+      _wheels[i].sysIdDynamicReverse();
+    }
+  }
 }
