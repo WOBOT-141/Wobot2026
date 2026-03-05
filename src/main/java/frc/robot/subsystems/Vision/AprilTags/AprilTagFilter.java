@@ -52,7 +52,7 @@ public class AprilTagFilter {
     }
 
     public Optional<AngleMagVector> getFloorVectorToTaggedElement(DetectionList detectionList, FieldElement element) {
-      
+      double angleBetweenDetections = 0.0;
         
     for (int i = 0; i < detectionList.getSize(); i++) {
         IDetection detection = detectionList.getDetection(i);
@@ -72,9 +72,11 @@ public class AprilTagFilter {
  
             
         
-        double angleBetweenDetections = FindSSSAngle(detection.getDistance(), pairedtagInfoOptional.get().XToElement, pairedDetection.getDistance());
-
+        angleBetweenDetections = FindSSSAngle(detection.getDistance(), pairedtagInfoOptional.get().XToElement, pairedDetection.getDistance());
     }
+        
+
+    
 
 
         // TODO: Ethan, you will need to check if the detectionList contains both the center tag and side tag for any hub side
@@ -85,7 +87,7 @@ public class AprilTagFilter {
         for (int i = 0; i <= detectionList.getSize(); i++) {
             IDetection detection = detectionList.getDetection(i);
             if (0 != getTagInfoIfElementAndAlliance(((int) detection.getId()), element).get().Id) {
-                AngleMagVector floorVector = getFloorVectorFromTag(detection);
+                AngleMagVector floorVector = getFloorVectorFromTag(detection, angleBetweenDetections);
                 floorVectorList.add(floorVector);
             }
         }
@@ -107,13 +109,16 @@ public class AprilTagFilter {
 
     }
 
-    public AngleMagVector getFloorVectorFromTag(IDetection tagDetection) {
+    public AngleMagVector getFloorVectorFromTag(IDetection tagDetection, double centerTagAngle) {
         AprilTagFieldInfo tagInfo = m_tags[((int) tagDetection.getId())];
+        AprilTagFieldInfo pairedInfo = m_tags[tagInfo.PairedId];
         double distanceToTag_in = tagDetection.getDistance();
         double tagToCenter_in = Math.sqrt(Math.pow(tagInfo.XToElement, 2) + Math.pow(tagInfo.YToElement, 2));
-        double tagToCenterAngle_deg = 180 - Math.toDegrees(Math.atan2(tagInfo.YToElement, tagInfo.XToElement)) + (90 - Math.abs(tagDetection.getYaw()));
-        double hubDistance_in = LawOfCosines(tagToCenter_in, distanceToTag_in, tagToCenterAngle_deg);
+        //double tagToCenterAngle_deg = 180 - Math.toDegrees(Math.atan2(tagInfo.YToElement, tagInfo.XToElement)) + (90 - Math.abs(tagDetection.getYaw()));
+        double centerTagAngleToHub_deg = centerTagAngle + 90;
+        double hubDistance_in = LawOfCosines(tagToCenter_in, distanceToTag_in, centerTagAngleToHub_deg);
         double angleToHub_deg = FindSSSAngle(hubDistance_in, distanceToTag_in, tagToCenter_in);
+       
         if (tagDetection.getYaw() < 0) {
             angleToHub_deg = -angleToHub_deg;
         }
