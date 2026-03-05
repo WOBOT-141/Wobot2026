@@ -6,6 +6,7 @@ import frc.robot.subsystems.ChooserHandeling;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.ShooterCommands.m_flyWheelP;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
 
 
@@ -52,7 +54,7 @@ public class RobotContainer {
 
   public final SwerveModule[] m_wheels;
   private final VisionServer m_visionServer = new VisionServer();
-  // private final Shooter m_shooter = new Shooter(); TODO uncomment when CAN Ids
+  private final Shooter m_shooter = new Shooter(); 
   // are assigned
 
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
@@ -179,9 +181,11 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    m_xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
-    m_xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
-    m_xboxController0.b().onTrue(new RotateToTag(m_visionServer, m_Drive));
+
+    // m_xboxController0.b().onTrue(new RotateToTag(m_visionServer, m_Drive));
+     m_xboxController0.x().onTrue(new m_flyWheelP(m_shooter));
+    m_xboxController0.leftBumper().whileTrue(
+      Commands.startRun( () -> m_shooter.setShooterRPM(100), () -> m_shooter.setShooterRPM(100), m_shooter));
   }
 
   private void configureJoystick() {

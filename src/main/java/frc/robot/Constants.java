@@ -23,6 +23,9 @@ public final class Constants {
     public static final int backLeftEncoderid = 10;
     public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
+    public static final int flywheelRightMotorID = 13;
+    public static final int flywheelMiddleMotorID = 14;
+    public static final int flywheelLeftMotorID = 15;
   }
 
   public static class ControllerOneConstants {
@@ -146,7 +149,7 @@ public final class Constants {
     /**
      * Degrees of intake arm per motor rotation.
      *
-     * ⚠️ UPDATE THIS when gear ratio is known.
+     * UPDATE THIS when gear ratio is known.
      * If direct drive: 360
      * If 5:1 gearbox: 360 / 5 = 72
      */
@@ -172,10 +175,6 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-    // Motor IDs
-    public static final int flywheelRightMotorID = 13;
-    public static final int flywheelMiddleMotorID = 14;
-    public static final int flywheelLeftMotorID = 15;
 
     // PID / Feedforward
     public static final double P = 0.00000;
@@ -191,8 +190,8 @@ public final class Constants {
     public static final double slewRateLimit_rpmps = 4000.0;
 
     // Current limits
-    public static final int stallLimit_amp = 60;
-    public static final int freeLimit_amp = 60;
+    public static final int stallLimit_amp = 40;
+    public static final int freeLimit_amp = 40;
 
     // Brownout protection
     public static final double BrownoutStartVoltage_V = 10.5;
