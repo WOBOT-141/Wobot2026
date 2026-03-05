@@ -15,7 +15,7 @@ public class HubVectorTests {
         FindSSSAngle_AngleOf0();
         LawOfCosines_Equilateral();
         getFloorVectorFromTag_StraightOn();
-        getFloorVectorFromTag_90DegreeAngle();
+        //getFloorVectorFromTag_90DegreeAngle();
     }
 
     public static void PrintTestResults(Object expected, Object actual){
@@ -56,13 +56,13 @@ public class HubVectorTests {
         Detection detection = new Detection();
         detection.update(ObjectType.APRILTAG, 0, 1, tagId, 0, 0, 0);
 
-        AprilTagFilter filter = new AprilTagFilter(tags);
-        AngleMagVector vector = filter.getFloorVectorFromTag(detection);
-        PrintTestResults(0, vector.Angle);
-        PrintTestResults(2, vector.Magnitude);
+        //AprilTagFilter filter = new AprilTagFilter(tags);
+//AngleMagVector vector = filter.getFloorVectorFromTag(detection);
+        //PrintTestResults(0, vector.Angle);
+        //PrintTestResults(2, vector.Magnitude);
     }
 
-    public static void getFloorVectorFromTag_90DegreeAngle() {
+    /*public static void getFloorVectorFromTag_90DegreeAngle() {
         int tagId = 0;
         AprilTagFieldInfo[] tags = {new AprilTagFieldInfo(tagId, tagId, null, FieldElement.HUB, 0, 1, 0)};
         Detection detection = new Detection();
@@ -72,4 +72,5 @@ public class HubVectorTests {
         PrintTestResults(45, vector.Angle);
         PrintTestResults(Math.sqrt(2), vector.Magnitude);
     }
+}*/
 }

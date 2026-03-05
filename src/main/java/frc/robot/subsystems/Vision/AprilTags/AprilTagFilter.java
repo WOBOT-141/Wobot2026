@@ -111,7 +111,6 @@ public class AprilTagFilter {
 
     public AngleMagVector getFloorVectorFromTag(IDetection tagDetection, double centerTagAngle) {
         AprilTagFieldInfo tagInfo = m_tags[((int) tagDetection.getId())];
-        AprilTagFieldInfo pairedInfo = m_tags[tagInfo.PairedId];
         double distanceToTag_in = tagDetection.getDistance();
         double tagToCenter_in = Math.sqrt(Math.pow(tagInfo.XToElement, 2) + Math.pow(tagInfo.YToElement, 2));
         //double tagToCenterAngle_deg = 180 - Math.toDegrees(Math.atan2(tagInfo.YToElement, tagInfo.XToElement)) + (90 - Math.abs(tagDetection.getYaw()));
