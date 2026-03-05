@@ -35,6 +35,7 @@ import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
+import frc.robot.Constants.VisionServerConstants;
 import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.RotateToTag;
@@ -51,7 +52,7 @@ public class RobotContainer {
   private final StickCommand m_stickCommand;
 
   public final SwerveModule[] m_wheels;
-  private final VisionServer m_visionServer = new VisionServer();
+  private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.m_tags.length);
   // private final Shooter m_shooter = new Shooter(); TODO uncomment when CAN Ids
   // are assigned
 

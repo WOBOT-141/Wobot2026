@@ -23,14 +23,28 @@ public class VisionServer extends SubsystemBase {
 
   ByteBuffer m_buffer_from_table;
 
-  public VisionServer() {
+  int m_number_of_cameras;
+  int m_number_of_Apriltags;
+
+  DetectionList[] m_detection_lists;
+
+  public VisionServer(int ANumberOfCameras, int AnumberOfTags) {
     m_buffer_from_table = ByteBuffer.allocate(8192);
     m_nt_Instance = NetworkTableInstance.getDefault();
     m_nt_table = m_nt_Instance.getTable("Vision");
     aprilTagEntry = m_nt_table.getEntry("Apriltag");
-    // aprilTagStringTopic = m_nt_Instance.getStringTopic("/Vision/Apriltag");
-    // subscriber = aprilTagStringTopic.subscribe("skippyskippyskippy",
-    // PubSubOption.keepDuplicates(true), PubSubOption.pollStorage(10));
+
+    m_number_of_cameras = ANumberOfCameras;
+    m_number_of_Apriltags = AnumberOfTags;
+
+    m_detection_lists = new DetectionList[ANumberOfCameras];
+    for (int i = 0; i < m_detection_lists.length; ++i) {
+      m_detection_lists[i] = new DetectionList(ObjectType.APRILTAG, AnumberOfTags);
+    }
+  }
+
+  public void updateDetectionLists() {
+
   }
 
   public DetectionList getDetectionList() {
@@ -99,7 +113,8 @@ public class VisionServer extends SubsystemBase {
 
   @Override
   public void periodic() {
-    getDetectionList();
+    //getDetectionList();
+    updateDetectionLists();
   }
 }
 

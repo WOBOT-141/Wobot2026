@@ -25,6 +25,10 @@ public final class Constants {
     public static final int backRightEncoderid = 12;
   }
 
+  public static class VisionServerConstants {
+    public static final int NumberOfCameras = 1;
+  }
+
   public static class ControllerOneConstants {
     public static final double RotateFactor = 1.35;
     public static final double DriveXFactor = 1.26;
