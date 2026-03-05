@@ -42,6 +42,7 @@ public final class Constants {
     public static final int flyWheelRightMotorID = 13;
     public static final int flyWheelMiddlehtMotorID = 14;
     public static final int flyWheelLeftMotorID = 15;
+    public static final int hoodMotorID = 20;
   }
 
   public static class RotateCommandConstants {
@@ -137,6 +138,14 @@ public final class Constants {
     public static final int flywheelTolernce_ips = 13;
     public static final int slewRateLimt = 4000;
     public static final int stallLimt_amp = 60;
+
+    public static final double hoodP = 0;//TODO tune
+    public static final double hoodI = 0;
+    public static final double hoodD = 0;
+    public static final double hoodFF = 0;
+
+    public static final double hoodHomeRPM = 0;
+
 
   }
 }

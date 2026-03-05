@@ -33,16 +33,21 @@ public class Shooter extends SubsystemBase {
   private final SparkMax m_rightFlywheelMotor;
   private final SparkMax m_middleFlywheelMotor;
   private final SparkMax m_leftFlywheelMotor;
+  private final SparkMax m_hoodMotor;
+
   private final SparkMaxConfig m_rightFlywheelMotorConfig;
   private final SparkMaxConfig m_middleFlywheelMotorConfig;
   private final SparkMaxConfig m_leftFlywheelMotorConfig;
+  private final SparkMaxConfig m_hoodMotorConfig;
 
   private final RelativeEncoder m_rightFlywheelEncoder;
   private final RelativeEncoder m_middleFlywheelEncoder;
   private final RelativeEncoder m_leftFlywheelEncoder;
+  private final RelativeEncoder m_hoodEncoder;
   private final SparkClosedLoopController m_rightFlywheelController;
   private final SparkClosedLoopController m_middleFlywheelController;
   private final SparkClosedLoopController m_leftFlywheelController;
+  private final SparkClosedLoopController m_hoodController;
 
   private final SlewRateLimiter m_rightLimiter = new SlewRateLimiter(Constants.ShooterConstants.slewRateLimt);
   private final SlewRateLimiter m_middleLimiter = new SlewRateLimiter(Constants.ShooterConstants.slewRateLimt);
@@ -59,12 +64,14 @@ public class Shooter extends SubsystemBase {
 
   public Shooter() {
     m_rightFlywheelMotor = new SparkMax(CANIdConstants.flyWheelRightMotorID, MotorType.kBrushless); // TODO add ids to sparkMaxs
-    m_middleFlywheelMotor = new SparkMax(CANIdConstants.flyWheelRightMotorID, MotorType.kBrushless);
+    m_middleFlywheelMotor = new SparkMax(CANIdConstants.flyWheelMiddlehtMotorID, MotorType.kBrushless);
     m_leftFlywheelMotor = new SparkMax(CANIdConstants.flyWheelLeftMotorID, MotorType.kBrushless);
+    m_hoodMotor = new SparkMax(CANIdConstants.hoodMotorID, MotorType.kBrushless);
 
     m_rightFlywheelMotorConfig = new SparkMaxConfig();
     m_middleFlywheelMotorConfig = new SparkMaxConfig();
     m_leftFlywheelMotorConfig = new SparkMaxConfig();
+    m_hoodMotorConfig = new SparkMaxConfig();
 
     m_rightFlywheelMotorConfig
         .idleMode(IdleMode.kCoast)
@@ -87,31 +94,43 @@ public class Shooter extends SubsystemBase {
         .pid(Constants.ShooterConstants.P, Constants.ShooterConstants.I, Constants.ShooterConstants.D)
         .velocityFF(Constants.ShooterConstants.FF, ClosedLoopSlot.kSlot0);
 
+    m_hoodMotorConfig
+        .idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(80, 80);
+    m_hoodMotorConfig.closedLoop
+        .pid(Constants.ShooterConstants.hoodP, Constants.ShooterConstants.hoodI, Constants.ShooterConstants.hoodD)
+        .velocityFF(Constants.ShooterConstants.hoodFF, ClosedLoopSlot.kSlot0);// TODO find out if this would be velocity or position control and then change config and method of setting setpoint accordingly
+
     m_rightFlywheelMotor.configure(m_rightFlywheelMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
     m_middleFlywheelMotor.configure(m_middleFlywheelMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
     m_leftFlywheelMotor.configure(m_leftFlywheelMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
+    m_hoodMotor.configure(m_hoodMotorConfig, ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
 
     m_rightFlywheelEncoder = m_rightFlywheelMotor.getEncoder();
     m_middleFlywheelEncoder = m_middleFlywheelMotor.getEncoder();
-    m_leftFlywheelEncoder = m_middleFlywheelMotor.getEncoder();
+    m_leftFlywheelEncoder = m_leftFlywheelMotor.getEncoder();
+    m_hoodEncoder = m_hoodMotor.getEncoder();
 
     m_rightFlywheelController = m_rightFlywheelMotor.getClosedLoopController();
     m_middleFlywheelController = m_middleFlywheelMotor.getClosedLoopController();
     m_leftFlywheelController = m_leftFlywheelMotor.getClosedLoopController();
+    m_hoodController = m_hoodMotor.getClosedLoopController();
 
+  }
+
+  public void homeHood() {
+    m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
+  
   }
 
   public void setFlywheelVelocity(double targetVelocity_ips) {
     m_rightFlywheelMotor.set(targetVelocity_ips);
     m_middleFlywheelMotor.set(targetVelocity_ips);
     m_leftFlywheelMotor.set(targetVelocity_ips);
-
-  }
-
-  public void advanceFuel() {
 
   }
 
@@ -182,4 +201,4 @@ public class Shooter extends SubsystemBase {
       m_leftFlywheelController.setSetpoint(leftFlywheelRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
   }
-}
+}// TODO add hood motor 5 ticks  1 degree max of 49 and min of 89 degreseor or  visas versa 
