@@ -7,12 +7,12 @@ public class ShooterCalculations {
 return getLaunchAngle(targetDistance_in, ShooterConstants.deltaHprm_in, ShooterConstants.drc_in, targetDistance_in );
     }
 
-    public static double getLaunchAngle(double targetDistance_in, double deltaHeight_in, double rimToTargetDistance_in, double targetHeight_in) {
+    public static double getLaunchAngle(double targetDistance_in,  double deltaHeight_in, double rimToTargetDistance_in, double targetHeight_in) {
         double angleStep1 = (2 * targetDistance_in + rimToTargetDistance_in) * (deltaHeight_in)
                 + (targetHeight_in / rimToTargetDistance_in) * Math.pow(targetDistance_in,2);
         double angleStep2 = (2 * targetDistance_in + rimToTargetDistance_in) * (targetDistance_in)
                 - Math.pow(targetDistance_in, 2);
-        return (Math.atan((angleStep1 / angleStep2)));
+        return Math.toDegrees(Math.atan((angleStep1 / angleStep2)));
     }
     
     public static double getLaunchSpeed(double launchAngle_deg, double targetDistance_in, double rimToTargetDistance_in, double targetHeight_in) {
@@ -26,11 +26,14 @@ return getLaunchAngle(targetDistance_in, ShooterConstants.deltaHprm_in, ShooterC
 
     public static void main(String[] args) {
 
-        double angleOfCenterTarget_deg = 45.0; // example angle
-        double initialVelocity = getLaunchSpeed(angleOfCenterTarget_deg, 60.0, 10.0, 20); // example distance
-        System.out.println("Initial velocity: " + initialVelocity + " m/s");
+        double launchAngle = getLaunchAngle(110, 43.96, 23.51, 70);
+        System.out.println("launch angle " + launchAngle + " degrees");
+
+        double launchspeed =  getLaunchSpeed(launchAngle, 110, 23.51,70);
+        System.out.println("inital correct velocity " + launchspeed + " inches per second.");
 
     }
+
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
