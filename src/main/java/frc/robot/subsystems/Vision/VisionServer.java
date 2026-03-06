@@ -18,6 +18,7 @@ public class VisionServer extends SubsystemBase {
   NetworkTableInstance m_nt_Instance;
   NetworkTable m_nt_table;
   NetworkTableEntry aprilTagEntry;
+  NetworkTableEntry[] aprilTagEntries;
   StringTopic aprilTagStringTopic;
   StringSubscriber subscriber;
 
@@ -29,13 +30,18 @@ public class VisionServer extends SubsystemBase {
   DetectionList[] m_detections_Apriltag;
 
   public VisionServer(int ANumberOfCameras, int AnumberOfTags) {
+    m_number_of_cameras = ANumberOfCameras;
+    m_number_of_Apriltags = AnumberOfTags;
+
     m_buffer_from_table = ByteBuffer.allocate(8192);
     m_nt_Instance = NetworkTableInstance.getDefault();
     m_nt_table = m_nt_Instance.getTable("Vision");
     aprilTagEntry = m_nt_table.getEntry("Apriltag");
 
-    m_number_of_cameras = ANumberOfCameras;
-    m_number_of_Apriltags = AnumberOfTags;
+    aprilTagEntries = new NetworkTableEntry[ANumberOfCameras];
+    for (int i = 0; i < aprilTagEntries.length; ++i) {
+      aprilTagEntries[i] = m_nt_table.getEntry("Cam"+i+"/Apriltag");
+    }
 
     m_detections_Apriltag = new DetectionList[ANumberOfCameras];
     for (int i = 0; i < m_detections_Apriltag.length; ++i) {
@@ -44,28 +50,51 @@ public class VisionServer extends SubsystemBase {
   }
 
   public void updateDetectionLists() {
+    for (int cameraIndex = 0; cameraIndex < m_number_of_cameras; ++cameraIndex) {
+      if (aprilTagEntries[cameraIndex].exists()) {
+        m_buffer_from_table.clear();
+        m_buffer_from_table.put(aprilTagEntries[cameraIndex].getRaw(null));
+        m_buffer_from_table.flip();
 
-  }
-
-  public DetectionList getApriltagDetectionList() {
-    int _size_needed = m_number_of_cameras * m_number_of_Apriltags;
-    DetectionList _detectlist = new DetectionList(ObjectType.APRILTAG, _size_needed);
-
-    for (int i = 0; i < m_detections_Apriltag.length; ++i) {
-
-      int tagCountForThisCamera = m_detections_Apriltag[i].getSize();
-
-      if (tagCountForThisCamera > 0) {
-
-        for (int j = 0; j < tagCountForThisCamera; ++j) {
-          _detectlist.addDetection(m_detections_Apriltag[i].getDetection(j));
+        int number_of_tags = m_buffer_from_table.getInt();
+        int number_of_fields = m_buffer_from_table.getInt();
+        if (DEBUG_LOG) {
+          System.out.println("num tags " + number_of_tags + " num fields " + number_of_fields);
         }
 
+        boolean not_done_with_detections_from_camera = true;
+        do {
+          double distance = m_buffer_from_table.getDouble();
+          double angle = m_buffer_from_table.getDouble();
+          int id = (int) m_buffer_from_table.getDouble();
+          double yaw = m_buffer_from_table.getDouble();
+          double pitch = m_buffer_from_table.getDouble();
+          double roll = m_buffer_from_table.getDouble();
+          double cameraNum = m_buffer_from_table.getDouble();
+
+          if (id != 0) {
+            m_detections_Apriltag[cameraIndex].addDetection(
+              ObjectType.APRILTAG,
+              distance,
+              angle,
+              id,
+              yaw,
+              pitch,
+              roll,
+              cameraNum
+            );
+          } else {
+            not_done_with_detections_from_camera = false;
+          }
+
+        } while (not_done_with_detections_from_camera);
+
       }
-
     }
+  }
 
-    return _detectlist;
+  public DetectionList getApriltagDetectionList(int ACameraSelect) {
+    return m_detections_Apriltag[ACameraSelect];
   }
 
   public DetectionList getDetectionList() {
