@@ -182,7 +182,10 @@ public class RobotContainer {
   private void configureXboxController() {
     m_xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
     m_xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
-    m_xboxController0.b().onTrue(new RotateToTag(m_visionServer, m_Drive));
+    m_xboxController0.a().whileTrue(Commands.run(() -> m_Drive.sysIdQuasistaticForward(), m_Drive));
+    m_xboxController0.b().whileTrue(Commands.run(() -> m_Drive.sysIdQuasistaticReverse(), m_Drive));
+    m_xboxController0.x().whileTrue(Commands.run(() -> m_Drive.sysIdDynamicForward(), m_Drive));
+    m_xboxController0.y().whileTrue(Commands.run(() -> m_Drive.sysIdDynamicReverse(), m_Drive));
   }
 
   private void configureJoystick() {
