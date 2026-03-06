@@ -95,6 +95,6 @@ public class StraightLineDrive extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return distanceLeftOver_perc >= 1 || distanceLeftOver_perc < -0;
+    return distanceLeftOver_perc >= .99 || distanceLeftOver_perc < -0;
   }
 }

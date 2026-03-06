@@ -5,6 +5,7 @@
 package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.AutonomousCommands.GyroResetter;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.subsystems.Drivetrain;
@@ -14,19 +15,20 @@ import frc.robot.subsystems.SwerveModule;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class SquareUp extends SequentialCommandGroup {
-  /** Creates a new SquareUp. */
-  public SquareUp(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro) {
+public class Depotlease extends SequentialCommandGroup {
+  /** Creates a new Depotlease. */
+  public Depotlease(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    // addCommands(
-    //     new RotateToAngle(drivetrain, 90, gyro)
-    //         .andThen(new StraightLineDrive(drivetrain, 90, wheels, gyro))
-    //         .andThen(new RotateToAngle(drivetrain, 90, gyro))
-    //         .andThen(new StraightLineDrive(drivetrain, 90, wheels, gyro))
-    //         .andThen(new RotateToAngle(drivetrain, 90, gyro))
-    //         .andThen(new StraightLineDrive(drivetrain, 90, wheels, gyro))
-    //         .andThen(new RotateToAngle(drivetrain, 90, gyro))
-    //         .andThen(new StraightLineDrive(drivetrain, 90, wheels, gyro)));
+    addCommands(
+      //new GyroResetter(gyro).andThen(
+      new StraightLineDrive(drivetrain, 90, 130, wheels, gyro).andThen(
+      new StraightLineDrive(drivetrain, 0, 35, wheels, gyro)).andThen(
+      new StraightLineDrive(drivetrain, 0, 45, wheels, gyro)).andThen(
+      new StraightLineDrive(drivetrain, 0, 20, wheels, gyro)).andThen(
+      new StraightLineDrive(drivetrain, -75, 90, wheels, gyro)).andThen(
+      new StraightLineDrive(drivetrain, -135, -47, wheels, gyro)).andThen(
+      new StraightLineDrive(drivetrain, -90, -12, wheels, gyro))
+    );
   }
 }

@@ -20,8 +20,13 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.Depotlease;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ForwardandBack;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SquareUp;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.OutToTheDepot;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbLEFT;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbRIGHT;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ZeeClimb;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
@@ -163,11 +168,12 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
+    xboxController0.leftBumper().onTrue(new Depotlease(m_Drive, m_wheels, m_Gyro));
     xboxController0.rightBumper().onTrue(new ZeeClimb(m_Drive, m_wheels, m_Gyro));
-    xboxController0.y().onTrue(new StraightLineDrive(m_Drive, 0, 120, m_wheels, m_Gyro));
-    xboxController0.a().onTrue(new RotateToAngle(m_Drive, 270, m_Gyro));
-    xboxController0.b().onTrue(new ForwardandBack(m_Drive, m_wheels, m_Gyro));
-    xboxController0.x().onTrue(new SquareUp(m_Drive, m_wheels, m_Gyro));
+    xboxController0.y().onTrue(new DoNothing());
+    xboxController0.a().onTrue(new ShootClimbMIDDLE(m_Drive, m_wheels, m_Gyro));
+    xboxController0.b().onTrue(new ShootClimbRIGHT(m_Drive, m_wheels, m_Gyro));
+    xboxController0.x().onTrue(new ShootClimbLEFT(m_Drive, m_wheels, m_Gyro));
   }
 
   private void configureJoystick() {
