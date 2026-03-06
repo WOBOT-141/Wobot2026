@@ -86,12 +86,11 @@ public class StickCommand extends Command {
     double translationMagnitude_perc = throttle_perc * calcTranslationMagnitude_perc(stickX_perc, stickY_perc);
     double translationAngle_deg = throttle_perc * calcTranslationAngle_deg(stickX_perc, stickY_perc);
     double rotationalMagnitude_perc = throttle_perc * stickRotate_perc;
-
-    /* ---------------- Magnitudes ---------------- */
-
-    translationMagnitude_perc = Math.max(-1.0, Math.min(1.0, translationMagnitude_perc));
     translationMagnitude_perc = m_rampRate.calculate(translationMagnitude_perc);
 
+    /* ---------------- Clamping ---------------- */
+
+    translationMagnitude_perc = Math.max(-1.0, Math.min(1.0, translationMagnitude_perc));
     rotationalMagnitude_perc = Math.max(-1.0, Math.min(1.0, rotationalMagnitude_perc));
 
     /* ---------------- Lockdown Logic ---------------- */
