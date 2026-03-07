@@ -6,7 +6,7 @@ import frc.robot.subsystems.ChooserHandeling;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.commands.ShooterCommands.m_flyWheelP;
+import frc.robot.commands.ShooterCommands.SetPIDShooter;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 
@@ -54,7 +54,7 @@ public class RobotContainer {
 
   public final SwerveModule[] m_wheels;
   private final VisionServer m_visionServer = new VisionServer();
-  private final Shooter m_shooter = new Shooter(); 
+  private final Shooter m_shooter = new Shooter();
   // are assigned
 
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
@@ -181,9 +181,7 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-
-    // m_xboxController0.b().onTrue(new RotateToTag(m_visionServer, m_Drive));
-     m_xboxController0.x().onTrue(new m_flyWheelP(m_shooter));
+    m_xboxController0.x().onTrue(new SetPIDShooter(m_shooter));
     m_xboxController0.leftBumper().whileTrue(
       Commands.startRun( () -> m_shooter.setShooterRPM(100), () -> m_shooter.setShooterRPM(100), m_shooter));
   }
