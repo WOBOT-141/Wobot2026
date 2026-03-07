@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.SwerveModule;
 
@@ -58,6 +59,7 @@ public class RobotContainer {
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
   private final IBotSelector m_selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
+  private final Intake m_intake = new Intake();
 
   private ChooserHandeling m_autonSelector;
 
@@ -179,8 +181,9 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    m_xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
-    m_xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
+    m_xboxController0.leftTrigger().whileTrue(Commands.runEnd(() -> m_intake.intakeDown(), () -> m_intake.intakeStop(), m_intake));
+    m_xboxController0.leftBumper().whileTrue(Commands.runEnd(() -> m_intake.intakeRun(0.2), () -> m_intake.intakeStop(), m_intake));
+    m_xboxController0.rightBumper().whileTrue(Commands.runEnd(() -> m_intake.intakeUp(), () -> m_intake.intakeStop(), m_intake));
     m_xboxController0.a().whileTrue(Commands.run(() -> m_Drive.sysIdQuasistaticForward(), m_Drive));
     m_xboxController0.b().whileTrue(Commands.run(() -> m_Drive.sysIdQuasistaticReverse(), m_Drive));
     m_xboxController0.x().whileTrue(Commands.run(() -> m_Drive.sysIdDynamicForward(), m_Drive));

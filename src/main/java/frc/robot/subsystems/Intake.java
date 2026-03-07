@@ -7,29 +7,30 @@ package frc.robot.subsystems;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
 
   // Hardware
   private final SparkMax m_intakeMotor;
-  private final SparkMax m_intakeRollerMotor;
+  private final SparkFlex m_intakeRollerMotor;
 
   private final RelativeEncoder m_intakeEncoder;
   private final RelativeEncoder m_intakeRollerEncoder;
 
   // State
-  private boolean m_isHomed = false;
+  private boolean m_isHomed = true;
   private boolean m_homingActive = false;
 
   private double m_moveStartTime_sec = 0.0;
@@ -39,37 +40,44 @@ public class Intake extends SubsystemBase {
   private boolean m_lastAtDown = false;
 
   // Constructor
-   public Intake() {
+  public Intake() {
 
-    m_intakeMotor =
-        new SparkMax(IntakeConstants.intakeMotorID, MotorType.kBrushless);
+    m_intakeMotor = new SparkMax(IntakeConstants.intakeMotorID, MotorType.kBrushless);
 
-    m_intakeRollerMotor =
-        new SparkMax(IntakeConstants.intakeRollerMotorID, MotorType.kBrushless);
+    m_intakeRollerMotor = new SparkFlex(IntakeConstants.intakeRollerMotorID, MotorType.kBrushless);
 
-    configureMotor(m_intakeMotor);
-    configureMotor(m_intakeRollerMotor);
+    configureIntakeMotor(m_intakeMotor);
+    configureIntakeRollerMotor(m_intakeRollerMotor);
 
     m_intakeEncoder = m_intakeMotor.getEncoder();
     m_intakeRollerEncoder = m_intakeRollerMotor.getEncoder();
   }
 
- 
   // Motor configuration
-  private void configureMotor(SparkMax motor) {
+  private void configureIntakeMotor(SparkMax intakeMotor) {
 
     SparkMaxConfig config = new SparkMaxConfig();
 
     config.idleMode(IdleMode.kBrake)
         .smartCurrentLimit(IntakeConstants.freeLimit_amp);
 
-    motor.configure(
+    intakeMotor.configure(
         config,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
   }
 
-  
+  private void configureIntakeRollerMotor(SparkFlex intakeRollerMotor) {
+    SparkFlexConfig config = new SparkFlexConfig();
+    config.inverted(true);
+    config.idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(IntakeConstants.freeLimit_amp);
+    intakeRollerMotor.configure(
+        config,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
+  }
+
   // Angle helpers
   /** Returns intake arm angle in degrees */
   public double getIntakeAngle_deg() {
@@ -78,18 +86,16 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isAtUpPosition() {
-    return Math.abs(getIntakeAngle_deg() - IntakeConstants.upAngle_deg)
-        < IntakeConstants.positionTolerance_deg;
+    return Math.abs(getIntakeAngle_deg() - IntakeConstants.upAngle_deg) < IntakeConstants.positionTolerance_deg;
   }
 
   public boolean isAtDownPosition() {
-    return Math.abs(getIntakeAngle_deg() - IntakeConstants.downAngle_deg)
-        < IntakeConstants.positionTolerance_deg;
+    return Math.abs(getIntakeAngle_deg() - IntakeConstants.downAngle_deg) < IntakeConstants.positionTolerance_deg;
   }
 
- 
   // Roller control
-   public void intakeRun(double speed_perc) {
+  public void intakeRun(double speed_perc) {
+    speed_perc = 0.4;
     m_intakeRollerMotor.set(speed_perc);
   }
 
@@ -97,7 +103,6 @@ public class Intake extends SubsystemBase {
     m_intakeRollerMotor.stopMotor();
   }
 
- 
   // Arm control
   public void intakeDown() {
 
@@ -156,7 +161,6 @@ public class Intake extends SubsystemBase {
     }
   }
 
-
   // Brownout protection
   private double applyBrownoutScale(double commandedSpeed_perc) {
 
@@ -181,8 +185,7 @@ public class Intake extends SubsystemBase {
 
     // Safety timeout while moving
     if (Math.abs(m_intakeMotor.get()) > 0.01) {
-      double elapsed_sec =
-          Timer.getFPGATimestamp() - m_moveStartTime_sec;
+      double elapsed_sec = Timer.getFPGATimestamp() - m_moveStartTime_sec;
 
       if (elapsed_sec > IntakeConstants.moveTimeout_sec) {
         m_intakeMotor.stopMotor();
