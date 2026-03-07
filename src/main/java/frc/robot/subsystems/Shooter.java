@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.CANIdConstants;
 
 public class Shooter extends SubsystemBase {
 
@@ -30,6 +31,8 @@ public class Shooter extends SubsystemBase {
   private final SparkClosedLoopController m_rightController;
   private final SparkClosedLoopController m_middleController;
   private final SparkClosedLoopController m_leftController;
+  private final SparkMaxConfig m_forwardMotorConfig;
+  private final SparkMaxConfig m_backwardMotorConfig;
 
   private double m_targetVelocity_rpm = 0.0;
 
@@ -39,14 +42,42 @@ public class Shooter extends SubsystemBase {
   private double m_lastShotTime_sec = -1.0;
 
   public Shooter() {
+    SmartDashboard.putNumber("Shooter P", ShooterConstants.P);
+    SmartDashboard.putNumber("Shooter I", ShooterConstants.I);
+    SmartDashboard.putNumber("Shooter D", ShooterConstants.D);
 
-    m_rightMotor = new SparkMax(ShooterConstants.flywheelRightMotorID, MotorType.kBrushless);
-    m_middleMotor = new SparkMax(ShooterConstants.flywheelMiddleMotorID, MotorType.kBrushless);
-    m_leftMotor = new SparkMax(ShooterConstants.flywheelLeftMotorID, MotorType.kBrushless);
+    m_rightMotor = new SparkMax(CANIdConstants.flywheelRightMotorID, MotorType.kBrushless);
+    m_middleMotor = new SparkMax(CANIdConstants.flywheelMiddleMotorID, MotorType.kBrushless);
+    m_leftMotor = new SparkMax(CANIdConstants.flywheelLeftMotorID, MotorType.kBrushless);
 
-    configureMotor(m_rightMotor);
-    configureMotor(m_middleMotor);
-    configureMotor(m_leftMotor);
+    m_forwardMotorConfig = new SparkMaxConfig();
+
+    m_forwardMotorConfig.idleMode(IdleMode.kCoast);
+    m_forwardMotorConfig.inverted(true);
+
+    m_forwardMotorConfig.closedLoop
+        .pid(ShooterConstants.P,
+            ShooterConstants.I,
+            ShooterConstants.D)
+        .velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+
+    m_backwardMotorConfig = new SparkMaxConfig();
+
+    m_backwardMotorConfig.idleMode(IdleMode.kCoast);
+    m_backwardMotorConfig.inverted(true);
+
+    m_backwardMotorConfig.closedLoop
+        .pid(ShooterConstants.P,
+            ShooterConstants.I,
+            ShooterConstants.D)
+        .velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+
+    configureMotor(m_rightMotor, m_forwardMotorConfig);
+    configureMotor(m_middleMotor, m_forwardMotorConfig);
+    configureMotor(m_leftMotor, m_forwardMotorConfig);
+
+ 
+ 
 
     m_rightEncoder = m_rightMotor.getEncoder();
     m_middleEncoder = m_middleMotor.getEncoder();
@@ -57,17 +88,21 @@ public class Shooter extends SubsystemBase {
     m_leftController = m_leftMotor.getClosedLoopController();
   }
 
-  private void configureMotor(SparkMax motor) {
+  public void setPIDValues(double flywheelP, double flywheelI, double flywheelD) {
 
-    SparkMaxConfig config = new SparkMaxConfig();
+    m_forwardMotorConfig.closedLoop
+        .pid(flywheelP, flywheelI, flywheelD);
 
-    config.idleMode(IdleMode.kCoast);
+    m_backwardMotorConfig.closedLoop
+        .pid(flywheelP, flywheelI, flywheelD);
 
-    config.closedLoop
-        .pid(ShooterConstants.P,
-             ShooterConstants.I,
-             ShooterConstants.D)
-        .velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+    configureMotor(m_rightMotor, m_backwardMotorConfig);
+    configureMotor(m_middleMotor, m_backwardMotorConfig);
+    configureMotor(m_leftMotor, m_forwardMotorConfig);
+
+  }
+
+  private void configureMotor(SparkMax motor, SparkMaxConfig config) {
 
     motor.configure(config,
         ResetMode.kResetSafeParameters,
@@ -78,26 +113,22 @@ public class Shooter extends SubsystemBase {
 
     m_targetVelocity_rpm = targetRPM_rpm;
 
-    m_rightController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
-    m_middleController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
-    m_leftController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    m_rightController.setSetpoint(m_targetVelocity_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    m_middleController.setSetpoint(m_targetVelocity_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    m_leftController.setSetpoint(m_targetVelocity_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
 
- 
   // Speed checks
   public boolean rightAtSpeed() {
-    return Math.abs(m_rightEncoder.getVelocity() - m_targetVelocity_rpm)
-        < ShooterConstants.FlywheelRPMTolerance_rpm;
+    return Math.abs(m_rightEncoder.getVelocity() - m_targetVelocity_rpm) < ShooterConstants.FlywheelRPMTolerance_rpm;
   }
 
   public boolean middleAtSpeed() {
-    return Math.abs(m_middleEncoder.getVelocity() - m_targetVelocity_rpm)
-        < ShooterConstants.FlywheelRPMTolerance_rpm;
+    return Math.abs(m_middleEncoder.getVelocity() - m_targetVelocity_rpm) < ShooterConstants.FlywheelRPMTolerance_rpm;
   }
 
   public boolean leftAtSpeed() {
-    return Math.abs(m_leftEncoder.getVelocity() - m_targetVelocity_rpm)
-        < ShooterConstants.FlywheelRPMTolerance_rpm;
+    return Math.abs(m_leftEncoder.getVelocity() - m_targetVelocity_rpm) < ShooterConstants.FlywheelRPMTolerance_rpm;
   }
 
   public boolean allAtSpeed() {
@@ -106,10 +137,10 @@ public class Shooter extends SubsystemBase {
 
   public double getAverageRPM() {
     return (m_rightEncoder.getVelocity()
-          + m_middleEncoder.getVelocity()
-          + m_leftEncoder.getVelocity()) / 3.0;
+        + m_middleEncoder.getVelocity()
+        + m_leftEncoder.getVelocity()) / 3.0;
   }
-  
+
   // Shot detection via RPM dip
   public boolean updateShotDetection() {
 
@@ -118,12 +149,10 @@ public class Shooter extends SubsystemBase {
 
     m_shotDetected = false;
 
-    if ((m_lastAvgRPM_rpm - currentRPM_rpm)
-        > ShooterConstants.shotDipThreshold_rpm) {
+    if ((m_lastAvgRPM_rpm - currentRPM_rpm) > ShooterConstants.shotDipThreshold_rpm) {
 
       if (m_lastShotTime_sec < 0 ||
-          (now_sec - m_lastShotTime_sec)
-              > ShooterConstants.shotMinSeparation_sec) {
+          (now_sec - m_lastShotTime_sec) > ShooterConstants.shotMinSeparation_sec) {
 
         m_shotDetected = true;
         m_lastShotTime_sec = now_sec;
@@ -147,4 +176,3 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putBoolean("Shot Detected", m_shotDetected);
   }
 }
-
