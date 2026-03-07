@@ -13,7 +13,7 @@ import frc.robot.subsystems.Vision.Detections.ObjectType;
 
 public class VisionServer extends SubsystemBase {
 
-  private final boolean DEBUG_LOG = false;
+  private final boolean DEBUG_LOG = true;
 
   NetworkTableInstance m_nt_Instance;
   NetworkTable m_nt_table;
@@ -89,6 +89,8 @@ public class VisionServer extends SubsystemBase {
 
         } while (not_done_with_detections_from_camera);
 
+      } else {
+        System.out.println("No dice!");
       }
     }
   }
