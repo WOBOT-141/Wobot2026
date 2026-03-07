@@ -31,8 +31,10 @@ public class Shooter extends SubsystemBase {
   private final SparkClosedLoopController m_rightController;
   private final SparkClosedLoopController m_middleController;
   private final SparkClosedLoopController m_leftController;
-  private final SparkMaxConfig m_forwardMotorConfig;
-  private final SparkMaxConfig m_backwardMotorConfig;
+
+  private final SparkMaxConfig m_leftMotorConfig;
+  private final SparkMaxConfig m_middleMotorConfig;
+  private final SparkMaxConfig m_rightMotorConfig;
 
   private double m_targetVelocity_rpm = 0.0;
 
@@ -42,39 +44,33 @@ public class Shooter extends SubsystemBase {
   private double m_lastShotTime_sec = -1.0;
 
   public Shooter() {
-    SmartDashboard.putNumber("Shooter P", ShooterConstants.P);
-    SmartDashboard.putNumber("Shooter I", ShooterConstants.I);
-    SmartDashboard.putNumber("Shooter D", ShooterConstants.D);
 
     m_rightMotor = new SparkMax(CANIdConstants.flywheelRightMotorID, MotorType.kBrushless);
     m_middleMotor = new SparkMax(CANIdConstants.flywheelMiddleMotorID, MotorType.kBrushless);
     m_leftMotor = new SparkMax(CANIdConstants.flywheelLeftMotorID, MotorType.kBrushless);
 
-    m_forwardMotorConfig = new SparkMaxConfig();
+    m_rightMotorConfig = new SparkMaxConfig();
+    m_middleMotorConfig = new SparkMaxConfig();
+    m_leftMotorConfig = new SparkMaxConfig();
 
-    m_forwardMotorConfig.idleMode(IdleMode.kCoast);
-    m_forwardMotorConfig.inverted(false);
+    m_rightMotorConfig.closedLoop.pid(ShooterConstants.leftP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF,
+        ClosedLoopSlot.kSlot0);
+    m_middleMotorConfig.closedLoop.pid(ShooterConstants.middleP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF,
+        ClosedLoopSlot.kSlot0);
+    m_leftMotorConfig.closedLoop.pid(ShooterConstants.rightP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF,
+        ClosedLoopSlot.kSlot0);
 
-    m_forwardMotorConfig.closedLoop
-        .pid(ShooterConstants.P,
-            ShooterConstants.I,
-            ShooterConstants.D)
-        .velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+    m_rightMotorConfig.idleMode(IdleMode.kCoast);
+    m_middleMotorConfig.idleMode(IdleMode.kCoast);
+    m_leftMotorConfig.idleMode(IdleMode.kCoast);
 
-    m_backwardMotorConfig = new SparkMaxConfig();
+    m_rightMotorConfig.inverted(true);
+    m_middleMotorConfig.inverted(false);
+    m_leftMotorConfig.inverted(false);
 
-    m_backwardMotorConfig.idleMode(IdleMode.kCoast);
-    m_backwardMotorConfig.inverted(true);
-
-    m_backwardMotorConfig.closedLoop
-        .pid(ShooterConstants.P,
-            ShooterConstants.I,
-            ShooterConstants.D)
-        .velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
-
-    configureMotor(m_rightMotor, m_backwardMotorConfig);
-    configureMotor(m_middleMotor, m_forwardMotorConfig);
-    configureMotor(m_leftMotor, m_forwardMotorConfig);
+    configureMotor(m_rightMotor, m_rightMotorConfig);
+    configureMotor(m_middleMotor, m_middleMotorConfig);
+    configureMotor(m_leftMotor, m_leftMotorConfig);
 
     m_rightEncoder = m_rightMotor.getEncoder();
     m_middleEncoder = m_middleMotor.getEncoder();
@@ -85,19 +81,20 @@ public class Shooter extends SubsystemBase {
     m_leftController = m_leftMotor.getClosedLoopController();
   }
 
- public void setPIDValues(double flywheelP, double flywheelI, double flywheelD) {
+  public void setPIDValues(double flywheelP, double flywheelI, double flywheelD) {
 
-    m_forwardMotorConfig.closedLoop
-        .pid(flywheelP, flywheelI, flywheelD);
-    m_backwardMotorConfig.closedLoop
-        .pid(flywheelP, flywheelI, flywheelD);
+    // m_forwardMotorConfig.closedLoop
+    //     .pid(flywheelP, flywheelI, flywheelD);
+    // m_backwardMotorConfig.closedLoop
+    //     .pid(flywheelP, flywheelI, flywheelD);
+    //Probably not needed.
   }
 
   private void configureMotor(SparkMax motor, SparkMaxConfig config) {
 
     motor.configure(config,
         ResetMode.kResetSafeParameters,
-        PersistMode.kPersistParameters);    
+        PersistMode.kPersistParameters);
   }
 
   public void setShooterRPM(double targetRPM_rpm) {
@@ -164,9 +161,13 @@ public class Shooter extends SubsystemBase {
 
     SmartDashboard.putNumber("Shooter Avg RPM", getAverageRPM());
     SmartDashboard.putBoolean("Shot Detected", m_shotDetected);
+
+    SmartDashboard.putNumber("Right motor RPM", m_rightEncoder.getVelocity());
+    SmartDashboard.putNumber("Middle motor RPM", m_middleEncoder.getVelocity());
+    SmartDashboard.putNumber("Left motor RPM", m_leftEncoder.getVelocity());
   }
 
-  public void cancel(){
+  public void cancel() {
     m_rightMotor.stopMotor();
     m_middleMotor.stopMotor();
     m_leftMotor.stopMotor();

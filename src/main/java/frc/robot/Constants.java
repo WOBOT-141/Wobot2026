@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants.
@@ -181,7 +183,10 @@ public final class Constants {
     public static final double P = 0.00000;
     public static final double I = 0.00000;
     public static final double D = 0.00000;
-    public static final double kF = 0.00017;
+    // public static double P = SmartDashboard.getNumber("Motor P", 0);
+    // public static double I = SmartDashboard.getNumber("Motor I", 0);
+    // public static double D = SmartDashboard.getNumber("Motor D", 0);
+    public static final double kF = 0.00018;
 
     // Physical properties
     public static final double FlywheelDiameter_in = 4.12;
