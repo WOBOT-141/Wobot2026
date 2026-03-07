@@ -5,7 +5,6 @@
 package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.AutonomousCommands.GyroResetter;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.subsystems.Drivetrain;
@@ -21,8 +20,7 @@ public class ForwardandBack extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new GyroResetter(gyro).andThen(
-        new StraightLineDrive(drivetrain,90, 30, wheels, gyro)).andThen(
+        new StraightLineDrive(drivetrain,90, 30, wheels, gyro).andThen(
         new StraightLineDrive(drivetrain, 90, -30, wheels, gyro))
         );
   }

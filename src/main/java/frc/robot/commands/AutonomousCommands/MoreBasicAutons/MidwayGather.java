@@ -5,7 +5,6 @@
 package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.AutonomousCommands.GyroResetter;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.SwerveModule;
@@ -19,7 +18,7 @@ public class MidwayGather extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new GyroResetter(gyro)
+      //not done
     );
   }
 }

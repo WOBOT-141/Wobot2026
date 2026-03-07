@@ -5,7 +5,6 @@
 package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.AutonomousCommands.GyroResetter;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;

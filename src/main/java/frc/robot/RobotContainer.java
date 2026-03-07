@@ -1,5 +1,8 @@
 package frc.robot;
 
+import java.security.KeyStore.Entry;
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -23,6 +26,7 @@ import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.Depotlease;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ForwardandBack;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.MidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.OutToTheDepot;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbLEFT;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
@@ -34,6 +38,7 @@ import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.TestCommands.DriveInDirection;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
+import static java.util.Map.entry;
 
 public class RobotContainer {
 
@@ -48,8 +53,8 @@ public class RobotContainer {
 
   public final SwerveModule[] m_wheels;
 
-  //private final IBotSelector _selectedBot = new MainBot();
-  private final IBotSelector _selectedBot = new SummerBot();
+  private final IBotSelector _selectedBot = new MainBot();
+  // private final IBotSelector _selectedBot = new SummerBot();
 
   private ChooserHandeling autonSelector;
 
@@ -98,6 +103,17 @@ public class RobotContainer {
 
     configureFlightControllerParameters();
     configureBindings();
+
+    autonSelector = new ChooserHandeling("Autonomous Selector",
+        Map.ofEntries(
+            entry("00 Do Nothing", () -> new DoNothing()),
+            entry("01 MIDDLE shooterclimb", () -> new ShootClimbMIDDLE(m_Drive, m_wheels, m_Gyro)),
+            entry("02 LEFT shooterclimb", () -> new ShootClimbLEFT(m_Drive, m_wheels, m_Gyro)),
+            entry("03 RIGHT shooterclimb", () -> new ShootClimbRIGHT(m_Drive, m_wheels, m_Gyro)),
+            entry("04 Depotlease", () -> new Depotlease(m_Drive, m_wheels, m_Gyro)), // dont use
+            entry("05 ZeeClimb", () -> new ZeeClimb(m_Drive, m_wheels, m_Gyro)),
+            entry("06 Midway Gather", () -> new MidwayGather(m_Drive, m_wheels, m_Gyro)) // fix
+        ));
 
     // Modern automatic default command
     m_Drive.setDefaultCommand(
