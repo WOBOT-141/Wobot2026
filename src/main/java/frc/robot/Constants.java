@@ -25,6 +25,10 @@ public final class Constants {
     public static final int backLeftEncoderid = 10;
     public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
+    public static final int flyWheelRightMotorID = 13;
+    public static final int flyWheelMiddlehtMotorID = 14;
+    public static final int flyWheelLeftMotorID = 15;
+    public static final int hoodMotorID = 20;
   }
 
   public static class ControllerOneConstants {
@@ -64,7 +68,7 @@ public final class Constants {
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
 
-    public static final double topSpeed_mps = 1.5;
+    public static final double topSpeed_fps = 21; // TODO verify this
 
     public static final double autoRotatekP = 0.4;
     public static final double autoRotatekI = 0.02;
@@ -83,7 +87,8 @@ public final class Constants {
     public static final int magazineMotorID = 17;
 
     // Current limits
-    public static final int freeLimit_amp = 40;
+    public static final int feedMotorFreeLimit_amp = 60;
+    public static final int magazineMotorFreeLimit_amp = 60;
 
     // Jam detection
     public static final double jamRPMThreshold_rpm = 200.0;
@@ -96,21 +101,21 @@ public final class Constants {
     public static final double shotRecoveryTime_sec = 0.15;
 
     // Brownout protection
-    public static final double BrownoutStartVoltage_V = 10.5;
+    public static final double BrownoutStartVoltage_V = 10.8;
     public static final double BrownoutCriticalVoltage_V = 9.0;
 
     // Scaling when voltage is low
-    public static final double brownoutScale_perc = 0.5;
+    public static final double brownoutScale_perc = 0.8;
   }
 
   public static final class IntakeConstants {
-    
+
     // Motor IDs
     public static final int intakeMotorID = 18;
     public static final int intakeRollerMotorID = 19;
-    
+
     // Current limits
-    public static final int freeLimit_amp = 40;
+    public static final int freeLimit_amp = 60;
 
     // Homing (current-based)
     public static final double homingSpeed_perc = -0.20;
@@ -126,31 +131,31 @@ public final class Constants {
     public static final double positionTolerance_deg = 3.0;
 
     // Motion speeds
-    public static final double intakeUpSpeed_perc = -0.4;
-    public static final double intakeDownSpeed_perc = 0.4;
+    public static final double intakeUpSpeed_perc = -1;
+    public static final double intakeDownSpeed_perc = 0.65;;
 
     /** Safety timeout while moving */
-    public static final double moveTimeout_sec = 2.5;
+    public static final double moveTimeout_sec = 2.0;
 
     // Brownout protection
-    
+
     /** Voltage where we start scaling */
-    public static final double brownoutStartVoltage_V = 10.5;
+    public static final double brownoutStartVoltage_V = 10.8;
 
     /** Voltage where we heavily limit */
-    public static final double brownoutCriticalVoltage_V = 9.5;
+    public static final double brownoutCriticalVoltage_V = 9.8;
 
     /** Scale factor when in brownout */
-    public static final double brownoutScale_perc = 0.5;
+    public static final double brownoutScale_perc = 0.8;
 
     // Encoder conversion
-    
+
     /**
      * Degrees of intake arm per motor rotation.
      *
-     * ⚠️ UPDATE THIS when gear ratio is known.
+     * UPDATE THIS when gear ratio is known.
      * If direct drive: 360
-     * If 5:1 gearbox: 360 / 5 = 72
+     * If 8:1 gearbox: 360 / 8 = 72
      */
     public static final double degPerMotorRotation_deg = 360.0;
   }
@@ -174,24 +179,24 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-    // Motor IDs
-    public static final int flywheelRightMotorID = 13;
-    public static final int flywheelMiddleMotorID = 14;
-    public static final int flywheelLeftMotorID = 15;
-            public static final double g_inps2 = Units.metersToInches(9.807);
-        public static double drc_in = 23.51; // drc_m = horiz dist rim to target center
-        public static double hrm_in = 72; // hrm_m = height of rim
-        public static double hm_in = 24.3359; // hm_m = height of muzzle
-        // theta = hood angle
-        public static double deltaHprm_in = hrm_in + 48.36- hm_in;
-        //the 48.36 comes from the height of the target - height of our robot.
 
+    public static final double g_inps2 = Units.metersToInches(9.807);
+    public static double drc_in = 23.51; // drc_m = horiz dist rim to target center
+    public static double hrm_in = 72; // hrm_m = height of rim
+    public static double hm_in = 24.3359; // hm_m = height of muzzle
+    // theta = hood angle
+    public static double deltaHprm_in = hrm_in - hm_in;
 
     // PID / Feedforward
     public static final double P = 0.00000;
     public static final double I = 0.00000;
     public static final double D = 0.00000;
     public static final double kF = 0.00017;
+
+    public static final double hoodP = 0;// TODO tune
+    public static final double hoodI = 0;
+    public static final double hoodD = 0;
+    public static final double hoodFF = 0.00016500000492669642;
 
     // Physical properties
     public static final double FlywheelDiameter_in = 4.12;
@@ -201,16 +206,22 @@ public final class Constants {
     public static final double slewRateLimit_rpmps = 4000.0;
 
     // Current limits
-    public static final int stallLimit_amp = 60;
-    public static final int freeLimit_amp = 60;
+    public static final int stallLimit_amp = 40;
+    public static final int freeLimit_amp = 40;
 
     // Brownout protection
-    public static final double BrownoutStartVoltage_V = 10.5;
+    public static final double BrownoutStartVoltage_V = 10.8;
     public static final double BrownoutCriticalVoltage_V = 9.0;
 
     // Shot detection via RPM dip
     public static final double shotDipThreshold_rpm = 250.0;
     public static final double shotMinSeparation_sec = 0.08;
+
+    public static final double hoodHomeRPM = 0;
+    public static final double hoodHomeCurrentLim_amp = 20;
+    public static final double steerDegPerEncoderTick_deg = 5; // 5 motor ticks = 1 degree max of 49 and min of 89
+                                                               // degreseor or visas versa
+    public static final double hoodRevsPerDegree = (62 / 10) * (319 / 50); // 10:62 & 50:319
   }
 
   public static class SteerConstants {

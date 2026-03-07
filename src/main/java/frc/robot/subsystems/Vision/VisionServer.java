@@ -50,17 +50,20 @@ public class VisionServer extends SubsystemBase {
       for (int i = 0; i < number_of_tags; i++) {
         double distance = m_buffer_from_table.getDouble();
         double angle = m_buffer_from_table.getDouble();
-        double id = m_buffer_from_table.getDouble();
+        int id = (int) m_buffer_from_table.getDouble();
         double yaw = m_buffer_from_table.getDouble();
+        double pitch = m_buffer_from_table.getDouble();
+        double roll = m_buffer_from_table.getDouble();
         double cameraNum = m_buffer_from_table.getDouble();
-        double pitch = 0.0; // m_buffer_from_table.getDouble();
+        
         _detectlist.addDetection(
             ObjectType.APRILTAG,
-            angle,
             distance,
+            angle,
             id,
             yaw,
             pitch,
+            roll,
             cameraNum);
       }
 

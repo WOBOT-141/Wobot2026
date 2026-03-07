@@ -1,11 +1,13 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.SpektrumFlightController;
 
 import frc.robot.subsystems.ChooserHandeling;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.ShooterCommands.SetPIDShooter;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 
@@ -20,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
 
 
@@ -39,11 +42,19 @@ import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.RotateToTag;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
+import frc.robot.commands.DriveCommands.LockWheels;
+import frc.robot.commands.DriveCommands.ResetGyro;
+import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.StickParameters.IStickParameters;
+import frc.robot.commands.StickParameters.SendHoodToHome;
+import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
 
   private final Drivetrain m_Drive;
   private final IGyro m_Gyro = new NavxGyro();
+  private final Shooter m_shooter = new Shooter();
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
@@ -52,7 +63,6 @@ public class RobotContainer {
 
   public final SwerveModule[] m_wheels;
   private final VisionServer m_visionServer = new VisionServer();
-  // private final Shooter m_shooter = new Shooter(); TODO uncomment when CAN Ids
   // are assigned
 
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
@@ -179,9 +189,10 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    m_xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
-    m_xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
-    m_xboxController0.b().onTrue(new RotateToTag(m_visionServer, m_Drive));
+    m_xboxController0.x().onTrue(new SetPIDShooter(m_shooter));
+    m_xboxController0.leftBumper().whileTrue(
+      Commands.startRun( () -> m_shooter.setShooter_ips(100), () -> m_shooter.setShooter_ips(100), m_shooter));
+    m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
   }
 
   private void configureJoystick() {
