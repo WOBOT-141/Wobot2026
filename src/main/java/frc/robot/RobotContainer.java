@@ -6,6 +6,7 @@ import frc.robot.subsystems.ChooserHandeling;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.ShooterCommands.SetPIDShooter;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 
@@ -19,8 +20,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
@@ -56,12 +55,11 @@ public class RobotContainer {
   public final SwerveModule[] m_wheels;
   private final VisionServer m_visionServer = new VisionServer();
   private final Shooter m_shooter = new Shooter();
+  // are assigned
 
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
   private final IBotSelector m_selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
-  private final Intake m_intake = new Intake();
-  private final MagazineAndFeed m_magazine = new MagazineAndFeed();
 
   private ChooserHandeling m_autonSelector;
 
@@ -183,19 +181,9 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    m_xboxController0.leftTrigger().whileTrue(Commands.runEnd(() -> m_intake.intakeDown(), () -> m_intake.intakeStop(), m_intake));
-    m_xboxController0.leftBumper().whileTrue(Commands.runEnd(() -> m_intake.intakeRun(0.2), () -> m_intake.intakeStop(), m_intake));
-    m_xboxController0.rightBumper().whileTrue(Commands.runEnd(() -> m_intake.intakeUp(), () -> m_intake.intakeStop(), m_intake));
-    m_xboxController0.rightTrigger().whileTrue(Commands.runEnd(() -> m_magazine.setFeedMotorVelocity(0.5), () -> m_magazine.cancel(), m_magazine));
-    m_xboxController0.back().whileTrue(Commands.runEnd(() -> m_magazine.setFeedMotorVelocity(-0.5), () -> m_magazine.cancel(), m_magazine));
-    // m_xboxController0.a().whileTrue(Commands.run(() -> m_Drive.sysIdQuasistaticForward(), m_Drive));
-    // m_xboxController0.b().whileTrue(Commands.run(() -> m_Drive.sysIdQuasistaticReverse(), m_Drive));
-    // m_xboxController0.x().whileTrue(Commands.run(() -> m_Drive.sysIdDynamicForward(), m_Drive));
-    // m_xboxController0.y().whileTrue(Commands.run(() -> m_Drive.sysIdDynamicReverse(), m_Drive));
-    m_xboxController0.y().whileTrue(Commands.runEnd(() -> m_magazine.setFeedMotorVelocity(0.7), () -> m_magazine.cancel(), m_magazine));
-    m_xboxController0.a().whileTrue(Commands.runEnd(() -> m_magazine.setFeedMotorVelocity(-0.5), () -> m_magazine.cancel(), m_magazine));
-    m_xboxController0.x().whileTrue(Commands.runEnd(() -> m_shooter.setShooterRPM(3500), () -> m_shooter.cancel(), m_shooter));
-    
+    m_xboxController0.x().onTrue(new SetPIDShooter(m_shooter));
+    m_xboxController0.leftBumper().whileTrue(
+      Commands.startRun( () -> m_shooter.setShooterRPM(100), () -> m_shooter.setShooterRPM(100), m_shooter));
   }
 
   private void configureJoystick() {
