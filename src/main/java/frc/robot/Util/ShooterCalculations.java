@@ -1,10 +1,10 @@
 package frc.robot.Util;
 
-import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 
 public class ShooterCalculations {
     public double getLaunchAngle(double targetDistance_in){
-return getLaunchAngle(targetDistance_in, ShooterConstants.deltaHprm_in, ShooterConstants.drc_in, targetDistance_in );
+return getLaunchAngle(targetDistance_in, Constants.ShooterConstants.deltaHprm_in, Constants.ShooterConstants.drc_in, targetDistance_in );
     }
 
     public static double getLaunchAngle(double targetDistance_in,  double deltaHeight_in, double rimToTargetDistance_in, double targetHeight_in) {
@@ -16,8 +16,8 @@ return getLaunchAngle(targetDistance_in, ShooterConstants.deltaHprm_in, ShooterC
     }
     
     public static double getLaunchSpeed(double launchAngle_deg, double targetDistance_in, double rimToTargetDistance_in, double targetHeight_in) {
-        double step1 = ShooterConstants.g_inps2
-                * ((targetDistance_in - ShooterConstants.drc_in) + rimToTargetDistance_in / 2);
+        double step1 = Constants.ShooterConstants.g_inps2
+                * ((targetDistance_in - Constants.ShooterConstants.drc_in) + rimToTargetDistance_in / 2);
         double step2 = (targetHeight_in / rimToTargetDistance_in) * (Math.pow(Math.cos(Math.toRadians(launchAngle_deg)), 2))
                 + Math.sin(Math.toRadians(launchAngle_deg)) * Math.cos((Math.toRadians(launchAngle_deg)));
         double step3 = (step1 / step2);
@@ -38,23 +38,12 @@ return getLaunchAngle(targetDistance_in, ShooterConstants.deltaHprm_in, ShooterC
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
-        return  ShooterConstants.drc_in * Math.tan(Math.toRadians(MissingAngle_deg));
+        return  Constants.ShooterConstants.drc_in * Math.tan(Math.toRadians(MissingAngle_deg));
     }
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg, double distanceRimToTarget) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
         return distanceRimToTarget * Math.tan(Math.toRadians(MissingAngle_deg));
-
-    }
-
-    public class ShooterConstants {
-        private static final double g_inps2 = Units.metersToInches(9.807);
-        private static double drc_in = 23.51; // drc_m = horiz dist rim to target center
-        private static double hrm_in = 72; // hrm_m = height of rim
-        private static double hm_in = 24.3359; // hm_m = height of muzzle
-        // theta = hood angle
-        private static double deltaHprm_in = hrm_in + 48.36- hm_in;
-        //the 48.36 comes from the height of the target - height of our robot.
 
     }
 

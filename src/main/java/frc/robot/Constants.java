@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants.
@@ -176,6 +178,14 @@ public final class Constants {
     public static final int flywheelRightMotorID = 13;
     public static final int flywheelMiddleMotorID = 14;
     public static final int flywheelLeftMotorID = 15;
+            public static final double g_inps2 = Units.metersToInches(9.807);
+        public static double drc_in = 23.51; // drc_m = horiz dist rim to target center
+        public static double hrm_in = 72; // hrm_m = height of rim
+        public static double hm_in = 24.3359; // hm_m = height of muzzle
+        // theta = hood angle
+        public static double deltaHprm_in = hrm_in + 48.36- hm_in;
+        //the 48.36 comes from the height of the target - height of our robot.
+
 
     // PID / Feedforward
     public static final double P = 0.00000;
