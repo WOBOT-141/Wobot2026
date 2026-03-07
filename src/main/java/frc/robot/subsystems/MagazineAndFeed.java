@@ -4,7 +4,11 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.FeederConstants;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -28,21 +32,21 @@ public class MagazineAndFeed extends SubsystemBase {
  private final SparkClosedLoopController m_magazineMotorController;
 
   public MagazineAndFeed() {
-    m_feedMotor = new SparkMax(0,  MotorType.kBrushless);
-    m_magazineMotor = new SparkMax(0, MotorType.kBrushless );
+    m_feedMotor = new SparkMax(Constants.FeederConstants.feedMotorID,  MotorType.kBrushless);
+    m_magazineMotor = new SparkMax(Constants.FeederConstants.magazineMotorID, MotorType.kBrushless );
 
     m_feedMotorConfig = new SparkMaxConfig();
     m_magazineMotorConfig = new SparkMaxConfig();
     
     m_feedMotorConfig
     .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
+    .smartCurrentLimit(80, FeederConstants.feedMotorFreeLimit_amp);
     m_feedMotorConfig.closedLoop
     .pid(0, 0, 0);
 
     m_magazineMotorConfig
     .idleMode(IdleMode.kCoast)
-    .smartCurrentLimit(80, 80);
+    .smartCurrentLimit(80, FeederConstants.magazineMotorFreeLimit_amp);
     m_magazineMotorConfig.closedLoop
     .pid(0, 0, 0);
     
@@ -60,7 +64,8 @@ public class MagazineAndFeed extends SubsystemBase {
   public void setFeedMotorVelocity(double targetVelocity_ips){
     m_feedMotor.set(targetVelocity_ips);
     m_magazineMotor.set(targetVelocity_ips);
-    
+    double outputCurrent = m_magazineMotor.getOutputCurrent();
+    SmartDashboard.putNumber("magazine motor current", outputCurrent);
   }
   
   public void advanceFuel(){

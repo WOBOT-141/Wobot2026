@@ -53,7 +53,7 @@ public class Shooter extends SubsystemBase {
     m_forwardMotorConfig = new SparkMaxConfig();
 
     m_forwardMotorConfig.idleMode(IdleMode.kCoast);
-    m_forwardMotorConfig.inverted(true);
+    m_forwardMotorConfig.inverted(false);
 
     m_forwardMotorConfig.closedLoop
         .pid(ShooterConstants.P,
@@ -72,12 +72,9 @@ public class Shooter extends SubsystemBase {
             ShooterConstants.D)
         .velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
 
-    configureMotor(m_rightMotor, m_forwardMotorConfig);
+    configureMotor(m_rightMotor, m_backwardMotorConfig);
     configureMotor(m_middleMotor, m_forwardMotorConfig);
     configureMotor(m_leftMotor, m_forwardMotorConfig);
-
- 
- 
 
     m_rightEncoder = m_rightMotor.getEncoder();
     m_middleEncoder = m_middleMotor.getEncoder();
@@ -88,29 +85,22 @@ public class Shooter extends SubsystemBase {
     m_leftController = m_leftMotor.getClosedLoopController();
   }
 
-  public void setPIDValues(double flywheelP, double flywheelI, double flywheelD) {
+ public void setPIDValues(double flywheelP, double flywheelI, double flywheelD) {
 
     m_forwardMotorConfig.closedLoop
         .pid(flywheelP, flywheelI, flywheelD);
-
     m_backwardMotorConfig.closedLoop
         .pid(flywheelP, flywheelI, flywheelD);
-
-    configureMotor(m_rightMotor, m_backwardMotorConfig);
-    configureMotor(m_middleMotor, m_backwardMotorConfig);
-    configureMotor(m_leftMotor, m_forwardMotorConfig);
-
   }
 
   private void configureMotor(SparkMax motor, SparkMaxConfig config) {
 
     motor.configure(config,
         ResetMode.kResetSafeParameters,
-        PersistMode.kPersistParameters);
+        PersistMode.kPersistParameters);    
   }
 
   public void setShooterRPM(double targetRPM_rpm) {
-
     m_targetVelocity_rpm = targetRPM_rpm;
 
     m_rightController.setSetpoint(m_targetVelocity_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
@@ -174,5 +164,11 @@ public class Shooter extends SubsystemBase {
 
     SmartDashboard.putNumber("Shooter Avg RPM", getAverageRPM());
     SmartDashboard.putBoolean("Shot Detected", m_shotDetected);
+  }
+
+  public void cancel(){
+    m_rightMotor.stopMotor();
+    m_middleMotor.stopMotor();
+    m_leftMotor.stopMotor();
   }
 }
