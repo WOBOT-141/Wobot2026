@@ -23,6 +23,7 @@ import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
 
@@ -163,7 +164,7 @@ public class RobotContainer {
   private void configureXboxController() {
     xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
     xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
-    xboxController0.b().onTrue(new RotateToTag(visionServer, m_Drive));
+    //xboxController0.b().onTrue(new setHoodPosition(m_hoodTargetPosition_deg));
   }
 
   private void configureJoystick() {

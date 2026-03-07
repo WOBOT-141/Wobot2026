@@ -129,6 +129,8 @@ public final class Constants {
   
    public static class ShooterConstants {
     public static final double wheelCircumference_in = (Math.PI * 4); 
+    public static final double diameter_in = 4;
+    public static final double flywheelGearRatio = 29.0/24.0; // output 29:24 input 
     
     public static final double P = 0.0016;// .00009
     public static final double I = 0.000068;// 0
@@ -142,9 +144,11 @@ public final class Constants {
     public static final double hoodP = 0;//TODO tune
     public static final double hoodI = 0;
     public static final double hoodD = 0;
-    public static final double hoodFF = 0;
+    public static final double hoodFF = 0.00016500000492669642;
 
     public static final double hoodHomeRPM = 0;
+    public static final double hoodHomeCurrentLim_amp = 20;
+    public static final double steerDegPerEncoderTick_deg = 5; //5 motor ticks = 1 degree max of 49 and min of 89 degreseor or  visas versa 
 
 
   }
