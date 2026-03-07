@@ -53,7 +53,7 @@ public class Shooter extends SubsystemBase {
     m_forwardMotorConfig = new SparkMaxConfig();
 
     m_forwardMotorConfig.idleMode(IdleMode.kCoast);
-    m_forwardMotorConfig.inverted(true);
+    m_forwardMotorConfig.inverted(false);
 
     m_forwardMotorConfig.closedLoop
         .pid(ShooterConstants.P,
@@ -72,7 +72,7 @@ public class Shooter extends SubsystemBase {
             ShooterConstants.D)
         .velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
 
-    configureMotor(m_rightMotor, m_forwardMotorConfig);
+    configureMotor(m_rightMotor, m_backwardMotorConfig);
     configureMotor(m_middleMotor, m_forwardMotorConfig);
     configureMotor(m_leftMotor, m_forwardMotorConfig);
 

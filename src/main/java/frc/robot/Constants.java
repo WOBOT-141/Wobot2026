@@ -23,8 +23,8 @@ public final class Constants {
     public static final int backLeftEncoderid = 10;
     public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
-    public static final int flywheelRightMotorID = 13;
-    public static final int flywheelMiddleMotorID = 14;
+    public static final int flywheelRightMotorID = 14;
+    public static final int flywheelMiddleMotorID = 13;
     public static final int flywheelLeftMotorID = 15;
   }
 
