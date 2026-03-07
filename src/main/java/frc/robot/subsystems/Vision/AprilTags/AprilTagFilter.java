@@ -2,6 +2,7 @@ package frc.robot.subsystems.Vision.AprilTags;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -13,9 +14,11 @@ import frc.robot.subsystems.Vision.Detections.NullDetection;
 public class AprilTagFilter {
 
     private final AprilTagFieldInfo[] m_tags;
+    private final Supplier<Optional<Alliance>> m_allianceSupplier;
 
-    public AprilTagFilter(AprilTagFieldInfo[] tags) {
+    public AprilTagFilter(AprilTagFieldInfo[] tags, Supplier<Optional<Alliance>> allianceSupplier) {
         m_tags = tags;
+        m_allianceSupplier = allianceSupplier;
     }
 
     public AprilTagFieldInfo getTag(int tagId) {
@@ -29,7 +32,7 @@ public class AprilTagFilter {
     public boolean isTagOnElement(int tagId, FieldElement fieldElement) {
         return getTag(tagId).FieldElement == fieldElement;
     }
-    
+
     public boolean isCenterTag(int tagId, DetectionList detectionList) {
         return m_tags[tagId].XToElement == 0;
     }
@@ -40,7 +43,7 @@ public class AprilTagFilter {
         if (tag.FieldElement != fieldElement)
             return Optional.empty();
 
-        Optional<Alliance> matchAlliance = DriverStation.getAlliance();
+        Optional<Alliance> matchAlliance = m_allianceSupplier.get();
 
         if (matchAlliance.isEmpty())
             return Optional.of(tag);
@@ -52,53 +55,47 @@ public class AprilTagFilter {
     }
 
     public Optional<AngleMagVector> getFloorVectorToTaggedElement(DetectionList detectionList, FieldElement element) {
-      double angleBetweenDetections = 0.0;
-        
-    for (int i = 0; i < detectionList.getSize(); i++) {
-        IDetection detection = detectionList.getDetection(i);
-        if (!isCenterTag(i, detectionList)) {
-            continue;
-        }
-        Optional<AprilTagFieldInfo> tagInfoOptional = getTagInfoIfElementAndAlliance((int) detection.getId(), FieldElement.HUB);
-        if (tagInfoOptional.isEmpty()){
-            continue;
-        }
-        AprilTagFieldInfo centerTagInfo = tagInfoOptional.get();
-        IDetection pairedDetection = detectionList.getDetectionById(centerTagInfo.PairedId);
-        if (pairedDetection == NullDetection.Instance) {
-            continue;
-        }
-        Optional<AprilTagFieldInfo> pairedtagInfoOptional = getTagInfoIfElementAndAlliance((int) pairedDetection.getId(), FieldElement.HUB);
- 
-            
-        
-        angleBetweenDetections = FindSSSAngle(detection.getDistance(), pairedtagInfoOptional.get().XToElement, pairedDetection.getDistance());
-    }
-        
-
-    
-
-
-        // TODO: Ethan, you will need to check if the detectionList contains both the center tag and side tag for any hub side
-        // (note that I added an "isCenterTag" method).
-        // If both pairs exist in the detectionList, use SSSAngle to find the angle between the two detections.
-        // From there, find the vector to the center of the hub.
         ArrayList<AngleMagVector> floorVectorList = new ArrayList<AngleMagVector>();
-        for (int i = 0; i <= detectionList.getSize(); i++) {
+
+        for (int i = 0; i < detectionList.getSize(); i++) {
             IDetection detection = detectionList.getDetection(i);
-            if (0 != getTagInfoIfElementAndAlliance(((int) detection.getId()), element).get().Id) {
-                AngleMagVector floorVector = getFloorVectorFromTag(detection, angleBetweenDetections);
-                floorVectorList.add(floorVector);
+            if (!isCenterTag(i, detectionList)) {
+                continue;
             }
+            Optional<AprilTagFieldInfo> tagInfoOptional = getTagInfoIfElementAndAlliance((int) detection.getId(),
+                    FieldElement.HUB);
+            if (tagInfoOptional.isEmpty()) {
+                continue;
+            }
+
+            AprilTagFieldInfo centerTagInfo = tagInfoOptional.get();
+            IDetection pairedDetection = detectionList.getDetectionById(centerTagInfo.PairedId);
+            if (pairedDetection == NullDetection.Instance) {
+                continue;
+            }
+            Optional<AprilTagFieldInfo> pairedTagInfoOptional = getTagInfoIfElementAndAlliance(
+                    (int) pairedDetection.getId(), FieldElement.HUB);
+            if (tagInfoOptional.isEmpty()) {
+                continue;
+            }
+
+            AprilTagFieldInfo pairedTagInfo = pairedTagInfoOptional.get();
+
+            double angleBetweenDetections = FindSSSAngle(detection.getDistance(),
+                    pairedTagInfo.XToElement,
+                    pairedDetection.getDistance());
+            AngleMagVector floorVector = getFloorVectorFromCenterTag(detection, angleBetweenDetections);
+            floorVectorList.add(floorVector);
         }
 
         if (floorVectorList.size() == 0) {
             return Optional.empty();
-        };
+        }
+        
 
         double totalMagnitude_in = 0;
         double totalAngle_deg = 0;
-        for (int i = 0; i <= floorVectorList.size(); i++) {
+        for (int i = 0; i < floorVectorList.size(); i++) {
             AngleMagVector floorVector = floorVectorList.get(i);
             totalMagnitude_in += floorVector.Magnitude;
             totalAngle_deg += floorVector.Angle;
@@ -109,16 +106,18 @@ public class AprilTagFilter {
 
     }
 
-    public AngleMagVector getFloorVectorFromTag(IDetection tagDetection, double centerTagAngle) {
-        AprilTagFieldInfo tagInfo = m_tags[((int) tagDetection.getId())];
-        double distanceToTag_in = tagDetection.getDistance();
-        double tagToCenter_in = Math.sqrt(Math.pow(tagInfo.XToElement, 2) + Math.pow(tagInfo.YToElement, 2));
-        //double tagToCenterAngle_deg = 180 - Math.toDegrees(Math.atan2(tagInfo.YToElement, tagInfo.XToElement)) + (90 - Math.abs(tagDetection.getYaw()));
-        double centerTagAngleToHub_deg = centerTagAngle + 90;
-        double hubDistance_in = LawOfCosines(tagToCenter_in, distanceToTag_in, centerTagAngleToHub_deg);
-        double angleToHub_deg = FindSSSAngle(hubDistance_in, distanceToTag_in, tagToCenter_in);
-       
-        if (tagDetection.getYaw() < 0) {
+    public AngleMagVector getFloorVectorFromCenterTag(IDetection centerTagDetection, double centerTagAngleFromHubFace_deg) {
+        AprilTagFieldInfo tagInfo = m_tags[((int) centerTagDetection.getId())];
+        double distanceToTag_in = centerTagDetection.getDistance();
+        double tagToElement_in = Math.sqrt(Math.pow(tagInfo.XToElement, 2) + Math.pow(tagInfo.YToElement, 2));
+        // double tagToCenterAngle_deg = 180 -
+        // Math.toDegrees(Math.atan2(tagInfo.YToElement, tagInfo.XToElement)) + (90 -
+        // Math.abs(tagDetection.getYaw()));
+        double centerTagAngleToHub_deg = centerTagAngleFromHubFace_deg + 90;
+        double hubDistance_in = LawOfCosines(tagToElement_in, distanceToTag_in, centerTagAngleToHub_deg);
+        double angleToHub_deg = FindSSSAngle(hubDistance_in, distanceToTag_in, tagToElement_in);
+
+        if (centerTagDetection.getYaw() < 0) {
             angleToHub_deg = -angleToHub_deg;
         }
         return new AngleMagVector(angleToHub_deg, hubDistance_in);

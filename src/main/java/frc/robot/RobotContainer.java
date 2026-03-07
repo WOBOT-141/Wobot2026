@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -42,7 +43,7 @@ public class RobotContainer {
   private final VisionServer visionServer = new VisionServer();
   // private final Shooter m_shooter = new Shooter(); TODO uncomment when CAN Ids are assigned
 
-  private final AprilTagFilter m_AprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags);
+  private final AprilTagFilter m_AprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
   private final IBotSelector _selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
 
