@@ -44,9 +44,9 @@ public class Shooter extends SubsystemBase {
     m_middleMotor = new SparkMax(ShooterConstants.flywheelMiddleMotorID, MotorType.kBrushless);
     m_leftMotor = new SparkMax(ShooterConstants.flywheelLeftMotorID, MotorType.kBrushless);
 
-    configureMotor(m_rightMotor);
-    configureMotor(m_middleMotor);
-    configureMotor(m_leftMotor);
+    configureMotor(m_rightMotor, true);
+    configureMotor(m_middleMotor, false);
+    configureMotor(m_leftMotor, false);
 
     m_rightEncoder = m_rightMotor.getEncoder();
     m_middleEncoder = m_middleMotor.getEncoder();
@@ -57,9 +57,12 @@ public class Shooter extends SubsystemBase {
     m_leftController = m_leftMotor.getClosedLoopController();
   }
 
-  private void configureMotor(SparkMax motor) {
+  private void configureMotor(SparkMax motor, boolean inverted) {
 
     SparkMaxConfig config = new SparkMaxConfig();
+
+    config.inverted(inverted);
+
 
     config.idleMode(IdleMode.kCoast);
 
@@ -71,11 +74,11 @@ public class Shooter extends SubsystemBase {
 
     motor.configure(config,
         ResetMode.kResetSafeParameters,
-        PersistMode.kPersistParameters);
+        PersistMode.kPersistParameters);    
   }
 
   public void setShooterRPM(double targetRPM_rpm) {
-
+    targetRPM_rpm = 3500;
     m_targetVelocity_rpm = targetRPM_rpm;
 
     m_rightController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
@@ -145,6 +148,12 @@ public class Shooter extends SubsystemBase {
 
     SmartDashboard.putNumber("Shooter Avg RPM", getAverageRPM());
     SmartDashboard.putBoolean("Shot Detected", m_shotDetected);
+  }
+
+  public void cancel(){
+    m_rightMotor.stopMotor();
+    m_middleMotor.stopMotor();
+    m_leftMotor.stopMotor();
   }
 }
 
