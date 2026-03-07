@@ -23,6 +23,8 @@ public final class Constants {
     public static final int backLeftEncoderid = 10;
     public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
+    public static final int intakeElevationMotorID = 18;
+    public static final int intakeRollerMotorID = 19;
   }
 
   public static class ControllerOneConstants {
@@ -102,10 +104,6 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-
-    // Motor IDs
-    public static final int intakeMotorID = 18;
-    public static final int intakeRollerMotorID = 19;
 
     // Current limits
     public static final int freeLimit_amp = 60;

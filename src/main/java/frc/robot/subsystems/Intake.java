@@ -19,11 +19,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.CANIdConstants;
+import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
 
   // Hardware
-  private final SparkMax m_intakeMotor;
+  private final SparkMax m_intakeElevationMotor;
   private final SparkFlex m_intakeRollerMotor;
 
   private final RelativeEncoder m_intakeEncoder;
@@ -39,41 +41,38 @@ public class Intake extends SubsystemBase {
   private boolean m_lastAtUp = false;
   private boolean m_lastAtDown = false;
 
+
   // Constructor
   public Intake() {
 
-    m_intakeMotor = new SparkMax(IntakeConstants.intakeMotorID, MotorType.kBrushless);
+    m_intakeElevationMotor = new SparkMax(Constants.CANIdConstants.intakeElevationMotorID, MotorType.kBrushless);
+    m_intakeRollerMotor = new SparkFlex(Constants.CANIdConstants.intakeRollerMotorID, MotorType.kBrushless);
 
-    m_intakeRollerMotor = new SparkFlex(IntakeConstants.intakeRollerMotorID, MotorType.kBrushless);
+    m_intakeEncoder = m_intakeElevationMotor.getEncoder();
 
-    configureIntakeMotor(m_intakeMotor);
-    configureIntakeRollerMotor(m_intakeRollerMotor);
-
-    m_intakeEncoder = m_intakeMotor.getEncoder();
     m_intakeRollerEncoder = m_intakeRollerMotor.getEncoder();
+    configureIntakeRollerMotor(m_intakeRollerMotor);
+    configureIntakeElevationMotor(m_intakeElevationMotor);
   }
 
   // Motor configuration
-  private void configureIntakeMotor(SparkMax intakeMotor) {
-
-    SparkMaxConfig config = new SparkMaxConfig();
-
-    config.idleMode(IdleMode.kBrake)
+  private void configureIntakeElevationMotor(SparkMax intakeElevationMotor) {
+    SparkMaxConfig intakeElevationMotorConfig = new SparkMaxConfig();
+    intakeElevationMotorConfig.idleMode(IdleMode.kBrake)
         .smartCurrentLimit(IntakeConstants.freeLimit_amp);
-
-    intakeMotor.configure(
-        config,
+    m_intakeElevationMotor.configure(
+        intakeElevationMotorConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
   }
 
   private void configureIntakeRollerMotor(SparkFlex intakeRollerMotor) {
-    SparkFlexConfig config = new SparkFlexConfig();
-    config.inverted(true);
-    config.idleMode(IdleMode.kBrake)
+    SparkFlexConfig intakeRollerMotorConfig = new SparkFlexConfig();
+    intakeRollerMotorConfig.inverted(true);
+    intakeRollerMotorConfig.idleMode(IdleMode.kBrake)
         .smartCurrentLimit(IntakeConstants.freeLimit_amp);
     intakeRollerMotor.configure(
-        config,
+        intakeRollerMotorConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
   }
@@ -82,6 +81,7 @@ public class Intake extends SubsystemBase {
   /** Returns intake arm angle in degrees */
   public double getIntakeAngle_deg() {
     return m_intakeEncoder.getPosition()
+
         * IntakeConstants.degPerMotorRotation_deg;
   }
 
@@ -95,7 +95,6 @@ public class Intake extends SubsystemBase {
 
   // Roller control
   public void intakeRun(double speed_perc) {
-    speed_perc = 0.4;
     m_intakeRollerMotor.set(speed_perc);
   }
 
@@ -111,7 +110,7 @@ public class Intake extends SubsystemBase {
 
     m_moveStartTime_sec = Timer.getFPGATimestamp();
 
-    m_intakeMotor.set(
+    m_intakeElevationMotor.set(
         applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
   }
 
@@ -122,12 +121,12 @@ public class Intake extends SubsystemBase {
 
     m_moveStartTime_sec = Timer.getFPGATimestamp();
 
-    m_intakeMotor.set(
+    m_intakeElevationMotor.set(
         applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
   }
 
   public void stopArm() {
-    m_intakeMotor.stopMotor();
+    m_intakeElevationMotor.stopMotor();
   }
 
   // Homing (current based)
@@ -136,7 +135,7 @@ public class Intake extends SubsystemBase {
     m_homingActive = true;
     m_isHomed = false;
 
-    m_intakeMotor.set(
+    m_intakeElevationMotor.set(
         applyBrownoutScale(IntakeConstants.homingSpeed_perc));
   }
 
@@ -145,7 +144,7 @@ public class Intake extends SubsystemBase {
     if (!m_homingActive)
       return;
 
-    double current_amp = m_intakeMotor.getOutputCurrent();
+    double current_amp = m_intakeElevationMotor.getOutputCurrent();
 
     if (current_amp > IntakeConstants.homingCurrentThreshold_amp) {
 
@@ -155,7 +154,7 @@ public class Intake extends SubsystemBase {
       m_isHomed = true;
       m_homingActive = false;
 
-      m_intakeMotor.stopMotor();
+      m_intakeElevationMotor.stopMotor();
 
       SmartDashboard.putBoolean("Intake Homed", true);
     }
@@ -184,11 +183,11 @@ public class Intake extends SubsystemBase {
     updateHoming();
 
     // Safety timeout while moving
-    if (Math.abs(m_intakeMotor.get()) > 0.01) {
+    if (Math.abs(m_intakeElevationMotor.get()) > 0.01) {
       double elapsed_sec = Timer.getFPGATimestamp() - m_moveStartTime_sec;
 
       if (elapsed_sec > IntakeConstants.moveTimeout_sec) {
-        m_intakeMotor.stopMotor();
+        m_intakeElevationMotor.stopMotor();
       }
     }
 
