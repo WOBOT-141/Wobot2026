@@ -62,8 +62,8 @@ public class MagazineAndFeed extends SubsystemBase {
   }
 
   public void setFeedMotorVelocity(double targetVelocity_ips){
-    m_feedMotor.set(.7);
-    m_magazineMotor.set(.5);
+    m_feedMotor.set(targetVelocity_ips);
+    m_magazineMotor.set(targetVelocity_ips);
     double outputCurrent = m_magazineMotor.getOutputCurrent();
     SmartDashboard.putNumber("magazine motor current", outputCurrent);
   }

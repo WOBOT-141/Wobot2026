@@ -78,7 +78,6 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setShooterRPM(double targetRPM_rpm) {
-    targetRPM_rpm = 3500;
     m_targetVelocity_rpm = targetRPM_rpm;
 
     m_rightController.setSetpoint(targetRPM_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
