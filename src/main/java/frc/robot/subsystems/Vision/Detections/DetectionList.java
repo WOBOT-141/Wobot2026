@@ -40,8 +40,18 @@ public class DetectionList {
         _size = 0;
     }
 
-    public boolean addDetection(ObjectType tag, double angle, double distance, double id, double yaw, double pitch, double cameraNum) {
-        _detections[_size].update(tag, angle, distance, id, yaw, pitch, cameraNum);
+    public boolean addDetection
+        (
+        ObjectType tag,
+        double distance,
+        double angle,
+        int id,
+        double yaw,
+        double pitch,
+        double roll,
+        double cameraNum
+    ) {
+        _detections[_size].update(tag, distance, angle, id, yaw, pitch, roll, cameraNum);
         ++_size;
         return _size < _capacity;
     }
