@@ -81,7 +81,8 @@ public final class Constants {
     public static final int magazineMotorID = 17;
 
     // Current limits
-    public static final int freeLimit_amp = 40;
+    public static final int feedMotorFreeLimit_amp = 60;
+    public static final int magazineMotorFreeLimit_amp = 60;
 
     // Jam detection
     public static final double jamRPMThreshold_rpm = 200.0;

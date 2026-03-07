@@ -67,7 +67,7 @@ public class FeederMagazine extends SubsystemBase {
     SparkMaxConfig config = new SparkMaxConfig();
 
     config.idleMode(IdleMode.kBrake)
-          .smartCurrentLimit(FeederConstants.freeLimit_amp);
+          .smartCurrentLimit(FeederConstants.feedMotorFreeLimit_amp);
 
     motor.configure(
         config,
