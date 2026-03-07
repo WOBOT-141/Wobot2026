@@ -20,8 +20,8 @@ public class RebuiltAprilTags {
         new AprilTagFieldInfo(12, Alliance.Red, FieldElement.TRENCH_ALLIANCE, 0, 0, 0),
         new AprilTagFieldInfo(13, Alliance.Red, FieldElement.OUTPOST, 0, 0, 0),
         new AprilTagFieldInfo(14, Alliance.Red, FieldElement.OUTPOST, 0, 0, 0),
-        new AprilTagFieldInfo(15, Alliance.Red, FieldElement.TOWER, 0, 0, 0),
-        new AprilTagFieldInfo(16, Alliance.Red, FieldElement.TOWER, 0, 0, 0),
+        new AprilTagFieldInfo(15, Alliance.Red, FieldElement.TOWER, 0, -40, 0),
+        new AprilTagFieldInfo(16, Alliance.Red, FieldElement.TOWER, -17, -40, 0),
 
         new AprilTagFieldInfo(17, Alliance.Blue, FieldElement.TRENCH_NEUTRAL, 0, 0, 0),
         new AprilTagFieldInfo(18, Alliance.Blue, FieldElement.HUB, 0, 23.5, 27.75),
@@ -37,7 +37,7 @@ public class RebuiltAprilTags {
         new AprilTagFieldInfo(28, Alliance.Blue, FieldElement.TRENCH_ALLIANCE, 0, 0, 0),
         new AprilTagFieldInfo(29, Alliance.Blue, FieldElement.OUTPOST, 0, 0, 0),
         new AprilTagFieldInfo(30, Alliance.Blue, FieldElement.OUTPOST, 0, 0, 0),
-        new AprilTagFieldInfo(31, Alliance.Blue, FieldElement.TOWER, 0, 0, 0),
-        new AprilTagFieldInfo(32, Alliance.Blue, FieldElement.TOWER, 0, 0, 0),
+        new AprilTagFieldInfo(31, Alliance.Blue, FieldElement.TOWER, 0, -40, 0),
+        new AprilTagFieldInfo(32, Alliance.Blue, FieldElement.TOWER, -17, -40, 0),
     };
 }

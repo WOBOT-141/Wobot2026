@@ -54,6 +54,5 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
-    Shooter.targetVelocityIPS = SmartDashboard.getNumber("Target velocity IPS", 0);
   }
 }
