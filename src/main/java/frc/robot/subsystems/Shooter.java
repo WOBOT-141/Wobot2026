@@ -9,6 +9,7 @@ import frc.robot.Constants.CANIdConstants;
 import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -50,9 +51,9 @@ public class Shooter extends SubsystemBase {
   private final SparkClosedLoopController m_leftFlywheelController;
   private final SparkClosedLoopController m_hoodController;
 
-  private final SlewRateLimiter m_rightLimiter = new SlewRateLimiter(Constants.ShooterConstants.slewRateLimt);
-  private final SlewRateLimiter m_middleLimiter = new SlewRateLimiter(Constants.ShooterConstants.slewRateLimt);
-  private final SlewRateLimiter m_leftLimiter = new SlewRateLimiter(Constants.ShooterConstants.slewRateLimt);
+  private final SlewRateLimiter m_rightLimiter = new SlewRateLimiter(Constants.ShooterConstants.slewRateLimit);
+  private final SlewRateLimiter m_middleLimiter = new SlewRateLimiter(Constants.ShooterConstants.slewRateLimit);
+  private final SlewRateLimiter m_leftLimiter = new SlewRateLimiter(Constants.ShooterConstants.slewRateLimit);
 
   private double m_targetVelocityRPM = 0;
 
@@ -63,12 +64,18 @@ public class Shooter extends SubsystemBase {
   public boolean m_lastMiddleAtSpeed = false;
   public boolean m_lastLeftAtSpeed = false;
 
+  public boolean m_hoodAtPosition = false;
+  public boolean m_hoodAtHome = false;
+
   public double m_hoodTargetPosition_deg = 0;
 
-  public Shooter() {
- SmartDashboard.putNumber("HoodPosition", m_hoodTargetPosition_deg);
+  public static double targetVelocityIPS = 0;
 
-    m_rightFlywheelMotor = new SparkMax(CANIdConstants.flyWheelRightMotorID, MotorType.kBrushless); // TODO add ids to sparkMaxs
+  public Shooter() {
+    SmartDashboard.putNumber("HoodPosition", m_hoodTargetPosition_deg);
+
+    m_rightFlywheelMotor = new SparkMax(CANIdConstants.flyWheelRightMotorID, MotorType.kBrushless); // TODO add ids to
+                                                                                                    // sparkMaxs
     m_middleFlywheelMotor = new SparkMax(CANIdConstants.flyWheelMiddlehtMotorID, MotorType.kBrushless);
     m_leftFlywheelMotor = new SparkMax(CANIdConstants.flyWheelLeftMotorID, MotorType.kBrushless);
     m_hoodMotor = new SparkMax(CANIdConstants.hoodMotorID, MotorType.kBrushless);
@@ -80,21 +87,21 @@ public class Shooter extends SubsystemBase {
 
     m_rightFlywheelMotorConfig
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(Constants.ShooterConstants.stallLimt_amp, Constants.ShooterConstants.stallLimt_amp);
+        .smartCurrentLimit(Constants.ShooterConstants.stallLimit_amp, Constants.ShooterConstants.stallLimit_amp);
     m_rightFlywheelMotorConfig.closedLoop
         .pid(Constants.ShooterConstants.P, Constants.ShooterConstants.I, Constants.ShooterConstants.D)
         .velocityFF(Constants.ShooterConstants.FF, ClosedLoopSlot.kSlot0);
 
     m_middleFlywheelMotorConfig
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(Constants.ShooterConstants.stallLimt_amp, Constants.ShooterConstants.stallLimt_amp);
+        .smartCurrentLimit(Constants.ShooterConstants.stallLimit_amp, Constants.ShooterConstants.stallLimit_amp);
     m_middleFlywheelMotorConfig.closedLoop
         .pid(Constants.ShooterConstants.P, Constants.ShooterConstants.I, Constants.ShooterConstants.D)
         .velocityFF(Constants.ShooterConstants.FF, ClosedLoopSlot.kSlot0);
 
     m_leftFlywheelMotorConfig
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(Constants.ShooterConstants.stallLimt_amp, Constants.ShooterConstants.stallLimt_amp);
+        .smartCurrentLimit(Constants.ShooterConstants.stallLimit_amp, Constants.ShooterConstants.stallLimit_amp);
     m_leftFlywheelMotorConfig.closedLoop
         .pid(Constants.ShooterConstants.P, Constants.ShooterConstants.I, Constants.ShooterConstants.D)
         .velocityFF(Constants.ShooterConstants.FF, ClosedLoopSlot.kSlot0);
@@ -102,9 +109,14 @@ public class Shooter extends SubsystemBase {
     m_hoodMotorConfig
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(80, 80);
+    m_hoodMotorConfig.encoder.positionConversionFactor(1 / ShooterConstants.hoodRevsPerDegree);
+
     m_hoodMotorConfig.closedLoop
         .pid(Constants.ShooterConstants.hoodP, Constants.ShooterConstants.hoodI, Constants.ShooterConstants.hoodD)
-        .velocityFF(Constants.ShooterConstants.hoodFF, ClosedLoopSlot.kSlot0);// TODO find out if this would be velocity or position control and then change config and method of setting setpoint accordingly
+        .velocityFF(Constants.ShooterConstants.hoodFF, ClosedLoopSlot.kSlot0);// TODO find out if this would be velocity
+                                                                              // or position control and then change
+                                                                              // config and method of setting setpoint
+                                                                              // accordingly
 
     m_rightFlywheelMotor.configure(m_rightFlywheelMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
@@ -129,23 +141,28 @@ public class Shooter extends SubsystemBase {
 
   public void homeHood() {
     m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
-    if(m_hoodMotor.getOutputCurrent() > Constants.ShooterConstants.hoodHomeCurrentLim_amp) {
+    if (m_hoodMotor.getOutputCurrent() > Constants.ShooterConstants.hoodHomeCurrentLim_amp) {
       m_hoodMotor.stopMotor();
       m_hoodEncoder.setPosition(0);
+      m_hoodAtHome = true;
     }
+    
   }
 
-public void setHoodPosition(double targetPosition_deg) {
+  public void setHoodPosition(double targetPosition_deg) {
     targetPosition_deg = SmartDashboard.getNumber("hoodPosition", targetPosition_deg);
     double targetPositionTicks = targetPosition_deg / ShooterConstants.steerDegPerEncoderTick_deg;
     m_hoodController.setSetpoint(targetPositionTicks, ControlType.kPosition, ClosedLoopSlot.kSlot0);
 
   }
-  public void setFlywheelVelocity(double targetVelocity_ips) {
-    m_rightFlywheelMotor.set(targetVelocity_ips);
-    m_middleFlywheelMotor.set(targetVelocity_ips);
-    m_leftFlywheelMotor.set(targetVelocity_ips);
 
+  public void setFlywheelVelocity(double targetVelocity_ips) {
+    SmartDashboard.getNumber("Target velocity IPS", targetVelocity_ips);
+    m_targetVelocityRPM = targetVelocity_ips * 7.89;
+    
+    m_rightFlywheelMotor.set(m_targetVelocityRPM);
+    m_middleFlywheelMotor.set(m_targetVelocityRPM);
+    m_leftFlywheelMotor.set(m_targetVelocityRPM);
   }
 
   public void cancel() {
@@ -155,17 +172,22 @@ public void setHoodPosition(double targetPosition_deg) {
     m_hoodMotor.stopMotor();
   }
 
+  /* 
   public void setShooter_ips(double targetVelocity_ips) {
-   /*  m_targetVelocityRPM = (targetVelocity_ips * 60) /
-        (Math.PI * Constants.ShooterConstants.wheelCircumference_in); */
+    /*
+     * m_targetVelocityRPM = (targetVelocity_ips * 60) /
+     * (Math.PI * Constants.ShooterConstants.wheelCircumference_in);
+     */
 
-    m_targetVelocityRPM = targetVelocity_ips * 7.89; //Math was on board in offce told to be flywheel rpm from ips
-       
-   // m_targetVelocityRPM =  targetVelocity_ips * (60 / ShooterConstants.wheelCircumference_in) * ShooterConstants.flywheelGearRati
 
-  }
+    // m_targetVelocityRPM = targetVelocity_ips * 7.89; // Math was on board in offce told to be flywheel rpm from ips
 
-    // spin fly wheel motor one at a time to avoid curent spikes
+    // m_targetVelocityRPM = targetVelocity_ips * (60 /
+    // ShooterConstants.wheelCircumference_in) * ShooterConstants.flywheelGearRati
+
+  // }
+
+  // spin fly wheel motor one at a time to avoid curent spikes
   public void softStartFlywheel() {
     m_shooterStartTime = Timer.getFPGATimestamp();
     m_softStartActive = true;
@@ -190,7 +212,7 @@ public void setHoodPosition(double targetPosition_deg) {
 
   public boolean leftAtSpeed() {
     double toleranceRPM = Constants.ShooterConstants.flywheelTolernce_ips;
-    return Math.abs(m_middleFlywheelEncoder.getVelocity() - m_targetVelocityRPM) < toleranceRPM;
+    return Math.abs(m_leftFlywheelEncoder.getVelocity() - m_targetVelocityRPM) < toleranceRPM;
   }
 
   public boolean flywheelsAtSpeed() {
@@ -200,6 +222,8 @@ public void setHoodPosition(double targetPosition_deg) {
 
   @Override
   public void periodic() {
+
+
     // This method will be called once per scheduler run
     boolean rightAtSpeed = SmartDashboard.putBoolean("rightAtSpeed", false);
     boolean middleAtspeed = SmartDashboard.putBoolean("middleAtSpeed", false);
@@ -207,22 +231,24 @@ public void setHoodPosition(double targetPosition_deg) {
 
     SmartDashboard.putNumber("HoodEncoderPositon", m_hoodEncoder.getPosition());
     SmartDashboard.putNumber("hoodPosition", m_hoodTargetPosition_deg);
-    SmartDashboard.getNumber("hoodPosition", m_hoodTargetPosition_deg);
-    
+    double hoodPosition = SmartDashboard.getNumber("hoodPosition", m_hoodTargetPosition_deg);
+    setHoodPosition(hoodPosition);
+
     double elapsedTime = Timer.getFPGATimestamp() - m_shooterStartTime;
 
     double rightFlywheelRPM = m_rightLimiter.calculate(m_targetVelocityRPM);
-    double middleFlywheelRP = m_middleLimiter.calculate(m_targetVelocityRPM);
-    double leftFlywheelRPM = m_middleLimiter.calculate(m_targetVelocityRPM);
+    double middleFlywheelRPM = m_middleLimiter.calculate(m_targetVelocityRPM);
+    double leftFlywheelRPM = m_leftLimiter.calculate(m_targetVelocityRPM);
 
     if (elapsedTime > 0.0) {
       m_rightFlywheelController.setSetpoint(rightFlywheelRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
     if (elapsedTime > 0.0) {
-      m_middleFlywheelController.setSetpoint(middleFlywheelRP, ControlType.kVelocity, ClosedLoopSlot.kSlot0); 
+      m_middleFlywheelController.setSetpoint(middleFlywheelRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
     if (elapsedTime > 0.0) {
       m_leftFlywheelController.setSetpoint(leftFlywheelRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
   }
-}//TODO add hood motor 5 ticks 1 degree max of 49 and min of 89 degreseor or visas versa 
+}// TODO add hood motor 5 ticks 1 degree max of 49 and min of 89 degreseor or
+ // visas versa

@@ -138,8 +138,8 @@ public final class Constants {
     public static final double FF = 0.00016500000492669642;
 
     public static final int flywheelTolernce_ips = 13;
-    public static final int slewRateLimt = 4000;
-    public static final int stallLimt_amp = 60;
+    public static final int slewRateLimit = 4000;
+    public static final int stallLimit_amp = 60;
 
     public static final double hoodP = 0;//TODO tune
     public static final double hoodI = 0;
@@ -149,6 +149,7 @@ public final class Constants {
     public static final double hoodHomeRPM = 0;
     public static final double hoodHomeCurrentLim_amp = 20;
     public static final double steerDegPerEncoderTick_deg = 5; //5 motor ticks = 1 degree max of 49 and min of 89 degreseor or  visas versa 
+    public static final double hoodRevsPerDegree = (62/10) * (319/50); //10:62 & 50:319
 
 
   }

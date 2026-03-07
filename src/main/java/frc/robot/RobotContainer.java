@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -22,6 +23,7 @@ import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
+import frc.robot.commands.StickParameters.SendHoodToHome;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.subsystems.Shooter;
 
@@ -29,6 +31,7 @@ public class RobotContainer {
 
   private final Drivetrain m_Drive;
   private final IGyro m_Gyro = new NavxGyro();
+  private final Shooter m_shooter = new Shooter();
 
   private final SpektrumFlightController flightController0 =
       new SpektrumFlightController(0);
@@ -164,7 +167,7 @@ public class RobotContainer {
   private void configureXboxController() {
     xboxController0.rightBumper().onTrue(new RotateToAngle(m_Drive, 90, m_Gyro));
     xboxController0.leftBumper().onTrue(new StraightLineDrive(m_Drive, 180, m_wheels));
-    //xboxController0.b().onTrue(new setHoodPosition(m_hoodTargetPosition_deg));
+    xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
   }
 
   private void configureJoystick() {
