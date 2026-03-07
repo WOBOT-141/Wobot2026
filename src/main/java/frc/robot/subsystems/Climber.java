@@ -125,10 +125,18 @@ public class Climber extends SubsystemBase {
         // code to retract the climber using the motors and servos
     }
 
-    public void ratchetUnlock() {
+    public void unlockRatchet() {
        m_leftRatchetServo.set(ClimberConstants.ratchetServoUnlock); 
        m_rightRatchetServo.set(ClimberConstants.ratchetServoUnlock); // code to unlock the ratchet when going down, lock when going up 
+    }
+
+    public void lockRatchet()  {
+        m_leftRatchetServo.set(1 - ClimberConstants.ratchetServoUnlock); 
+        m_rightRatchetServo.set(1 - ClimberConstants.ratchetServoUnlock); // code to unlock the ratchet when going down, lock when going up 
+    }
+
     public void stopClimber(){
         m_climberMotor.stopMotor();
     }
+    
 }
