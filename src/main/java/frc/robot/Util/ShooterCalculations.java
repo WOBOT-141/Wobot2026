@@ -25,11 +25,12 @@ return getLaunchAngle(targetDistance_in, ShooterConstants.deltaHprm_in, ShooterC
     }
 
     public static void main(String[] args) {
+        //remove this in final code. this is just for testing the results of the calculations.
 
-        double launchAngle = getLaunchAngle(110, 43.96, 23.51, 70);
+        double launchAngle = getLaunchAngle(222.3059, 43.96, 23.51, 72);
         System.out.println("launch angle " + launchAngle + " degrees");
 
-        double launchspeed =  getLaunchSpeed(launchAngle, 110, 23.51,70);
+        double launchspeed =  getLaunchSpeed(launchAngle,222.3059, 23.51,72);
         System.out.println("inital correct velocity " + launchspeed + " inches per second.");
 
     }
