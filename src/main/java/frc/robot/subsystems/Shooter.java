@@ -106,10 +106,6 @@ public class Shooter extends SubsystemBase {
     configureMotor(m_leftMotor, m_forwardMotorConfig);
     configureMotor(m_hoodMotor, m_hoodMotorConfig);
 
-
- 
- 
-
     m_rightEncoder = m_rightMotor.getEncoder();
     m_middleEncoder = m_middleMotor.getEncoder();
     m_leftEncoder = m_leftMotor.getEncoder();
@@ -147,11 +143,6 @@ public class Shooter extends SubsystemBase {
 
     m_backwardMotorConfig.closedLoop
         .pid(flywheelP, flywheelI, flywheelD);
-
-    configureMotor(m_rightMotor, m_backwardMotorConfig);
-    configureMotor(m_middleMotor, m_backwardMotorConfig);
-    configureMotor(m_leftMotor, m_forwardMotorConfig);
-
   }
 
   private void configureMotor(SparkMax motor, SparkMaxConfig config) {
