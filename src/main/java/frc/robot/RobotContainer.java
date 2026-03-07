@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.SpektrumFlightController;
 
 import frc.robot.subsystems.ChooserHandeling;
@@ -12,7 +13,6 @@ import frc.robot.commands.StickParameters.StickBParameters;
 
 import java.util.Map;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -24,6 +24,7 @@ import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -41,13 +42,19 @@ import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.RotateToTag;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.MagazineAndFeed;
+import frc.robot.commands.DriveCommands.LockWheels;
+import frc.robot.commands.DriveCommands.ResetGyro;
+import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.StickParameters.IStickParameters;
+import frc.robot.commands.StickParameters.SendHoodToHome;
+import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
 
   private final Drivetrain m_Drive;
   private final IGyro m_Gyro = new NavxGyro();
+  private final Shooter m_shooter = new Shooter();
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
@@ -56,8 +63,7 @@ public class RobotContainer {
 
   public final SwerveModule[] m_wheels;
   private final VisionServer m_visionServer = new VisionServer();
-  private final Shooter m_shooter = new Shooter();
-  private final MagazineAndFeed m_magazine = new MagazineAndFeed();
+  // are assigned
 
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
   private final IBotSelector m_selectedBot = new MainBot();
@@ -121,9 +127,10 @@ public class RobotContainer {
     // Modern automatic default command
     m_Drive.setDefaultCommand(m_stickCommand);
 
-    m_autonSelector = new ChooserHandeling("Auton Selection",
-        Map.ofEntries(
-            Map.entry("00 Do Nothing", () -> Commands.none())));
+    m_autonSelector = new ChooserHandeling("Auton Selection", 
+      Map.ofEntries(
+        Map.entry("00 Do Nothing", () -> Commands.none())
+      ));
   }
 
   /**
@@ -182,15 +189,10 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    // m_xboxController0.x().onTrue(new SetPIDShooter(m_shooter));
-    // m_xboxController0.leftBumper().whileTrue(
-    //     Commands.startRun(() -> m_shooter.setShooterRPM(100), () -> m_shooter.setShooterRPM(100), m_shooter));
-    m_xboxController0.y()
-        .whileTrue(Commands.runEnd(() -> m_magazine.setFeedMotorVelocity(0.7), () -> m_magazine.cancel(), m_magazine));
-    m_xboxController0.a()
-        .whileTrue(Commands.runEnd(() -> m_magazine.setFeedMotorVelocity(-0.5), () -> m_magazine.cancel(), m_magazine));
-    m_xboxController0.b()
-        .whileTrue(Commands.runEnd(() -> m_shooter.setShooterRPM(3500), () -> m_shooter.cancel(), m_shooter));
+    m_xboxController0.x().onTrue(new SetPIDShooter(m_shooter));
+    m_xboxController0.leftBumper().whileTrue(
+      Commands.startRun( () -> m_shooter.setShooter_ips(100), () -> m_shooter.setShooter_ips(100), m_shooter));
+    m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
   }
 
   private void configureJoystick() {
@@ -209,7 +211,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
 
-    if (m_autonSelector == null) {
+    if (m_autonSelector == null){
       return Commands.none();
     }
 

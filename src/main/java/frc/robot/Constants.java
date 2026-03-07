@@ -23,9 +23,10 @@ public final class Constants {
     public static final int backLeftEncoderid = 10;
     public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
-    public static final int flywheelRightMotorID = 14;
-    public static final int flywheelMiddleMotorID = 13;
-    public static final int flywheelLeftMotorID = 15;
+    public static final int flyWheelRightMotorID = 13;
+    public static final int flyWheelMiddlehtMotorID = 14;
+    public static final int flyWheelLeftMotorID = 15;
+    public static final int hoodMotorID = 20;
   }
 
   public static class ControllerOneConstants {
@@ -55,7 +56,7 @@ public final class Constants {
 
   public static class DriveConstants {
     public static final double wheelCircumference_in = (Math.PI * 4);
-    public static final double driveGearRatio = 8.14;
+    public static final double driveGearRatio = 5.14;
 
     public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in;
 
@@ -65,7 +66,7 @@ public final class Constants {
     public static final double drivekIz = 0;
     public static final double drivekFF = 0.00016500000492669642;
 
-    public static final double topSpeed_fps = 21; // TODO verify this
+    public static final double topSpeed_fps = 21; //TODO verify this
 
     public static final double autoRotatekP = 0.4;
     public static final double autoRotatekI = 0.02;
@@ -183,6 +184,11 @@ public final class Constants {
     public static final double D = 0.00000;
     public static final double kF = 0.00017;
 
+    public static final double hoodP = 0;//TODO tune
+    public static final double hoodI = 0;
+    public static final double hoodD = 0;
+    public static final double hoodFF = 0.00016500000492669642;
+    
     // Physical properties
     public static final double FlywheelDiameter_in = 4.12;
 
@@ -201,6 +207,11 @@ public final class Constants {
     // Shot detection via RPM dip
     public static final double shotDipThreshold_rpm = 250.0;
     public static final double shotMinSeparation_sec = 0.08;
+  
+    public static final double hoodHomeRPM = 0;
+    public static final double hoodHomeCurrentLim_amp = 20;
+    public static final double steerDegPerEncoderTick_deg = 5; //5 motor ticks = 1 degree max of 49 and min of 89 degreseor or  visas versa 
+    public static final double hoodRevsPerDegree = (62/10) * (319/50); //10:62 & 50:319
   }
 
   public static class SteerConstants {
@@ -234,7 +245,7 @@ public final class Constants {
 
     // TODO double check all these numbers
     public static final double wheelCircumference_in = (Math.PI * 4);
-    public static final double driveGearRatio = 8.14;
+    public static final double driveGearRatio = 5.14;
     public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in;
   }
 
