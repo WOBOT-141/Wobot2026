@@ -183,11 +183,7 @@ public class RobotContainer {
   private void configureXboxController() {
     m_xboxController0.leftTrigger().whileTrue(Commands.runEnd(() -> m_intake.intakeDown(), () -> m_intake.intakeStop(), m_intake));
     m_xboxController0.leftBumper().whileTrue(Commands.runEnd(() -> m_intake.intakeRun(0.2), () -> m_intake.intakeStop(), m_intake));
-    m_xboxController0.rightBumper().whileTrue(Commands.runEnd(() -> m_intake.intakeUp(), () -> m_intake.intakeStop(), m_intake));
-    m_xboxController0.a().whileTrue(Commands.run(() -> m_Drive.sysIdQuasistaticForward(), m_Drive));
-    m_xboxController0.b().whileTrue(Commands.run(() -> m_Drive.sysIdQuasistaticReverse(), m_Drive));
-    m_xboxController0.x().whileTrue(Commands.run(() -> m_Drive.sysIdDynamicForward(), m_Drive));
-    m_xboxController0.y().whileTrue(Commands.run(() -> m_Drive.sysIdDynamicReverse(), m_Drive));
+    m_xboxController0.rightTrigger().whileTrue(Commands.runEnd(() -> m_intake.intakeUp(), () -> m_intake.intakeStop(), m_intake));
   }
 
   private void configureJoystick() {

@@ -58,6 +58,7 @@ public class Intake extends SubsystemBase {
   // Motor configuration
   private void configureIntakeElevationMotor(SparkMax intakeElevationMotor) {
     SparkMaxConfig intakeElevationMotorConfig = new SparkMaxConfig();
+    intakeElevationMotorConfig.encoder.positionConversionFactor(IntakeConstants.degPerMotorRotation_deg);
     intakeElevationMotorConfig.idleMode(IdleMode.kBrake)
         .smartCurrentLimit(IntakeConstants.freeLimit_amp);
     m_intakeElevationMotor.configure(
@@ -80,9 +81,7 @@ public class Intake extends SubsystemBase {
   // Angle helpers
   /** Returns intake arm angle in degrees */
   public double getIntakeAngle_deg() {
-    return m_intakeEncoder.getPosition()
-
-        * IntakeConstants.degPerMotorRotation_deg;
+    return m_intakeEncoder.getPosition();
   }
 
   public boolean isAtUpPosition() {
