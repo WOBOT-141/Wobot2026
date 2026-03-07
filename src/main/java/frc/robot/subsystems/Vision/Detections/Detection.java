@@ -6,20 +6,23 @@ package frc.robot.subsystems.Vision.Detections;
 
 public class Detection implements IDetection {
     private ObjectType _tag;
-    private double _angle;
     private double _distance;
-    private double _id;
+    private double _angle;
+    private int _id;
     private double _yaw;
     private double _pitch;
+    private double _roll;
     private double _cameraNum;
     private boolean _isValid;
 
     public Detection clone() {
         Detection detect = new Detection();
-        detect._angle = _angle;
         detect._distance = _distance;
+        detect._angle = _angle;
         detect._id = _id;
         detect._yaw = _yaw;
+        detect._pitch = _pitch;
+        detect._roll = _roll;
         detect._cameraNum = _cameraNum;
         return detect;
     }
@@ -30,17 +33,17 @@ public class Detection implements IDetection {
     }
 
     @Override
-    public double getAngle() {
-        return _angle;
-    }
-
-    @Override
     public double getDistance() {
         return _distance;
     }
 
     @Override
-    public double getId() {
+    public double getAngle() {
+        return _angle;
+    }
+
+    @Override
+    public int getId() {
         return _id;
     }
 
@@ -55,6 +58,11 @@ public class Detection implements IDetection {
     }
 
     @Override
+    public double getRoll() {
+        return _roll;
+    }
+
+    @Override
     public double getCameraNum() {
         return _cameraNum;
     }
@@ -64,14 +72,40 @@ public class Detection implements IDetection {
         return _isValid;
     }
 
-    public void update(ObjectType tag, double angle, double distance, double id, double yaw, double pitch,double cameraNum) {
+    public void update
+    (
+        ObjectType tag,
+        double distance,
+        double angle,
+        int id,
+        double yaw,
+        double pitch,
+        double roll,
+        double cameraNum
+    ) {
         _tag = tag;
-        _angle = angle;
         _distance = distance;
+        _angle = angle;
         _id = id;
         _yaw = yaw;
         _pitch = pitch;
+        _roll = roll;
         _cameraNum = cameraNum;
         _isValid = true;
+    }
+
+    @Override
+    public String toString() {
+            return
+                _cameraNum+" "+
+                _distance+" "+
+                _angle+" "+
+                _id+" "+
+                _yaw+" "+
+                _pitch+" "+
+                _roll+" "+
+                _tag+" "+
+                _isValid
+            ;
     }
 }
