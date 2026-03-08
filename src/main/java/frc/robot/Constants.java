@@ -119,7 +119,7 @@ public final class Constants {
 
     // Homing (current-based)
     public static final double homingSpeed_perc = -0.20;
-    public static final double homingCurrentThreshold_amp = 25.0;
+    public static final double homingCurrentThreshold_amp = 20.0;
     public static final double homingTimeout_sec = 2.0;
 
     // Intake positions

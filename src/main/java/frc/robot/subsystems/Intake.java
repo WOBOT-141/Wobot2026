@@ -130,6 +130,7 @@ public class Intake extends SubsystemBase {
 
     m_homingActive = true;
     m_isHomed = false;
+    SmartDashboard.putBoolean("Intake Homed", m_isHomed);
 
     m_intakeMotor.set(
         applyBrownoutScale(IntakeConstants.homingSpeed_perc));
@@ -141,6 +142,12 @@ public class Intake extends SubsystemBase {
       return;
 
     double current_amp = m_intakeMotor.getOutputCurrent();
+    SmartDashboard.putNumber(
+        "Intake current",
+        current_amp);
+        SmartDashboard.putNumber(
+        "Intake current thr",
+        IntakeConstants.homingCurrentThreshold_amp);
 
     if (current_amp > IntakeConstants.homingCurrentThreshold_amp) {
 
@@ -154,6 +161,10 @@ public class Intake extends SubsystemBase {
 
       SmartDashboard.putBoolean("Intake Homed", true);
     }
+  }
+
+  public boolean isHomed() {
+    return m_isHomed;
   }
 
 

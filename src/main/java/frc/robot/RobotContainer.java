@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
@@ -38,6 +39,9 @@ import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
+import frc.robot.commands.IntakeDown;
+import frc.robot.commands.IntakeHome;
+import frc.robot.commands.IntakeUp;
 import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.RotateToTag;
@@ -63,6 +67,7 @@ public class RobotContainer {
 
   public final SwerveModule[] m_wheels;
   private final VisionServer m_visionServer = new VisionServer();
+  private final Intake m_intake = new Intake();
   // are assigned
 
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
@@ -193,6 +198,9 @@ public class RobotContainer {
     m_xboxController0.leftBumper().whileTrue(
       Commands.startRun( () -> m_shooter.setShooter_ips(100), () -> m_shooter.setShooter_ips(100), m_shooter));
     m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
+    m_xboxController0.a().onTrue(new IntakeHome(m_intake));
+    m_xboxController0.y().onTrue(new IntakeUp(m_intake));
+    m_xboxController0.leftTrigger().onTrue(new IntakeDown(m_intake));
   }
 
   private void configureJoystick() {
