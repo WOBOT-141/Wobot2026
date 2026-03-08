@@ -28,8 +28,8 @@ public class MagazineAndFeed extends SubsystemBase {
  private final SparkClosedLoopController m_magazineMotorController;
 
   public MagazineAndFeed() {
-    m_feedMotor = new SparkMax(0,  MotorType.kBrushless);
-    m_magazineMotor = new SparkMax(0, MotorType.kBrushless );
+    m_feedMotor = new SparkMax(16,  MotorType.kBrushless);
+    m_magazineMotor = new SparkMax(17, MotorType.kBrushless );
 
     m_feedMotorConfig = new SparkMaxConfig();
     m_magazineMotorConfig = new SparkMaxConfig();

@@ -187,7 +187,7 @@ public final class Constants {
     public static final double hoodP = 0;//TODO tune
     public static final double hoodI = 0;
     public static final double hoodD = 0;
-    public static final double hoodFF = 0.00016500000492669642;
+    public static final double hoodFF = 0.000016;
     
     // Physical properties
     public static final double FlywheelDiameter_in = 4.12;
@@ -208,10 +208,11 @@ public final class Constants {
     public static final double shotDipThreshold_rpm = 250.0;
     public static final double shotMinSeparation_sec = 0.08;
   
-    public static final double hoodHomeRPM = 0;
-    public static final double hoodHomeCurrentLim_amp = 20;
-    public static final double steerDegPerEncoderTick_deg = 5; //5 motor ticks = 1 degree max of 49 and min of 89 degreseor or  visas versa 
-    public static final double hoodRevsPerDegree = (62/10) * (319/50); //10:62 & 50:319
+    public static final double hoodHomeRPM = .1;
+    public static final int hoodCurrentLim_amp = 20; // Used to be 15
+    public static final double hoodRevsPerDegree =  .1099; //360.0 / ((62.0/10.0) * (319.0/50.0)); //10:62 & 50:319
+    public static final double steerDegPerEncoderTick_deg = hoodRevsPerDegree / 42; //5 motor ticks = 1 degree max of 49 and min of 89 degreseor or  visas versa 
+
   }
 
   public static class SteerConstants {
