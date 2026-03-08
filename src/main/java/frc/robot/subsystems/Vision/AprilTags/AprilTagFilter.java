@@ -81,17 +81,17 @@ public class AprilTagFilter {
 
             AprilTagFieldInfo pairedTagInfo = pairedTagInfoOptional.get();
 
-            double angleBetweenDetections = FindSSSAngle(detection.getDistance(),
+            double centerTagAngleFromHubFace_deg = FindSSSAngle(
+                    detection.getDistance(),
                     pairedTagInfo.XToElement,
                     pairedDetection.getDistance());
-            AngleMagVector floorVector = getFloorVectorFromCenterTag(detection, angleBetweenDetections);
+            AngleMagVector floorVector = getFloorVectorFromCenterTag(detection, centerTagAngleFromHubFace_deg);
             floorVectorList.add(floorVector);
         }
 
         if (floorVectorList.size() == 0) {
             return Optional.empty();
         }
-        
 
         double totalMagnitude_in = 0;
         double totalAngle_deg = 0;

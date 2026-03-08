@@ -78,6 +78,7 @@ public class HubVectorTests {
         PrintTestResults(Math.sqrt(2), vector.Magnitude);
     }
 
+
     public static void getFloorVectorToTaggedElement_StraightOnCenterTag() {
         int tagId = 1;
         int pairedId = 2;
@@ -88,7 +89,7 @@ public class HubVectorTests {
         };
         DetectionList detectionList = new DetectionList(ObjectType.APRILTAG, 2);
         detectionList.addDetection(ObjectType.APRILTAG, 0.0, 1.0, tagId, 0.0, 0.0, 0.0);
-        detectionList.addDetection(ObjectType.APRILTAG, 45, Math.sqrt(2), pairedId, 0.0, 0.0, 0.0);
+        detectionList.addDetection(ObjectType.APRILTAG, 45, Math.sqrt(2), pairedId, 45, 0.0, 0.0);
 
         Detection tagDetection = (Detection) detectionList.getDetectionById(tagId);
         Detection pairedDetection = (Detection) detectionList.getDetectionById(pairedId);
