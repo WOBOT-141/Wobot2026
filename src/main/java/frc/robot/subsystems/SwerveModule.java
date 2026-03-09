@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANIdConstants;
 import frc.robot.Constants.SteerConstants;
+import frc.robot.IBotSelector;
 import frc.robot.Constants.WheelConstants;
 
 public class SwerveModule extends SubsystemBase {
@@ -60,13 +61,17 @@ public class SwerveModule extends SubsystemBase {
   private double maxAmpsFL_amp = 0;
   private double maxAmpsFR_amp = 0;
 
+  private static IBotSelector m_selectedBot;
+
   /** Creates a new Wheel. */
-  public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, double xPosition, double yPosition) {
+  public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, double xPosition,
+      double yPosition, IBotSelector _selectedBot) {
     steerMotorID = steerId;
     driveMotorID = driveId;
     _xPos = xPosition;
     _yPos = yPosition;
     m_encoderOffset_rot = absoluteOffset_deg;
+    m_selectedBot = _selectedBot;
 
     _cancoder = new CANcoder(cancoderId);
     MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
@@ -84,8 +89,8 @@ public class SwerveModule extends SubsystemBase {
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(50, 50);
     driveConfig.encoder
-        .positionConversionFactor(1.0 / WheelConstants.rotationsPerInch)
-        .velocityConversionFactor((1.0 / WheelConstants.rotationsPerInch) / 60.0);
+        .positionConversionFactor(1.0 / m_selectedBot.rotationsPerInch_rot())
+        .velocityConversionFactor((1.0 / m_selectedBot.rotationsPerInch_rot()) / 60.0);
 
     FeedForwardConfig driveFF = new FeedForwardConfig();
     driveFF.kV(WheelConstants.DriveFFKv);

@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.RobotController;
-
+import frc.robot.Constants.CANIdConstants;
 import frc.robot.Constants.FeederConstants;
 
 public class FeederMagazine extends SubsystemBase {
@@ -50,10 +50,10 @@ public class FeederMagazine extends SubsystemBase {
     m_shooter = shooter;
 
     m_feedMotor =
-        new SparkMax(FeederConstants.feedMotorID, MotorType.kBrushless);
+        new SparkMax(CANIdConstants.feedMotorID, MotorType.kBrushless);
 
     m_magazineMotor =
-        new SparkMax(FeederConstants.magazineMotorID, MotorType.kBrushless);
+        new SparkMax(CANIdConstants.magazineMotorID, MotorType.kBrushless);
 
     configureMotor(m_feedMotor);
     configureMotor(m_magazineMotor);
@@ -67,7 +67,7 @@ public class FeederMagazine extends SubsystemBase {
     SparkMaxConfig config = new SparkMaxConfig();
 
     config.idleMode(IdleMode.kBrake)
-          .smartCurrentLimit(FeederConstants.freeLimit_amp);
+          .smartCurrentLimit(FeederConstants.feedMotorFreeLimit_amp);
 
     motor.configure(
         config,
