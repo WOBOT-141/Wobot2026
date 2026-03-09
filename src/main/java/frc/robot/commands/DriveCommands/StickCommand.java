@@ -25,7 +25,6 @@ public class StickCommand extends Command {
   private final DoubleSupplier m_driveYSupplier;
   private final DoubleSupplier m_rotateSupplier;
   private final DoubleSupplier m_throttleSupplier;
-  private final BooleanSupplier m_selectButtonSupplier;
 
   // Ramp only linear magnitude (as original code did)
   private final SlewRateLimiter m_rampRate = new SlewRateLimiter(1.0);
@@ -46,8 +45,7 @@ public class StickCommand extends Command {
       DoubleSupplier driveXSupplier,
       DoubleSupplier driveYSupplier,
       DoubleSupplier rotateSupplier,
-      DoubleSupplier throttleSupplier,
-      BooleanSupplier selectButtonSupplier) {
+      DoubleSupplier throttleSupplier) {
 
     m_drive = drive;
     m_selectedBot = selectedBot;
@@ -55,7 +53,6 @@ public class StickCommand extends Command {
     m_driveYSupplier = driveYSupplier;
     m_rotateSupplier = rotateSupplier;
     m_throttleSupplier = throttleSupplier;
-    m_selectButtonSupplier = selectButtonSupplier;
 
     addRequirements(drive);
   }
@@ -93,10 +90,6 @@ public class StickCommand extends Command {
     rotationalMagnitude_perc = Math.max(-1.0, Math.min(1.0, rotationalMagnitude_perc));
 
     /* ---------------- Lockdown Logic ---------------- */
-    if (m_selectButtonSupplier.getAsBoolean()) {
-      m_lockdown = true;
-    }
-      
     if (translationMagnitude_perc != 0 || rotationalMagnitude_perc != 0) { 
       // Exit lockdown if driver commands movement
       m_lockdown = false;
@@ -166,6 +159,10 @@ public class StickCommand extends Command {
 
   public void setAlternateRotation(Optional<Double> altRotation_perc) {
     m_altCommandedRotation_perc = altRotation_perc;
+  }
+
+  public void lockWheels(){
+    m_lockdown = true;
   }
 
   private void stickDebug() {
