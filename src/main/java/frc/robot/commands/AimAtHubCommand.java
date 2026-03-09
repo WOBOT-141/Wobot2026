@@ -44,11 +44,7 @@ public class AimAtHubCommand extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-     m_pidController = new PIDController(Constants.RotateCommandConstants.P, Constants.RotateCommandConstants.I, Constants.RotateCommandConstants.D);
-     m_pidController.setSetpoint(0);
-     m_pidController.setTolerance(1.0);
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
