@@ -7,24 +7,28 @@ package frc.robot.commands.AutonomousCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.SwerveModule;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class StraightLineDrive extends Command {
   private final Drivetrain m_drivetrain;
+  private final double m_translationAngle;
   private final double m_distance_in;
   private final SwerveModule[] m_wheels;
- 
-  private double m_distanceTraveled_in;
+  private final IGyro m_gyro;
   private double[] m_startingEncoderPos_in;
-  private double m_desiredBotDistance_in;
-  private double m_avgSubstractedDistance_in;
+
+  private double distanceLeftOver_perc;
+  private double finalDriveSpeed;
 
   /** Creates a new StraightLineDrive. */
-  public StraightLineDrive(Drivetrain drivetrain, double distance, SwerveModule wheels[]) {
+  public StraightLineDrive(Drivetrain drivetrain, double translationAngle, double distance, SwerveModule wheels[], IGyro gyro) {
     m_drivetrain = drivetrain;
+    m_translationAngle = translationAngle;
     m_distance_in = distance;
     m_wheels = wheels;
+    m_gyro = gyro;
     m_startingEncoderPos_in = new double[m_wheels.length];
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);
@@ -37,54 +41,60 @@ public class StraightLineDrive extends Command {
       m_startingEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
       SmartDashboard.putNumber("StartingEncoderPos_" + i, m_startingEncoderPos_in[i]);
     }
-    m_desiredBotDistance_in = m_distance_in + m_distanceTraveled_in;
+    finalDriveSpeed = 0.05;
+    distanceLeftOver_perc = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
     double[] currentEncoderPos_in = new double[m_wheels.length];
     double totalSubstractedDistance_in = 0;
+
     for (int i = 0; i < m_wheels.length; i++) {
       currentEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
-      SmartDashboard.putNumber("CurrentEncoderPos_" + i, currentEncoderPos_in[i]);
-      totalSubstractedDistance_in += Math.abs(m_startingEncoderPos_in[i] - currentEncoderPos_in[i]);
+      // SmartDashboard.putNumber("CurrentEncoderPos_" + i, currentEncoderPos_in[i]);
+      double encoderDifference_in = Math.abs(m_startingEncoderPos_in[i] - currentEncoderPos_in[i]);
+      SmartDashboard.putNumber("Encoder difference " + i, encoderDifference_in);
+      totalSubstractedDistance_in += encoderDifference_in;
     }
 
-    m_avgSubstractedDistance_in = totalSubstractedDistance_in / m_wheels.length;
-    double distanceLeftOver_perc = m_avgSubstractedDistance_in / m_desiredBotDistance_in;
-
+    double m_avgSubstractedDistance_in = totalSubstractedDistance_in / m_wheels.length;
+    distanceLeftOver_perc = Math.abs(m_avgSubstractedDistance_in / m_distance_in);
 
     SmartDashboard.putNumber("distanceLeftOver_perc", distanceLeftOver_perc);
     SmartDashboard.putNumber("m_AvgSubtractedDistance", m_avgSubstractedDistance_in);
-    SmartDashboard.putNumber("m_distance_in", m_desiredBotDistance_in);
+    SmartDashboard.putNumber("m_distance_in", m_distance_in);
 
-    double slowSpot = 0.3;
+    m_drivetrain.driveWithGyro(m_translationAngle, TrapizoidCalculations(), 0);
+  }
+
+  private double TrapizoidCalculations() {
     double driveSpeed = 0.05;
 
-    if (currentEncoderPos_in[1] != m_startingEncoderPos_in[1]) {
-      if (distanceLeftOver_perc > 0.92 || 0.05 > distanceLeftOver_perc) {
-        driveSpeed = 0.05;
-      } else if (distanceLeftOver_perc < slowSpot) {
-        driveSpeed = 0.2;
-      } else {
-        driveSpeed = 0.5;
-      }
-    }
+    if (0.10 > distanceLeftOver_perc) {
+      driveSpeed = distanceLeftOver_perc * 9.5 + 0.05;
+    } else if (0.10 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.8) {
+      driveSpeed = 1.0;
+    } else if (0.8 < distanceLeftOver_perc) {
+      driveSpeed = distanceLeftOver_perc* (-4.52381) + 4.61905;
+    } // faster
 
-    m_drivetrain.driveWithoutGyro(0, driveSpeed, 0);
+    finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00544306);
+
+
+    return finalDriveSpeed;
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drivetrain.driveWithoutGyro(0, 0, 0);
+    m_drivetrain.driveWithGyro(0, 0, 0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(m_avgSubstractedDistance_in - m_distance_in) < 1;
+    return distanceLeftOver_perc >= .99 || distanceLeftOver_perc < -0;
   }
 }
