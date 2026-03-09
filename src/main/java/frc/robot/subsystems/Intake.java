@@ -61,7 +61,7 @@ public class Intake extends SubsystemBase {
     SparkMaxConfig intakeElevationMotorConfig = new SparkMaxConfig();
     intakeElevationMotorConfig
         .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(IntakeConstants.freeLimit_amp);
+        .smartCurrentLimit(IntakeConstants.elevationCurrentLimit_amp, IntakeConstants.elevationCurrentLimit_amp);
     intakeElevationMotorConfig.encoder
         .positionConversionFactor(IntakeConstants.degPerMotorRotation_deg);
     
@@ -76,7 +76,7 @@ public class Intake extends SubsystemBase {
     intakeRollerMotorConfig
         .inverted(true)
         .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(IntakeConstants.freeLimit_amp);
+        .smartCurrentLimit(IntakeConstants.rollerCurrentLimit_amp, IntakeConstants.rollerCurrentLimit_amp);
 
     intakeRollerMotor.configure(
         intakeRollerMotorConfig,

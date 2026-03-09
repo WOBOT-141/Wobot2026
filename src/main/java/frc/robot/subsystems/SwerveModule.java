@@ -35,7 +35,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANIdConstants;
-import frc.robot.Constants.SteerConstants;
 import frc.robot.IBotSelector;
 import frc.robot.Constants.WheelConstants;
 
@@ -61,17 +60,14 @@ public class SwerveModule extends SubsystemBase {
   private double maxAmpsFL_amp = 0;
   private double maxAmpsFR_amp = 0;
 
-  private static IBotSelector m_selectedBot;
-
   /** Creates a new Wheel. */
   public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, double xPosition,
-      double yPosition, IBotSelector _selectedBot) {
+      double yPosition, double driveRotationsPerInch) {
     steerMotorID = steerId;
     driveMotorID = driveId;
     _xPos = xPosition;
     _yPos = yPosition;
     m_encoderOffset_rot = absoluteOffset_deg;
-    m_selectedBot = _selectedBot;
 
     _cancoder = new CANcoder(cancoderId);
     MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
@@ -87,10 +83,10 @@ public class SwerveModule extends SubsystemBase {
 
     driveConfig
         .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(50, 50);
+        .smartCurrentLimit(WheelConstants.driveCurrentLimit_amp, WheelConstants.driveCurrentLimit_amp);
     driveConfig.encoder
-        .positionConversionFactor(1.0 / m_selectedBot.rotationsPerInch_rot())
-        .velocityConversionFactor((1.0 / m_selectedBot.rotationsPerInch_rot()) / 60.0);
+        .positionConversionFactor(1.0 / driveRotationsPerInch)
+        .velocityConversionFactor((1.0 / driveRotationsPerInch) / 60.0);
 
     FeedForwardConfig driveFF = new FeedForwardConfig();
     driveFF.kV(WheelConstants.DriveFFKv);
@@ -105,9 +101,9 @@ public class SwerveModule extends SubsystemBase {
 
     steerConfig
         .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(50, 50);
+        .smartCurrentLimit(WheelConstants.steerCurrentLimit_amp, WheelConstants.steerCurrentLimit_amp);
     steerConfig.encoder
-        .positionConversionFactor(SteerConstants.steerDegPerMotorRotation_deg);
+        .positionConversionFactor(WheelConstants.steerDegPerMotorRotation_deg);
     steerConfig.closedLoop
         .pid(WheelConstants.SteerP, WheelConstants.SteerI, WheelConstants.DriveD, ClosedLoopSlot.kSlot0)
         .allowedClosedLoopError(5, ClosedLoopSlot.kSlot0);

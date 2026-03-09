@@ -4,21 +4,21 @@ import frc.robot.Constants;
 
 public class ShooterCalculations {
     public double getLaunchAngle(double targetDistance_in){
-        return getLaunchAngle(targetDistance_in, Constants.ShooterConstants.deltaHprm_in, Constants.ShooterConstants.drc_in, targetDistance_in );
+        return getLaunchAngle(targetDistance_in, Constants.ShooterConstants.muzzleToRimHeight_in, Constants.ShooterConstants.hubRimToCenter_in, targetDistance_in );
     }
 
-    public static double getLaunchAngle(double targetDistance_in,  double deltaHeight_in, double rimToTargetDistance_in, double targetHeight_in) {
+    public static double getLaunchAngle(double targetDistance_in,  double deltaHeight_in, double rimToTargetDistance_in, double targetHeightAboveRim_in) {
         double angleStep1 = (2 * targetDistance_in + rimToTargetDistance_in) * (deltaHeight_in)
-                + (targetHeight_in / rimToTargetDistance_in) * Math.pow(targetDistance_in,2);
+                + (targetHeightAboveRim_in / rimToTargetDistance_in) * Math.pow(targetDistance_in,2);
         double angleStep2 = (2 * targetDistance_in + rimToTargetDistance_in) * (targetDistance_in)
                 - Math.pow(targetDistance_in, 2);
         return Math.toDegrees(Math.atan((angleStep1 / angleStep2)));
     }
     
-    public static double getLaunchSpeed(double launchAngle_deg, double targetDistance_in, double rimToTargetDistance_in, double targetHeight_in) {
+    public static double getLaunchSpeed(double launchAngle_deg, double targetDistance_in, double rimToTargetDistance_in, double targetHeightAboveRim_in) {
         double step1 = Constants.ShooterConstants.g_inps2
-                * ((targetDistance_in - Constants.ShooterConstants.drc_in) + rimToTargetDistance_in / 2);
-        double step2 = (targetHeight_in / rimToTargetDistance_in) * (Math.pow(Math.cos(Math.toRadians(launchAngle_deg)), 2))
+                * ((targetDistance_in - Constants.ShooterConstants.hubRimToCenter_in) + rimToTargetDistance_in / 2);
+        double step2 = (targetHeightAboveRim_in / rimToTargetDistance_in) * (Math.pow(Math.cos(Math.toRadians(launchAngle_deg)), 2))
                 + Math.sin(Math.toRadians(launchAngle_deg)) * Math.cos((Math.toRadians(launchAngle_deg)));
         double step3 = (step1 / step2);
         return Math.sqrt(step3);
@@ -37,7 +37,7 @@ public class ShooterCalculations {
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
-        return  Constants.ShooterConstants.drc_in * Math.tan(Math.toRadians(MissingAngle_deg));
+        return  Constants.ShooterConstants.hubRimToCenter_in * Math.tan(Math.toRadians(MissingAngle_deg));
     }
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg, double distanceRimToTarget) {

@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.CANIdConstants;
 import frc.robot.Constants.FeederConstants;
 
-public class FeederMagazine extends SubsystemBase {
+public class MagazineAndFeedPlus extends SubsystemBase {
 
   private final SparkMax m_feedMotor;
   private final SparkMax m_magazineMotor;
@@ -45,7 +45,7 @@ public class FeederMagazine extends SubsystemBase {
   // Dashboard state tracking
   private boolean m_lastFeedAllowed = false;
 
-  public FeederMagazine(Shooter shooter) {
+  public MagazineAndFeedPlus(Shooter shooter) {
 
     m_shooter = shooter;
 
