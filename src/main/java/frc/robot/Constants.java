@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants.
@@ -23,8 +25,44 @@ public final class Constants {
     public static final int backLeftEncoderid = 10;
     public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
+    public static final int flyWheelRightMotorID = 13;
+    public static final int flyWheelMiddlehtMotorID = 14;
+    public static final int flyWheelLeftMotorID = 15;
+    public static final int feedMotorID = 16;
+    public static final int magazineMotorID = 17;
     public static final int intakeElevationMotorID = 18;
     public static final int intakeRollerMotorID = 19;
+    public static final int hoodMotorID = 20;
+
+    public static final int ClimberMotorID = 0; //TODO add can ids
+    public static final int ClimbFollowerMotorID = 0;
+  }
+
+  public static class ClimberConstants {
+    public static final double homeRPM = 0;
+    
+    public static final double extendClimberToL1_IN = 0; 
+    public static final double l1climb_IN = 0; 
+    public static final double l2AndL3climb_IN = 0;
+    public static final double retractClimberL1_IN = 0;
+    public static final double retractClimberL2AndL3_IN = 0;
+
+    public static final double gearRatio = 0; 
+
+    public static final double motorRPM = 0;
+    public static final int  motorFreeLimit = 40;
+    public static final int motorStallLimit = 40;
+
+    public static final double hookServoExtend = 0;
+    public static final double hookServoRetract = 0;
+    public static final double ratchetServoUnlock = 0;
+
+    public static final int topLeftLimitSwitchID = 0;
+    public static final int bottomLeftLimitSwitchID = 1;
+    public static final int topRightLimitSwitchID = 2;
+    public static final int bottomRightLimitSwitchID = 3;
+
+    public static final double positionTolerance_IN = 1;
   }
 
   public static class ControllerOneConstants {
@@ -54,7 +92,7 @@ public final class Constants {
 
   public static class DriveConstants {
     public static final double wheelCircumference_in = (Math.PI * 4);
-    public static final double driveGearRatio = 8.14;
+    public static final double driveGearRatio = 5.14;
 
     public static final double rotationsPerInch_rot = driveGearRatio / wheelCircumference_in;
 
@@ -78,12 +116,10 @@ public final class Constants {
   }
 
   public static final class FeederConstants {
-    // Motor IDs
-    public static final int feedMotorID = 16;
-    public static final int magazineMotorID = 17;
 
     // Current limits
-    public static final int freeLimit_amp = 40;
+    public static final int feedMotorFreeLimit_amp = 60;
+    public static final int magazineMotorFreeLimit_amp = 60;
 
     // Jam detection
     public static final double jamRPMThreshold_rpm = 200.0;
@@ -110,7 +146,7 @@ public final class Constants {
 
     // Homing (current-based)
     public static final double homingSpeed_perc = -0.20;
-    public static final double homingCurrentThreshold_amp = 25.0;
+    public static final double homingCurrentThreshold_amp = 20.0;
     public static final double homingTimeout_sec = 2.0;
 
     // Intake positions
@@ -170,17 +206,27 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-    // Motor IDs
-    public static final int flywheelRightMotorID = 13;
-    public static final int flywheelMiddleMotorID = 14;
-    public static final int flywheelLeftMotorID = 15;
+
+    public static final double g_inps2 = Units.metersToInches(9.807);
+    public static double drc_in = 23.51; // drc_m = horiz dist rim to target center
+    public static double hrm_in = 72; // hrm_m = height of rim
+    public static double hm_in = 24.3359; // hm_m = height of muzzle
+    // theta = hood angle
+    public static double deltaHprm_in = hrm_in - hm_in;
 
     // PID / Feedforward
-    public static final double P = 0.00000;
+    public static final double leftP = 0.00012;
+    public static final double middleP = 0.00025;
+    public static final double rightP = 0.00015;
     public static final double I = 0.00000;
     public static final double D = 0.00000;
-    public static final double kF = 0.00017;
+    public static final double kF = 0.00018;
 
+    public static final double hoodP = 0.04;
+    public static final double hoodI = 0;
+    public static final double hoodD = 0;
+    public static final double hoodFF = 0.0;
+    
     // Physical properties
     public static final double FlywheelDiameter_in = 4.12;
 
@@ -189,8 +235,8 @@ public final class Constants {
     public static final double slewRateLimit_rpmps = 4000.0;
 
     // Current limits
-    public static final int stallLimit_amp = 60;
-    public static final int freeLimit_amp = 60;
+    public static final int stallLimit_amp = 40;
+    public static final int freeLimit_amp = 40;
 
     // Brownout protection
     public static final double BrownoutStartVoltage_V = 10.8;
@@ -199,6 +245,11 @@ public final class Constants {
     // Shot detection via RPM dip
     public static final double shotDipThreshold_rpm = 250.0;
     public static final double shotMinSeparation_sec = 0.08;
+  
+    public static final double hoodHomeRPM = .1;
+    public static final int hoodCurrentLim_amp = 20;
+    public static final double hoodMotorRotsPerDeg =  .1099;
+    public static final double hoodDegPerEncoderTick_deg = hoodMotorRotsPerDeg * 42;
   }
 
   public static class SteerConstants {
@@ -230,9 +281,8 @@ public final class Constants {
     public static final double SteerIz = 0;
     public static final double SteerFF = 0;
 
-    // TODO double check all these numbers
     public static final double wheelCircumference_in = (Math.PI * 4);
-    public static final double driveGearRatio = 8.14;
+    public static final double driveGearRatio = 5.14;
     public static final double rotationsPerInch = driveGearRatio / wheelCircumference_in;
   }
 

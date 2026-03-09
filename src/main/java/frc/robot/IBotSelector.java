@@ -35,4 +35,6 @@ public interface IBotSelector {
     double getbackRightLocationY();
 
     double getCameraOffset();
+
+    double rotationsPerInch_rot();
 } 

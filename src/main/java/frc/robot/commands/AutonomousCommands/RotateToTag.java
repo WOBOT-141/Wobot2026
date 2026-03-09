@@ -34,7 +34,7 @@ private IDetection m_closestDetection;
      m_closestTagId = (int) m_closestDetection.getId();
      m_pidController = new PIDController(RotateCommandConstants.P, RotateCommandConstants.I, RotateCommandConstants.D);
      m_pidController.setSetpoint(0);
-     m_pidController.setTolerance(2.0);
+     m_pidController.setTolerance(1.0);
      m_drivetrain.driveWithGyro(0, 0, 0); 
     }
 

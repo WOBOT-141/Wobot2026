@@ -7,20 +7,20 @@ package frc.robot.subsystems;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.CANIdConstants;
-import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
 
@@ -32,7 +32,7 @@ public class Intake extends SubsystemBase {
   private final RelativeEncoder m_intakeRollerEncoder;
 
   // State
-  private boolean m_isHomed = true;
+  private boolean m_isHomed = false;
   private boolean m_homingActive = false;
 
   private double m_moveStartTime_sec = 0.0;
@@ -43,25 +43,29 @@ public class Intake extends SubsystemBase {
 
 
   // Constructor
-  public Intake() {
+   public Intake() {
 
-    m_intakeElevationMotor = new SparkMax(Constants.CANIdConstants.intakeElevationMotorID, MotorType.kBrushless);
-    m_intakeRollerMotor = new SparkFlex(Constants.CANIdConstants.intakeRollerMotorID, MotorType.kBrushless);
-
-    m_intakeEncoder = m_intakeElevationMotor.getEncoder();
-
-    m_intakeRollerEncoder = m_intakeRollerMotor.getEncoder();
+    m_intakeElevationMotor = new SparkMax(CANIdConstants.intakeElevationMotorID, MotorType.kBrushless);
+    m_intakeRollerMotor = new SparkFlex(CANIdConstants.intakeRollerMotorID, MotorType.kBrushless);
+    
     configureIntakeRollerMotor(m_intakeRollerMotor);
     configureIntakeElevationMotor(m_intakeElevationMotor);
+
+    m_intakeEncoder = m_intakeElevationMotor.getEncoder();
+    m_intakeRollerEncoder = m_intakeRollerMotor.getEncoder();
   }
 
+ 
   // Motor configuration
   private void configureIntakeElevationMotor(SparkMax intakeElevationMotor) {
     SparkMaxConfig intakeElevationMotorConfig = new SparkMaxConfig();
-    intakeElevationMotorConfig.encoder.positionConversionFactor(IntakeConstants.degPerMotorRotation_deg);
-    intakeElevationMotorConfig.idleMode(IdleMode.kBrake)
+    intakeElevationMotorConfig
+        .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(IntakeConstants.freeLimit_amp);
-    m_intakeElevationMotor.configure(
+    intakeElevationMotorConfig.encoder
+        .positionConversionFactor(IntakeConstants.degPerMotorRotation_deg);
+    
+    intakeElevationMotor.configure(
         intakeElevationMotorConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
@@ -69,29 +73,28 @@ public class Intake extends SubsystemBase {
 
   private void configureIntakeRollerMotor(SparkFlex intakeRollerMotor) {
     SparkFlexConfig intakeRollerMotorConfig = new SparkFlexConfig();
-    intakeRollerMotorConfig.inverted(true);
-    intakeRollerMotorConfig.idleMode(IdleMode.kBrake)
+    intakeRollerMotorConfig
+        .inverted(true)
+        .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(IntakeConstants.freeLimit_amp);
+
     intakeRollerMotor.configure(
         intakeRollerMotorConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
   }
 
-  // Angle helpers
-  /** Returns intake arm angle in degrees */
-  public double getIntakeAngle_deg() {
-    return m_intakeEncoder.getPosition();
-  }
-
   public boolean isAtUpPosition() {
-    return Math.abs(getIntakeAngle_deg() - IntakeConstants.upAngle_deg) < IntakeConstants.positionTolerance_deg;
+    return Math.abs(m_intakeEncoder.getPosition() - IntakeConstants.upAngle_deg)
+        < IntakeConstants.positionTolerance_deg;
   }
 
   public boolean isAtDownPosition() {
-    return Math.abs(getIntakeAngle_deg() - IntakeConstants.downAngle_deg) < IntakeConstants.positionTolerance_deg;
+    return Math.abs(m_intakeEncoder.getPosition() - IntakeConstants.downAngle_deg)
+        < IntakeConstants.positionTolerance_deg;
   }
 
+ 
   // Roller control
   public void intakeRun(double speed_perc) {
     m_intakeRollerMotor.set(speed_perc);
@@ -101,6 +104,7 @@ public class Intake extends SubsystemBase {
     m_intakeRollerMotor.stopMotor();
   }
 
+ 
   // Arm control
   public void intakeDown() {
 
@@ -133,6 +137,7 @@ public class Intake extends SubsystemBase {
 
     m_homingActive = true;
     m_isHomed = false;
+    SmartDashboard.putBoolean("Intake Homed", m_isHomed);
 
     m_intakeElevationMotor.set(
         applyBrownoutScale(IntakeConstants.homingSpeed_perc));
@@ -144,6 +149,12 @@ public class Intake extends SubsystemBase {
       return;
 
     double current_amp = m_intakeElevationMotor.getOutputCurrent();
+    SmartDashboard.putNumber(
+        "Intake current",
+        current_amp);
+        SmartDashboard.putNumber(
+        "Intake current thr",
+        IntakeConstants.homingCurrentThreshold_amp);
 
     if (current_amp > IntakeConstants.homingCurrentThreshold_amp) {
 
@@ -158,6 +169,11 @@ public class Intake extends SubsystemBase {
       SmartDashboard.putBoolean("Intake Homed", true);
     }
   }
+
+  public boolean isHomed() {
+    return m_isHomed;
+  }
+
 
   // Brownout protection
   private double applyBrownoutScale(double commandedSpeed_perc) {
@@ -193,7 +209,7 @@ public class Intake extends SubsystemBase {
     // Dashboard numbers
     SmartDashboard.putNumber(
         "Intake Angle deg",
-        getIntakeAngle_deg());
+        m_intakeEncoder.getPosition());
 
     SmartDashboard.putNumber(
         "Intake Motor RPM",
