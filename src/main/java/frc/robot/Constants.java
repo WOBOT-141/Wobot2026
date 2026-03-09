@@ -249,9 +249,8 @@ public final class Constants {
   
     public static final double hoodHomeRPM = .1;
     public static final int hoodCurrentLim_amp = 20;
-    public static final double hoodRevsPerDegree =  .1099;
-    public static final double steerDegPerEncoderTick_deg = hoodRevsPerDegree / 42;
-
+    public static final double hoodMotorRotsPerDeg =  .1099;
+    public static final double hoodDegPerEncoderTick_deg = hoodMotorRotsPerDeg * 42;
   }
 
   public static class SteerConstants {
