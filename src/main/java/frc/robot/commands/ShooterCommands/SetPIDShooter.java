@@ -7,9 +7,9 @@ import frc.robot.subsystems.Shooter;
 public class SetPIDShooter extends InstantCommand {
 
   private final Shooter m_shooter;
-  private double m_flywheelP0 = 0;
-  private double m_flywheelI0 = 0;
-  private double m_flywheelD0 = 0;
+  private double m_hoodD0 = 0;
+  private double m_hoodI0 = 0;
+  private double m_hoodP0 = 0;
 
 
   public SetPIDShooter(Shooter shooter) {
@@ -20,12 +20,12 @@ public class SetPIDShooter extends InstantCommand {
 
   @Override
   public void initialize() {
-    double m_flywheelP = SmartDashboard.getNumber("Shooter P", m_flywheelP0);
-    double m_flywheelI = SmartDashboard.getNumber("Shooter I", m_flywheelI0);
-    double m_flywheelD = SmartDashboard.getNumber("Shooter D", m_flywheelD0);
-    System.out.printf("SetPidShooter start FlyWheelP: %f, FlyWheelI: %f, FlyWheelD: %f\n", m_flywheelP, m_flywheelI, m_flywheelD);
+    double m_hoodP = SmartDashboard.getNumber("Shooter P", m_hoodP0);
+    double m_hoodI = SmartDashboard.getNumber("Shooter I", m_hoodI0);
+    double m_hoodD = SmartDashboard.getNumber("Shooter D", m_hoodD0);
+    System.out.printf("SetPidShooter start HoodP: %f, HoodI: %f, HoodD: %f\n", m_hoodP, m_hoodI, m_hoodD);
     
-    m_shooter.setPIDValues(m_flywheelP, m_flywheelI, m_flywheelD);
+    m_shooter.setPIDValues(m_hoodP, m_hoodI, m_hoodD);
   } 
 
     @Override

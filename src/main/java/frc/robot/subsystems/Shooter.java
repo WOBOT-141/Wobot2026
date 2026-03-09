@@ -13,6 +13,7 @@ import com.revrobotics.spark.ClosedLoopSlot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.Constants.ShooterConstants;
@@ -52,11 +53,14 @@ public class Shooter extends SubsystemBase {
   private boolean m_hoodAtHome = false;
   private double m_hoodTargetPosition_deg = 0;
 
+  private double slewRate = 0.5; 
+
   public Shooter() {
 
-    SmartDashboard.putNumber("hood P", ShooterConstants.hoodP);
-    SmartDashboard.putNumber("hood I", ShooterConstants.hoodI);
-    SmartDashboard.putNumber("hood D", ShooterConstants.hoodD);
+    SmartDashboard.putNumber("hoodP", ShooterConstants.hoodP);
+    SmartDashboard.putNumber("hoodI", ShooterConstants.hoodI);
+    SmartDashboard.putNumber("hoodD", ShooterConstants.hoodD);
+    SmartDashboard.putNumber("set hood position", m_hoodTargetPosition_deg);
 
     m_rightMotor = new SparkMax(CANIdConstants.flyWheelRightMotorID, MotorType.kBrushless);
     m_middleMotor = new SparkMax(CANIdConstants.flyWheelMiddlehtMotorID, MotorType.kBrushless);
@@ -82,14 +86,15 @@ public class Shooter extends SubsystemBase {
     m_hoodMotorConfig = new SparkMaxConfig();
 
     m_hoodMotorConfig
-      .idleMode(IdleMode.kBrake)
-      .smartCurrentLimit( 20, 20);
+        .idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(ShooterConstants.hoodCurrentLim_amp, ShooterConstants.hoodCurrentLim_amp)
+        .openLoopRampRate(slewRate);
 
-    m_hoodMotorConfig.encoder.positionConversionFactor(1/ ShooterConstants.hoodRevsPerDegree);
+    m_hoodMotorConfig.encoder.positionConversionFactor(1 / ShooterConstants.hoodRevsPerDegree);
 
     m_hoodMotorConfig.closedLoop
-      .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD)
-            .velocityFF(ShooterConstants.hoodFF, ClosedLoopSlot.kSlot0);
+        .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD)
+        .velocityFF(ShooterConstants.hoodFF, ClosedLoopSlot.kSlot0);
 
     m_hoodMotor.configure(m_hoodMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
@@ -111,26 +116,42 @@ public class Shooter extends SubsystemBase {
   }
 
   public void homeHood() {
-    m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
-    if (m_hoodMotor.getOutputCurrent() > Constants.ShooterConstants.hoodHomeCurrentLim_amp) {
-      m_hoodMotor.stopMotor();
-      m_hoodMotorEncoder.setPosition(0);
-      m_hoodAtHome = true;
-    }
+    //double startTime_sec = Timer.getFPGATimestamp();
+    //if ((startTime_sec - currentTime_sec) > .05) {
+      m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
+      double hoodCurrent = m_hoodMotor.getOutputCurrent();
+      if (hoodCurrent > ShooterConstants.hoodCurrentLim_amp) {
+        m_hoodMotor.stopMotor();
+        m_hoodMotorEncoder.setPosition(89);
+        m_hoodAtHome = true;
+      }
+   // }
   }
 
   public boolean hoodAtHome() {
     return m_hoodAtHome;
   }
 
+  public void setHoodAtHome(boolean atHome) {
+    m_hoodAtHome = atHome;
+  }
+
   public void setHoodPosition(double targetPosition_deg) {
-    targetPosition_deg = SmartDashboard.getNumber("hoodPosition", targetPosition_deg);
+    targetPosition_deg = SmartDashboard.getNumber("set hood Position", targetPosition_deg);
     double targetPositionTicks = targetPosition_deg / ShooterConstants.steerDegPerEncoderTick_deg;
     m_hoodController.setSetpoint(targetPositionTicks, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
-  public void setPIDValues(double flywheelP, double flywheelI, double flywheelD) {
-    // Fill when tuning
+  public void setHoodPosition() {
+    double targetPosition_deg = SmartDashboard.getNumber("hoodPosition", m_hoodTargetPosition_deg);
+    double targetPositionTicks = targetPosition_deg / ShooterConstants.steerDegPerEncoderTick_deg;
+    m_hoodController.setSetpoint(targetPositionTicks, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+  }
+
+  public void setPIDValues(double hoodP, double hoodI, double hoodD) {
+
+    m_hoodMotorConfig.closedLoop
+        .pid(hoodP, hoodI, hoodD);
   }
 
   private void configureMotor(SparkMax motor, SparkMaxConfig config) {
@@ -205,11 +226,18 @@ public class Shooter extends SubsystemBase {
     m_hoodMotor.stopMotor();
   }
 
+  public void stopHood() {
+    m_hoodMotor.stopMotor();
+  }
+
   @Override
   public void periodic() {
 
     updateShotDetection();
 
+    SmartDashboard.putBoolean("ShooterHomed", hoodAtHome());
+    SmartDashboard.putNumber("Hood Position", m_hoodMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("Hood Current", m_hoodMotor.getOutputCurrent());
     SmartDashboard.putNumber("Shooter Avg RPM", getAverageRPM());
     SmartDashboard.putBoolean("Shot Detected", m_shotDetected);
 
