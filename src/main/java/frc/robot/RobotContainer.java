@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import java.security.KeyStore.Entry;
 import java.util.Map;
 
@@ -41,6 +42,11 @@ import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
+import frc.robot.subsystems.ChooserHandeling;
+import frc.robot.commands.AimAtHubCommand;
+import frc.robot.commands.MovingRotateToTag;
+import frc.robot.commands.AutonomousCommands.RotateToTag;
+import frc.robot.commands.AimAtHubCommand;
 import frc.robot.commands.IntakeDown;
 import frc.robot.commands.IntakeHome;
 import frc.robot.commands.IntakeUp;
@@ -84,7 +90,7 @@ public class RobotContainer {
 
   public final SwerveModule[] m_wheels;
   private final VisionServer m_visionServer = new VisionServer();
-  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
+  private final AprilTagFilter m_AprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
   private final IBotSelector m_selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();

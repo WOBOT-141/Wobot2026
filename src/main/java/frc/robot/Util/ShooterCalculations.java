@@ -4,7 +4,7 @@ import frc.robot.Constants;
 
 public class ShooterCalculations {
     public double getLaunchAngle(double targetDistance_in){
-return getLaunchAngle(targetDistance_in, Constants.ShooterConstants.deltaHprm_in, Constants.ShooterConstants.drc_in, targetDistance_in );
+        return getLaunchAngle(targetDistance_in, Constants.ShooterConstants.deltaHprm_in, Constants.ShooterConstants.drc_in, targetDistance_in );
     }
 
     public static double getLaunchAngle(double targetDistance_in,  double deltaHeight_in, double rimToTargetDistance_in, double targetHeight_in) {
@@ -32,7 +32,6 @@ return getLaunchAngle(targetDistance_in, Constants.ShooterConstants.deltaHprm_in
 
         double launchspeed =  getLaunchSpeed(launchAngle,222.3059, 23.51,72);
         System.out.println("inital correct velocity " + launchspeed + " inches per second.");
-
     }
 
 
@@ -44,31 +43,5 @@ return getLaunchAngle(targetDistance_in, Constants.ShooterConstants.deltaHprm_in
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg, double distanceRimToTarget) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
         return distanceRimToTarget * Math.tan(Math.toRadians(MissingAngle_deg));
-
     }
-
-
-
 }
-
-// MAX ANGLE OF 89 deg, MIN OF 44.5 according to mason
-
-/*
- * 
- * 
- * 
- * 
- * numerator = g((target-drc_m) + (ShooterConstants.drt_m/2))
- * denominator =
- * (har_m/ShooterConstants.drt_m)(cos(theta))^2(sin(theta))(cos(theta))
- * 
- */
-
-/*
- * For angle shot calculation-
- * numerator = (2dmr +
- * ShooterConstants.drt_m)(deltaHprm_m)+(har_m/ShooterConstants.drt_m)
- * ShooterConstants.dmr_m^2
- * denominator = (2dmr + ShooterConstants.drt_m)(ShooterConstants.dmr_m) -
- * (ShooterConstants.dmr_m)^2
- */
