@@ -184,12 +184,7 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    xboxController0.leftBumper().onTrue(new Depotlease(m_Drive, m_wheels, m_Gyro));
-    xboxController0.rightBumper().onTrue(new ZeeClimb(m_Drive, m_wheels, m_Gyro));
-    xboxController0.y().onTrue(new DoNothing());
-    xboxController0.a().onTrue(new ShootClimbMIDDLE(m_Drive, m_wheels, m_Gyro));
-    xboxController0.b().onTrue(new ShootClimbRIGHT(m_Drive, m_wheels, m_Gyro));
-    xboxController0.x().onTrue(new ShootClimbLEFT(m_Drive, m_wheels, m_Gyro));
+
   }
 
   private void configureJoystick() {
