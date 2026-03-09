@@ -59,7 +59,7 @@ public class HubVectorTests {
         int tagId = 0;
         AprilTagFieldInfo[] tags = { new AprilTagFieldInfo(tagId, tagId, null, FieldElement.HUB, 0, 1, 0) };
         Detection detection = new Detection();
-        detection.update(ObjectType.APRILTAG, 0, 1, tagId, 0, 0, 0);
+        detection.update(ObjectType.APRILTAG, 0, 1, tagId, 0, 0, 0, 0);
 
         AprilTagFilter filter = new AprilTagFilter(tags, () -> Optional.empty());
         AngleMagVector vector = filter.getFloorVectorFromCenterTag(detection, 90);
@@ -71,7 +71,7 @@ public class HubVectorTests {
         int tagId = 0;
         AprilTagFieldInfo[] tags = { new AprilTagFieldInfo(tagId, tagId, null, FieldElement.HUB, 0, 1, 0) };
         Detection detection = new Detection();
-        detection.update(ObjectType.APRILTAG, 0, 1, tagId, 90, 0, 0);
+        detection.update(ObjectType.APRILTAG, 0, 1, tagId, 90, 0, 0, 0);
         AprilTagFilter filter = new AprilTagFilter(tags, () -> Optional.empty());
         AngleMagVector vector = filter.getFloorVectorFromCenterTag(detection, 0);
         PrintTestResults(45, vector.Angle);
@@ -88,8 +88,8 @@ public class HubVectorTests {
                 new AprilTagFieldInfo(pairedId, tagId, null, FieldElement.HUB, 1, 1, 0)
         };
         DetectionList detectionList = new DetectionList(ObjectType.APRILTAG, 2);
-        detectionList.addDetection(ObjectType.APRILTAG, 0.0, 1.0, tagId, 0.0, 0.0, 0.0);
-        detectionList.addDetection(ObjectType.APRILTAG, 45, Math.sqrt(2), pairedId, 45, 0.0, 0.0);
+        detectionList.addDetection(ObjectType.APRILTAG, 0.0, 1.0, tagId, 0.0, 0.0, 0.0, 0);
+        detectionList.addDetection(ObjectType.APRILTAG, 45, Math.sqrt(2), pairedId, 45, 0.0, 0.0, 0);
 
         Detection tagDetection = (Detection) detectionList.getDetectionById(tagId);
         Detection pairedDetection = (Detection) detectionList.getDetectionById(pairedId);
