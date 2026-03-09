@@ -1,71 +1,49 @@
 package frc.robot.Util;
 
-import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 
 public class ShooterCalculations {
-
-    public static double calculateAngleShot(double targetDistance_in) {
-        double angleStep1 = (2 * ShooterConstants.dmr_m + ShooterConstants.drt_m) * (ShooterConstants.deltaHprm_m)
-                + (ShooterConstants.har_m / ShooterConstants.drt_m) * Math.pow(ShooterConstants.dmr_m, 2);
-        double angleStep2 = (2 * ShooterConstants.dmr_m + ShooterConstants.drt_m) * (ShooterConstants.dmr_m)
-                - Math.pow(ShooterConstants.dmr_m, 2);
-        return (Math.atan(angleStep1 / angleStep2));
+    public double getLaunchAngle(double targetDistance_in){
+return getLaunchAngle(targetDistance_in, Constants.ShooterConstants.deltaHprm_in, Constants.ShooterConstants.drc_in, targetDistance_in );
     }
 
-    public static double calculateInitialVelocity(double shooterAngle_deg, double targetDistance_in) {
-        double shooterAngle_rad = Math.toRadians(shooterAngle_deg);
-
-        double numerator = ShooterConstants.g
-                * ((Units.inchesToMeters(targetDistance_in) - ShooterConstants.drc_m) + (ShooterConstants.drt_m / 2));
-
-        double denominator = ((ShooterConstants.har_m / ShooterConstants.drt_m)
-                * (Math.pow(Math.cos(shooterAngle_rad), 2))
-                + (Math.sin(shooterAngle_rad) * (Math.cos(shooterAngle_rad))));
-
-        return Math.sqrt(numerator / denominator);
+    public static double getLaunchAngle(double targetDistance_in,  double deltaHeight_in, double rimToTargetDistance_in, double targetHeight_in) {
+        double angleStep1 = (2 * targetDistance_in + rimToTargetDistance_in) * (deltaHeight_in)
+                + (targetHeight_in / rimToTargetDistance_in) * Math.pow(targetDistance_in,2);
+        double angleStep2 = (2 * targetDistance_in + rimToTargetDistance_in) * (targetDistance_in)
+                - Math.pow(targetDistance_in, 2);
+        return Math.toDegrees(Math.atan((angleStep1 / angleStep2)));
+    }
+    
+    public static double getLaunchSpeed(double launchAngle_deg, double targetDistance_in, double rimToTargetDistance_in, double targetHeight_in) {
+        double step1 = Constants.ShooterConstants.g_inps2
+                * ((targetDistance_in - Constants.ShooterConstants.drc_in) + rimToTargetDistance_in / 2);
+        double step2 = (targetHeight_in / rimToTargetDistance_in) * (Math.pow(Math.cos(Math.toRadians(launchAngle_deg)), 2))
+                + Math.sin(Math.toRadians(launchAngle_deg)) * Math.cos((Math.toRadians(launchAngle_deg)));
+        double step3 = (step1 / step2);
+        return Math.sqrt(step3);
     }
 
     public static void main(String[] args) {
+        //remove this in final code. this is just for testing the results of the calculations.
 
-        double angleOfCenterTarget_deg = 45.0; // example angle
-        double initialVelocity = calculateInitialVelocity(angleOfCenterTarget_deg, 60.0); // example distance
-        System.out.println("Initial velocity: " + initialVelocity + " m/s");
+        double launchAngle = getLaunchAngle(222.3059, 43.96, 23.51, 72);
+        System.out.println("launch angle " + launchAngle + " degrees");
+
+        double launchspeed =  getLaunchSpeed(launchAngle,222.3059, 23.51,72);
+        System.out.println("inital correct velocity " + launchspeed + " inches per second.");
+
     }
+
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
-        return ShooterConstants.drt_m * Math.tan(MissingAngle_deg);
+        return  Constants.ShooterConstants.drc_in * Math.tan(Math.toRadians(MissingAngle_deg));
     }
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg, double distanceRimToTarget) {
         double MissingAngle_deg = 180 - angleOfCenterTarget_deg - 90;
-        return distanceRimToTarget * Math.tan(MissingAngle_deg);
-
-    }
-
-    public class ShooterConstants {
-        private static final double g = 9.817;
-        private static final double gf = 32.174; // gravity in ft/s^2
-
-        private static double har_m = 1.228344; // PASS har_m = height above the rim
-        private static double drt_m = Units.inchesToMeters(23.51); // PASS ShooterConstants.drt_m = distance rim to
-                                                                   // penetration of target
-        // plane
-        // (how far in should the ball
-
-        private static double dmr_m = .3; // ShooterConstants.dmr_m = horiz dist of muzzle to rim
-        private static double drc_m = Units.inchesToMeters(23.51); // drc_m = horiz dist rim to target center
-        private static double hrm_m = 1.8; // hrm_m = height of rim
-        private static double hm_m = .4; // hm_m = height of muzzle
-        // theta = hood angle
-        private static double deltaHprm_m = hrm_m + har_m - hm_m;
-        /*
-         * a = targetDistance_in
-         * b = ShooterConstants.drc_m
-         * c = ShooterConstants.drt_m
-         * d = ShooterConstants har_m
-         * l = shooterAngle_deg
-         */
+        return distanceRimToTarget * Math.tan(Math.toRadians(MissingAngle_deg));
 
     }
 
@@ -80,7 +58,7 @@ public class ShooterCalculations {
  * 
  * 
  * 
- * numerator = g((muzzleToTargetCenter_m-drc_m) + (ShooterConstants.drt_m/2))
+ * numerator = g((target-drc_m) + (ShooterConstants.drt_m/2))
  * denominator =
  * (har_m/ShooterConstants.drt_m)(cos(theta))^2(sin(theta))(cos(theta))
  * 
