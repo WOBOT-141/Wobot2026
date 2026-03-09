@@ -41,7 +41,6 @@ public class SendHoodToHome extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    double HoodCurrent = SmartDashboard.getNumber("Hood Current", 0);
-    return (HoodCurrent > Constants.ShooterConstants.hoodCurrentLim_amp);
+    return m_shooter.isHoodAtHome();
   }
 }
