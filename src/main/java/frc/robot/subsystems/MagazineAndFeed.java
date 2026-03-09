@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.CANIdConstants;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -28,8 +29,8 @@ public class MagazineAndFeed extends SubsystemBase {
  private final SparkClosedLoopController m_magazineMotorController;
 
   public MagazineAndFeed() {
-    m_feedMotor = new SparkMax(0,  MotorType.kBrushless);
-    m_magazineMotor = new SparkMax(0, MotorType.kBrushless );
+    m_feedMotor = new SparkMax(CANIdConstants.feedMotorID,  MotorType.kBrushless);
+    m_magazineMotor = new SparkMax(CANIdConstants.magazineMotorID, MotorType.kBrushless );
 
     m_feedMotorConfig = new SparkMaxConfig();
     m_magazineMotorConfig = new SparkMaxConfig();
