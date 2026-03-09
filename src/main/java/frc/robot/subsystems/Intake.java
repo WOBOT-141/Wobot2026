@@ -9,6 +9,8 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
@@ -18,12 +20,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.CANIdConstants;
 
 public class Intake extends SubsystemBase {
 
   // Hardware
-  private final SparkMax m_intakeMotor;
-  private final SparkMax m_intakeRollerMotor;
+  private final SparkMax m_intakeElevationMotor;
+  private final SparkFlex m_intakeRollerMotor;
 
   private final RelativeEncoder m_intakeEncoder;
   private final RelativeEncoder m_intakeRollerEncoder;
@@ -38,58 +41,62 @@ public class Intake extends SubsystemBase {
   private boolean m_lastAtUp = false;
   private boolean m_lastAtDown = false;
 
+
   // Constructor
    public Intake() {
 
-    m_intakeMotor =
-        new SparkMax(IntakeConstants.intakeMotorID, MotorType.kBrushless);
+    m_intakeElevationMotor = new SparkMax(CANIdConstants.intakeElevationMotorID, MotorType.kBrushless);
+    m_intakeRollerMotor = new SparkFlex(CANIdConstants.intakeRollerMotorID, MotorType.kBrushless);
+    
+    configureIntakeRollerMotor(m_intakeRollerMotor);
+    configureIntakeElevationMotor(m_intakeElevationMotor);
 
-    m_intakeRollerMotor =
-        new SparkMax(IntakeConstants.intakeRollerMotorID, MotorType.kBrushless);
-
-    configureMotor(m_intakeMotor);
-    configureMotor(m_intakeRollerMotor);
-
-    m_intakeEncoder = m_intakeMotor.getEncoder();
+    m_intakeEncoder = m_intakeElevationMotor.getEncoder();
     m_intakeRollerEncoder = m_intakeRollerMotor.getEncoder();
   }
 
  
   // Motor configuration
-  private void configureMotor(SparkMax motor) {
-
-    SparkMaxConfig config = new SparkMaxConfig();
-
-    config.idleMode(IdleMode.kBrake)
+  private void configureIntakeElevationMotor(SparkMax intakeElevationMotor) {
+    SparkMaxConfig intakeElevationMotorConfig = new SparkMaxConfig();
+    intakeElevationMotorConfig
+        .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(IntakeConstants.freeLimit_amp);
-
-    motor.configure(
-        config,
+    intakeElevationMotorConfig.encoder
+        .positionConversionFactor(IntakeConstants.degPerMotorRotation_deg);
+    
+    intakeElevationMotor.configure(
+        intakeElevationMotorConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
   }
 
-  
-  // Angle helpers
-  /** Returns intake arm angle in degrees */
-  public double getIntakeAngle_deg() {
-    return m_intakeEncoder.getPosition()
-        * IntakeConstants.degPerMotorRotation_deg;
+  private void configureIntakeRollerMotor(SparkFlex intakeRollerMotor) {
+    SparkFlexConfig intakeRollerMotorConfig = new SparkFlexConfig();
+    intakeRollerMotorConfig
+        .inverted(true)
+        .idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(IntakeConstants.freeLimit_amp);
+
+    intakeRollerMotor.configure(
+        intakeRollerMotorConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
   }
 
   public boolean isAtUpPosition() {
-    return Math.abs(getIntakeAngle_deg() - IntakeConstants.upAngle_deg)
+    return Math.abs(m_intakeEncoder.getPosition() - IntakeConstants.upAngle_deg)
         < IntakeConstants.positionTolerance_deg;
   }
 
   public boolean isAtDownPosition() {
-    return Math.abs(getIntakeAngle_deg() - IntakeConstants.downAngle_deg)
+    return Math.abs(m_intakeEncoder.getPosition() - IntakeConstants.downAngle_deg)
         < IntakeConstants.positionTolerance_deg;
   }
 
  
   // Roller control
-   public void intakeRun(double speed_perc) {
+  public void intakeRun(double speed_perc) {
     m_intakeRollerMotor.set(speed_perc);
   }
 
@@ -106,7 +113,7 @@ public class Intake extends SubsystemBase {
 
     m_moveStartTime_sec = Timer.getFPGATimestamp();
 
-    m_intakeMotor.set(
+    m_intakeElevationMotor.set(
         applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
   }
 
@@ -117,12 +124,12 @@ public class Intake extends SubsystemBase {
 
     m_moveStartTime_sec = Timer.getFPGATimestamp();
 
-    m_intakeMotor.set(
+    m_intakeElevationMotor.set(
         applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
   }
 
   public void stopArm() {
-    m_intakeMotor.stopMotor();
+    m_intakeElevationMotor.stopMotor();
   }
 
   // Homing (current based)
@@ -132,7 +139,7 @@ public class Intake extends SubsystemBase {
     m_isHomed = false;
     SmartDashboard.putBoolean("Intake Homed", m_isHomed);
 
-    m_intakeMotor.set(
+    m_intakeElevationMotor.set(
         applyBrownoutScale(IntakeConstants.homingSpeed_perc));
   }
 
@@ -141,7 +148,7 @@ public class Intake extends SubsystemBase {
     if (!m_homingActive)
       return;
 
-    double current_amp = m_intakeMotor.getOutputCurrent();
+    double current_amp = m_intakeElevationMotor.getOutputCurrent();
     SmartDashboard.putNumber(
         "Intake current",
         current_amp);
@@ -157,7 +164,7 @@ public class Intake extends SubsystemBase {
       m_isHomed = true;
       m_homingActive = false;
 
-      m_intakeMotor.stopMotor();
+      m_intakeElevationMotor.stopMotor();
 
       SmartDashboard.putBoolean("Intake Homed", true);
     }
@@ -191,19 +198,18 @@ public class Intake extends SubsystemBase {
     updateHoming();
 
     // Safety timeout while moving
-    if (Math.abs(m_intakeMotor.get()) > 0.01) {
-      double elapsed_sec =
-          Timer.getFPGATimestamp() - m_moveStartTime_sec;
+    if (Math.abs(m_intakeElevationMotor.get()) > 0.01) {
+      double elapsed_sec = Timer.getFPGATimestamp() - m_moveStartTime_sec;
 
       if (elapsed_sec > IntakeConstants.moveTimeout_sec) {
-        m_intakeMotor.stopMotor();
+        m_intakeElevationMotor.stopMotor();
       }
     }
 
     // Dashboard numbers
     SmartDashboard.putNumber(
         "Intake Angle deg",
-        getIntakeAngle_deg());
+        m_intakeEncoder.getPosition());
 
     SmartDashboard.putNumber(
         "Intake Motor RPM",

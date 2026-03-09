@@ -30,7 +30,10 @@ public final class Constants {
     public static final int flyWheelLeftMotorID = 15;
     public static final int feedMotorID = 16;
     public static final int magazineMotorID = 17;
+    public static final int intakeElevationMotorID = 18;
+    public static final int intakeRollerMotorID = 19;
     public static final int hoodMotorID = 20;
+
     public static final int ClimberMotorID = 0; //TODO add can ids
     public static final int ClimbFollowerMotorID = 0;
   }
@@ -137,10 +140,6 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-
-    // Motor IDs
-    public static final int intakeMotorID = 18;
-    public static final int intakeRollerMotorID = 19;
 
     // Current limits
     public static final int freeLimit_amp = 60;
