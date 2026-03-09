@@ -35,7 +35,7 @@ public class Climber extends SubsystemBase {
 
     public Climber() {
         // initialize motors, encoders, configs, etc. here
-        m_climberMotor = new SparkMax(CANIdConstants.ClimberMotorID, MotorType.kBrushless); 
+        m_climberMotor = new SparkMax(CANIdConstants.climberMotorID, MotorType.kBrushless); 
         m_climberMotorConfig = new SparkMaxConfig();
         m_followMotorConfig = new SparkMaxConfig();
         
@@ -43,7 +43,7 @@ public class Climber extends SubsystemBase {
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(ClimberConstants.motorStallLimit, ClimberConstants.motorFreeLimit);
         
-        m_followMotorConfig.follow(CANIdConstants.ClimberMotorID, true); //Todo check if it needs to be inverted
+        m_followMotorConfig.follow(CANIdConstants.climberMotorID, true); //Todo check if it needs to be inverted
 
         m_climberMotorRealtiveEncoder = m_climberMotor.getEncoder();
 

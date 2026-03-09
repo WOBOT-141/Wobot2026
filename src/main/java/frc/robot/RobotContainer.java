@@ -1,26 +1,18 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import java.security.KeyStore.Entry;
 import java.util.Map;
+import static java.util.Map.entry;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.lib.SpektrumFlightController;
-
-import frc.robot.subsystems.ChooserHandeling;
-import frc.robot.commands.DriveCommands.ResetGyro;
-import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.commands.ShooterCommands.SetPIDShooter;
-import frc.robot.commands.StickParameters.IStickParameters;
-import frc.robot.commands.StickParameters.StickBParameters;
-
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import frc.lib.SpektrumFlightController;
+
+import frc.robot.subsystems.ChooserHandeling;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Intake;
@@ -28,55 +20,30 @@ import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
-
-/**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
-import frc.robot.subsystems.ChooserHandeling;
-import frc.robot.commands.AimAtHubCommand;
+
 import frc.robot.commands.MovingRotateToTag;
-import frc.robot.commands.AutonomousCommands.RotateToTag;
-import frc.robot.commands.AimAtHubCommand;
-import frc.robot.commands.IntakeDown;
-import frc.robot.commands.IntakeHome;
-import frc.robot.commands.IntakeUp;
-import frc.robot.commands.MovingRotateToTag;
-import frc.robot.commands.AutonomousCommands.RotateToAngle;
-import frc.robot.commands.AutonomousCommands.RotateToTag;
-import frc.robot.commands.AutonomousCommands.StraightLineDrive;
-import frc.robot.commands.ShooterCommands.SendHoodToHome;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.Depotlease;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ForwardandBack;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.MidwayGather;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.OutToTheDepot;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbLEFT;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbRIGHT;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ZeeClimb;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.ShooterCommands.SetPIDShooter;
 import frc.robot.commands.StickParameters.IStickParameters;
-import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.StickParameters.StickBParameters;
-import static java.util.Map.entry;
-import frc.robot.subsystems.Shooter;
+
 
 public class RobotContainer {
 
-  private final Drivetrain m_Drive;
-  private final IGyro m_Gyro = new NavxGyro();
+  private final SwerveModule[] m_wheels;
+  private final Drivetrain m_drive;
+  private final IGyro m_gyro = new NavxGyro();
   private final Shooter m_shooter = new Shooter();
   private final Intake m_intake = new Intake();
   private final MagazineAndFeed m_magazine = new MagazineAndFeed();
@@ -86,9 +53,8 @@ public class RobotContainer {
   private final CommandJoystick m_joystick = new CommandJoystick(2);
   private final StickCommand m_stickCommand;
 
-  public final SwerveModule[] m_wheels;
   private final VisionServer m_visionServer = new VisionServer();
-  private final AprilTagFilter m_AprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
+  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
   private final IBotSelector m_selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
@@ -106,7 +72,7 @@ public class RobotContainer {
             m_selectedBot.getfrontLeftOffset(),
             m_selectedBot.getfrontLeftLocationX(),
             m_selectedBot.getfrontLeftLocationY(),
-            m_selectedBot),
+            m_selectedBot.rotationsPerInch_rot()),
 
         new SwerveModule(
             Constants.CANIdConstants.backLeftSteerMotorID,
@@ -115,7 +81,7 @@ public class RobotContainer {
             m_selectedBot.getbackLeftOffset(),
             m_selectedBot.getbackLeftLocationX(),
             m_selectedBot.getbackLeftLocationY(),
-            m_selectedBot),
+            m_selectedBot.rotationsPerInch_rot()),
 
         new SwerveModule(
             Constants.CANIdConstants.frontRightSteerMotorID,
@@ -124,7 +90,7 @@ public class RobotContainer {
             m_selectedBot.getfrontRightOffset(),
             m_selectedBot.getfrontRightLocationX(),
             m_selectedBot.getfrontRightLocationY(),
-            m_selectedBot),
+            m_selectedBot.rotationsPerInch_rot()),
 
         new SwerveModule(
             Constants.CANIdConstants.backRightSteerMotorID,
@@ -133,35 +99,35 @@ public class RobotContainer {
             m_selectedBot.getbackRightOffset(),
             m_selectedBot.getbackRightLocationX(),
             m_selectedBot.getbackRightLocationY(),
-            m_selectedBot)
+            m_selectedBot.rotationsPerInch_rot())
     };
 
-    m_Drive = new Drivetrain(m_wheels, m_Gyro);
+    m_drive = new Drivetrain(m_wheels, m_gyro);
 
     configureFlightControllerParameters();
 
     m_stickCommand = new StickCommand(
-        m_Drive,
-        m_Gyro,
+        m_drive,
+        m_gyro,
         m_selectedBot,
         () -> m_flightController0.getDriveX(),
         () -> m_flightController0.getDriveY(),
         () -> m_flightController0.getRotate(),
         () -> m_flightController0.getThrottle());
         
-    m_Drive.setDefaultCommand(m_stickCommand);
+    m_drive.setDefaultCommand(m_stickCommand);
     
     configureBindings();
 
     m_autonSelector = new ChooserHandeling("Autonomous Selector",
         Map.ofEntries(
             entry("00 Do Nothing", () -> new DoNothing()),
-            entry("01 MIDDLE shooterclimb", () -> new ShootClimbMIDDLE(m_Drive, m_wheels, m_Gyro)),
-            entry("02 LEFT shooterclimb", () -> new ShootClimbLEFT(m_Drive, m_wheels, m_Gyro)),
-            entry("03 RIGHT shooterclimb", () -> new ShootClimbRIGHT(m_Drive, m_wheels, m_Gyro)),
-            entry("04 Depotlease", () -> new Depotlease(m_Drive, m_wheels, m_Gyro)), // dont use
-            entry("05 ZeeClimb", () -> new ZeeClimb(m_Drive, m_wheels, m_Gyro)),
-            entry("06 Midway Gather", () -> new MidwayGather(m_Drive, m_wheels, m_Gyro)) // fix
+            entry("01 MIDDLE shooterclimb", () -> new ShootClimbMIDDLE(m_drive, m_wheels, m_gyro)),
+            entry("02 LEFT shooterclimb", () -> new ShootClimbLEFT(m_drive, m_wheels, m_gyro)),
+            entry("03 RIGHT shooterclimb", () -> new ShootClimbRIGHT(m_drive, m_wheels, m_gyro)),
+            entry("04 Depotlease", () -> new Depotlease(m_drive, m_wheels, m_gyro)), // dont use
+            entry("05 ZeeClimb", () -> new ZeeClimb(m_drive, m_wheels, m_gyro)),
+            entry("06 Midway Gather", () -> new MidwayGather(m_drive, m_wheels, m_gyro)) // fix
         ));
   }
 
@@ -230,7 +196,7 @@ public class RobotContainer {
     m_xboxController0.leftBumper().whileTrue(
       Commands.startRun( () -> m_shooter.setShooter_ips(100), () -> m_shooter.setShooter_ips(100), m_shooter));
 
-    //   m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
+    // m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
     // m_xboxController0.a().onTrue(new IntakeHome(m_intake));
     // m_xboxController0.y().onTrue(new IntakeUp(m_intake));
     // m_xboxController0.leftTrigger().onTrue(new IntakeDown(m_intake));
@@ -243,7 +209,7 @@ public class RobotContainer {
 
   private void configureFlightController() {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kReset.value))
-        .onTrue(new ResetGyro(m_Gyro));
+        .onTrue(new ResetGyro(m_gyro));
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.run(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
