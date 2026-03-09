@@ -89,23 +89,21 @@ public class StickCommand extends Command {
     translationMagnitude_perc = m_rampRate.calculate(translationMagnitude_perc);
 
     /* ---------------- Clamping ---------------- */
-
     translationMagnitude_perc = Math.max(-1.0, Math.min(1.0, translationMagnitude_perc));
     rotationalMagnitude_perc = Math.max(-1.0, Math.min(1.0, rotationalMagnitude_perc));
 
     /* ---------------- Lockdown Logic ---------------- */
-
     if (m_selectButtonSupplier.getAsBoolean()) {
       m_lockdown = true;
+    }
+      
+    if (translationMagnitude_perc != 0 || rotationalMagnitude_perc != 0) { 
+      // Exit lockdown if driver commands movement
+      m_lockdown = false;
     }
 
     if (m_lockdown) {
       m_drive.lockWheels(); 
-
-      // Exit lockdown if driver commands movement
-      if (translationMagnitude_perc != 0 || rotationalMagnitude_perc != 0) {
-        m_lockdown = false;
-      }
       return;
     }
 
@@ -116,26 +114,24 @@ public class StickCommand extends Command {
 
     /* ---------------- Drive ---------------- */
 
-    if (translationMagnitude_perc != 0 || rotationalMagnitude_perc != 0) {
-
-      double yDist = m_isRotateCenter
-          ? m_selectedBot.getDistToFront()
-          : 0.0;
-
-      m_drive.driveWithGyro(
-          translationAngle_deg,
-          translationMagnitude_perc,
-          rotationalMagnitude_perc,
-          0.0,
-          yDist);
-
-      m_lastRightDirectional = translationAngle_deg;
-
-    } else {
+    if (translationMagnitude_perc == 0 && rotationalMagnitude_perc == 0) {
       // Maintain last heading when stopped
       m_rampRate.reset(0);
       m_drive.driveWithGyro(m_lastRightDirectional, 0.0, 0.0);
     }
+
+    double yDist = m_isRotateCenter
+        ? m_selectedBot.getDistToFront()
+        : 0.0;
+
+    m_drive.driveWithGyro(
+        translationAngle_deg,
+        translationMagnitude_perc,
+        rotationalMagnitude_perc,
+        0.0,
+        yDist);
+
+    m_lastRightDirectional = translationAngle_deg;
   }
 
   private double calcThrottle_perc(double stickThrottle_perc) {
