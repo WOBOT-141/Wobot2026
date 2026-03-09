@@ -1,5 +1,8 @@
 package frc.robot;
 
+import java.security.KeyStore.Entry;
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.SpektrumFlightController;
 
@@ -11,8 +14,7 @@ import frc.robot.commands.ShooterCommands.SetPIDShooter;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 
-import java.util.Map;
-
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -43,12 +45,25 @@ import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.AutonomousCommands.RotateToAngle;
 import frc.robot.commands.AutonomousCommands.RotateToTag;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
+import frc.robot.commands.ShooterCommands.SendHoodToHome;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.MagazineAndFeed;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.Depotlease;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ForwardandBack;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.MidwayGather;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.OutToTheDepot;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbLEFT;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbRIGHT;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ZeeClimb;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
-import frc.robot.commands.StickParameters.SendHoodToHome;
+import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.StickParameters.StickBParameters;
+import static java.util.Map.entry;
 import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
@@ -66,9 +81,8 @@ public class RobotContainer {
 
   public final SwerveModule[] m_wheels;
   private final VisionServer m_visionServer = new VisionServer();
-  // are assigned
-
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.m_tags);
+
   private final IBotSelector m_selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
 
@@ -84,7 +98,8 @@ public class RobotContainer {
             Constants.CANIdConstants.frontLeftEncoderid,
             m_selectedBot.getfrontLeftOffset(),
             m_selectedBot.getfrontLeftLocationX(),
-            m_selectedBot.getfrontLeftLocationY()),
+            m_selectedBot.getfrontLeftLocationY(),
+            m_selectedBot),
 
         new SwerveModule(
             Constants.CANIdConstants.backLeftSteerMotorID,
@@ -92,7 +107,8 @@ public class RobotContainer {
             Constants.CANIdConstants.backLeftEncoderid,
             m_selectedBot.getbackLeftOffset(),
             m_selectedBot.getbackLeftLocationX(),
-            m_selectedBot.getbackLeftLocationY()),
+            m_selectedBot.getbackLeftLocationY(),
+            m_selectedBot),
 
         new SwerveModule(
             Constants.CANIdConstants.frontRightSteerMotorID,
@@ -100,7 +116,8 @@ public class RobotContainer {
             Constants.CANIdConstants.frontRightEncoderid,
             m_selectedBot.getfrontRightOffset(),
             m_selectedBot.getfrontRightLocationX(),
-            m_selectedBot.getfrontRightLocationY()),
+            m_selectedBot.getfrontRightLocationY(),
+            m_selectedBot),
 
         new SwerveModule(
             Constants.CANIdConstants.backRightSteerMotorID,
@@ -108,7 +125,8 @@ public class RobotContainer {
             Constants.CANIdConstants.backRightEncoderid,
             m_selectedBot.getbackRightOffset(),
             m_selectedBot.getbackRightLocationX(),
-            m_selectedBot.getbackRightLocationY())
+            m_selectedBot.getbackRightLocationY(),
+            m_selectedBot)
     };
 
     m_Drive = new Drivetrain(m_wheels, m_Gyro);
@@ -124,15 +142,21 @@ public class RobotContainer {
         () -> m_flightController0.getRotate(),
         () -> m_flightController0.getThrottle(),
         () -> m_flightController0.getSelectPressButton());
-
+        
+    m_Drive.setDefaultCommand(m_stickCommand);
+    
     configureBindings();
 
-    // Modern automatic default command
-    m_Drive.setDefaultCommand(m_stickCommand);
-
-    m_autonSelector = new ChooserHandeling("Auton Selection",
+    m_autonSelector = new ChooserHandeling("Autonomous Selector",
         Map.ofEntries(
-            Map.entry("00 Do Nothing", () -> Commands.none())));
+            entry("00 Do Nothing", () -> new DoNothing()),
+            entry("01 MIDDLE shooterclimb", () -> new ShootClimbMIDDLE(m_Drive, m_wheels, m_Gyro)),
+            entry("02 LEFT shooterclimb", () -> new ShootClimbLEFT(m_Drive, m_wheels, m_Gyro)),
+            entry("03 RIGHT shooterclimb", () -> new ShootClimbRIGHT(m_Drive, m_wheels, m_Gyro)),
+            entry("04 Depotlease", () -> new Depotlease(m_Drive, m_wheels, m_Gyro)), // dont use
+            entry("05 ZeeClimb", () -> new ZeeClimb(m_Drive, m_wheels, m_Gyro)),
+            entry("06 Midway Gather", () -> new MidwayGather(m_Drive, m_wheels, m_Gyro)) // fix
+        ));
   }
 
   /**
@@ -191,17 +215,13 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    m_xboxController0.leftTrigger()
-        .whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.2), () -> m_intake.intakeStop(), m_intake));
-    m_xboxController0.leftBumper()
-        .whileTrue(Commands.startEnd(() -> m_magazine.setFeedMotorVelocity(0.7), () -> m_magazine.cancel(), m_magazine));
-    m_xboxController0.y()
-        .whileTrue(Commands.startEnd(() -> m_shooter.setShooter_ips(3500), () -> m_shooter.cancel(), m_shooter));
-    // m_xboxController0.b()
-    //     .whileTrue(Commands.startEnd(() -> m_shooter.setShooter_ips(377), () -> m_shooter.cancel(), m_shooter));
-    m_xboxController0.back()
-        .whileTrue(Commands.startEnd(() -> m_magazine.setFeedMotorVelocity(-0.5), () -> m_magazine.cancel(), m_magazine));
-
+    m_xboxController0.leftTrigger().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.2), () -> m_intake.intakeStop(), m_intake));
+    m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_magazine.setFeedMotorVelocity(0.7), () -> m_magazine.cancel(), m_magazine));
+    m_xboxController0.y().whileTrue(Commands.startEnd(() -> m_shooter.setShooter_ips(3500), () -> m_shooter.cancel(), m_shooter));
+    m_xboxController0.b().whileTrue(Commands.startEnd(() -> m_shooter.setShooter_ips(377), () -> m_shooter.cancel(), m_shooter));
+    m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_magazine.setFeedMotorVelocity(-0.5), () -> m_magazine.cancel(), m_magazine));
+    m_xboxController0.x().onTrue(new SetPIDShooter(m_shooter));
+    m_xboxController0.a().onTrue(new SendHoodToHome(m_shooter));
   }
 
   private void configureJoystick() {

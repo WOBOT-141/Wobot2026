@@ -31,6 +31,35 @@ public final class Constants {
     public static final int feedMotorID = 16;
     public static final int magazineMotorID = 17;
     public static final int hoodMotorID = 20;
+    public static final int ClimberMotorID = 0; //TODO add can ids
+    public static final int ClimbFollowerMotorID = 0;
+  }
+
+  public static class ClimberConstants {
+    public static final double homeRPM = 0;
+    
+    public static final double extendClimberToL1_IN = 0; 
+    public static final double l1climb_IN = 0; 
+    public static final double l2AndL3climb_IN = 0;
+    public static final double retractClimberL1_IN = 0;
+    public static final double retractClimberL2AndL3_IN = 0;
+
+    public static final double gearRatio = 0; 
+
+    public static final double motorRPM = 0;
+    public static final int  motorFreeLimit = 40;
+    public static final int motorStallLimit = 40;
+
+    public static final double hookServoExtend = 0;
+    public static final double hookServoRetract = 0;
+    public static final double ratchetServoUnlock = 0;
+
+    public static final int topLeftLimitSwitchID = 0;
+    public static final int bottomLeftLimitSwitchID = 1;
+    public static final int topRightLimitSwitchID = 2;
+    public static final int bottomRightLimitSwitchID = 3;
+
+    public static final double positionTolerance_IN = 1;
   }
 
   public static class ControllerOneConstants {
@@ -187,10 +216,12 @@ public final class Constants {
     public static double deltaHprm_in = hrm_in - hm_in;
 
     // PID / Feedforward
-    public static final double P = 0.00000;
+    public static final double leftP = 0.00012;
+    public static final double middleP = 0.00025;
+    public static final double rightP = 0.00015;
     public static final double I = 0.00000;
     public static final double D = 0.00000;
-    public static final double kF = 0.00017;
+    public static final double kF = 0.00018;
 
     public static final double hoodP = 0.04;
     public static final double hoodI = 0;
