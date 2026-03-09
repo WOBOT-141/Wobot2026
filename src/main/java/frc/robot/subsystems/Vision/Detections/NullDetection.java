@@ -16,17 +16,17 @@ public class NullDetection implements IDetection {
     }
 
     @Override
-    public double getAngle() {
-        return 0;
-    }
-
-    @Override
     public double getDistance() {
         return 0;
     }
 
     @Override
-    public double getId() {
+    public double getAngle() {
+        return 0;
+    }
+
+    @Override
+    public int getId() {
         return 0;
     }
 
@@ -37,6 +37,11 @@ public class NullDetection implements IDetection {
 
     @Override
     public double getPitch() {
+        return 0;
+    }
+
+    @Override
+    public double getRoll() {
         return 0;
     }
 

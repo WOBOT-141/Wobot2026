@@ -6,11 +6,12 @@ package frc.robot.subsystems.Vision.Detections;
 
 public interface IDetection {
     public ObjectType getTag();
-    public double getAngle();
     public double getDistance();
-    public double getId();
+    public double getAngle();
+    public int    getId();
     public double getYaw();
     public double getPitch();
+    public double getRoll();
     public double getCameraNum();
     public boolean isValid();
 }

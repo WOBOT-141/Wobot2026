@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+
 import edu.wpi.first.math.util.Units;
 
 /** Add your docs here. */
@@ -22,13 +23,16 @@ public class SummerBot implements IBotSelector {
     double backRightLocationX;
     double backRightLocationY;
 
+    double driveGearRatio;
+    double wheelCircumference_in;
+
     public SummerBot() {
         distToFront = Units.inchesToMeters(15.25);
 
-        frontLeftOffset  = 0.445312;
-        backLeftOffset   = 0.176270;
-        frontRightOffset = 0.507324;
-        backRightOffset  = 0.584473;
+        frontLeftOffset = 0.444092; // 9
+        backLeftOffset = 0.174316; // 10
+        frontRightOffset = 0.008301; // 11
+        backRightOffset = 0.088867; // 12 
 
         frontLeftLocationX = -.229;
         frontLeftLocationY = .229;
@@ -37,77 +41,85 @@ public class SummerBot implements IBotSelector {
         frontRightLocationX = .229;
         frontRightLocationY = .229;
         backRightLocationX = .229;
-        backRightLocationY = -.229 ;
+        backRightLocationY = -.229;
+
+        driveGearRatio = 6.12;
+        wheelCircumference_in = 3.88 * Math.PI;
     }
 
     @Override
-    public double getfrontLeftOffset(){
+    public double getfrontLeftOffset() {
         return frontLeftOffset;
     }
 
     @Override
-    public double getbackLeftOffset(){
+    public double getbackLeftOffset() {
         return backLeftOffset;
     }
 
     @Override
-    public double getbackRightOffset(){
+    public double getbackRightOffset() {
         return backRightOffset;
     }
 
     @Override
-    public double getfrontRightOffset(){
+    public double getfrontRightOffset() {
         return frontRightOffset;
     }
 
     @Override
-    public double getfrontLeftLocationX(){
+    public double getfrontLeftLocationX() {
         return frontLeftLocationX;
     }
 
     @Override
-    public double getfrontLeftLocationY(){
+    public double getfrontLeftLocationY() {
         return frontLeftLocationY;
     }
 
     @Override
-    public double getbackLeftLocationX(){
+    public double getbackLeftLocationX() {
         return backLeftLocationX;
     }
 
     @Override
-    public double getbackLeftLocationY(){
+    public double getbackLeftLocationY() {
         return backLeftLocationY;
     }
 
     @Override
-    public double getfrontRightLocationX(){
+    public double getfrontRightLocationX() {
         return frontRightLocationX;
     }
 
     @Override
-    public double getfrontRightLocationY(){
+    public double getfrontRightLocationY() {
         return frontRightLocationY;
     }
 
     @Override
-    public double getbackRightLocationX(){
+    public double getbackRightLocationX() {
         return backRightLocationX;
     }
 
     @Override
-    public double getbackRightLocationY(){
+    public double getbackRightLocationY() {
         return backRightLocationY;
     }
-    
+
     @Override
-    public double getDistToFront(){
+    public double getDistToFront() {
         return distToFront;
     }
 
     @Override
     public String getName() {
         return "SummerBot";
+    }
+
+    @Override
+    public double rotationsPerInch_rot() {
+        return driveGearRatio / wheelCircumference_in;
     }
 
     @Override

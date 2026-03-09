@@ -6,6 +6,7 @@ package frc.robot.subsystems.Vision.Detections;
 
 /** Add your docs here. */
 public class DetectionList {
+    public static double getDistance;
     private final ObjectType _objectType;
     private final int _capacity;
     private final Detection[] _detections;
@@ -39,8 +40,18 @@ public class DetectionList {
         _size = 0;
     }
 
-    public boolean addDetection(ObjectType tag, double angle, double distance, double id, double yaw, double pitch, double cameraNum) {
-        _detections[_size].update(tag, angle, distance, id, yaw, pitch, cameraNum);
+    public boolean addDetection
+        (
+        ObjectType tag,
+        double distance,
+        double angle,
+        int id,
+        double yaw,
+        double pitch,
+        double roll,
+        double cameraNum
+    ) {
+        _detections[_size].update(tag, distance, angle, id, yaw, pitch, roll, cameraNum);
         ++_size;
         return _size < _capacity;
     }
@@ -50,5 +61,17 @@ public class DetectionList {
             return NullDetection.Instance;
 
         return _detections[index];
+    }
+
+
+    public IDetection getDetectionById(int tagId) {
+            for (int i = 0; i < _size; i++){
+            IDetection currentDetection = getDetection(i);
+            if ((int) currentDetection.getId() == tagId){
+                return currentDetection;
+            }
+        }
+        return NullDetection.Instance;
+
     }
 }

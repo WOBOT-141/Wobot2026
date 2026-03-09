@@ -4,8 +4,6 @@
 
 package frc.robot.commands.AutonomousCommands;
 
-import com.ctre.phoenix6.swerve.SwerveModule;
-
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,10 +13,11 @@ import frc.robot.subsystems.IGyro;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RotateToAngle extends Command {
   private final Drivetrain m_Drivetrain;
-  private final double m_rotationAmount_deg;
+  private double m_rotationAmount_deg;
   private double m_desiredBotAngle_deg;
   SlewRateLimiter m_SlewRateLimiter;
   double gyroyaw;
+  private double remainingRotation_perc;
 
   IGyro m_gyro;
 
@@ -27,7 +26,6 @@ public class RotateToAngle extends Command {
   public RotateToAngle(Drivetrain drivetrain, double rotationAmount_deg, IGyro gyro) {
     m_Drivetrain = drivetrain;
     m_rotationAmount_deg = rotationAmount_deg;
-    // m_SlewRateLimiter = new SlewRateLimiter(0.1);
     m_gyro = gyro;
 
     // Use addRequirements() here to declare subsystem dependencies.
@@ -47,39 +45,35 @@ public class RotateToAngle extends Command {
 
     // Rotation calculations
     gyroyaw = m_gyro.getRealGyroAngle();
-    double missingAngle_deg = ((gyroyaw - m_desiredBotAngle_deg) + m_rotationAmount_deg) % 360;
-    double remainingRotation_perc = missingAngle_deg / m_rotationAmount_deg;
+    double missingAngle_deg = ((gyroyaw - m_desiredBotAngle_deg)) % 360; // m_rotationAmount_deg
+
+    SmartDashboard.putNumber("gyroyaw", gyroyaw);
+    SmartDashboard.putNumber("m_desiredBotAngle_deg", m_desiredBotAngle_deg);
+    SmartDashboard.putNumber("m_rotationAmount", m_rotationAmount_deg);
+    SmartDashboard.putNumber("missingAngle_deg", missingAngle_deg);
+    remainingRotation_perc = Math.abs(missingAngle_deg / m_rotationAmount_deg);
 
     // Speed calculations
-    double slowSpot = 0.3;
-    double rotationSpeed = 0;
+    double rotationSpeed = 0.05;
+    double finalRotationSpeed = 0.05;
 
-    // if (m_rotationAmount_deg < 180 && m_rotationAmount_deg > -180) {
-    // if (remainingRotation_perc > slowSpot) { // TODO TUNE VALUES
-    // rotationSpeed = 0.2;
-    // } else {
-    // rotationSpeed = 0.5;
-    // }
-    // } else {
-    // if (remainingRotation_perc > slowSpot) {
-    // rotationSpeed = -0.2;
-    // } else {
-    // rotationSpeed = -0.5;
-    // }
-    // }
-    if (remainingRotation_perc > slowSpot) { // TODO TUNE VALUES
-      rotationSpeed = 0.2;
-    } else {
+    if (0.25 > remainingRotation_perc) {
+      rotationSpeed = remainingRotation_perc * 10 - 0.15;
+    } else if (0.25 <= remainingRotation_perc && remainingRotation_perc <= 0.6) {
       rotationSpeed = 0.5;
+    } else if (0.6 < remainingRotation_perc && 0.95 >= remainingRotation_perc) {
+      rotationSpeed = remainingRotation_perc * (-1.25) + 1.25;
     }
 
-    // double rotationSpeed = m_SlewRateLimiter.calculate();
+    finalRotationSpeed = rotationSpeed * ((m_rotationAmount_deg) * 0.011111);
+
     SmartDashboard.putNumber("m_desiredBotAngle_deg", m_desiredBotAngle_deg);
     SmartDashboard.putNumber("gyroyaw", gyroyaw);
     SmartDashboard.putNumber("missingAngle_deg", missingAngle_deg);
     SmartDashboard.putNumber("remainingRotation_perc", remainingRotation_perc);
+    SmartDashboard.putNumber("finalRotationSpeed", finalRotationSpeed);
 
-    m_Drivetrain.driveWithoutGyro(0, 0, rotationSpeed);
+    m_Drivetrain.driveWithoutGyro(0, 0, finalRotationSpeed);
   }
 
   // Called once the command ends or is interrupted.
@@ -93,5 +87,7 @@ public class RotateToAngle extends Command {
   @Override
   public boolean isFinished() {
     return ((m_desiredBotAngle_deg + 5) >= gyroyaw && (m_desiredBotAngle_deg - 5) <= gyroyaw);
+    // return remainingRotation_perc > 1;
+    // return false;
   }
 }

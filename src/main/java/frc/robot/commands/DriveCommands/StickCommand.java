@@ -1,5 +1,6 @@
 package frc.robot.commands.DriveCommands;
 
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -27,14 +28,15 @@ public class StickCommand extends Command {
   private final BooleanSupplier m_selectButtonSupplier;
 
   // Ramp only linear magnitude (as original code did)
-  private final SlewRateLimiter rampRate = new SlewRateLimiter(1.0);
+  private final SlewRateLimiter m_rampRate = new SlewRateLimiter(1.0);
 
-  private double lastRightDirectional = 0.0;
-  private boolean isRotateCenter = false;
-  private boolean lockdown = false;
+  private double m_lastRightDirectional = 0.0;
+  private boolean m_isRotateCenter = false;
+  private boolean m_lockdown = false;
+  private Optional<Double> m_altCommandedRotation_perc = Optional.empty();
 
   // Throttle dashboard updates to 5 Hz
-  private int dashboardCounter = 0;
+  private int m_dashboardCounter = 0;
   private static final int DASHBOARD_DIVIDER = 10;
 
   public StickCommand(
@@ -60,15 +62,15 @@ public class StickCommand extends Command {
 
   @Override
   public void initialize() {
-    rampRate.reset(0);
-    lockdown = false;
+    m_rampRate.reset(0);
+    m_lockdown = false;
   }
 
   @Override
   public void execute() {
 
     /* ---------------- Dashboard Debug (throttled) ---------------- */
-    if (++dashboardCounter % DASHBOARD_DIVIDER == 0) {
+    if (++m_dashboardCounter % DASHBOARD_DIVIDER == 0) {
       stickDebug();
     }
 
@@ -88,6 +90,11 @@ public class StickCommand extends Command {
     // Convert throttle from [-1,1] to [0,1] with slight boost
     double throttleValue = ((stickThrottle + 1) / 2.0) + 0.1;
 
+    // Slow the bot down if we are aiming at something
+    if (m_altCommandedRotation_perc.isPresent()){
+      throttleValue = throttleValue / 2.0;
+    }
+
     // Normalize angle to 0-360
     rightDirectional = (rightDirectional + 360.0) % 360.0;
 
@@ -96,9 +103,7 @@ public class StickCommand extends Command {
     double finalLinearMagnitude = rightMagnitude * throttleValue;
     finalLinearMagnitude = Math.max(-1.0, Math.min(1.0, finalLinearMagnitude));
 
-    SmartDashboard.putNumber("finalLinearMagnitude", rightMagnitude * throttleValue);
-
-    double rampedMagnitude = rampRate.calculate(finalLinearMagnitude);
+    double rampedMagnitude = m_rampRate.calculate(finalLinearMagnitude);
 
     double finalRotationalMagnitude = stickRotate * throttleValue * 0.85;
     finalRotationalMagnitude =
@@ -107,24 +112,29 @@ public class StickCommand extends Command {
     /* ---------------- Lockdown Logic ---------------- */
 
     if (m_selectButtonSupplier.getAsBoolean()) {
-      lockdown = true;
+      m_lockdown = true;
     }
 
-    if (lockdown) {
+    if (m_lockdown) {
       m_drive.lockWheels();
 
       // Exit lockdown if driver commands movement
       if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
-        lockdown = false;
+        m_lockdown = false;
       }
       return;
+    }
+
+    /* ---------------- Override Rotation --------------- */
+    if (finalRotationalMagnitude == 0 && m_altCommandedRotation_perc.isPresent()) {
+      finalRotationalMagnitude = m_altCommandedRotation_perc.get();
     }
 
     /* ---------------- Drive ---------------- */
 
     if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
 
-      double yDist = isRotateCenter
+      double yDist = m_isRotateCenter
           ? m_selectedBot.getDistToFront()
           : 0.0;
 
@@ -135,17 +145,21 @@ public class StickCommand extends Command {
           0.0,
           yDist);
 
-      lastRightDirectional = rightDirectional;
+      m_lastRightDirectional = rightDirectional;
 
     } else {
       // Maintain last heading when stopped
-      rampRate.reset(0);
-      m_drive.driveWithGyro(lastRightDirectional, 0.0, 0.0);
+      m_rampRate.reset(0);
+      m_drive.driveWithGyro(m_lastRightDirectional, 0.0, 0.0);
     }
   }
 
   public void setFrontDrive(boolean isTrue) {
-    isRotateCenter = isTrue;
+    m_isRotateCenter = isTrue;
+  }
+
+  public void setAlternateRotation(Optional<Double> altRotation_perc){
+    m_altCommandedRotation_perc = altRotation_perc;
   }
 
   private void stickDebug() {
@@ -157,7 +171,7 @@ public class StickCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    m_drive.driveWithGyro(lastRightDirectional, 0.0, 0.0);
+    m_drive.driveWithGyro(m_lastRightDirectional, 0.0, 0.0);
   }
 
   @Override
