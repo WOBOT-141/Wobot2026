@@ -92,11 +92,13 @@ public class Shooter extends SubsystemBase {
         .smartCurrentLimit(ShooterConstants.hoodCurrentLim_amp)
         .openLoopRampRate(slewRate);
 
-    m_hoodMotorConfig.encoder.positionConversionFactor(8.8); // hardcoded for now to get past the calculations
+    m_hoodMotorConfig.encoder.positionConversionFactor(9.101); // hardcoded for now to get past the calculations
 
 
     m_hoodMotorConfig.closedLoop
-        .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD);
+        .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD)
+        .minOutput(-0.3)
+        .maxOutput(0.3);
 
     m_hoodMotor.configure(m_hoodMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
@@ -141,21 +143,20 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setHoodPosition(double targetPosition_deg) {
+    //targetPosition_deg = Math.abs(targetPosition_deg - ShooterConstants.hoodLowerLimit_deg);
     targetPosition_deg = Math.max(targetPosition_deg, ShooterConstants.hoodLowerLimit_deg);
     targetPosition_deg = Math.min(targetPosition_deg, ShooterConstants.hoodUpperLimit_deg);
+    m_hoodTargetPosition_deg = targetPosition_deg;
+    
 
-    m_hoodController.setSetpoint(targetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+   m_hoodController.setSetpoint(targetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    // m_hoodController.setReference(targetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
   public void setHoodPositionFromDashboard() {
     double targetPosition_deg = SmartDashboard.getNumber(m_hoodPosition_SD, m_hoodTargetPosition_deg);
     
     setHoodPosition(targetPosition_deg);
-    
-    //SmartDashboard.putNumber("targetPosition_deg", targetPosition_deg);
-   
-    SmartDashboard.putNumber("ACTUAL Hood Position", m_hoodMotor.getEncoder().getPosition());
-    
   }
   
   // private void smartDashBoardUpdates(){

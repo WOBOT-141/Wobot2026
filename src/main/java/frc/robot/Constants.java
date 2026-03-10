@@ -182,9 +182,9 @@ public final class Constants {
     public static final double D = 0.00000;
     public static final double kF = 0.00018;
 
-    public static final double hoodP = 0.04;
+    public static final double hoodP = 0.05;
     public static final double hoodI = 0;
-    public static final double hoodD = 0.001;
+    public static final double hoodD = 0; //.001
     
     // Hood Gear Ratio
     public static final double hoodGearRatio = 31.58;

@@ -196,12 +196,13 @@ public class RobotContainer {
     //m_xboxController0.b().whileTrue(Commands.startEnd(() -> m_shooter.setShooter_ips(377), () -> m_shooter.cancel(), m_shooter));
     m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_magazine.setFeedMotorVelocity(-0.5), () -> m_magazine.cancel(), m_magazine));
     m_xboxController0.x().onTrue(new SetPIDShooter(m_shooter));
-    m_xboxController0.leftBumper().whileTrue(
-      Commands.startRun( () -> m_shooter.setShooter_ips(100), () -> m_shooter.setShooter_ips(100), m_shooter));
+    // m_xboxController0.leftBumper().whileTrue(
+    //   Commands.startRun( () -> m_shooter.setShooter_ips(100), () -> m_shooter.setShooter_ips(100), m_shooter));
 
+
+    
     m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
     m_xboxController0.rightTrigger().onTrue(Commands.startEnd(() -> m_shooter.stopHood(), () -> m_shooter.cancel(), m_shooter));
-
     m_xboxController0.a().whileTrue(Commands.startEnd(() -> m_shooter.setHoodPositionFromDashboard(), () -> m_shooter.cancel(), m_shooter));
     // m_xboxController0.a().onTrue(new IntakeHome(m_intake));
     // m_xboxController0.y().onTrue(new IntakeUp(m_intake));
