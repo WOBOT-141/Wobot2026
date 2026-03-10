@@ -131,11 +131,17 @@ public final class Constants {
     public static final double downAngle_deg = 95.0;
 
     // Motion speeds
-    public static final double intakeUpSpeed_perc = -1;
-    public static final double intakeDownSpeed_perc = 0.65;
+    public static final double intakeUpSpeed_perc = -0.2;
+    public static final double intakeDownSpeed_perc = 0.2;
 
     public static final double positionTolerance_deg = 3.0; // Allowed error band for position checks
-    public static final double moveTimeout_sec = 2.0; // Safety timeout while moving
+    public static final double moveTimeout_sec = .20; // Safety timeout while moving
+
+    //9:48
+    //-84688.945313 start
+    //--85408.851563 end 
+
+    public static final double twoTurnDistance = Math.abs(-85408.851563-(-84688.945313));
 
     // Brownout protection
     public static final double brownoutStartVoltage_V = 10.8; // Voltage where we start scaling

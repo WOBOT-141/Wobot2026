@@ -36,6 +36,7 @@ import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.ShooterCommands.SetPIDShooter;
+import frc.robot.commands.ShooterCommands.intakeCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 
@@ -189,14 +190,18 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    m_xboxController0.leftTrigger().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.2), () -> m_intake.intakeStop(), m_intake));
+    m_xboxController0.leftTrigger().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.2), () -> m_intake.intakeStop(), m_intake));
     m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_magazine.setFeedMotorVelocity(0.7), () -> m_magazine.cancel(), m_magazine));
+    m_xboxController0.rightBumper().whileTrue(Commands.startEnd(() -> m_intake.intakeUp(),()->m_intake.intakeStop(), m_intake));
+    m_xboxController0.rightTrigger().whileTrue(Commands.startEnd(() -> m_intake.intakeDown(), () -> m_intake.intakeStop(), m_intake));
     m_xboxController0.y().whileTrue(Commands.startEnd(() -> m_shooter.setShooter_ips(3500), () -> m_shooter.cancel(), m_shooter));
     m_xboxController0.b().whileTrue(Commands.startEnd(() -> m_shooter.setShooter_ips(377), () -> m_shooter.cancel(), m_shooter));
     m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_magazine.setFeedMotorVelocity(-0.5), () -> m_magazine.cancel(), m_magazine));
     m_xboxController0.x().onTrue(new SetPIDShooter(m_shooter));
-    m_xboxController0.leftBumper().whileTrue(
-      Commands.startRun( () -> m_shooter.setShooter_ips(100), () -> m_shooter.setShooter_ips(100), m_shooter));
+
+    // m_xboxController0.rightBumper().whileTrue(new intakeCommand(m_intake, true));
+   // m_xboxController0.leftBumper().whileTrue(
+     // Commands.startRun( () -> m_shooter.setShooter_ips(100), () -> m_shooter.setShooter_ips(100), m_shooter));
 
     // m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
     // m_xboxController0.a().onTrue(new IntakeHome(m_intake));
