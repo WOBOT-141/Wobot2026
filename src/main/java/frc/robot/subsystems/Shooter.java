@@ -50,7 +50,7 @@ public class Shooter extends SubsystemBase {
   private double m_lastShotTime_sec = -1.0;
 
   private boolean m_hoodAtHome = false;
-  private double m_hoodTargetPosition_deg = 0;
+  private double m_hoodTargetPosition_deg = ShooterConstants.hoodLowerLimit_deg;
 
   private double slewRate = 0.5; 
 
@@ -92,7 +92,7 @@ public class Shooter extends SubsystemBase {
         .smartCurrentLimit(ShooterConstants.hoodCurrentLim_amp)
         .openLoopRampRate(slewRate);
 
-    m_hoodMotorConfig.encoder.positionConversionFactor(ShooterConstants.hoodDegPerEncoderTick_deg);
+    m_hoodMotorConfig.encoder.positionConversionFactor(ShooterConstants.hoodDegPerMotorRot);
 
     m_hoodMotorConfig.closedLoop
         .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD);
@@ -120,10 +120,10 @@ public class Shooter extends SubsystemBase {
     //double startTime_sec = Timer.getFPGATimestamp();
     //if ((startTime_sec - currentTime_sec) > .05) {
       m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
-      double hoodCurrent = m_hoodMotor.getOutputCurrent();
-      if (hoodCurrent > ShooterConstants.hoodCurrentLim_amp) {
+      
+      if (m_hoodMotor.getOutputCurrent() > ShooterConstants.hoodCurrentLim_amp) {
         m_hoodMotor.stopMotor();
-        m_hoodMotorEncoder.setPosition(89);
+        m_hoodMotorEncoder.setPosition(ShooterConstants.hoodUpperLimit_deg);
         m_hoodAtHome = true;
       }
    // }
@@ -136,14 +136,13 @@ public class Shooter extends SubsystemBase {
 
   public void setHoodAtHome(boolean atHome) {
     m_hoodAtHome = atHome;
+
   }
 
   public void setHoodPosition(double targetPosition_deg) {
-    // double targetPositionTicks = targetPosition_deg / ShooterConstants.hoodDegPerEncoderTick_deg; <- This should not be necessary.
-    // According to the setSetpoint description, a position setPoint will be read in terms of rotations (NOT ticks), modified by the
-    // position conversion factor. Our factor converts rotations to degrees, so it's already taken care of. 
     targetPosition_deg = Math.max(targetPosition_deg, ShooterConstants.hoodLowerLimit_deg);
     targetPosition_deg = Math.min(targetPosition_deg, ShooterConstants.hoodUpperLimit_deg);
+
     m_hoodController.setSetpoint(targetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
@@ -251,8 +250,8 @@ public class Shooter extends SubsystemBase {
 
     
 
-    SmartDashboard.putBoolean("ShooterHomed", isHoodAtHome());
-    // SmartDashboard.putNumber("Hood Position", m_hoodMotor.getEncoder().getPosition());
+    SmartDashboard.putBoolean("ShooterHomed", m_hoodAtHome);
+    SmartDashboard.putNumber("Hood Position", m_hoodMotorEncoder.getPosition());
     SmartDashboard.putNumber("Hood Current", m_hoodMotor.getOutputCurrent());
     SmartDashboard.putNumber("Shooter Avg RPM", getAverageRPM());
     SmartDashboard.putBoolean("Shot Detected", m_shotDetected);
