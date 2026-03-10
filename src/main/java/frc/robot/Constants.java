@@ -25,8 +25,8 @@ public final class Constants {
     public static final int backLeftEncoderid = 10;
     public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
-    public static final int flyWheelRightMotorID = 13;
-    public static final int flyWheelMiddleMotorID = 14;
+    public static final int flyWheelRightMotorID = 14;
+    public static final int flyWheelMiddleMotorID = 13;
     public static final int flyWheelLeftMotorID = 15;
     public static final int feedMotorID = 16;
     public static final int magazineMotorID = 17;
@@ -203,10 +203,10 @@ public final class Constants {
     public static final double shotMinSeparation_sec = 0.08;
   
     public static final double hoodHomeRPM = .1;
-    public static final double hoodMotorRotsPerDeg = .1099;
+    public static final double hoodMotorRotsPerDeg = .978; // 11.23;
     public static final double hoodDegPerEncoderTick_deg = hoodMotorRotsPerDeg * 42;
     public static final double hoodUpperLimit_deg = 89;
-    public static final double hoodLowerLimit_deg = 43;
+    public static final double hoodLowerLimit_deg = 46;
   }
 
   public static class WheelConstants {

@@ -54,12 +54,14 @@ public class Shooter extends SubsystemBase {
 
   private double slewRate = 0.5; 
 
+  private String m_hoodPosition_SD = "SETHOODPOS!!"; // SmartDashboard key for hood position
+
   public Shooter() {
 
     SmartDashboard.putNumber("hoodP", ShooterConstants.hoodP);
     SmartDashboard.putNumber("hoodI", ShooterConstants.hoodI);
     SmartDashboard.putNumber("hoodD", ShooterConstants.hoodD);
-    SmartDashboard.putNumber("set hood position", m_hoodTargetPosition_deg);
+    SmartDashboard.putNumber(m_hoodPosition_SD, m_hoodTargetPosition_deg);
 
     m_rightMotor = new SparkMax(CANIdConstants.flyWheelRightMotorID, MotorType.kBrushless);
     m_middleMotor = new SparkMax(CANIdConstants.flyWheelMiddleMotorID, MotorType.kBrushless);
@@ -70,6 +72,10 @@ public class Shooter extends SubsystemBase {
     m_middleMotorConfig = new SparkMaxConfig();
     m_leftMotorConfig = new SparkMaxConfig();
 
+    m_rightMotorConfig.inverted(true);
+    m_middleMotorConfig.inverted(false);
+    m_leftMotorConfig.inverted(false);
+
     m_rightMotorConfig.closedLoop.pid(ShooterConstants.leftP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
     m_middleMotorConfig.closedLoop.pid(ShooterConstants.middleP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
     m_leftMotorConfig.closedLoop.pid(ShooterConstants.rightP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
@@ -78,9 +84,6 @@ public class Shooter extends SubsystemBase {
     m_middleMotorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(ShooterConstants.flywheelCurrentLimit_amp);
     m_leftMotorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(ShooterConstants.flywheelCurrentLimit_amp);
 
-    m_rightMotorConfig.inverted(true);
-    m_middleMotorConfig.inverted(false);
-    m_leftMotorConfig.inverted(false);
 
     m_hoodMotorConfig = new SparkMaxConfig();
 
@@ -89,7 +92,7 @@ public class Shooter extends SubsystemBase {
         .smartCurrentLimit(ShooterConstants.hoodCurrentLim_amp)
         .openLoopRampRate(slewRate);
 
-    m_hoodMotorConfig.encoder.positionConversionFactor(1 / ShooterConstants.hoodMotorRotsPerDeg);
+    m_hoodMotorConfig.encoder.positionConversionFactor(ShooterConstants.hoodDegPerEncoderTick_deg);
 
     m_hoodMotorConfig.closedLoop
         .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD);
@@ -127,6 +130,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean isHoodAtHome() {
+    SmartDashboard.putNumber("homePos", m_hoodMotor.getEncoder().getPosition());
     return m_hoodAtHome;
   }
 
@@ -144,10 +148,20 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setHoodPositionFromDashboard() {
-    double targetPosition_deg = SmartDashboard.getNumber("hoodPosition", m_hoodTargetPosition_deg);
-    // double targetPositionTicks = targetPosition_deg / ShooterConstants.hoodDegPerEncoderTick_deg;
+    double targetPosition_deg = SmartDashboard.getNumber(m_hoodPosition_SD, m_hoodTargetPosition_deg);
+    
     setHoodPosition(targetPosition_deg);
+    
+    SmartDashboard.putNumber("targetPosition_deg", targetPosition_deg);
+   
+    SmartDashboard.putNumber("ACTUAL Hood Position", m_hoodMotor.getEncoder().getPosition());
+    
   }
+  
+  // private void smartDashBoardUpdates(){
+  //   SmartDashboard.putNumber("targetPosition_deg", targetPosition_deg);
+  //   SmartDashboard.putNumber("ACTUAL Hood Position", m_hoodMotor.getEncoder().getPosition());
+  // }
 
   public void setPIDValues(double hoodP, double hoodI, double hoodD) {
     m_hoodMotorConfig.closedLoop
@@ -235,8 +249,10 @@ public class Shooter extends SubsystemBase {
 
     updateShotDetection();
 
+    
+
     SmartDashboard.putBoolean("ShooterHomed", isHoodAtHome());
-    SmartDashboard.putNumber("Hood Position", m_hoodMotor.getEncoder().getPosition());
+    // SmartDashboard.putNumber("Hood Position", m_hoodMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("Hood Current", m_hoodMotor.getOutputCurrent());
     SmartDashboard.putNumber("Shooter Avg RPM", getAverageRPM());
     SmartDashboard.putBoolean("Shot Detected", m_shotDetected);
