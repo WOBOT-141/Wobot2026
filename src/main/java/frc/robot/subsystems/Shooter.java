@@ -92,7 +92,8 @@ public class Shooter extends SubsystemBase {
         .smartCurrentLimit(ShooterConstants.hoodCurrentLim_amp)
         .openLoopRampRate(slewRate);
 
-    m_hoodMotorConfig.encoder.positionConversionFactor(ShooterConstants.hoodDegPerMotorRot);
+    m_hoodMotorConfig.encoder.positionConversionFactor(8.8); // hardcoded for now to get past the calculations
+
 
     m_hoodMotorConfig.closedLoop
         .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD);
@@ -151,7 +152,7 @@ public class Shooter extends SubsystemBase {
     
     setHoodPosition(targetPosition_deg);
     
-    SmartDashboard.putNumber("targetPosition_deg", targetPosition_deg);
+    //SmartDashboard.putNumber("targetPosition_deg", targetPosition_deg);
    
     SmartDashboard.putNumber("ACTUAL Hood Position", m_hoodMotor.getEncoder().getPosition());
     
