@@ -118,7 +118,7 @@ public final class Constants {
 
 
   public static final class IntakeConstants {
-    public static final int elevationCurrentLimit_amp = 10;
+    public static final int elevationCurrentLimit_amp = 70;
     public static final int rollerCurrentLimit_amp = 20;
 
     // Homing (current-based)
@@ -131,8 +131,8 @@ public final class Constants {
     public static final double downAngle_deg = 95.0;
 
     // Motion speeds
-    public static final double intakeUpSpeed_perc = -0.2;
-    public static final double intakeDownSpeed_perc = 0.2;
+    public static final double intakeUpSpeed_perc = 0.60;
+    public static final double intakeDownSpeed_perc = -0.2;
 
     public static final double positionTolerance_deg = 3.0; // Allowed error band for position checks
     public static final double moveTimeout_sec = .20; // Safety timeout while moving

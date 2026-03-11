@@ -106,19 +106,9 @@ public class Intake extends SubsystemBase {
     // if (!m_isHomed)
     // return;
 
-    m_moveStartTime_sec = Timer.getFPGATimestamp();
-    // System.out.println("intakeMovingdown");
-
-    double m_intakeCurrent_amp = m_intakeElevationMotor.getOutputCurrent();
-
-    if (m_intakeCurrent_amp > IntakeConstants.elevationCurrentLimit_amp) {
-      stopArm();
-      return;
-      // m_moveStartTime_sec = Timer.getFPGATimestamp();
-      // System.out.println("intakeMovingup");
-
-    }
-    m_intakeElevationMotor.set(applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
+    m_intakeElevationMotor.set(applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
+    // m_moveStartTime_sec = Timer.getFPGATimestamp();
+    System.out.println("intakeMovingup");
   }
 
   public void intakeUp() {
@@ -126,27 +116,15 @@ public class Intake extends SubsystemBase {
     // if (!m_isHomed)
     // return;
 
-    //double m_intakeCurrent_amp = m_intakeElevationMotor.getOutputCurrent();
-    m_intakeElevationMotor.set(applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
+    m_intakeElevationMotor.set(applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
     // m_moveStartTime_sec = Timer.getFPGATimestamp();
-    // SmartDashboard.putString("stop status", " not stopped");
-
-    // if (m_intakeCurrent_amp > IntakeConstants.elevationCurrentLimit_amp) {
-      // SmartDashboard.putNumber("intake current amp", m_intakeCurrent_amp);
-      // SmartDashboard.putNumber("elevation current limit", IntakeConstants.elevationCurrentLimit_amp);
-
-      System.out.println("intakeMovingup");
-      // stopArm();
-      // return;
-    // }
+    System.out.println("intakeMovingup");
 
   }
-  
+
   public double getElevationCurrent() {
     return m_intakeElevationMotor.getOutputCurrent();
   }
-
-
 
   public void stopArm() {
     m_intakeElevationMotor.stopMotor();
