@@ -4,8 +4,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class AprilTagFieldInfo {
 
-    public AprilTagFieldInfo(int id, Alliance alliance, FieldElement fieldElement, double xToElement, double yToElement, double zToElement){
+    public AprilTagFieldInfo(int id, int pairedId, Alliance alliance, FieldElement fieldElement, double xToElement, double yToElement, double zToElement){
         Id = id;
+        PairedId = pairedId;
         Alliance = alliance;
         FieldElement = fieldElement;
         XToElement = xToElement;
@@ -14,6 +15,8 @@ public class AprilTagFieldInfo {
     }
 
     public final int Id;
+
+    public final int PairedId;
 
     public final Alliance Alliance;
 

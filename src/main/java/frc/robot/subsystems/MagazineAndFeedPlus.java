@@ -16,10 +16,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.RobotController;
-
+import frc.robot.Constants.CANIdConstants;
 import frc.robot.Constants.FeederConstants;
 
-public class FeederMagazine extends SubsystemBase {
+public class MagazineAndFeedPlus extends SubsystemBase {
 
   private final SparkMax m_feedMotor;
   private final SparkMax m_magazineMotor;
@@ -45,15 +45,15 @@ public class FeederMagazine extends SubsystemBase {
   // Dashboard state tracking
   private boolean m_lastFeedAllowed = false;
 
-  public FeederMagazine(Shooter shooter) {
+  public MagazineAndFeedPlus(Shooter shooter) {
 
     m_shooter = shooter;
 
     m_feedMotor =
-        new SparkMax(FeederConstants.feedMotorID, MotorType.kBrushless);
+        new SparkMax(CANIdConstants.feedMotorID, MotorType.kBrushless);
 
     m_magazineMotor =
-        new SparkMax(FeederConstants.magazineMotorID, MotorType.kBrushless);
+        new SparkMax(CANIdConstants.magazineMotorID, MotorType.kBrushless);
 
     configureMotor(m_feedMotor);
     configureMotor(m_magazineMotor);
@@ -67,7 +67,7 @@ public class FeederMagazine extends SubsystemBase {
     SparkMaxConfig config = new SparkMaxConfig();
 
     config.idleMode(IdleMode.kBrake)
-          .smartCurrentLimit(FeederConstants.freeLimit_amp);
+          .smartCurrentLimit(FeederConstants.feedMotorFreeLimit_amp);
 
     motor.configure(
         config,
@@ -146,7 +146,7 @@ public class FeederMagazine extends SubsystemBase {
     }
 
     // ---------- Speed matching ----------
-    double shooterRPM_rpm = m_shooter.getAverageRPM();
+    double shooterRPM_rpm = m_shooter.getAverageVelocity_ips();
 
     double scale =
         shooterRPM_rpm / FeederConstants.shooterNominalRPM_rpm;
