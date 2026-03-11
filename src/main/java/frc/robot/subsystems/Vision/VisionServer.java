@@ -13,7 +13,7 @@ import frc.robot.subsystems.Vision.Detections.ObjectType;
 
 public class VisionServer extends SubsystemBase {
 
-  private final boolean DEBUG_LOG = true;
+  private final boolean DEBUG_LOG = false;
 
   NetworkTableInstance m_nt_Instance;
   NetworkTable m_nt_table;
@@ -36,11 +36,10 @@ public class VisionServer extends SubsystemBase {
     m_buffer_from_table = ByteBuffer.allocate(8192);
     m_nt_Instance = NetworkTableInstance.getDefault();
     m_nt_table = m_nt_Instance.getTable("Vision");
-    aprilTagEntry = m_nt_table.getEntry("Apriltag");
 
     aprilTagEntries = new NetworkTableEntry[ANumberOfCameras];
     for (int i = 0; i < aprilTagEntries.length; ++i) {
-      aprilTagEntries[i] = m_nt_table.getEntry("Cam"+i+"/Apriltag");
+      aprilTagEntries[i] = m_nt_table.getEntry("CamID"+i+"/Apriltag");
     }
 
     m_detections_Apriltag = new DetectionList[ANumberOfCameras];
@@ -60,6 +59,8 @@ public class VisionServer extends SubsystemBase {
         int number_of_fields = m_buffer_from_table.getInt();
         if (DEBUG_LOG) {
           System.out.println("num tags " + number_of_tags + " num fields " + number_of_fields);
+        } else {
+          System.out.println("we are a go ghost rider");
         }
 
         boolean not_done_with_detections_from_camera = true;
@@ -90,7 +91,7 @@ public class VisionServer extends SubsystemBase {
         } while (not_done_with_detections_from_camera);
 
       } else {
-        System.out.println("No dice!");
+        //System.out.println("No dice!");
       }
     }
   }
@@ -166,7 +167,7 @@ public class VisionServer extends SubsystemBase {
   @Override
   public void periodic() {
     //getDetectionList();
-    updateDetectionLists();
+    //updateDetectionLists();
   }
 }
 
