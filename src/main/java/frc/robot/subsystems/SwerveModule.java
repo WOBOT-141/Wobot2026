@@ -180,6 +180,14 @@ public class SwerveModule extends SubsystemBase {
     _steerPID.setSetpoint(angle, ControlType.kPosition);
   }
 
+  public void goToLockPosition() {
+    if (_xPos * _yPos > 0) { // front right and back left
+      setAngle(45);
+    } else if (_xPos * _yPos < 0) { // front left and back right
+      setAngle(315);
+    }
+  }
+
   public void cancelMovement() {
     _driveMotor.stopMotor();
     _steerMotor.stopMotor();
