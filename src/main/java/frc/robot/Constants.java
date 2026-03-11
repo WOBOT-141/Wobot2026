@@ -25,8 +25,8 @@ public final class Constants {
     public static final int backLeftEncoderid = 10;
     public static final int frontRightEncoderid = 11;
     public static final int backRightEncoderid = 12;
-    public static final int flyWheelRightMotorID = 13;
-    public static final int flyWheelMiddleMotorID = 14;
+    public static final int flyWheelRightMotorID = 14;
+    public static final int flyWheelMiddleMotorID = 13;
     public static final int flyWheelLeftMotorID = 15;
     public static final int feedMotorID = 16;
     public static final int magazineMotorID = 17;
@@ -182,9 +182,20 @@ public final class Constants {
     public static final double D = 0.00000;
     public static final double kF = 0.00018;
 
-    public static final double hoodP = 0.04;
+    public static final double hoodP = 0.05;
     public static final double hoodI = 0;
-    public static final double hoodD = 0;
+    public static final double hoodD = 0; //.001
+    
+    // Hood Gear Ratio
+    public static final double hoodGearRatio = 31.58;
+    
+    // Motor rotations per hood degree
+    public static final double hoodMotorRotsPerDeg = hoodGearRatio / 360.0;
+
+    // Degrees per motor rotation
+    public static final double hoodDegPerMotorRotation_deg = hoodGearRatio / 360.0;
+
+    public static final double hoodDegPerMotorRot = 1.0/ hoodMotorRotsPerDeg;
     
     // Control tuning
     public static final double FlywheelRPMTolerance_rpm = 100.0;
@@ -202,11 +213,10 @@ public final class Constants {
     public static final double shotDipThreshold_rpm = 250.0;
     public static final double shotMinSeparation_sec = 0.08;
   
-    public static final double hoodHomeRPM = .1;
-    public static final double hoodMotorRotsPerDeg = .1099;
-    public static final double hoodDegPerEncoderTick_deg = hoodMotorRotsPerDeg * 42;
+    public static final double hoodHomeRPM = 0.1;
+    
     public static final double hoodUpperLimit_deg = 89;
-    public static final double hoodLowerLimit_deg = 43;
+    public static final double hoodLowerLimit_deg = 46;
   }
 
   public static class WheelConstants {
