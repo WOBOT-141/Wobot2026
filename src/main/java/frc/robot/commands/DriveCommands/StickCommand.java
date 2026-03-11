@@ -106,11 +106,11 @@ public class StickCommand extends Command {
     }
 
     /* ---------------- Drive ---------------- */
-
     if (translationMagnitude_perc == 0 && rotationalMagnitude_perc == 0) {
-      // Maintain last heading when stopped
+      // Maintain last heading when the sticks are at 0.
       m_rampRate.reset(0);
       m_drive.driveWithGyro(m_lastRightDirectional, 0.0, 0.0);
+      return;
     }
 
     double yDist = m_isRotateCenter
