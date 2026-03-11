@@ -28,8 +28,8 @@ public class RevShooter extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_shooter.setShooter_ips(m_launchSpeed_ips);
-    m_shooter.setHoodPosition(m_hoodAngle_deg);
+    m_shooter.setShooterVelocity(m_launchSpeed_ips);
+    m_shooter.setHoodAngle(m_hoodAngle_deg);
   }
 
   // Called once the command ends or is interrupted.

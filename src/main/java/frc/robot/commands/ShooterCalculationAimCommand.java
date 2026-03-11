@@ -14,17 +14,17 @@ public class ShooterCalculationAimCommand extends Command {
   private double m_targetDistance_in;
   private double m_deltaHeight_in;
   private double m_rimToTargetDistance_in;
-  private double m_targetHeight_in;
+  private double m_targetHeightAboveRim_in;
 
   private final Shooter m_Shooter;
 
   /** Creates a new ShooterCalculationAimCommand. */
   public ShooterCalculationAimCommand(double targetDistance_in, double deltaHeight_in, double rimToTargetDistance_in,
-      double targetHeight_in, Shooter Shooter) {
+      double targetHeightAboveRim_in, Shooter Shooter) {
     m_targetDistance_in = targetDistance_in;
     m_deltaHeight_in = deltaHeight_in;
     m_rimToTargetDistance_in = rimToTargetDistance_in;
-    m_targetHeight_in = targetHeight_in;
+    m_targetHeightAboveRim_in = targetHeightAboveRim_in;
     m_Shooter = Shooter;
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -38,15 +38,16 @@ public class ShooterCalculationAimCommand extends Command {
   @Override
   public void execute() {
     double getLaunchAngle = ShooterCalculations.getLaunchAngle(m_targetDistance_in, m_deltaHeight_in,
-        m_rimToTargetDistance_in, m_targetHeight_in);
-    double getLaunchSpeed = ShooterCalculations.getLaunchSpeed(getLaunchAngle, m_rimToTargetDistance_in, m_deltaHeight_in, m_targetHeight_in);
-    // shooter.setFlywheelSpeed(getLaunchSpeed)
-    // shooter.setHoodAngle(getLaunchAngle)
+        m_rimToTargetDistance_in, m_targetHeightAboveRim_in);
+    double getLaunchSpeed = ShooterCalculations.getLaunchSpeed(getLaunchAngle, m_targetDistance_in, m_rimToTargetDistance_in, m_targetHeightAboveRim_in);
+    m_Shooter.setShooterVelocity(getLaunchSpeed);
+    m_Shooter.setHoodAngle(getLaunchAngle);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    m_Shooter.cancel();
   }
 
   // Returns true when the command should end.

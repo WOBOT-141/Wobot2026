@@ -167,10 +167,13 @@ public final class Constants {
 
     public static final double g_inps2 = Units.metersToInches(9.807);
 
-    // Physical properties
-    public static final double flywheelDiameter_in = 4.12;
-    public static final double muzzleHeight_in = 24.3359;
+    public static final double flywheelDiameter_in = 4;
+    public static final double flywheelCircum_in = Math.PI * flywheelDiameter_in;
+    public static final double flywheelGearRatio = 29 / 24;
+    public static final double flywheelVelocity_RPMtoIPS = (flywheelCircum_in * flywheelGearRatio / 60.0) / 2.0; // /2.0 accounts for balls spin
+    public static final double flywheelSlipFactor = 1.1; // May need to be scaled with commanded speed
     
+    public static final double muzzleHeight_in = 27;
     public static final double hubRimToCenter_in = 23.5;
     public static final double hubRimHeight_in = 72;
     public static final double muzzleToRimHeight_in = hubRimHeight_in - muzzleHeight_in;
@@ -186,20 +189,13 @@ public final class Constants {
     public static final double hoodI = 0;
     public static final double hoodD = 0; //.001
     
-    // Hood Gear Ratio
-    public static final double hoodGearRatio = 31.58;
-    
-    // Motor rotations per hood degree
-    public static final double hoodMotorRotsPerDeg = hoodGearRatio / 360.0;
-
-    // Degrees per motor rotation
-    public static final double hoodDegPerMotorRotation_deg = hoodGearRatio / 360.0;
-
-    public static final double hoodDegPerMotorRot = 1.0/ hoodMotorRotsPerDeg;
+    public static final double hoodGearRatio = (10.0 / 62.0) * (50.0 / 319.0);
+    public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
     
     // Control tuning
-    public static final double FlywheelRPMTolerance_rpm = 100.0;
-    public static final double slewRateLimit_rpmps = 4000.0;
+    public static final double flywheelVelocityTolerance_ips = 15;
+    public static final double hoodPositionTolerance_deg = 2;
+    public static final double hoodSlewRate = 0.5;
 
     // Current limits
     public static final int flywheelCurrentLimit_amp = 40;
