@@ -182,9 +182,9 @@ public class SwerveModule extends SubsystemBase {
 
   public void goToLockPosition() {
     if (_xPos * _yPos > 0) { // front right and back left
-      setAngle(45);
+      setAngle(135);
     } else if (_xPos * _yPos < 0) { // front left and back right
-      setAngle(315);
+      setAngle(225);
     }
   }
 
