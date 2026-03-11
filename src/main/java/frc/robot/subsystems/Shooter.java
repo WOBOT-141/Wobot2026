@@ -13,11 +13,9 @@ import com.revrobotics.spark.ClosedLoopSlot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.ShooterCalculationAimCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.CANIdConstants;
 
@@ -44,7 +42,6 @@ public class Shooter extends SubsystemBase {
   private final SparkMaxConfig m_hoodMotorConfig;
 
   private double m_targetVelocity_ips = 0.0;
-  private double m_targetVelocity_rpm = 0.0;
   private double m_hoodTargetPosition_deg = ShooterConstants.hoodLowerLimit_deg;
   private boolean m_hoodAtHome = false;
 
@@ -75,9 +72,9 @@ public class Shooter extends SubsystemBase {
     m_middleMotorConfig.inverted(false);
     m_leftMotorConfig.inverted(false);
 
-    // m_rightMotorConfig.encoder.velocityConversionFactor(ShooterConstants.flywheelVelocity_RPMtoIPS);
-    // m_middleMotorConfig.encoder.velocityConversionFactor(ShooterConstants.flywheelVelocity_RPMtoIPS);
-    // m_leftMotorConfig.encoder.velocityConversionFactor(ShooterConstants.flywheelVelocity_RPMtoIPS);
+    m_rightMotorConfig.encoder.velocityConversionFactor(ShooterConstants.flywheelVelocity_RPMtoIPS);
+    m_middleMotorConfig.encoder.velocityConversionFactor(ShooterConstants.flywheelVelocity_RPMtoIPS);
+    m_leftMotorConfig.encoder.velocityConversionFactor(ShooterConstants.flywheelVelocity_RPMtoIPS);
 
     m_rightMotorConfig.closedLoop.pid(ShooterConstants.leftP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
     m_middleMotorConfig.closedLoop.pid(ShooterConstants.middleP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
@@ -169,24 +166,23 @@ public class Shooter extends SubsystemBase {
       return;
 
     m_targetVelocity_ips =  targetVelocity_ips;
-    m_targetVelocity_rpm = (m_targetVelocity_ips / ShooterConstants.flywheelVelocity_RPMtoIPS) * ShooterConstants.flywheelSlipFactor;
 
-    m_rightController.setSetpoint(m_targetVelocity_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
-    m_middleController.setSetpoint(m_targetVelocity_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
-    m_leftController.setSetpoint(m_targetVelocity_rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    m_rightController.setSetpoint(m_targetVelocity_ips, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    m_middleController.setSetpoint(m_targetVelocity_ips, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    m_leftController.setSetpoint(m_targetVelocity_ips, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
 
-  // Speed checks TODO actually use IPS for comparison
+  // Speed checks
   public boolean rightAtSpeed() {
-    return Math.abs(m_rightEncoder.getVelocity() - m_targetVelocity_rpm) < ShooterConstants.flywheelVelocityTolerance_ips;
+    return Math.abs(m_rightEncoder.getVelocity() - m_targetVelocity_ips) < ShooterConstants.flywheelVelocityTolerance_ips;
   }
 
   public boolean middleAtSpeed() {
-    return Math.abs(m_middleEncoder.getVelocity() - m_targetVelocity_rpm) < ShooterConstants.flywheelVelocityTolerance_ips;
+    return Math.abs(m_middleEncoder.getVelocity() - m_targetVelocity_ips) < ShooterConstants.flywheelVelocityTolerance_ips;
   }
 
   public boolean leftAtSpeed() {
-    return Math.abs(m_leftEncoder.getVelocity() - m_targetVelocity_rpm) < ShooterConstants.flywheelVelocityTolerance_ips;
+    return Math.abs(m_leftEncoder.getVelocity() - m_targetVelocity_ips) < ShooterConstants.flywheelVelocityTolerance_ips;
   }
 
   public boolean allAtSpeed() {
@@ -198,14 +194,15 @@ public class Shooter extends SubsystemBase {
   }
 
   public double getAverageVelocity_ips() {
-    return ((m_rightEncoder.getVelocity()
+    return (m_rightEncoder.getVelocity()
         + m_middleEncoder.getVelocity()
-        + m_leftEncoder.getVelocity()) * ShooterConstants.flywheelVelocity_RPMtoIPS) / 3.0 ;
+        + m_leftEncoder.getVelocity()) / 3.0 ;
   }
 
   // Shot detection via RPM dip
   public boolean updateShotDetection() {
 
+  // TODO convert to ips
     double currentRPM_rpm = getAverageVelocity_ips();
     double now_sec = Timer.getFPGATimestamp();
 
@@ -249,7 +246,6 @@ public class Shooter extends SubsystemBase {
 
     
     SmartDashboard.putNumber("Shooter Commanded IPS", m_targetVelocity_ips);
-    SmartDashboard.putNumber("Shooter Commanded RPM", m_targetVelocity_rpm);
     SmartDashboard.putNumber("Shooter Actual IPS", getAverageVelocity_ips());
     SmartDashboard.putNumber("Right Motor SetPoint", m_rightController.getSetpoint());
     SmartDashboard.putBoolean("ShooterHomed", m_hoodAtHome);
