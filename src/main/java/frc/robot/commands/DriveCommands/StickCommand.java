@@ -81,7 +81,7 @@ public class StickCommand extends Command {
 
     /* ---------------- Vector Math ---------------- */
     double translationMagnitude_perc = throttle_perc * calcTranslationMagnitude_perc(stickX_perc, stickY_perc);
-    double translationAngle_deg = throttle_perc * calcTranslationAngle_deg(stickX_perc, stickY_perc);
+    double translationAngle_deg = calcTranslationAngle_deg(stickX_perc, stickY_perc);
     double rotationalMagnitude_perc = throttle_perc * stickRotate_perc;
     translationMagnitude_perc = m_rampRate.calculate(translationMagnitude_perc);
 
