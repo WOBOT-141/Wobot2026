@@ -74,7 +74,7 @@ public class Intake extends SubsystemBase {
   private void configureIntakeRollerMotor(SparkFlex intakeRollerMotor) {
     SparkFlexConfig intakeRollerMotorConfig = new SparkFlexConfig();
     intakeRollerMotorConfig
-        .inverted(true)
+        .inverted(false)
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(IntakeConstants.rollerCurrentLimit_amp, IntakeConstants.rollerCurrentLimit_amp);
 

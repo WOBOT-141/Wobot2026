@@ -23,8 +23,9 @@ import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
-
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.MovingRotateToTag;
+import frc.robot.commands.ShooterCalculationAimCommand;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.Depotlease;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.MidwayGather;
@@ -34,6 +35,8 @@ import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbRIGHT;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ZeeClimb;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.ShooterCommands.RevShooter;
+import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.ShooterCommands.SetPIDShooter;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
@@ -187,16 +190,22 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    m_xboxController0.leftTrigger().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.2), () -> m_intake.intakeStop(), m_intake));
-    m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_magazine.setFeedMotorVelocity(0.7), () -> m_magazine.cancel(), m_magazine));
-    m_xboxController0.y().whileTrue(Commands.startEnd(() -> m_shooter.setShooter_ips(3500), () -> m_shooter.cancel(), m_shooter));
-    m_xboxController0.b().whileTrue(Commands.startEnd(() -> m_shooter.setShooter_ips(377), () -> m_shooter.cancel(), m_shooter));
-    m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_magazine.setFeedMotorVelocity(-0.5), () -> m_magazine.cancel(), m_magazine));
+    m_xboxController0.leftTrigger().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeStop(), m_intake));
+    m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(0.7), () -> m_magazine.cancel(), m_magazine));
+    m_xboxController0.y().whileTrue(Commands.startEnd(() -> m_shooter.setShooterVelocity(3500), () -> m_shooter.cancel(), m_shooter));
+    //m_xboxController0.b().whileTrue(Commands.startEnd(() -> m_shooter.setShooter_ips(377), () -> m_shooter.cancel(), m_shooter));
+    m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.5), () -> m_magazine.cancel(), m_magazine));
     m_xboxController0.x().onTrue(new SetPIDShooter(m_shooter));
-    m_xboxController0.leftBumper().whileTrue(
-      Commands.startRun( () -> m_shooter.setShooter_ips(100), () -> m_shooter.setShooter_ips(100), m_shooter));
+    // m_xboxController0.leftBumper().whileTrue(
+    //   Commands.startRun( () -> m_shooter.setShooter_ips(100), () -> m_shooter.setShooter_ips(100), m_shooter));
 
-    // m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
+
+
+    m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
+    m_xboxController0.rightTrigger().onTrue(Commands.startEnd(() -> m_shooter.stopHood(), () -> m_shooter.cancel(), m_shooter));
+    m_xboxController0.a().whileTrue(Commands.startEnd(() -> m_shooter.setHoodPositionFromDashboard(), () -> m_shooter.cancel(), m_shooter));
+    m_xboxController0.rightBumper().whileTrue(new ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter));
+    // m_xboxController0.rightBumper().whileTrue(new RevShooter(377.758, 50, m_shooter));
     // m_xboxController0.a().onTrue(new IntakeHome(m_intake));
     // m_xboxController0.y().onTrue(new IntakeUp(m_intake));
     // m_xboxController0.leftTrigger().onTrue(new IntakeDown(m_intake));
