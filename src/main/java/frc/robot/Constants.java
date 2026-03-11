@@ -118,7 +118,7 @@ public final class Constants {
 
 
   public static final class IntakeConstants {
-    public static final int elevationCurrentLimit_amp = 60;
+    public static final int elevationCurrentLimit_amp = 10;
     public static final int rollerCurrentLimit_amp = 20;
 
     // Homing (current-based)
@@ -141,7 +141,7 @@ public final class Constants {
     //-84688.945313 start
     //--85408.851563 end 
 
-    public static final double twoTurnDistance = Math.abs(-85408.851563-(-84688.945313));
+    public static final double twoTurnDistance =1; //Math.abs(-85408.851563-(-84688.945313));
 
     // Brownout protection
     public static final double brownoutStartVoltage_V = 10.8; // Voltage where we start scaling
