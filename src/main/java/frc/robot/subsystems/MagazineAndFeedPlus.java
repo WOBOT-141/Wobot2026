@@ -146,7 +146,7 @@ public class MagazineAndFeedPlus extends SubsystemBase {
     }
 
     // ---------- Speed matching ----------
-    double shooterRPM_rpm = m_shooter.getAverageRPM();
+    double shooterRPM_rpm = m_shooter.getAverageVelocity_ips();
 
     double scale =
         shooterRPM_rpm / FeederConstants.shooterNominalRPM_rpm;
