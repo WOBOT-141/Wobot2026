@@ -1,16 +1,17 @@
 package frc.robot;
 
-import java.util.Map;
 import static java.util.Map.entry;
+
+import java.util.Map;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 import frc.lib.SpektrumFlightController;
+import frc.robot.Constants.IntakeConstants;
 
 import frc.robot.subsystems.ChooserHandeling;
 import frc.robot.subsystems.Drivetrain;
@@ -45,7 +46,17 @@ import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.ShooterCommands.SetPIDShooter;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
-
+import frc.robot.subsystems.ChooserHandeling;
+import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.IGyro;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.MagazineAndFeed;
+import frc.robot.subsystems.NavxGyro;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.Vision.VisionServer;
+import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
+import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
 
 public class RobotContainer {
 
@@ -63,7 +74,8 @@ public class RobotContainer {
   private final StickCommand m_stickCommand;
 
   private final VisionServer m_visionServer = new VisionServer();
-  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
+  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags,
+      () -> DriverStation.getAlliance());
 
   private final IBotSelector m_selectedBot = new MainBot();
   // private final IBotSelector _selectedBot = new SummerBot();
@@ -124,9 +136,9 @@ public class RobotContainer {
         () -> m_flightController0.getRotate(),
         () -> m_flightController0.getThrottle(),
         () -> m_flightController0.getSelectPressButton());
-        
+
     m_drive.setDefaultCommand(m_stickCommand);
-    
+
     configureBindings();
 
     m_autonSelector = new ChooserHandeling("Autonomous Selector",
@@ -214,12 +226,6 @@ public class RobotContainer {
     //m_xboxController0.mode().whileTrue(commands.startEnd(() -> m_shooter.unjam(), () -> m_shooter.cancel(), m_shooter)); mode dosent exsist 
     //m_xboxController0.leftStick() reset angle/speed
     m_xboxController0.rightStick().onTrue(new StopRobot(m_intake, m_magazine, m_climbe, m_drive, m_shooter));
-
-   
-
-
-
-
   }
 
   private void configureJoystick() {
