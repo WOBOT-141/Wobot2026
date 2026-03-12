@@ -25,7 +25,7 @@ public class FireShooter extends ParallelCommandGroup {
     m_magazineAndFeed = magazineAndFeed;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new RevShooter(25, 30, m_shooter),
+    addCommands(new RevShooter(250, 30, m_shooter),
     new LockWheels(m_drivetrain),
     new Feed(m_magazineAndFeed)
     );
