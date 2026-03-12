@@ -185,9 +185,8 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void lockWheels() {
-    // Implement wheel-locking logic if needed
     for (int i = 0; i < _wheels.length; i++) {
-      _wheels[i].setAngle((i + 45) * 90);
+      _wheels[i].goToLockPosition();
     }
   }
 
