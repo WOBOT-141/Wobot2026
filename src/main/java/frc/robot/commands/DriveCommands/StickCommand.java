@@ -1,7 +1,6 @@
 package frc.robot.commands.DriveCommands;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -79,6 +78,13 @@ public class StickCommand extends Command {
 
     double throttle_perc = calcThrottle_perc(stickThrottle_perc);
 
+     if (stickX_perc == 0 && stickY_perc == 0 && stickRotate_perc == 0) {
+   // Maintain last heading when the sticks are at 0.
+   m_rampRate.reset(0);
+   m_drive.driveWithGyro(m_lastRightDirectional, 0.0, 0.0);
+   return;
+ }
+
     /* ---------------- Vector Math ---------------- */
     double translationMagnitude_perc = throttle_perc * calcTranslationMagnitude_perc(stickX_perc, stickY_perc);
     double translationAngle_deg = calcTranslationAngle_deg(stickX_perc, stickY_perc);
@@ -106,12 +112,6 @@ public class StickCommand extends Command {
     }
 
     /* ---------------- Drive ---------------- */
-    if (translationMagnitude_perc == 0 && rotationalMagnitude_perc == 0) {
-      // Maintain last heading when the sticks are at 0.
-      m_rampRate.reset(0);
-      m_drive.driveWithGyro(m_lastRightDirectional, 0.0, 0.0);
-      return;
-    }
 
     double yDist = m_isRotateCenter
         ? m_selectedBot.getDistToFront()
