@@ -22,9 +22,9 @@ public class SitShots extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       new SendHoodToHome(shooter).andThen(
-      new RevShooter(260, 72, shooter).alongWith(
-      new WaitCommand(0.5)).andThen(
-      new setFeed(magazine)))
+      new RevShooter(300, 65, shooter))
+      .alongWith(new WaitCommand(0.5)
+      .andThen(new setFeed(magazine)))
     );
   }
 }
