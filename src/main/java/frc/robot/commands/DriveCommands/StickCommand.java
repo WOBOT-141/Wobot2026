@@ -1,7 +1,6 @@
 package frc.robot.commands.DriveCommands;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -25,7 +24,6 @@ public class StickCommand extends Command {
   private final DoubleSupplier m_driveYSupplier;
   private final DoubleSupplier m_rotateSupplier;
   private final DoubleSupplier m_throttleSupplier;
-  private final BooleanSupplier m_selectButtonSupplier;
 
   // Ramp only linear magnitude (as original code did)
   private final SlewRateLimiter m_rampRate = new SlewRateLimiter(1.0);
@@ -46,8 +44,7 @@ public class StickCommand extends Command {
       DoubleSupplier driveXSupplier,
       DoubleSupplier driveYSupplier,
       DoubleSupplier rotateSupplier,
-      DoubleSupplier throttleSupplier,
-      BooleanSupplier selectButtonSupplier) {
+      DoubleSupplier throttleSupplier) {
 
     m_drive = drive;
     m_selectedBot = selectedBot;
@@ -55,7 +52,6 @@ public class StickCommand extends Command {
     m_driveYSupplier = driveYSupplier;
     m_rotateSupplier = rotateSupplier;
     m_throttleSupplier = throttleSupplier;
-    m_selectButtonSupplier = selectButtonSupplier;
 
     addRequirements(drive);
   }
@@ -75,91 +71,98 @@ public class StickCommand extends Command {
     }
 
     /* ---------------- Read Controller ---------------- */
-    double stickX = m_driveXSupplier.getAsDouble();
-    double stickY = m_driveYSupplier.getAsDouble();
-    double stickRotate = m_rotateSupplier.getAsDouble();
-    double stickThrottle = m_throttleSupplier.getAsDouble();
+    double stickX_perc = m_driveXSupplier.getAsDouble();
+    double stickY_perc = m_driveYSupplier.getAsDouble();
+    double stickRotate_perc = m_rotateSupplier.getAsDouble();
+    double stickThrottle_perc = m_throttleSupplier.getAsDouble();
+
+    double throttle_perc = calcThrottle_perc(stickThrottle_perc);
+
+     if (stickX_perc == 0 && stickY_perc == 0 && stickRotate_perc == 0) {
+   // Maintain last heading when the sticks are at 0.
+   m_rampRate.reset(0);
+   m_drive.driveWithGyro(m_lastRightDirectional, 0.0, 0.0);
+   return;
+ }
 
     /* ---------------- Vector Math ---------------- */
+    double translationMagnitude_perc = throttle_perc * calcTranslationMagnitude_perc(stickX_perc, stickY_perc);
+    double translationAngle_deg = calcTranslationAngle_deg(stickX_perc, stickY_perc);
+    double rotationalMagnitude_perc = throttle_perc * stickRotate_perc;
+    translationMagnitude_perc = m_rampRate.calculate(translationMagnitude_perc);
 
-    // Convert X/Y to magnitude and direction (polar form)
-    double rightMagnitude = Math.hypot(stickX, stickY);
-
-    double rightDirectional = Math.toDegrees(Math.atan2(stickX, stickY));
-
-    // Convert throttle from [-1,1] to [0,1] with slight boost
-    double throttleValue = ((stickThrottle + 1) / 2.0) + 0.1;
-
-    // Slow the bot down if we are aiming at something
-    if (m_altCommandedRotation_perc.isPresent()){
-      throttleValue = throttleValue / 2.0;
-    }
-
-    // Normalize angle to 0-360
-    rightDirectional = (rightDirectional + 360.0) % 360.0;
-
-    /* ---------------- Magnitudes ---------------- */
-
-    double finalLinearMagnitude = rightMagnitude * throttleValue;
-    finalLinearMagnitude = Math.max(-1.0, Math.min(1.0, finalLinearMagnitude));
-
-    double rampedMagnitude = m_rampRate.calculate(finalLinearMagnitude);
-
-    double finalRotationalMagnitude = stickRotate * throttleValue * 0.85;
-    finalRotationalMagnitude =
-        Math.max(-1.0, Math.min(1.0, finalRotationalMagnitude));
+    /* ---------------- Clamping ---------------- */
+    translationMagnitude_perc = Math.max(-1.0, Math.min(1.0, translationMagnitude_perc));
+    rotationalMagnitude_perc = Math.max(-1.0, Math.min(1.0, rotationalMagnitude_perc));
 
     /* ---------------- Lockdown Logic ---------------- */
-
-    if (m_selectButtonSupplier.getAsBoolean()) {
-      m_lockdown = true;
+    if (translationMagnitude_perc != 0 || rotationalMagnitude_perc != 0) { 
+      // Exit lockdown if driver commands movement
+      m_lockdown = false;
     }
 
     if (m_lockdown) {
-      m_drive.lockWheels();
-
-      // Exit lockdown if driver commands movement
-      if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
-        m_lockdown = false;
-      }
+      m_drive.lockWheels(); 
       return;
     }
 
     /* ---------------- Override Rotation --------------- */
-    if (finalRotationalMagnitude == 0 && m_altCommandedRotation_perc.isPresent()) {
-      finalRotationalMagnitude = m_altCommandedRotation_perc.get();
+    if (rotationalMagnitude_perc == 0 && m_altCommandedRotation_perc.isPresent()) {
+      rotationalMagnitude_perc = m_altCommandedRotation_perc.get();
     }
 
     /* ---------------- Drive ---------------- */
 
-    if (finalLinearMagnitude != 0 || finalRotationalMagnitude != 0) {
+    double yDist = m_isRotateCenter
+        ? m_selectedBot.getDistToFront()
+        : 0.0;
 
-      double yDist = m_isRotateCenter
-          ? m_selectedBot.getDistToFront()
-          : 0.0;
+    m_drive.driveWithGyro(
+        translationAngle_deg,
+        translationMagnitude_perc,
+        rotationalMagnitude_perc,
+        0.0,
+        yDist);
 
-      m_drive.driveWithGyro(
-          rightDirectional,
-          rampedMagnitude,
-          finalRotationalMagnitude,
-          0.0,
-          yDist);
+    m_lastRightDirectional = translationAngle_deg;
+  }
 
-      m_lastRightDirectional = rightDirectional;
+  private double calcThrottle_perc(double stickThrottle_perc) {
+    // Convert throttle from [-1,1] to [0,1] with a floor
+    double throttle_perc = ((stickThrottle_perc + 1) / 2.0) + 0.1;
 
-    } else {
-      // Maintain last heading when stopped
-      m_rampRate.reset(0);
-      m_drive.driveWithGyro(m_lastRightDirectional, 0.0, 0.0);
+    // Slow the bot down if we are aiming at something
+    if (m_altCommandedRotation_perc.isPresent()) {
+      throttle_perc = throttle_perc / 2.0;
     }
+
+    return throttle_perc;
+  }
+
+    // The formula for ellipical input normalization comes from here:
+    // https://raw.org/article/how-to-map-a-square-to-a-circle/
+  private double calcTranslationMagnitude_perc(double stickX_perc, double stickY_perc) {
+    double xPrime_perc = stickX_perc * Math.sqrt(1 - (Math.pow(stickY_perc, 2) / 2));
+    double yPrime_perc = stickY_perc * Math.sqrt(1 - (Math.pow(stickX_perc, 2) / 2));
+
+    return Math.sqrt( Math.pow(xPrime_perc, 2) + Math.pow(yPrime_perc, 2) );
+  }
+
+  private double calcTranslationAngle_deg(double stickX_perc, double stickY_perc){
+    double translationAngle_deg = Math.toDegrees(Math.atan2(stickX_perc, stickY_perc));
+    return (translationAngle_deg + 360.0) % 360.0;
   }
 
   public void setFrontDrive(boolean isTrue) {
     m_isRotateCenter = isTrue;
   }
 
-  public void setAlternateRotation(Optional<Double> altRotation_perc){
+  public void setAlternateRotation(Optional<Double> altRotation_perc) {
     m_altCommandedRotation_perc = altRotation_perc;
+  }
+
+  public void lockWheels(){
+    m_lockdown = true;
   }
 
   private void stickDebug() {
