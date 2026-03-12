@@ -11,7 +11,7 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class RotateToAngle extends Command {
+public class RotateByAngle extends Command {
   private final Drivetrain m_Drivetrain;
   private double m_rotationAmount_deg;
   private double m_desiredBotAngle_deg;
@@ -23,7 +23,7 @@ public class RotateToAngle extends Command {
 
   /** Creates a new RotateToAngle. */
 
-  public RotateToAngle(Drivetrain drivetrain, double rotationAmount_deg, IGyro gyro) {
+  public RotateByAngle(Drivetrain drivetrain, double rotationAmount_deg, IGyro gyro) {
     m_Drivetrain = drivetrain;
     m_rotationAmount_deg = rotationAmount_deg;
     m_gyro = gyro;
@@ -36,16 +36,14 @@ public class RotateToAngle extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_desiredBotAngle_deg = (m_gyro.getRealGyroAngle() + m_rotationAmount_deg) % 360;
+    m_desiredBotAngle_deg = m_gyro.getYaw() + m_rotationAmount_deg;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    // Rotation calculations
-    gyroyaw = m_gyro.getRealGyroAngle();
-    double missingAngle_deg = ((gyroyaw - m_desiredBotAngle_deg)) % 360; // m_rotationAmount_deg
+    gyroyaw = m_gyro.getYaw();
+    double missingAngle_deg = gyroyaw - m_desiredBotAngle_deg;
 
     SmartDashboard.putNumber("gyroyaw", gyroyaw);
     SmartDashboard.putNumber("m_desiredBotAngle_deg", m_desiredBotAngle_deg);
@@ -63,17 +61,22 @@ public class RotateToAngle extends Command {
       rotationSpeed = 0.5;
     } else if (0.6 < remainingRotation_perc && 0.95 >= remainingRotation_perc) {
       rotationSpeed = remainingRotation_perc * (-1.25) + 1.25;
-    }
+    } 
 
     finalRotationSpeed = rotationSpeed * ((m_rotationAmount_deg) * 0.011111);
-
+    if (remainingRotation_perc < 0.05) {
+      finalRotationSpeed = 0.05;
+      if (m_rotationAmount_deg <= -1){
+        finalRotationSpeed *= -1;
+      }
+    } 
     SmartDashboard.putNumber("m_desiredBotAngle_deg", m_desiredBotAngle_deg);
     SmartDashboard.putNumber("gyroyaw", gyroyaw);
     SmartDashboard.putNumber("missingAngle_deg", missingAngle_deg);
     SmartDashboard.putNumber("remainingRotation_perc", remainingRotation_perc);
     SmartDashboard.putNumber("finalRotationSpeed", finalRotationSpeed);
 
-    m_Drivetrain.driveWithoutGyro(0, 0, finalRotationSpeed);
+    m_Drivetrain.driveWithoutGyro(0, 0, rotationSpeed);
   }
 
   // Called once the command ends or is interrupted.
@@ -86,8 +89,8 @@ public class RotateToAngle extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return ((m_desiredBotAngle_deg + 5) >= gyroyaw && (m_desiredBotAngle_deg - 5) <= gyroyaw);
-    // return remainingRotation_perc > 1;
-    // return false;
+    return (((m_desiredBotAngle_deg + 5) >= gyroyaw && (m_desiredBotAngle_deg - 5) <= gyroyaw));
+    //return remainingRotation_perc > 1;
+    //return false;
   }
 }

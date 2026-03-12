@@ -6,8 +6,10 @@ package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
+import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -15,12 +17,12 @@ import frc.robot.subsystems.SwerveModule;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ShootClimbMIDDLE extends SequentialCommandGroup {
   /** Creates a new ShootClimb. */
-  public ShootClimbMIDDLE(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro) {
+  public ShootClimbMIDDLE(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      //shoot
-      new StraightLineDrive(drivetrain, 0, 80, wheels, gyro)
+      new RevShooter(260, 72, shooter).andThen(
+      new StraightLineDrive(drivetrain, 0, 80, wheels, gyro))
       //climb
     );
   }
