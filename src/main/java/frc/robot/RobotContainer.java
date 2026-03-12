@@ -207,7 +207,7 @@ public class RobotContainer {
     // m_xboxController0.povRight().onTrue speed down
     m_xboxController0.x().onTrue(new RevShooter(377, 65, m_shooter));//rev trench
     m_xboxController0.y().onTrue(new RevShooter(260, 72, m_shooter));//rev hub
-    m_xboxController0.a().onTrue(new RevShooter(0, 0, m_shooter));//rev neutral
+    m_xboxController0.a().onTrue(new RevShooter(100000, ShooterConstants.hoodLowerLimit_deg, m_shooter));//rev neutral
     m_xboxController0.b().onTrue(new RevShooter(335, 65, m_shooter));//rev tower
     m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeStop(), m_intake));//TODO: test
     m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.7), () -> m_magazine.cancel(), m_magazine));//TODO: test
