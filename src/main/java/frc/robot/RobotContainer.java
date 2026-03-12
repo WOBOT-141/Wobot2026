@@ -1,16 +1,17 @@
 package frc.robot;
 
-import java.util.Map;
 import static java.util.Map.entry;
+
+import java.util.Map;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 import frc.lib.SpektrumFlightController;
+import frc.robot.Constants.IntakeConstants;
 
 import frc.robot.subsystems.ChooserHandeling;
 import frc.robot.subsystems.Drivetrain;
@@ -19,6 +20,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
@@ -26,23 +28,23 @@ import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.ShooterCalculationAimCommand;
-import frc.robot.commands.AutonomousCommands.RotateByAngle;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
+import frc.robot.commands.StopRobot;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbLEFT;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbRIGHT;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
-import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
-import frc.robot.commands.AutonomousCommands.ScrappedAutons.ZeeClimb;
-import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.IntakeCommands.IntakeDown;
+import frc.robot.commands.IntakeCommands.IntakeUp;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.ShooterCommands.SetPIDShooter;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.commands.AutonomousCommands.RotateByAngle;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
+import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
+import frc.robot.commands.AutonomousCommands.ScrappedAutons.ZeeClimb;
 
 public class RobotContainer {
 
@@ -52,6 +54,7 @@ public class RobotContainer {
   private final Shooter m_shooter = new Shooter();
   private final Intake m_intake = new Intake();
   private final MagazineAndFeed m_magazine = new MagazineAndFeed();
+  private final Climber m_climbe = new Climber();
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
@@ -119,9 +122,8 @@ public class RobotContainer {
         () -> m_flightController0.getDriveX(),
         () -> m_flightController0.getDriveY(),
         () -> m_flightController0.getRotate(),
-        () -> m_flightController0.getThrottle(),
-        () -> m_flightController0.getSelectPressButton());
-
+        () -> m_flightController0.getThrottle());
+        
     m_drive.setDefaultCommand(m_stickCommand);
 
     configureBindings();
@@ -129,12 +131,8 @@ public class RobotContainer {
     m_autonSelector = new ChooserHandeling("Autonomous Selector",
         Map.ofEntries(
             entry("00 Do Nothing", () -> new DoNothing()),
-            entry("01 MIDDLE shooterclimb", () -> new ShootClimbMIDDLE(m_drive, m_wheels, m_gyro, m_shooter, m_magazine)),
-            entry("02 LEFT shooterclimb", () -> new ShootClimbLEFT(m_drive, m_wheels, m_gyro, m_shooter)),
-            entry("03 RIGHT shooterclimb", () -> new ShootClimbRIGHT(m_drive, m_wheels, m_gyro, m_shooter)),
-            entry("04 Depotlease", () -> new Depotlease(m_drive, m_wheels, m_gyro)), // dont use
-            entry("05 ZeeClimb", () -> new ZeeClimb(m_drive, m_wheels, m_gyro)),
-            entry("06 Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
+            entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine)),
+            entry("02 Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
         ));
   }
 
@@ -194,22 +192,23 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-     m_xboxController0.leftTrigger().onTrue(new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
-     m_xboxController0.rightTrigger().onTrue(new SitShots(m_shooter, m_magazine));
-    m_xboxController0.leftBumper()
-        .whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeStop(), m_intake));
-    m_xboxController0.rightBumper()
-        .whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(0.7), () -> m_magazine.cancel(), m_magazine));
-    m_xboxController0.y().whileTrue(new RevShooter(260, 72, m_shooter)); //hub
-   // m_xboxController0.x().whileTrue(new RevShooter(400, 62, m_shooter)); //62 291
-    // m_xboxController0.a().whileTrue(new RevShooter(114.478, 76.784, m_shooter));
-    m_xboxController0.b().whileTrue(new RevShooter(335, 65, m_shooter));// tower
-    m_xboxController0.x().whileTrue(new RevShooter(
-      377, 65, m_shooter));// midway
-
-    m_xboxController0.back().onTrue(new SendHoodToHome(m_shooter));
-    // m_xboxController0.start().onTrue(Command.startEnd(() -> m_magazine.set));
-
+    m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeRollerStop(), m_intake));
+    m_xboxController0.leftTrigger().onTrue(new IntakeDown(m_intake));
+    //m_xboxController0.rightBumper().whileTrue(m_stickCommand) TODO add ethan's fire command when done 
+    m_xboxController0.rightTrigger().onTrue(new IntakeUp(m_intake)); // works 50/50 - zane
+    //m_xboxController0.povUp().onTrue Angle up
+    // m_xboxController0.povDown().onTrue Angle down
+    // m_xboxController0.povLeft().onTrue speed up
+    // m_xboxController0.povRight().onTrue speed down
+    m_xboxController0.x().onTrue(new RevShooter(377, 65, m_shooter));//rev trench
+    m_xboxController0.y().onTrue(new RevShooter(260, 72, m_shooter));//rev hub
+    m_xboxController0.a().onTrue(new RevShooter(100000, ShooterConstants.hoodLowerLimit_deg, m_shooter));//rev neutral
+    m_xboxController0.b().onTrue(new RevShooter(335, 65, m_shooter));//rev tower
+    m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));//TODO: test
+    m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.7), () -> m_magazine.cancel(), m_magazine));//TODO: test
+    //m_xboxController0.mode().whileTrue(commands.startEnd(() -> m_shooter.unjam(), () -> m_shooter.cancel(), m_shooter)); mode dosent exsist 
+    //m_xboxController0.leftStick() reset angle/speed
+    m_xboxController0.rightStick().onTrue(new StopRobot(m_intake, m_magazine, m_climbe, m_drive, m_shooter));
   }
 
   private void configureJoystick() {
@@ -221,7 +220,7 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kReset.value))
         .onTrue(new ResetGyro(m_gyro));
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
-        .onTrue(new LockWheels(m_drive));
+        .onTrue(Commands.run(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
         .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
   }
