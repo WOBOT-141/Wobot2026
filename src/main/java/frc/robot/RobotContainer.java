@@ -237,7 +237,11 @@ public class RobotContainer {
     m_xboxController0.leftBumper().whileTrue(new FireShooter(m_shooter, m_drive, m_magazine));
     m_xboxController0.rightTrigger().onTrue(Commands.startEnd(() -> m_shooter.stopHood(), () -> m_shooter.cancel(), m_shooter));
     m_xboxController0.a().whileTrue(Commands.startEnd(() -> m_shooter.setHoodPositionFromDashboard(), () -> m_shooter.cancel(), m_shooter));
-    m_xboxController0.rightBumper().whileTrue(new ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter));
+    //m_xboxController0.rightBumper().whileTrue(new ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter));
+    //m_xboxController0.rightBumper().whileTrue(new ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter));
+    m_xboxController0.rightBumper().whileTrue(new FireShooter(m_shooter, m_drive, m_magazine));
+    // m_xboxController0.rightBumper().whileTrue(new RevShooter(377.758, 50, m_shooter));
+    // m_xboxController0.rightBumper().whileTrue(new RevShooter(377.758, 50, m_shooter));
     // m_xboxController0.rightBumper().whileTrue(new RevShooter(377.758, 50, m_shooter));
     // m_xboxController0.a().onTrue(new IntakeHome(m_intake));
     // m_xboxController0.y().onTrue(new IntakeUp(m_intake));

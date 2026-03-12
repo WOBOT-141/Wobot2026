@@ -4,8 +4,11 @@
 
 package frc.robot.commands.ShooterCommands;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.Feed;
+import frc.robot.commands.ShooterCalculationAimCommand;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.MagazineAndFeed;
@@ -18,6 +21,11 @@ public class FireShooter extends ParallelCommandGroup {
   Shooter m_shooter;
   Drivetrain m_drivetrain;
   MagazineAndFeed m_magazineAndFeed;
+  Command lockWheels = new LockWheels(m_drivetrain);
+  Command feed = new Feed(m_magazineAndFeed);
+  Command ShooterCalculationAimCommand = new  ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter);
+    
+   
   /** Creates a new FireIntake. */
   public FireShooter(Shooter shooter, Drivetrain drivetrain, MagazineAndFeed magazineAndFeed) {
     m_shooter = shooter;
@@ -25,9 +33,7 @@ public class FireShooter extends ParallelCommandGroup {
     m_magazineAndFeed = magazineAndFeed;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new RevShooter(250, 30, m_shooter),
-    new LockWheels(m_drivetrain),
-    new Feed(m_magazineAndFeed)
-    );
+    addCommands(lockWheels.alongWith(ShooterCalculationAimCommand).until(() -> m_shooter.isReadyToShoot()), feed);
+
   }
 }
