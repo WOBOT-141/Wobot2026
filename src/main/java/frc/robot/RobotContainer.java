@@ -34,7 +34,6 @@ import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbLEFT;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbRIGHT;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ZeeClimb;
-import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.ShooterCommands.FireShooter;
@@ -74,7 +73,7 @@ public class RobotContainer {
       () -> DriverStation.getAlliance());
 
   private final IBotSelector m_selectedBot = new MainBot();
-  // private final IBotSelector _selectedBot = new SummerBot();
+  //private final IBotSelector m_selectedBot = new SummerBot();
 
   private ChooserHandeling m_autonSelector;
 
@@ -130,9 +129,8 @@ public class RobotContainer {
         () -> m_flightController0.getDriveX(),
         () -> m_flightController0.getDriveY(),
         () -> m_flightController0.getRotate(),
-        () -> m_flightController0.getThrottle(),
-        () -> m_flightController0.getSelectPressButton());
-
+        () -> m_flightController0.getThrottle());
+        
     m_drive.setDefaultCommand(m_stickCommand);
 
     configureBindings();
@@ -257,7 +255,7 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kReset.value))
         .onTrue(new ResetGyro(m_gyro));
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
-        .onTrue(new LockWheels(m_drive));
+        .onTrue(Commands.run(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
         .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
   }
