@@ -209,7 +209,7 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeStop(), m_intake));
+    m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeRollerStop(), m_intake));
     m_xboxController0.leftTrigger().onTrue(new IntakeDown(m_intake));
     //m_xboxController0.rightBumper().whileTrue(m_stickCommand) TODO add ethan's fire command when done 
     m_xboxController0.rightTrigger().onTrue(new IntakeUp(m_intake)); // works 50/50 - zane
@@ -221,7 +221,7 @@ public class RobotContainer {
     m_xboxController0.y().onTrue(new RevShooter(260, 72, m_shooter));//rev hub
     m_xboxController0.a().onTrue(new RevShooter(100000, ShooterConstants.hoodLowerLimit_deg, m_shooter));//rev neutral
     m_xboxController0.b().onTrue(new RevShooter(335, 65, m_shooter));//rev tower
-    m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeStop(), m_intake));//TODO: test
+    m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));//TODO: test
     m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.7), () -> m_magazine.cancel(), m_magazine));//TODO: test
     //m_xboxController0.mode().whileTrue(commands.startEnd(() -> m_shooter.unjam(), () -> m_shooter.cancel(), m_shooter)); mode dosent exsist 
     //m_xboxController0.leftStick() reset angle/speed

@@ -39,7 +39,7 @@ public class StopRobot extends Command {
     m_shooter.cancel();
     m_magazine.cancel();
     m_intake.stopArm(); 
-    m_intake.intakeStop(); 
+    m_intake.intakeRollerStop(); 
     m_climbe.stopClimber(); 
     m_drive.stopMotors();  
     
