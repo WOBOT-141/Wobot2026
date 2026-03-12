@@ -36,6 +36,7 @@ import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ZeeClimb;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.ShooterCommands.FireShooter;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.ShooterCommands.SetPIDShooter;
@@ -204,6 +205,7 @@ public class RobotContainer {
 
 
     m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
+    m_xboxController0.leftBumper().whileTrue(new FireShooter(m_shooter, m_drive, m_magazine));
     m_xboxController0.rightTrigger().onTrue(Commands.startEnd(() -> m_shooter.stopHood(), () -> m_shooter.cancel(), m_shooter));
     m_xboxController0.a().whileTrue(Commands.startEnd(() -> m_shooter.setHoodPositionFromDashboard(), () -> m_shooter.cancel(), m_shooter));
     m_xboxController0.rightBumper().whileTrue(new ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter));
