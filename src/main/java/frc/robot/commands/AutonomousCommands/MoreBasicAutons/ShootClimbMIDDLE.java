@@ -5,10 +5,14 @@
 package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
+import frc.robot.commands.AutonomousCommands.setFeed;
 import frc.robot.commands.ShooterCommands.RevShooter;
+import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
+import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
 
@@ -17,12 +21,15 @@ import frc.robot.subsystems.SwerveModule;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ShootClimbMIDDLE extends SequentialCommandGroup {
   /** Creates a new ShootClimb. */
-  public ShootClimbMIDDLE(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter) {
+  public ShootClimbMIDDLE(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new RevShooter(260, 72, shooter).andThen(
-      new StraightLineDrive(drivetrain, 0, 80, wheels, gyro))
+      new SendHoodToHome(shooter).andThen(
+      new RevShooter(260, 72, shooter)).alongWith(
+      new WaitCommand(0.5).andThen(
+      new StraightLineDrive(drivetrain, 0, -60, wheels, gyro, true)).alongWith(
+      new setFeed(magazine)))
       //climb
     );
   }

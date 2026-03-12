@@ -119,7 +119,7 @@ public final class Constants {
 
   public static final class IntakeConstants {
     public static final int elevationCurrentLimit_amp = 60;
-    public static final int rollerCurrentLimit_amp = 20;
+    public static final int rollerCurrentLimit_amp = 40;
 
     // Homing (current-based)
     public static final double homingSpeed_perc = -0.20;

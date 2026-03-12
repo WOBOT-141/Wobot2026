@@ -18,15 +18,17 @@ public class RotateByAngle extends Command {
   SlewRateLimiter m_SlewRateLimiter;
   double gyroyaw;
   private double remainingRotation_perc;
+  private boolean m_speedFactor;
 
   IGyro m_gyro;
 
   /** Creates a new RotateToAngle. */
 
-  public RotateByAngle(Drivetrain drivetrain, double rotationAmount_deg, IGyro gyro) {
+  public RotateByAngle(Drivetrain drivetrain, double rotationAmount_deg, IGyro gyro, boolean speedFactor) {
     m_Drivetrain = drivetrain;
     m_rotationAmount_deg = rotationAmount_deg;
     m_gyro = gyro;
+    m_speedFactor = speedFactor;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);
@@ -61,15 +63,18 @@ public class RotateByAngle extends Command {
       rotationSpeed = 0.5;
     } else if (0.6 < remainingRotation_perc && 0.95 >= remainingRotation_perc) {
       rotationSpeed = remainingRotation_perc * (-1.25) + 1.25;
-    } 
-
-    finalRotationSpeed = rotationSpeed * ((m_rotationAmount_deg) * 0.011111);
+    }
+    if (m_speedFactor) {
+      finalRotationSpeed = rotationSpeed * ((m_rotationAmount_deg) * 0.00555556);
+    } else {
+      finalRotationSpeed = rotationSpeed;
+    }
     if (remainingRotation_perc < 0.05) {
       finalRotationSpeed = 0.05;
-      if (m_rotationAmount_deg <= -1){
+      if (m_rotationAmount_deg <= -1) {
         finalRotationSpeed *= -1;
       }
-    } 
+    }
     SmartDashboard.putNumber("m_desiredBotAngle_deg", m_desiredBotAngle_deg);
     SmartDashboard.putNumber("gyroyaw", gyroyaw);
     SmartDashboard.putNumber("missingAngle_deg", missingAngle_deg);
@@ -90,7 +95,7 @@ public class RotateByAngle extends Command {
   @Override
   public boolean isFinished() {
     return (((m_desiredBotAngle_deg + 5) >= gyroyaw && (m_desiredBotAngle_deg - 5) <= gyroyaw));
-    //return remainingRotation_perc > 1;
-    //return false;
+    // return remainingRotation_perc > 1;
+    // return false;
   }
 }

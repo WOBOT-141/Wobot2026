@@ -27,13 +27,14 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.ShooterCalculationAimCommand;
 import frc.robot.commands.AutonomousCommands.RotateByAngle;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.Depotlease;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbLEFT;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbRIGHT;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ZeeClimb;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
+import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
+import frc.robot.commands.AutonomousCommands.ScrappedAutons.ZeeClimb;
 import frc.robot.commands.DriveCommands.LockWheels;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
@@ -128,12 +129,12 @@ public class RobotContainer {
     m_autonSelector = new ChooserHandeling("Autonomous Selector",
         Map.ofEntries(
             entry("00 Do Nothing", () -> new DoNothing()),
-            entry("01 MIDDLE shooterclimb", () -> new ShootClimbMIDDLE(m_drive, m_wheels, m_gyro, m_shooter)),
+            entry("01 MIDDLE shooterclimb", () -> new ShootClimbMIDDLE(m_drive, m_wheels, m_gyro, m_shooter, m_magazine)),
             entry("02 LEFT shooterclimb", () -> new ShootClimbLEFT(m_drive, m_wheels, m_gyro, m_shooter)),
             entry("03 RIGHT shooterclimb", () -> new ShootClimbRIGHT(m_drive, m_wheels, m_gyro, m_shooter)),
             entry("04 Depotlease", () -> new Depotlease(m_drive, m_wheels, m_gyro)), // dont use
             entry("05 ZeeClimb", () -> new ZeeClimb(m_drive, m_wheels, m_gyro)),
-            entry("06 Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine)) // fix
+            entry("06 Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
         ));
   }
 
@@ -193,20 +194,21 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    m_xboxController0.leftTrigger().onTrue(new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine));
+     m_xboxController0.leftTrigger().onTrue(new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+     m_xboxController0.rightTrigger().onTrue(new SitShots(m_shooter, m_magazine));
     m_xboxController0.leftBumper()
         .whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeStop(), m_intake));
     m_xboxController0.rightBumper()
         .whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(0.7), () -> m_magazine.cancel(), m_magazine));
-    m_xboxController0.y().whileTrue(new RevShooter(260, 72, m_shooter)); //midddd
+    m_xboxController0.y().whileTrue(new RevShooter(260, 72, m_shooter)); //hub
    // m_xboxController0.x().whileTrue(new RevShooter(400, 62, m_shooter)); //62 291
     // m_xboxController0.a().whileTrue(new RevShooter(114.478, 76.784, m_shooter));
     m_xboxController0.b().whileTrue(new RevShooter(335, 65, m_shooter));// tower
-    m_xboxController0.x().whileTrue(new RevShooter(377, 65, m_shooter));// WORKs FOR HUB
+    m_xboxController0.x().whileTrue(new RevShooter(
+      377, 65, m_shooter));// midway
 
     m_xboxController0.back().onTrue(new SendHoodToHome(m_shooter));
     // m_xboxController0.start().onTrue(Command.startEnd(() -> m_magazine.set));
-    m_xboxController0.start().onTrue(new RotateByAngle(m_drive, -90, m_gyro));
 
   }
 

@@ -22,8 +22,8 @@ public class ShootClimbRIGHT extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       new RevShooter(260, 72, shooter).andThen(
-      new StraightLineDrive(drivetrain, -40, 80, wheels, gyro)).andThen(
-      new StraightLineDrive(drivetrain, 0, 20, wheels, gyro))
+      new StraightLineDrive(drivetrain, -40, 80, wheels, gyro, true)).andThen(
+      new StraightLineDrive(drivetrain, 0, 20, wheels, gyro, true))
       //climb
     );
   }

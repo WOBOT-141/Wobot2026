@@ -2,8 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
+package frc.robot.commands.AutonomousCommands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -26,7 +27,9 @@ public class setFeed extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if (Timer.getFPGATimestamp() > 0.5){
     m_magazine.setFeedVelocity(0.8);
+    }
   }
 
   // Called once the command ends or is interrupted.

@@ -18,17 +18,20 @@ public class StraightLineDrive extends Command {
   private final SwerveModule[] m_wheels;
   private final IGyro m_gyro;
   private double[] m_startingEncoderPos_in;
+  private final boolean m_speedFactor;
 
   private double distanceLeftOver_perc;
   private double finalDriveSpeed;
 
   /** Creates a new StraightLineDrive. */
-  public StraightLineDrive(Drivetrain drivetrain, double translationAngle, double distance, SwerveModule wheels[], IGyro gyro) {
+  public StraightLineDrive(Drivetrain drivetrain, double translationAngle, double distance, SwerveModule wheels[],
+      IGyro gyro, boolean speedFactor) {
     m_drivetrain = drivetrain;
     m_translationAngle = translationAngle;
     m_distance_in = distance;
     m_wheels = wheels;
     m_gyro = gyro;
+    m_speedFactor = speedFactor;
     m_startingEncoderPos_in = new double[m_wheels.length];
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);
@@ -75,13 +78,16 @@ public class StraightLineDrive extends Command {
     if (0.10 > distanceLeftOver_perc) {
       driveSpeed = distanceLeftOver_perc * 9.5 + 0.05;
     } else if (0.10 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.8) {
-      driveSpeed = 1.0;
+      driveSpeed = 0.75;// 1.0;
     } else if (0.8 < distanceLeftOver_perc) {
-      driveSpeed = distanceLeftOver_perc* (-4.52381) + 4.61905;
+      driveSpeed = distanceLeftOver_perc * (-4.52381) + 4.61905;
     } // faster
 
-    finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00544306);
-
+    if (m_speedFactor) {
+      finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00544306);
+    } else {
+      finalDriveSpeed = driveSpeed;
+    }
 
     return finalDriveSpeed;
   }
