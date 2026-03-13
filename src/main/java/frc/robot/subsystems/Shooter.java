@@ -165,7 +165,7 @@ public class Shooter extends SubsystemBase {
     if (targetVelocity_ips == m_targetVelocity_ips)
       return;
 
-    m_targetVelocity_ips =  targetVelocity_ips;
+    m_targetVelocity_ips =  targetVelocity_ips*ShooterConstants.flywheelSlipFactor;
 
     m_rightController.setSetpoint(m_targetVelocity_ips, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     m_middleController.setSetpoint(m_targetVelocity_ips, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
