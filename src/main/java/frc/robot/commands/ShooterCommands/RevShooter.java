@@ -5,6 +5,7 @@
 package frc.robot.commands.ShooterCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Util.BumpShooterVector;
 import frc.robot.subsystems.Shooter;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -28,8 +29,8 @@ public class RevShooter extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_shooter.setShooterVelocity(m_launchSpeed_ips);
-    m_shooter.setHoodAngle(m_hoodAngle_deg);
+    m_shooter.setShooterVelocity(m_launchSpeed_ips + BumpShooterVector.returnLaunchSpeed());
+    m_shooter.setHoodAngle(m_hoodAngle_deg  + BumpShooterVector.returnLaunchAngle());
   }
 
   // Called once the command ends or is interrupted.

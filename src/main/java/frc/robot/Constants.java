@@ -199,8 +199,8 @@ public final class Constants {
     public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
     
     // Control tuning
-    public static final double flywheelVelocityTolerance_ips = 15;
-    public static final double hoodPositionTolerance_deg = 2;
+    public static final double flywheelVelocityTolerance_ips = 30; //15
+    public static final double hoodPositionTolerance_deg = 5;  //2
     public static final double hoodSlewRate = 0.5;
 
     // Current limits
