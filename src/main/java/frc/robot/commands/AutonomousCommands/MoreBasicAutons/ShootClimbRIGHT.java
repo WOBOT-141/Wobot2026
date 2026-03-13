@@ -7,7 +7,7 @@ package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
-import frc.robot.commands.AutonomousCommands.setFeed;
+import frc.robot.commands.IntakeCommands.IntakeFuel;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.subsystems.Drivetrain;
@@ -30,7 +30,7 @@ public class ShootClimbRIGHT extends SequentialCommandGroup {
       new StraightLineDrive(drivetrain, 0, 20, wheels, gyro, true)).andThen(
       new RevShooter(300, 65, shooter))
       .alongWith(new WaitCommand(0.5)
-      .andThen(new setFeed(magazine)))
+      .andThen(new IntakeFuel(magazine,0.8)))
       //climb
     );
   }

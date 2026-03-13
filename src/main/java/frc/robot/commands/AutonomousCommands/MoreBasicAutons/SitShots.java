@@ -6,9 +6,10 @@ package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.AutonomousCommands.setFeed;
+import frc.robot.commands.AutonomousCommands.HoodResetter;
+import frc.robot.commands.IntakeCommands.IntakeFuel;
 import frc.robot.commands.ShooterCommands.RevShooter;
-import frc.robot.commands.ShooterCommands.SendHoodToHome;
+import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.Shooter;
 
@@ -17,14 +18,19 @@ import frc.robot.subsystems.Shooter;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class SitShots extends SequentialCommandGroup {
   /** Creates a new SitShots. */
-  public SitShots(Shooter shooter, MagazineAndFeed magazine) {
+  public SitShots(Shooter shooter, MagazineAndFeed magazine, IGyro gyro) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new SendHoodToHome(shooter).andThen(
+      new HoodResetter(shooter, gyro).andThen(
       new RevShooter(300, 65, shooter))
-      .alongWith(new WaitCommand(0.5)
-      .andThen(new setFeed(magazine)))
+        .alongWith(new WaitCommand(0.7)
+        .andThen(new IntakeFuel(magazine,0.8))).andThen(
+          new WaitCommand(5))
+        .andThen(
+          new RevShooter(0, 0, shooter).alongWith(
+          new IntakeFuel(magazine, 0)))
+
     );
   }
 }

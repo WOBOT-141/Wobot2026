@@ -4,15 +4,14 @@
 
 package frc.robot.commands.AutonomousCommands.MidwayStuff;
 
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.AutonomousCommands.HoodResetter;
 import frc.robot.commands.AutonomousCommands.RotateByAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
-import frc.robot.commands.AutonomousCommands.setFeed;
 import frc.robot.commands.AutonomousCommands.setIntake;
+import frc.robot.commands.IntakeCommands.IntakeFuel;
 import frc.robot.commands.ShooterCommands.RevShooter;
-import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Intake;
@@ -27,7 +26,6 @@ public class RightHalfMidwayGather extends SequentialCommandGroup {
   /** Creates a new MidwayGather. */
   public RightHalfMidwayGather(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake) {
     // Add your commands in the addCommands() call, e.g.
-    SendHoodToHome new HoodResetter(shooter, gyro) = new SendHoodToHome(shooter);
     StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 0, 187, wheels, gyro, true);
     StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, -90, 140, wheels, gyro, true);
     StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, -90, -120, wheels, gyro, false);
@@ -53,7 +51,7 @@ public class RightHalfMidwayGather extends SequentialCommandGroup {
             .andThen(
                 new RevShooter(300, 65, shooter)
                   .alongWith(new WaitCommand(0.5)
-                  .andThen(new setFeed(magazine,0.8))))
+                  .andThen(new IntakeFuel(magazine,0.8))))
             );
   }
 }

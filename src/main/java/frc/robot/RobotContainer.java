@@ -129,7 +129,7 @@ public class RobotContainer {
     m_autonSelector = new ChooserHandeling("Autonomous Selector",
         Map.ofEntries(
             entry("00 Do Nothing", () -> new DoNothing()),
-            entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine)),
+            entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine, m_gyro)),
             entry("02 Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
         ));
   }
