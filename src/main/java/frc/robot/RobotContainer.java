@@ -1,9 +1,16 @@
 package frc.robot;
 
+import java.io.File;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -37,34 +44,37 @@ import frc.robot.subsystems.Vision.VisionServer;
 
 public class RobotContainer {
 
-  private final SwerveModule[] m_wheels;
-  private final Drivetrain m_drive;
-  private final IGyro m_gyro = new NavxGyro();
-  private final Shooter m_shooter = new Shooter();
-  private final Intake m_intake = new Intake();
-  private final MagazineAndFeed m_magazine = new MagazineAndFeed();
-  private final Climber m_climbe = new Climber();
+    private final SwerveModule[] m_wheels;
+    private final Drivetrain m_drive;
+    private final IGyro m_gyro = new NavxGyro();
+    private final Shooter m_shooter = new Shooter();
+    private final Intake m_intake = new Intake();
+    private final MagazineAndFeed m_magazine = new MagazineAndFeed();
+    private final Climber m_climbe = new Climber();
 
-  private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
-  private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
-  private final CommandJoystick m_joystick = new CommandJoystick(2);
-  private final StickCommand m_stickCommand;
+    private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
+    private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
+    private final CommandJoystick m_joystick = new CommandJoystick(2);
+    private final StickCommand m_stickCommand;
 
-  private final VisionServer m_visionServer = new VisionServer();
-  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags,
-      () -> DriverStation.getAlliance());
+    private final VisionServer m_visionServer = new VisionServer();
+    private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags,
+            () -> DriverStation.getAlliance());
 
-  private final IBotSelector m_selectedBot = new MainBot();
-  //private final IBotSelector m_selectedBot = new SummerBot();
+    private final IBotSelector m_selectedBot = new MainBot();
+    //private final IBotSelector m_selectedBot = new SummerBot();
 
+    private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
-  private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+    // --- Auto Image Preview Variables ---
+    private final CvSource m_imageStream = CameraServer.putVideo("Auto Preview", 800, 600);
+    private String m_lastImagePushed = "";
+    private Mat m_currentImage = new Mat(); // Caches the image data so we can stream it continuously
 
-  public RobotContainer() {
+    public RobotContainer() {
 
-    m_wheels = new SwerveModule[] {
-
-        new SwerveModule(
+        m_wheels = new SwerveModule[]{
+            new SwerveModule(
             Constants.CANIdConstants.frontLeftSteerMotorID,
             Constants.CANIdConstants.frontLeftDriveMotorID,
             Constants.CANIdConstants.frontLeftEncoderid,
@@ -72,8 +82,7 @@ public class RobotContainer {
             m_selectedBot.getfrontLeftLocationX(),
             m_selectedBot.getfrontLeftLocationY(),
             m_selectedBot.rotationsPerInch_rot()),
-
-        new SwerveModule(
+            new SwerveModule(
             Constants.CANIdConstants.backLeftSteerMotorID,
             Constants.CANIdConstants.backLeftDriveMotorID,
             Constants.CANIdConstants.backLeftEncoderid,
@@ -81,8 +90,7 @@ public class RobotContainer {
             m_selectedBot.getbackLeftLocationX(),
             m_selectedBot.getbackLeftLocationY(),
             m_selectedBot.rotationsPerInch_rot()),
-
-        new SwerveModule(
+            new SwerveModule(
             Constants.CANIdConstants.frontRightSteerMotorID,
             Constants.CANIdConstants.frontRightDriveMotorID,
             Constants.CANIdConstants.frontRightEncoderid,
@@ -90,8 +98,7 @@ public class RobotContainer {
             m_selectedBot.getfrontRightLocationX(),
             m_selectedBot.getfrontRightLocationY(),
             m_selectedBot.rotationsPerInch_rot()),
-
-        new SwerveModule(
+            new SwerveModule(
             Constants.CANIdConstants.backRightSteerMotorID,
             Constants.CANIdConstants.backRightDriveMotorID,
             Constants.CANIdConstants.backRightEncoderid,
@@ -99,133 +106,153 @@ public class RobotContainer {
             m_selectedBot.getbackRightLocationX(),
             m_selectedBot.getbackRightLocationY(),
             m_selectedBot.rotationsPerInch_rot())
-    };
+        };
 
-    m_drive = new Drivetrain(m_wheels, m_gyro);
+        m_drive = new Drivetrain(m_wheels, m_gyro);
 
-    configureFlightControllerParameters();
+        configureFlightControllerParameters();
 
-    m_stickCommand = new StickCommand(
-        m_drive,
-        m_gyro,
-        m_selectedBot,
-        () -> m_flightController0.getDriveX(),
-        () -> m_flightController0.getDriveY(),
-        () -> m_flightController0.getRotate(),
-        () -> m_flightController0.getThrottle());
-        
-    m_drive.setDefaultCommand(m_stickCommand);
+        m_stickCommand = new StickCommand(
+                m_drive,
+                m_gyro,
+                m_selectedBot,
+                () -> m_flightController0.getDriveX(),
+                () -> m_flightController0.getDriveY(),
+                () -> m_flightController0.getRotate(),
+                () -> m_flightController0.getThrottle());
 
-    configureBindings();
+        m_drive.setDefaultCommand(m_stickCommand);
 
-    autoChooser.addDefaultOption("00 Do Nothing", new DoNothing());
-    autoChooser.addOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine));
-    autoChooser.addOption("02 Midway Gather", new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
-  }
+        configureBindings();
 
-  /**
-   * Restore flight controller scaling, offsets, and deadbands.
-   */
-  private void configureFlightControllerParameters() {
-
-    IStickParameters p = new StickBParameters();
-
-    m_flightController0.setRotateFactor(p.get_RotateFactor());
-    m_flightController0.setDriveXFactor(p.get_DriveXFactor());
-    m_flightController0.setDriveYFactor(p.get_DriveYFactor());
-    m_flightController0.setThrottleFactor(p.get_ThrottleFactor());
-
-    m_flightController0.setRotateOffset(p.get_RotateOffset());
-    m_flightController0.setDriveXOffset(p.get_DriveXOffset());
-    m_flightController0.setDriveYOffset(p.get_DriveYOffset());
-    m_flightController0.setThrottleOffset(p.get_ThrottleOffset());
-
-    m_flightController0.setKnobOffset(p.get_knobOffset());
-    m_flightController0.setxDeadBand(p.get_deadbandX());
-    m_flightController0.setyDeadBand(p.get_deadbandY());
-    m_flightController0.setRotationDeadBand(p.get_deadbandRot());
-  }
-
-  /**
-   * Re-zero swerve modules while disabled.
-   */
-  public void wheelSetup() {
-
-    m_wheels[0].setEncoderOffset(m_selectedBot.getfrontLeftOffset());
-    m_wheels[0].set_xPos(m_selectedBot.getfrontLeftLocationX());
-    m_wheels[0].set_yPos(m_selectedBot.getfrontLeftLocationY());
-
-    m_wheels[1].setEncoderOffset(m_selectedBot.getbackLeftOffset());
-    m_wheels[1].set_xPos(m_selectedBot.getbackLeftLocationX());
-    m_wheels[1].set_yPos(m_selectedBot.getbackLeftLocationY());
-
-    m_wheels[2].setEncoderOffset(m_selectedBot.getfrontRightOffset());
-    m_wheels[2].set_xPos(m_selectedBot.getfrontRightLocationX());
-    m_wheels[2].set_yPos(m_selectedBot.getfrontRightLocationY());
-
-    m_wheels[3].setEncoderOffset(m_selectedBot.getbackRightOffset());
-    m_wheels[3].set_xPos(m_selectedBot.getbackRightLocationX());
-    m_wheels[3].set_yPos(m_selectedBot.getbackRightLocationY());
-
-    for (int i = 0; i < 4; i++) {
-      m_wheels[i].settoZero();
-    }
-  }
-
-  private void configureBindings() {
-    configureXboxController();
-    configureJoystick();
-    configureFlightController();
-  }
-
-  private void configureXboxController() {
-    m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeRollerStop(), m_intake));
-    m_xboxController0.leftTrigger().onTrue(new IntakeDown(m_intake));
-    //m_xboxController0.rightBumper().whileTrue(m_stickCommand) TODO add ethan's fire command when done 
-    m_xboxController0.rightTrigger().onTrue(new IntakeUp(m_intake)); // works 50/50 - zane
-    //m_xboxController0.povUp().onTrue Angle up
-    // m_xboxController0.povDown().onTrue Angle down
-    // m_xboxController0.povLeft().onTrue speed up
-    // m_xboxController0.povRight().onTrue speed down
-    m_xboxController0.x().onTrue(new RevShooter(377, 65, m_shooter));//rev trench
-    m_xboxController0.y().onTrue(new RevShooter(260, 72, m_shooter));//rev hub
-    m_xboxController0.a().onTrue(new RevShooter(100000, ShooterConstants.hoodLowerLimit_deg, m_shooter));//rev neutral
-    m_xboxController0.b().onTrue(new RevShooter(335, 65, m_shooter));//rev tower
-    m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));//TODO: test
-    m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.7), () -> m_magazine.cancel(), m_magazine));//TODO: test
-    //m_xboxController0.mode().whileTrue(commands.startEnd(() -> m_shooter.unjam(), () -> m_shooter.cancel(), m_shooter)); mode dosent exsist 
-    //m_xboxController0.leftStick() reset angle/speed
-    m_xboxController0.rightStick().onTrue(new StopRobot(m_intake, m_magazine, m_climbe, m_drive, m_shooter));
-  }
-
-  private void configureJoystick() {
-    m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
-    m_joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
-  }
-
-  private void configureFlightController() {
-    new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kReset.value))
-        .onTrue(new ResetGyro(m_gyro));
-    new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
-        .onTrue(Commands.run(() -> m_stickCommand.lockWheels()));
-    new Trigger(() -> m_flightController0.getIButton())
-        .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
-  }
-
-  public Command getAutonomousCommand() {
-
-    if (autoChooser.get() == null) {
-      return Commands.none();
+        autoChooser.addDefaultOption("00 Do Nothing", new DoNothing());
+        autoChooser.addOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine));
+        autoChooser.addOption("02 Midway Gather", new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
     }
 
-    Command selectedCommand = autoChooser.get();
+    private void configureFlightControllerParameters() {
 
-    if (selectedCommand != null) {
-      System.out.println("Selected auton: " + selectedCommand);
-    } else {
-      System.out.println("Selected auton: <null>");
+        IStickParameters p = new StickBParameters();
+
+        m_flightController0.setRotateFactor(p.get_RotateFactor());
+        m_flightController0.setDriveXFactor(p.get_DriveXFactor());
+        m_flightController0.setDriveYFactor(p.get_DriveYFactor());
+        m_flightController0.setThrottleFactor(p.get_ThrottleFactor());
+
+        m_flightController0.setRotateOffset(p.get_RotateOffset());
+        m_flightController0.setDriveXOffset(p.get_DriveXOffset());
+        m_flightController0.setDriveYOffset(p.get_DriveYOffset());
+        m_flightController0.setThrottleOffset(p.get_ThrottleOffset());
+
+        m_flightController0.setKnobOffset(p.get_knobOffset());
+        m_flightController0.setxDeadBand(p.get_deadbandX());
+        m_flightController0.setyDeadBand(p.get_deadbandY());
+        m_flightController0.setRotationDeadBand(p.get_deadbandRot());
     }
-    Logger.recordOutput("SelectedAuton", selectedCommand.getName());
-    return selectedCommand;
-  }
+
+    public void wheelSetup() {
+
+        m_wheels[0].setEncoderOffset(m_selectedBot.getfrontLeftOffset());
+        m_wheels[0].set_xPos(m_selectedBot.getfrontLeftLocationX());
+        m_wheels[0].set_yPos(m_selectedBot.getfrontLeftLocationY());
+
+        m_wheels[1].setEncoderOffset(m_selectedBot.getbackLeftOffset());
+        m_wheels[1].set_xPos(m_selectedBot.getbackLeftLocationX());
+        m_wheels[1].set_yPos(m_selectedBot.getbackLeftLocationY());
+
+        m_wheels[2].setEncoderOffset(m_selectedBot.getfrontRightOffset());
+        m_wheels[2].set_xPos(m_selectedBot.getfrontRightLocationX());
+        m_wheels[2].set_yPos(m_selectedBot.getfrontRightLocationY());
+
+        m_wheels[3].setEncoderOffset(m_selectedBot.getbackRightOffset());
+        m_wheels[3].set_xPos(m_selectedBot.getbackRightLocationX());
+        m_wheels[3].set_yPos(m_selectedBot.getbackRightLocationY());
+
+        for (int i = 0; i < 4; i++) {
+            m_wheels[i].settoZero();
+        }
+    }
+
+    private void configureBindings() {
+        configureXboxController();
+        configureJoystick();
+        configureFlightController();
+    }
+
+    private void configureXboxController() {
+        m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeRollerStop(), m_intake));
+        m_xboxController0.leftTrigger().onTrue(new IntakeDown(m_intake));
+        m_xboxController0.rightTrigger().onTrue(new IntakeUp(m_intake));
+        m_xboxController0.x().onTrue(new RevShooter(377, 65, m_shooter));
+        m_xboxController0.y().onTrue(new RevShooter(260, 72, m_shooter));
+        m_xboxController0.a().onTrue(new RevShooter(100000, ShooterConstants.hoodLowerLimit_deg, m_shooter));
+        m_xboxController0.b().onTrue(new RevShooter(335, 65, m_shooter));
+        m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));
+        m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.7), () -> m_magazine.cancel(), m_magazine));
+        m_xboxController0.rightStick().onTrue(new StopRobot(m_intake, m_magazine, m_climbe, m_drive, m_shooter));
+    }
+
+    private void configureJoystick() {
+        m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
+        m_joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
+    }
+
+    private void configureFlightController() {
+        new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kReset.value))
+                .onTrue(new ResetGyro(m_gyro));
+        new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
+                .onTrue(Commands.run(() -> m_stickCommand.lockWheels()));
+        new Trigger(() -> m_flightController0.getIButton())
+                .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
+    }
+
+    public Command getAutonomousCommand() {
+
+        if (autoChooser.get() == null) {
+            return Commands.none();
+        }
+
+        Command selectedCommand = autoChooser.get();
+
+        if (selectedCommand != null) {
+            System.out.println("Selected auton: " + selectedCommand);
+        } else {
+            System.out.println("Selected auton: <null>");
+        }
+        Logger.recordOutput("SelectedAuton", selectedCommand.getName());
+        return selectedCommand;
+    }
+
+    /**
+     * Updates the camera stream with the selected auto image. Called by
+     * Robot.java disabledPeriodic()
+     */
+    public void updateAutoImagePreview() {
+        Command selectedCommand = autoChooser.get();
+        if (selectedCommand == null) {
+            return;
+        }
+
+        // Dynamically grab the class name and append .png
+        String imageFileName = selectedCommand.getClass().getSimpleName() + ".png";
+
+        // 1. If the driver picked a new auto, read the file into memory
+        if (!imageFileName.equals(m_lastImagePushed)) {
+            File imgFile = new File(Filesystem.getDeployDirectory(), imageFileName);
+
+            if (imgFile.exists()) {
+                m_currentImage = Imgcodecs.imread(imgFile.getAbsolutePath());
+                m_lastImagePushed = imageFileName;
+            } else {
+                System.out.println("Missing dashboard image in deploy folder: " + imageFileName);
+                m_currentImage = new Mat(); // Clear the old image so it goes black
+                m_lastImagePushed = imageFileName;
+            }
+        }
+
+        // 2. CONSTANTLY push the frame to keep the MJPEG stream alive
+        if (m_currentImage != null && !m_currentImage.empty()) {
+            m_imageStream.putFrame(m_currentImage);
+        }
+    }
 }
