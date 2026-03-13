@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+
 public interface IGyro {
 
     void ResetGyro();
@@ -22,6 +24,7 @@ public interface IGyro {
 
     double getRoll();
 
+    Rotation2d getRotationAs2d();
 
 
 }

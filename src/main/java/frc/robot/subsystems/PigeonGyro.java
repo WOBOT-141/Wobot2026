@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -69,6 +70,11 @@ public class PigeonGyro extends SubsystemBase implements IGyro {
   @Override
   public double getRoll() {
     return pigeon2.getRoll().getValue().in(Degrees)*-1;
+  }
+
+  @Override
+  public Rotation2d getRotationAs2d() {
+    return Rotation2d.fromDegrees(getRawGyroAngle());
   }
 
 }
