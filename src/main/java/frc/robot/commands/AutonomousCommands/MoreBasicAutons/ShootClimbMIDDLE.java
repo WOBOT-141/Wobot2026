@@ -29,7 +29,7 @@ public class ShootClimbMIDDLE extends SequentialCommandGroup {
       new RevShooter(260, 72, shooter)).alongWith(
       new WaitCommand(0.5).andThen(
       new StraightLineDrive(drivetrain, 0, -60, wheels, gyro, true)).alongWith(
-      new setFeed(magazine)))
+      new setFeed(magazine, 1)))
       //climb
     );
   }

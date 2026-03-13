@@ -24,7 +24,7 @@ public class SitShots extends SequentialCommandGroup {
       new SendHoodToHome(shooter).andThen(
       new RevShooter(300, 65, shooter))
       .alongWith(new WaitCommand(0.5)
-      .andThen(new setFeed(magazine)))
+      .andThen(new setFeed(magazine, 1)))
     );
   }
 }

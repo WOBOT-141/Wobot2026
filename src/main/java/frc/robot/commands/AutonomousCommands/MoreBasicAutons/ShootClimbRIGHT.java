@@ -30,7 +30,7 @@ public class ShootClimbRIGHT extends SequentialCommandGroup {
       new StraightLineDrive(drivetrain, 0, 20, wheels, gyro, true)).andThen(
       new RevShooter(300, 65, shooter))
       .alongWith(new WaitCommand(0.5)
-      .andThen(new setFeed(magazine)))
+      .andThen(new setFeed(magazine, 1)))
       //climb
     );
   }
