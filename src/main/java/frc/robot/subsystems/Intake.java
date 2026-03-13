@@ -24,10 +24,12 @@ import frc.robot.Constants.IntakeConstants;
 public class Intake extends SubsystemBase {
 
   // Hardware
-  private final SparkMax m_intakeElevationMotor;
+  private final SparkMax m_intakeElevationLeaderMotor;
+  private final SparkMax m_intakeElevationFollowerMotor;
   private final SparkFlex m_intakeRollerMotor;
 
-  private final RelativeEncoder m_intakeEncoder;
+  private final RelativeEncoder m_intakeElevationLeaderEncoder;
+  private final RelativeEncoder m_intakeElevationFollowerEncoder;
   private final RelativeEncoder m_intakeRollerEncoder;
 
   // State
@@ -43,27 +45,43 @@ public class Intake extends SubsystemBase {
   // Constructor
   public Intake() {
 
-    m_intakeElevationMotor = new SparkMax(CANIdConstants.intakeElevationMotorID, MotorType.kBrushless);
+    m_intakeElevationLeaderMotor = new SparkMax(CANIdConstants.intakeElevationRightMotorID, MotorType.kBrushless);
+    m_intakeElevationFollowerMotor = new SparkMax(CANIdConstants.intakeElevationLeftMotorID, MotorType.kBrushless);
     m_intakeRollerMotor = new SparkFlex(CANIdConstants.intakeRollerMotorID, MotorType.kBrushless);
 
     configureIntakeRollerMotor(m_intakeRollerMotor);
-    configureIntakeElevationMotor(m_intakeElevationMotor);
+    configureIntakeElevationMotors();
 
-    m_intakeEncoder = m_intakeElevationMotor.getEncoder();
+    m_intakeElevationLeaderEncoder = m_intakeElevationLeaderMotor.getEncoder();
+    m_intakeElevationFollowerEncoder = m_intakeElevationFollowerMotor.getEncoder();
     m_intakeRollerEncoder = m_intakeRollerMotor.getEncoder();
   }
 
   // Motor configuration
-  private void configureIntakeElevationMotor(SparkMax intakeElevationMotor) {
-    SparkMaxConfig intakeElevationMotorConfig = new SparkMaxConfig();
-    intakeElevationMotorConfig
+  private void configureIntakeElevationMotors() {
+    SparkMaxConfig intakeElevationMotorLeaderConfig = new SparkMaxConfig();
+    SparkMaxConfig intakeElevationMotorFollowerConfig = new SparkMaxConfig();
+
+    intakeElevationMotorLeaderConfig
+        .idleMode(IdleMode.kBrake)
+        .inverted(true)
+        .smartCurrentLimit(IntakeConstants.elevationCurrentLimit_amp, IntakeConstants.elevationCurrentLimit_amp);
+
+    intakeElevationMotorFollowerConfig
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(IntakeConstants.elevationCurrentLimit_amp, IntakeConstants.elevationCurrentLimit_amp);
-    intakeElevationMotorConfig.encoder
-        .positionConversionFactor(IntakeConstants.degPerMotorRotation_deg);
+    // intakeElevationMotorLeftConfig.encoder
+    // .positionConversionFactor(IntakeConstants.degPerMotorRotation_deg);
 
-    intakeElevationMotor.configure(
-        intakeElevationMotorConfig,
+    intakeElevationMotorFollowerConfig.follow(CANIdConstants.intakeElevationRightMotorID, true);
+
+    m_intakeElevationLeaderMotor.configure(
+        intakeElevationMotorLeaderConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
+
+    m_intakeElevationFollowerMotor.configure(
+        intakeElevationMotorFollowerConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
   }
@@ -82,13 +100,11 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isAtUpPosition() {
-    return Math
-        .abs(m_intakeEncoder.getPosition() - IntakeConstants.upAngle_deg) < IntakeConstants.positionTolerance_deg;
+    return m_intakeElevationLeaderEncoder.getPosition() <=0;
   }
 
   public boolean isAtDownPosition() {
-    return Math
-        .abs(m_intakeEncoder.getPosition() - IntakeConstants.downAngle_deg) < IntakeConstants.positionTolerance_deg;
+    return m_intakeElevationLeaderEncoder.getPosition() >= IntakeConstants.intakeRawExtension_rot;
   }
 
   // Roller control
@@ -103,75 +119,89 @@ public class Intake extends SubsystemBase {
   // Arm control
   public void intakeDown() {
 
-    // if (!m_isHomed)
-    // return;
+    if (!isIntakeWithinRange()){
+      m_intakeElevationLeaderMotor.set(0);
+      return;
+    }
 
-    m_intakeElevationMotor.set(applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
+    m_intakeElevationLeaderMotor.set(applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
     // m_moveStartTime_sec = Timer.getFPGATimestamp();
-    System.out.println("intakeMovingup");
+    System.out.println("intakeMovingDown");
   }
 
   public void intakeUp() {
+    if (!isIntakeWithinRange()){
+      m_intakeElevationLeaderMotor.set(0);
+      return;
+    }
+
+    m_intakeElevationLeaderMotor.set(applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
 
     // if (!m_isHomed)
     // return;
 
-    m_intakeElevationMotor.set(applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
-    // m_moveStartTime_sec = Timer.getFPGATimestamp();
-    System.out.println("intakeMovingup");
+    // m_intakeElevationRightMotor.set(applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
+    // // m_moveStartTime_sec = Timer.getFPGATimestamp();
+    // System.out.println("intakeMovingup");
 
+  }
+
+  public boolean isIntakeWithinRange(){
+    return m_intakeElevationFollowerEncoder.getPosition() > 0 &&
+        m_intakeElevationLeaderEncoder.getPosition() > 0 &&
+        m_intakeElevationFollowerEncoder.getPosition() < IntakeConstants.intakeRawExtension_rot &&
+        m_intakeElevationLeaderEncoder.getPosition() < IntakeConstants.intakeRawExtension_rot;
+      
   }
 
   public double getElevationCurrent() {
-    return m_intakeElevationMotor.getOutputCurrent();
+    return m_intakeElevationLeaderMotor.getOutputCurrent();
   }
 
   public void stopArm() {
-    m_intakeElevationMotor.stopMotor();
-    m_intakeElevationMotor.set(0);
-    SmartDashboard.putString("stop status", "stopped");
+    m_intakeElevationLeaderMotor.stopMotor();
   }
 
   // Homing (current based)
-  public void intakeHome() {
+  // public void intakeHome() {
 
-    m_homingActive = true;
-    m_isHomed = false;
-    SmartDashboard.putBoolean("Intake Homed", m_isHomed);
+  // m_homingActive = true;
+  // m_isHomed = false;
+  // SmartDashboard.putBoolean("Intake Homed", m_isHomed);
 
-    m_intakeElevationMotor.set(
-        applyBrownoutScale(IntakeConstants.homingSpeed_perc));
-  }
+  // m_intakeElevationRightMotor.set(
+  // applyBrownoutScale(IntakeConstants.homingSpeed_perc));
+  // }
 
-  private void updateHoming() {
+  // private void updateHoming() {
 
-    if (!m_homingActive)
-      return;
+  // if (!m_homingActive)
+  // return;
 
-    double current_amp = m_intakeElevationMotor.getOutputCurrent();
-    SmartDashboard.putNumber(
-        "Intake current",
-        current_amp);
-    SmartDashboard.putNumber(
-        "Intake current thr",
-        IntakeConstants.homingCurrentThreshold_amp);
+  // double current_amp = m_intakeElevationRightMotor.getOutputCurrent();
+  // SmartDashboard.putNumber(
+  // "Intake current",
+  // current_amp);
+  // SmartDashboard.putNumber(
+  // "Intake current thr",
+  // IntakeConstants.homingCurrentThreshold_amp);
 
-    if (current_amp > IntakeConstants.homingCurrentThreshold_amp) {
-      // HARD STOP detected
-      m_intakeEncoder.setPosition(0.0);
+  // if (current_amp > IntakeConstants.homingCurrentThreshold_amp) {
+  // // HARD STOP detected
+  // m_intakeElevationRightEncoder.setPosition(0.0);
 
-      m_isHomed = true;
-      m_homingActive = false;
+  // m_isHomed = true;
+  // m_homingActive = false;
 
-      m_intakeElevationMotor.stopMotor();
+  // m_intakeElevationRightMotor.stopMotor();
 
-      SmartDashboard.putBoolean("Intake Homed", true);
-    }
-  }
+  // SmartDashboard.putBoolean("Intake Homed", true);
+  // }
+  // }
 
-  public boolean isHomed() {
-    return m_isHomed;
-  }
+  // public boolean isHomed() {
+  // return m_isHomed;
+  // }
 
   // Brownout protection
   private double applyBrownoutScale(double commandedSpeed_perc) {
@@ -193,8 +223,7 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-
-    updateHoming();
+    // updateHoming();
 
     // Safety timeout while moving
     // if (Math.abs(m_intakeElevationMotor.get()) > 0.01) {
@@ -207,12 +236,12 @@ public class Intake extends SubsystemBase {
 
     // Dashboard numbers
     SmartDashboard.putNumber(
-        "Intake Angle deg",
-        m_intakeEncoder.getPosition());
+        "Intake Leader Position",
+        m_intakeElevationLeaderEncoder.getPosition());
 
     SmartDashboard.putNumber(
-        "Intake Motor RPM",
-        m_intakeEncoder.getVelocity());
+        "Intake Follower Position",
+        m_intakeElevationFollowerEncoder.getPosition());
 
     SmartDashboard.putNumber(
         "Intake Roller RPM",
@@ -230,6 +259,11 @@ public class Intake extends SubsystemBase {
     if (atDownNow != m_lastAtDown) {
       SmartDashboard.putBoolean("Intake At Down", atDownNow);
       m_lastAtDown = atDownNow;
+    }
+
+    if (!isIntakeWithinRange()){
+      m_intakeElevationLeaderMotor.set(0);
+      return;
     }
   }
 }
