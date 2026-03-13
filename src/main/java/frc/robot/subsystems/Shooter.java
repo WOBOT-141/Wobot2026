@@ -197,6 +197,10 @@ public class Shooter extends SubsystemBase {
     return Math.abs(m_hoodMotorEncoder.getPosition() - m_hoodTargetPosition_deg) < ShooterConstants.hoodPositionTolerance_deg;
   }
 
+  public boolean isReadyToShoot() {
+    return allAtSpeed() && hoodAtPosition();
+  }
+  
   public double getAverageVelocity_ips() {
     return ((m_rightEncoder.getVelocity()
         + m_middleEncoder.getVelocity()
