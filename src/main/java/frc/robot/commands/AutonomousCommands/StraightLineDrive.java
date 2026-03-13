@@ -78,7 +78,7 @@ public class StraightLineDrive extends Command {
     if (0.10 > distanceLeftOver_perc) {
       driveSpeed = distanceLeftOver_perc * 9.5 + 0.05;
     } else if (0.10 <= distanceLeftOver_perc && distanceLeftOver_perc <= 0.8) {
-      driveSpeed = 0.75;// 1.0;
+      driveSpeed = 1.0;// 1.0;
     } else if (0.8 < distanceLeftOver_perc) {
       driveSpeed = distanceLeftOver_perc * (-4.52381) + 4.61905;
     } // faster
@@ -86,11 +86,7 @@ public class StraightLineDrive extends Command {
     if (m_speedFactor) {
       finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00544306);
     } else {
-      if (m_distance_in <= -1) {
-        finalDriveSpeed = driveSpeed * -1;
-      } else {
-        finalDriveSpeed = driveSpeed;
-      }
+      finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00909091);
     }
 
     return finalDriveSpeed;

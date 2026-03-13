@@ -27,7 +27,7 @@ public class LeftHalfMidwayGather extends SequentialCommandGroup {
   /** Creates a new MidwayGather. */
   public LeftHalfMidwayGather(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake) {
     // Add your commands in the addCommands() call, e.g.
-    SendHoodToHome hood_to_home = new SendHoodToHome(shooter);
+    SendHoodToHome new HoodResetter(shooter, gyro) = new SendHoodToHome(shooter);
     StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 0, 187, wheels, gyro, true);
     StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, -90, 70, wheels, gyro, true);
     StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, -90, -60, wheels, gyro, false);
@@ -36,7 +36,7 @@ public class LeftHalfMidwayGather extends SequentialCommandGroup {
     gyro.setGyroOffset(90);
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        hood_to_home
+        new HoodResetter(shooter, gyro)
             .andThen(
                 drive_over_ramp_to_center.andThen(
                 new setIntake(intake, -0.6)).andThen(
@@ -53,7 +53,7 @@ public class LeftHalfMidwayGather extends SequentialCommandGroup {
             .andThen(
                 new RevShooter(300, 65, shooter)
                   .alongWith(new WaitCommand(0.5)
-                  .andThen(new setFeed(magazine))))
+                  .andThen(new setFeed(magazine,0.8))))
             );
   }
 }
