@@ -196,15 +196,15 @@ public class RobotContainer {
   private void configureXboxController() {
     m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeRollerStop(), m_intake));
     m_xboxController0.leftTrigger().onTrue(new IntakeDown(m_intake));
-    m_xboxController0.rightBumper().whileTrue(new FireShooter( 260, 72, m_shooter, m_drive, m_magazine)); 
+    m_xboxController0.rightBumper().whileTrue(new FireShooter( 260, 72, m_shooter, m_drive, m_magazine));//HUB 
     m_xboxController0.rightTrigger().onTrue(new IntakeUp(m_intake)); // works 50/50 - zane
     m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngle(true))); //Angle up
     m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngle(false))); // Angle down
     m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngle(true))); //speed up
     m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngle(false))); //speed down
-    m_xboxController0.x().onTrue(new RevShooter(377, 65, m_shooter));//rev trench
-    m_xboxController0.y().onTrue(new RevShooter(260, 72, m_shooter));//rev hub
-    m_xboxController0.a().onTrue(new RevShooter(100000, ShooterConstants.hoodLowerLimit_deg, m_shooter));//rev neutral
+    m_xboxController0.x().onTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));//rev trench
+    m_xboxController0.y().onTrue(new FireShooter( 260, 72, m_shooter, m_drive, m_magazine));//rev hub
+    m_xboxController0.a().onTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral
 
     //m_xboxController0.b().onTrue(new RevShooter(335, 65, m_shooter));//rev tower
     m_xboxController0.b().onTrue(new SendHoodToHome(m_shooter));
