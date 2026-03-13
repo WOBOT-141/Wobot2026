@@ -122,7 +122,7 @@ public final class Constants {
 
 
   public static final class IntakeConstants {
-    public static final int elevationCurrentLimit_amp = 60;
+    public static final int elevationCurrentLimit_amp = 70;
     public static final int rollerCurrentLimit_amp = 20;
 
     // Homing (current-based)
@@ -135,11 +135,17 @@ public final class Constants {
     public static final double downAngle_deg = 95.0;
 
     // Motion speeds
-    public static final double intakeUpSpeed_perc = -1;
-    public static final double intakeDownSpeed_perc = 0.65;
+    public static final double intakeUpSpeed_perc = 0.60;
+    public static final double intakeDownSpeed_perc = -0.2;
 
     public static final double positionTolerance_deg = 3.0; // Allowed error band for position checks
-    public static final double moveTimeout_sec = 2.0; // Safety timeout while moving
+    public static final double moveTimeout_sec = .20; // Safety timeout while moving
+
+    //9:48
+    //-84688.945313 start
+    //--85408.851563 end 
+
+    public static final double twoTurnDistance =1; //Math.abs(-85408.851563-(-84688.945313));
 
     // Brownout protection
     public static final double brownoutStartVoltage_V = 10.8; // Voltage where we start scaling
@@ -182,12 +188,12 @@ public final class Constants {
     public static final double hubRimHeight_in = 72;
     public static final double muzzleToRimHeight_in = hubRimHeight_in - muzzleHeight_in;
 
-    public static final double leftP = 0.00012;
-    public static final double middleP = 0.00025;
-    public static final double rightP = 0.00015;
+    public static final double leftP = 0.0012;
+    public static final double middleP = 0.0025;
+    public static final double rightP = 0.0015;
     public static final double I = 0.00000;
     public static final double D = 0.00000;
-    public static final double kF = 0.00018;
+    public static final double kF = 0.0018;
 
     public static final double hoodP = 0.05;
     public static final double hoodI = 0;
@@ -197,8 +203,8 @@ public final class Constants {
     public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
     
     // Control tuning
-    public static final double flywheelVelocityTolerance_ips = 15;
-    public static final double hoodPositionTolerance_deg = 2;
+    public static final double flywheelVelocityTolerance_ips = 30; //15
+    public static final double hoodPositionTolerance_deg = 5;  //2
     public static final double hoodSlewRate = 0.5;
 
     // Current limits
