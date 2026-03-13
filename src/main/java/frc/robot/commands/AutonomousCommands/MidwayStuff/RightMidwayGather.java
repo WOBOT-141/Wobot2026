@@ -7,6 +7,7 @@ package frc.robot.commands.AutonomousCommands.MidwayStuff;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.AutonomousCommands.HoodResetter;
 import frc.robot.commands.AutonomousCommands.RotateByAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.commands.AutonomousCommands.setFeed;
@@ -27,16 +28,13 @@ public class RightMidwayGather extends SequentialCommandGroup {
   /** Creates a new MidwayGather. */
   public RightMidwayGather(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake) {
     // Add your commands in the addCommands() call, e.g.
-    SendHoodToHome hood_to_home = new SendHoodToHome(shooter);
-    StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 0, 187, wheels, gyro, true);
-    StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, -90, 140, wheels, gyro, true);
-    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, -90, -120, wheels, gyro, false);
-    StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, 0, -186, wheels, gyro, true);
-
-    gyro.setGyroOffset(90);
+    StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 90, 187, wheels, gyro, true);
+    StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, 0, 140, wheels, gyro, true);
+    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 0, -120, wheels, gyro, true);
+    StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, -90, 190, wheels, gyro, true);
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        hood_to_home
+        new HoodResetter(shooter, gyro)
             .andThen(
                 drive_over_ramp_to_center.andThen(
                 new setIntake(intake, -0.6)).andThen(
@@ -49,11 +47,15 @@ public class RightMidwayGather extends SequentialCommandGroup {
             .andThen(
                 drive_back_in_to_alliance_zone)
             .andThen(
-                new RotateByAngle(drivetrain, 25, gyro,false))
+                new RotateByAngle(drivetrain, 20, gyro,false))
             .andThen(
-                new RevShooter(300, 65, shooter)
+                new RevShooter(280, 65, shooter)
                   .alongWith(new WaitCommand(0.5)
-                  .andThen(new setFeed(magazine))))
-            );
+                  .andThen(new setFeed(magazine, 0.8))))
+            .andThen(
+                new WaitCommand(5))
+            .andThen(
+                new RevShooter(0, 0, shooter).alongWith(
+                new setFeed(magazine, 0))));
   }
 }

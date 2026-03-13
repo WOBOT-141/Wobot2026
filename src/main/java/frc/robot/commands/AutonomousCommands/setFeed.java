@@ -13,9 +13,11 @@ import frc.robot.subsystems.MagazineAndFeed;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class setFeed extends Command {
   private final MagazineAndFeed m_magazine;
+  private final double m_speed;
   /** Creates a new setFeed. */
-  public setFeed(MagazineAndFeed magazine) {
+  public setFeed(MagazineAndFeed magazine, double speed) {
     m_magazine = magazine;
+    m_speed = speed;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_magazine);
   }
@@ -28,7 +30,7 @@ public class setFeed extends Command {
   @Override
   public void execute() {
     if (Timer.getFPGATimestamp() > 0.5){
-    m_magazine.setFeedVelocity(0.8);
+    m_magazine.setFeedVelocity(m_speed);
     }
   }
 
