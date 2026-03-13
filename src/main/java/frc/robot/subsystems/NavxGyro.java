@@ -8,7 +8,6 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import com.studica.frc.AHRS.NavXUpdateRate;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -117,11 +116,6 @@ public class NavxGyro extends SubsystemBase implements IGyro {
     }
 
     return smallestAngle + currentAngle; // left as-is per your TODO
-  }
-  
-  @Override
-  public Rotation2d getRotationAs2d() {
-    return Rotation2d.fromDegrees(getRawGyroAngle());
   }
 
   @Override

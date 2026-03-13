@@ -6,6 +6,8 @@ package frc.robot.commands.AutonomousCommands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.MagazineAndFeed;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -13,12 +15,6 @@ public class setFeed extends Command {
   private final MagazineAndFeed m_magazine;
   private final double m_speed;
   /** Creates a new setFeed. */
-  public setFeed(MagazineAndFeed magazine) {
-    m_magazine = magazine;
-    m_speed = .6;//TODO make actual value
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_magazine);
-  }
   public setFeed(MagazineAndFeed magazine, double speed) {
     m_magazine = magazine;
     m_speed = speed;

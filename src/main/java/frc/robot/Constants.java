@@ -5,26 +5,12 @@
 package frc.robot;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants.
  */
 public final class Constants {
-    
-  public static final Mode simMode = Mode.SIM;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
-  public static enum Mode {
-    /** Running on a real robot. */
-    REAL,
-
-    /** Running a physics simulator. */
-    SIM,
-
-    /** Replaying from a log file. */
-    REPLAY
-  }
 
   public static final class CANIdConstants {
     public static final int frontLeftSteerMotorID = 1;
@@ -257,8 +243,4 @@ public final class Constants {
     public static final double SteerIz = 0;
     public static final double SteerFF = 0;
   }
-
-    public static class DriveConstants {
-
-    }
 }
