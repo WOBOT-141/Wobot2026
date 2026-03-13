@@ -7,7 +7,7 @@ package frc.robot.commands.AutonomousCommands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.DriveCommandConstants;
+import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 
@@ -31,7 +31,7 @@ public class RotateByGyro extends Command {
     this.speed = speed;
     this.botOriented = botOriented;
 
-    turnPID = new PIDController(DriveCommandConstants.autoRotatekP, DriveCommandConstants.autoRotatekI, DriveCommandConstants.autoRotatekD);
+    turnPID = new PIDController(Constants.RotateCommandConstants.P, Constants.RotateCommandConstants.I, Constants.RotateCommandConstants.D);
     turnPID.setTolerance(1);
   }
 
