@@ -1,8 +1,7 @@
 package frc.robot;
 
-import static java.util.Map.entry;
-
-import java.util.Map;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -11,40 +10,30 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.SpektrumFlightController;
-import frc.robot.Constants.IntakeConstants;
-
-import frc.robot.subsystems.ChooserHandeling;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
+import frc.robot.commands.DriveCommands.ResetGyro;
+import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.IntakeCommands.IntakeDown;
+import frc.robot.commands.IntakeCommands.IntakeUp;
+import frc.robot.commands.MovingRotateToTag;
+import frc.robot.commands.ShooterCommands.RevShooter;
+import frc.robot.commands.StickParameters.IStickParameters;
+import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.commands.StopRobot;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.SwerveModule;
-import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
-import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.MovingRotateToTag;
-import frc.robot.commands.ShooterCalculationAimCommand;
-import frc.robot.commands.StopRobot;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
-import frc.robot.commands.DriveCommands.ResetGyro;
-import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.commands.IntakeCommands.IntakeDown;
-import frc.robot.commands.IntakeCommands.IntakeUp;
-import frc.robot.commands.ShooterCommands.RevShooter;
-import frc.robot.commands.ShooterCommands.SendHoodToHome;
-import frc.robot.commands.ShooterCommands.SetPIDShooter;
-import frc.robot.commands.StickParameters.IStickParameters;
-import frc.robot.commands.StickParameters.StickBParameters;
-import frc.robot.commands.AutonomousCommands.RotateByAngle;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
-import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
-import frc.robot.commands.AutonomousCommands.ScrappedAutons.ZeeClimb;
+import frc.robot.subsystems.Vision.VisionServer;
 
 public class RobotContainer {
 
@@ -68,7 +57,8 @@ public class RobotContainer {
   private final IBotSelector m_selectedBot = new MainBot();
   //private final IBotSelector m_selectedBot = new SummerBot();
 
-  private ChooserHandeling m_autonSelector;
+
+  private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
   public RobotContainer() {
 
@@ -128,12 +118,9 @@ public class RobotContainer {
 
     configureBindings();
 
-    m_autonSelector = new ChooserHandeling("Autonomous Selector",
-        Map.ofEntries(
-            entry("00 Do Nothing", () -> new DoNothing()),
-            entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine)),
-            entry("02 Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
-        ));
+    autoChooser.addDefaultOption("00 Do Nothing", new DoNothing());
+    autoChooser.addOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine));
+    autoChooser.addOption("02 Midway Gather", new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
   }
 
   /**
@@ -227,18 +214,18 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
 
-    if (m_autonSelector == null) {
+    if (autoChooser.get() == null) {
       return Commands.none();
     }
 
-    Command selectedCommand = m_autonSelector.getSelected();
+    Command selectedCommand = autoChooser.get();
 
     if (selectedCommand != null) {
       System.out.println("Selected auton: " + selectedCommand);
     } else {
       System.out.println("Selected auton: <null>");
     }
-
+    Logger.recordOutput("SelectedAuton", selectedCommand.getName());
     return selectedCommand;
   }
 }
