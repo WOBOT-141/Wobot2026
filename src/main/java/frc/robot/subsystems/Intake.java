@@ -99,11 +99,11 @@ public class Intake extends SubsystemBase {
         PersistMode.kPersistParameters);
   }
 
-  public boolean isAtUpPosition() {
-    return m_intakeElevationLeaderEncoder.getPosition() <=0;
+  public boolean isAtExtendedPosition() {
+    return m_intakeElevationLeaderEncoder.getPosition() <= 0;
   }
 
-  public boolean isAtDownPosition() {
+  public boolean isAtRetractedPosition() {
     return m_intakeElevationLeaderEncoder.getPosition() >= IntakeConstants.intakeRawExtension_rot;
   }
 
@@ -117,9 +117,9 @@ public class Intake extends SubsystemBase {
   }
 
   // Arm control
-  public void intakeDown() {
-
-    if (!isIntakeWithinRange()){
+  public void extendIntake() {
+    if (m_intakeElevationFollowerEncoder.getPosition() > IntakeConstants.intakeRawExtension_rot &&
+        m_intakeElevationLeaderEncoder.getPosition() > IntakeConstants.intakeRawExtension_rot) {
       m_intakeElevationLeaderMotor.set(0);
       return;
     }
@@ -129,29 +129,15 @@ public class Intake extends SubsystemBase {
     System.out.println("intakeMovingDown");
   }
 
-  public void intakeUp() {
-    if (!isIntakeWithinRange()){
-      m_intakeElevationLeaderMotor.set(0);
+  public void retractIntake() {
+    if (m_intakeElevationLeaderEncoder.getPosition() < 0 || m_intakeElevationFollowerEncoder.getPosition() < 0) {
+        m_intakeElevationLeaderMotor.set(0);
       return;
     }
 
     m_intakeElevationLeaderMotor.set(applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
-
-    // if (!m_isHomed)
-    // return;
-
-    // m_intakeElevationRightMotor.set(applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
     // // m_moveStartTime_sec = Timer.getFPGATimestamp();
-    // System.out.println("intakeMovingup");
-
-  }
-
-  public boolean isIntakeWithinRange(){
-    return m_intakeElevationFollowerEncoder.getPosition() > 0 &&
-        m_intakeElevationLeaderEncoder.getPosition() > 0 &&
-        m_intakeElevationFollowerEncoder.getPosition() < IntakeConstants.intakeRawExtension_rot &&
-        m_intakeElevationLeaderEncoder.getPosition() < IntakeConstants.intakeRawExtension_rot;
-      
+    System.out.println("intakeMovingup");
   }
 
   public double getElevationCurrent() {
@@ -248,8 +234,8 @@ public class Intake extends SubsystemBase {
         m_intakeRollerEncoder.getVelocity());
 
     // Change-only status updates
-    boolean atUpNow = isAtUpPosition();
-    boolean atDownNow = isAtDownPosition();
+    boolean atUpNow = isAtExtendedPosition();
+    boolean atDownNow = isAtRetractedPosition();
 
     if (atUpNow != m_lastAtUp) {
       SmartDashboard.putBoolean("Intake At Up", atUpNow);
@@ -259,11 +245,6 @@ public class Intake extends SubsystemBase {
     if (atDownNow != m_lastAtDown) {
       SmartDashboard.putBoolean("Intake At Down", atDownNow);
       m_lastAtDown = atDownNow;
-    }
-
-    if (!isIntakeWithinRange()){
-      m_intakeElevationLeaderMotor.set(0);
-      return;
     }
   }
 }
