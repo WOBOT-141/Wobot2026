@@ -184,12 +184,12 @@ public final class Constants {
     public static final double hubRimHeight_in = 72;
     public static final double muzzleToRimHeight_in = hubRimHeight_in - muzzleHeight_in;
 
-    public static final double leftP = 0.00012;
-    public static final double middleP = 0.00025;
-    public static final double rightP = 0.00015;
+    public static final double leftP = 0.0012;
+    public static final double middleP = 0.0025;
+    public static final double rightP = 0.0015;
     public static final double I = 0.00000;
     public static final double D = 0.00000;
-    public static final double kF = 0.00018;
+    public static final double kF = 0.0018;
 
     public static final double hoodP = 0.05;
     public static final double hoodI = 0;
