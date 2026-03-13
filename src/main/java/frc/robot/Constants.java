@@ -91,6 +91,11 @@ public final class Constants {
 
     public static final double P2 = .04;
     public static final double I2 = .00012;
+
+    public static final double autoRotatekP = 0.4; //0.72
+    public static final double autoRotatekI = 0.02;
+    public static final double autoRotatekD = 0;
+
   }
 
   
