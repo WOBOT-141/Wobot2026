@@ -23,19 +23,24 @@ public class FireShooter extends ParallelCommandGroup {
   Drivetrain m_drivetrain;
   MagazineAndFeed m_magazineAndFeed;
   Command lockWheels;
-  Command feed = new Feed(m_magazineAndFeed);
-  Command ShooterCalculationAimCommand = new  ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter);
+  Command feed;
+  Command revShooter;
+
     
    
   /** Creates a new FireIntake. */
-  public FireShooter(Shooter shooter, Drivetrain drivetrain, MagazineAndFeed magazineAndFeed) {
+  public FireShooter(double ShooterSpeed, double hoodAngle, Shooter shooter, Drivetrain drivetrain, MagazineAndFeed magazineAndFeed) {
     m_shooter = shooter;
     m_drivetrain = drivetrain;
     m_magazineAndFeed = magazineAndFeed;
     lockWheels = Commands.run(() -> m_drivetrain.lockWheels());
+    feed = new Feed(m_magazineAndFeed);
+    revShooter = new RevShooter(ShooterSpeed, hoodAngle, shooter);
+    //revShooter = new  ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter);
     // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-    addCommands(lockWheels.alongWith(ShooterCalculationAimCommand).until(() -> m_shooter.isReadyToShoot()), feed);
+
+    addRequirements(m_shooter, m_drivetrain, m_magazineAndFeed);
+    addCommands(lockWheels.alongWith(revShooter).until(() -> m_shooter.isReadyToShoot()), feed);
 
   }
 }
