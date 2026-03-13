@@ -2,10 +2,10 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
+package frc.robot.commands.AutonomousCommands.ScrappedAutons;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.AutonomousCommands.RotateToAngle;
+import frc.robot.commands.AutonomousCommands.RotateByAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
@@ -20,13 +20,13 @@ public class Depotlease extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new StraightLineDrive(drivetrain, 90, 130, wheels, gyro).andThen(
-      new StraightLineDrive(drivetrain, 0, 35, wheels, gyro)).andThen(
-      new StraightLineDrive(drivetrain, 0, 45, wheels, gyro)).andThen(
-      new StraightLineDrive(drivetrain, 0, 20, wheels, gyro)).andThen(
-      new StraightLineDrive(drivetrain, -75, 90, wheels, gyro)).andThen(
-      new StraightLineDrive(drivetrain, -135, -47, wheels, gyro)).andThen(
-      new StraightLineDrive(drivetrain, -90, -12, wheels, gyro))
+      new StraightLineDrive(drivetrain, 90, 130, wheels, gyro, true).andThen(
+      new StraightLineDrive(drivetrain, 0, 35, wheels, gyro, true)).andThen(
+      new StraightLineDrive(drivetrain, 0, 45, wheels, gyro, true)).andThen(
+      new StraightLineDrive(drivetrain, 0, 20, wheels, gyro, true)).andThen(
+      new StraightLineDrive(drivetrain, -75, 90, wheels, gyro, true)).andThen(
+      new StraightLineDrive(drivetrain, -135, -47, wheels, gyro, true)).andThen(
+      new StraightLineDrive(drivetrain, -90, -12, wheels, gyro, true))
     );
   }
 }
