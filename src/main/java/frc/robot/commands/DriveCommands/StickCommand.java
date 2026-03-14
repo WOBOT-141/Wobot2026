@@ -132,8 +132,9 @@ public class StickCommand extends Command {
   private double calcThrottle_perc(double stickThrottle_perc) {
     // Convert throttle from [-1,1] to [0,1] with a floor
     double throttle_perc = (stickThrottle_perc + 1) / 2.0;
-    throttle_perc /= 1 + OperatorConstants.throttleFloor_perc;
-    throttle_perc += OperatorConstants.throttleFloor_perc;
+    throttle_perc = (throttle_perc*(1-OperatorConstants.throttleFloor_perc)) + OperatorConstants.throttleFloor_perc;
+    // throttle_perc /= 1 + OperatorConstants.throttleFloor_perc;
+    // throttle_perc += OperatorConstants.throttleFloor_perc;
 
     // Slow the bot down if we are aiming at something
     if (m_altCommandedRotation_perc.isPresent()) {
