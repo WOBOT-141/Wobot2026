@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CANIdConstants;
 import frc.robot.Constants.IntakeConstants;
+import pabeles.concurrency.IntRangeTask;
 
 public class Intake extends SubsystemBase {
 
@@ -73,7 +74,8 @@ public class Intake extends SubsystemBase {
     // intakeElevationMotorLeftConfig.encoder
     // .positionConversionFactor(IntakeConstants.degPerMotorRotation_deg);
 
-    intakeElevationMotorFollowerConfig.follow(CANIdConstants.intakeElevationRightMotorID, true);
+    // intakeElevationMotorFollowerConfig.follow(CANIdConstants.intakeElevationRightMotorID,
+    // true);
 
     m_intakeElevationLeaderMotor.configure(
         intakeElevationMotorLeaderConfig,
@@ -99,12 +101,13 @@ public class Intake extends SubsystemBase {
         PersistMode.kPersistParameters);
   }
 
-  public boolean isAtExtendedPosition() {
-    return m_intakeElevationLeaderEncoder.getPosition() <= 0;
+  public boolean isAtRetractedPosition() {
+    return m_intakeElevationLeaderEncoder.getPosition() <= 0 && m_intakeElevationFollowerEncoder.getPosition() <= 0;
   }
 
-  public boolean isAtRetractedPosition() {
-    return m_intakeElevationLeaderEncoder.getPosition() >= IntakeConstants.intakeRawExtension_rot;
+  public boolean isAtExtendedPosition() {
+    return m_intakeElevationLeaderEncoder.getPosition() >= IntakeConstants.intakeRawExtension_rot
+        && m_intakeElevationFollowerEncoder.getPosition() >= IntakeConstants.intakeRawExtension_rot;
   }
 
   // Roller control
@@ -117,27 +120,76 @@ public class Intake extends SubsystemBase {
   }
 
   // Arm control
-  public void extendIntake() {
-    if (m_intakeElevationFollowerEncoder.getPosition() > IntakeConstants.intakeRawExtension_rot &&
-        m_intakeElevationLeaderEncoder.getPosition() > IntakeConstants.intakeRawExtension_rot) {
-      m_intakeElevationLeaderMotor.set(0);
+  public void extendFollowerIntake() {
+    if (m_intakeElevationFollowerEncoder.getPosition() > IntakeConstants.intakeRawExtension_rot) {
+      m_intakeElevationFollowerMotor.set(0);
       return;
     }
+    if (m_intakeElevationFollowerEncoder
+        .getPosition() > (IntakeConstants.intakeRawExtension_rot - IntakeConstants.SlowSpot)) {
+      m_intakeElevationFollowerMotor.set(applyBrownoutScale(IntakeConstants.intakeExtendSpeed_perc / 2));
+    } else {
+      m_intakeElevationFollowerMotor.set(applyBrownoutScale(IntakeConstants.intakeExtendSpeed_perc));
+    }
 
-    m_intakeElevationLeaderMotor.set(applyBrownoutScale(IntakeConstants.intakeDownSpeed_perc));
     // m_moveStartTime_sec = Timer.getFPGATimestamp();
     System.out.println("intakeMovingDown");
   }
 
-  public void retractIntake() {
-    if (m_intakeElevationLeaderEncoder.getPosition() < 0 || m_intakeElevationFollowerEncoder.getPosition() < 0) {
-        m_intakeElevationLeaderMotor.set(0);
+  public void extendLeaderIntake() {
+    if (m_intakeElevationLeaderEncoder.getPosition() > IntakeConstants.intakeRawExtension_rot) {
+      m_intakeElevationLeaderMotor.set(0);
+      return;
+    }
+    if (m_intakeElevationLeaderEncoder
+        .getPosition() > (IntakeConstants.intakeRawExtension_rot - IntakeConstants.SlowSpot)) {
+      m_intakeElevationLeaderMotor.set(applyBrownoutScale(IntakeConstants.intakeExtendSpeed_perc / 2));
+    } else {
+      m_intakeElevationLeaderMotor.set(applyBrownoutScale(IntakeConstants.intakeExtendSpeed_perc));
+    }
+
+    // m_moveStartTime_sec = Timer.getFPGATimestamp();
+    System.out.println("intakeMovingDown");
+  }
+
+  public void retractFollowerIntake() {
+    if (m_intakeElevationFollowerEncoder.getPosition() < 0) {
+      m_intakeElevationFollowerMotor.set(0);
+      return;
+    }
+    if (m_intakeElevationFollowerEncoder.getPosition() < IntakeConstants.SlowSpot) {
+      m_intakeElevationFollowerMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc / 2));
+    } else {
+      m_intakeElevationFollowerMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc));
+    }
+
+    // m_moveStartTime_sec = Timer.getFPGATimestamp();
+    System.out.println("intakeMovingDown");
+  }
+
+  public void retractLeaderIntake() {
+    if (m_intakeElevationLeaderEncoder.getPosition() < 0) {
+      m_intakeElevationLeaderMotor.set(0);
       return;
     }
 
-    m_intakeElevationLeaderMotor.set(applyBrownoutScale(IntakeConstants.intakeUpSpeed_perc));
-    // // m_moveStartTime_sec = Timer.getFPGATimestamp();
-    System.out.println("intakeMovingup");
+    if (m_intakeElevationLeaderEncoder.getPosition() < IntakeConstants.SlowSpot) {
+      m_intakeElevationLeaderMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc / 2));
+    } else {
+      m_intakeElevationLeaderMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc));
+    }
+    // m_moveStartTime_sec = Timer.getFPGATimestamp();
+    System.out.println("intakeMovingDown");
+  }
+
+  public void extendIntake() {
+    extendFollowerIntake();
+    extendLeaderIntake();
+  }
+
+  public void retractIntake() {
+    retractFollowerIntake();
+    retractLeaderIntake();
   }
 
   public double getElevationCurrent() {
@@ -146,6 +198,7 @@ public class Intake extends SubsystemBase {
 
   public void stopArm() {
     m_intakeElevationLeaderMotor.stopMotor();
+    m_intakeElevationFollowerMotor.stopMotor();
   }
 
   // Homing (current based)
