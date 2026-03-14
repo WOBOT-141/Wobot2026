@@ -69,9 +69,6 @@ public class RobotContainer {
 
   private ChooserHandeling m_autonSelector;
 
-  private double leftTriggerAxis;
-  private double rightTriggerAxis; 
-
   public RobotContainer() {
 
     m_wheels = new SwerveModule[] {
@@ -195,11 +192,9 @@ public class RobotContainer {
 
   private void configureXboxController() {
   
-    m_xboxController0.leftBumper().onTrue(new IntakeDown(m_intake));
+    m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
     m_xboxController0.leftTrigger().whileTrue(new IntakeRunCommand(m_intake, () -> m_xboxController0.getLeftTriggerAxis()));
-    leftTriggerAxis = m_xboxController0.getLeftTriggerAxis();
-    rightTriggerAxis = m_xboxController0.getRightTriggerAxis();
-    m_xboxController0.rightBumper().onTrue(new IntakeUp(m_intake)); // works 50/50 - zane   
+    m_xboxController0.rightBumper().onTrue(new IntakeRetract(m_intake)); // works 50/50 - zane   
     m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
 
     m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
@@ -223,14 +218,6 @@ public class RobotContainer {
     //m_xboxController0.mode().whileTrue(commands.startEnd(() -> m_shooter.unjam(), () -> m_shooter.cancel(), m_shooter)); mode dosent exsist 
     m_xboxController0.leftStick().onTrue(Commands.run(() -> BumpShooterVector.reset())); // reset angle/speed
     m_xboxController0.rightStick().onTrue(new StopRobot(m_intake, m_magazine, m_climbe, m_drive, m_shooter));
-  }
-
-  public double getLeftTriggerAxis() {
-    return leftTriggerAxis;
-  }
-
-  public double getRightTriggerAxis() {
-    return rightTriggerAxis;
   }
 
   private void configureJoystick() {
