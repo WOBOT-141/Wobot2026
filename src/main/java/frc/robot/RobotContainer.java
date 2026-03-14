@@ -31,8 +31,8 @@ import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.commands.IntakeCommands.IntakeDown;
-import frc.robot.commands.IntakeCommands.IntakeUp;
+import frc.robot.commands.IntakeCommands.IntakeExtend;
+import frc.robot.commands.IntakeCommands.IntakeRetract;
 import frc.robot.commands.ShooterCommands.FireShooter;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
@@ -191,9 +191,9 @@ public class RobotContainer {
 
   private void configureXboxController() {
     m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeRollerStop(), m_intake));
-    m_xboxController0.leftTrigger().onTrue(new IntakeDown(m_intake));
+    m_xboxController0.leftTrigger().whileTrue(new IntakeExtend(m_intake));
     m_xboxController0.rightBumper().whileTrue(new FireShooter( 260, 72, m_shooter, m_drive, m_magazine)); 
-    m_xboxController0.rightTrigger().onTrue(new IntakeUp(m_intake)); // works 50/50 - zane
+    m_xboxController0.rightTrigger().whileTrue(new IntakeRetract(m_intake)); // works 50/50 - zane
     m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngle(true))); //Angle up
     m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngle(false))); // Angle down
     m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngle(true))); //speed up

@@ -10,7 +10,7 @@ import frc.robot.commands.AutonomousCommands.HoodResetter;
 import frc.robot.commands.AutonomousCommands.RotateByAngle;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
 import frc.robot.commands.AutonomousCommands.setIntake;
-import frc.robot.commands.IntakeCommands.IntakeDown;
+import frc.robot.commands.IntakeCommands.IntakeExtend;
 import frc.robot.commands.ShooterCommands.AutonShooter;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
@@ -34,7 +34,7 @@ public class RightMidwayGather extends SequentialCommandGroup {
     addCommands(
         new HoodResetter(shooter, gyro)
             .andThen(
-                drive_over_ramp_to_center.alongWith(new IntakeDown(intake)).andThen(
+                drive_over_ramp_to_center.alongWith(new IntakeExtend(intake)).andThen(
                 new setIntake(intake, -0.6)).andThen(
                 new WaitCommand(0.5)))
             .andThen(
