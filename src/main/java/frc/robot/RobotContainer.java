@@ -42,6 +42,7 @@ import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.commands.AutonomousCommands.RotateByAngle;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
 import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
@@ -136,9 +137,11 @@ public class RobotContainer {
 
     m_autonSelector = new ChooserHandeling("Autonomous Selector",
         Map.ofEntries(
-            // entry("00 Do Nothing", () -> new DoNothing()),
-            // entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine, m_gyro)),
-            // entry("02 Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
+            entry("00 Do Nothing", () -> new DoNothing()),
+            entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine, m_gyro)),
+            entry("02 Depotlease", () -> new Depotlease(m_drive, m_wheels, m_gyro, m_intake, m_shooter, m_magazine)),
+            entry("03 RIGHT Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
+            entry("04 LEFT Midway Gather", () -> new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
         ));
     autoChooser.addOption("00 Do Nothing", new DoNothing());
     autoChooser.addDefaultOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
