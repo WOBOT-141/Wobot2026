@@ -27,23 +27,23 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Util.BumpShooterVector;
 import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.StopRobot;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.Depotlease;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.MidwayGather;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbLEFT;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbRIGHT;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ZeeClimb;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.commands.IntakeCommands.IntakeDown;
 import frc.robot.commands.IntakeCommands.IntakeRunCommand;
-import frc.robot.commands.IntakeCommands.IntakeUp;
+import frc.robot.commands.IntakeCommands.IntakeExtend;
+import frc.robot.commands.IntakeCommands.IntakeRetract;
 import frc.robot.commands.ShooterCommands.FireShooter;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.commands.AutonomousCommands.RotateByAngle;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
+import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
+import frc.robot.commands.AutonomousCommands.ScrappedAutons.ZeeClimb;
 
 public class RobotContainer {
 
@@ -133,12 +133,8 @@ public class RobotContainer {
     m_autonSelector = new ChooserHandeling("Autonomous Selector",
         Map.ofEntries(
             entry("00 Do Nothing", () -> new DoNothing()),
-            entry("01 MIDDLE shooterclimb", () -> new ShootClimbMIDDLE(m_drive, m_wheels, m_gyro)),
-            entry("02 LEFT shooterclimb", () -> new ShootClimbLEFT(m_drive, m_wheels, m_gyro)),
-            entry("03 RIGHT shooterclimb", () -> new ShootClimbRIGHT(m_drive, m_wheels, m_gyro)),
-            entry("04 Depotlease", () -> new Depotlease(m_drive, m_wheels, m_gyro)), // dont use
-            entry("05 ZeeClimb", () -> new ZeeClimb(m_drive, m_wheels, m_gyro)),
-            entry("06 Midway Gather", () -> new MidwayGather(m_drive, m_wheels, m_gyro)) // fix
+            entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine, m_gyro)),
+            entry("02 Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
         ));
   }
 
@@ -205,10 +201,6 @@ public class RobotContainer {
     rightTriggerAxis = m_xboxController0.getRightTriggerAxis();
     m_xboxController0.rightBumper().onTrue(new IntakeUp(m_intake)); // works 50/50 - zane   
     m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
-    /* m_xboxController0.leftBumper().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(-0.8), () -> m_intake.intakeRollerStop(), m_intake));
-    m_xboxController0.leftTrigger().onTrue(new IntakeDown(m_intake));
-    m_xboxController0.rightBumper().onTrue(new SendHoodToHome(m_shooter));  
-    m_xboxController0.rightTrigger().onTrue(new IntakeUp(m_intake)); // works 50/50 - zane */
 
     m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
     m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleDown())); // Angle down

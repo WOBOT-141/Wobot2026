@@ -5,9 +5,15 @@
 package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
+import frc.robot.commands.IntakeCommands.IntakeFuel;
+import frc.robot.commands.ShooterCommands.RevShooter;
+import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
+import frc.robot.subsystems.MagazineAndFeed;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -15,13 +21,16 @@ import frc.robot.subsystems.SwerveModule;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ShootClimbRIGHT extends SequentialCommandGroup {
   /** Creates a new ShootClimbRIGHT. */
-  public ShootClimbRIGHT(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro) {
+  public ShootClimbRIGHT(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      //shoot
-      new StraightLineDrive(drivetrain, -40, 80, wheels, gyro).andThen(
-      new StraightLineDrive(drivetrain, 0, 20, wheels, gyro))
+      new SendHoodToHome(shooter).andThen(
+      new StraightLineDrive(drivetrain, -40, 80, wheels, gyro, true)).andThen(
+      new StraightLineDrive(drivetrain, 0, 20, wheels, gyro, true)).andThen(
+      new RevShooter(300, 65, shooter))
+      .alongWith(new WaitCommand(0.5)
+      .andThen(new IntakeFuel(magazine,0.8)))
       //climb
     );
   }
