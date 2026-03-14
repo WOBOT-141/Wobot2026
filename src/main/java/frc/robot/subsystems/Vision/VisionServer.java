@@ -68,42 +68,41 @@ public class VisionServer extends SubsystemBase {
         int number_of_tags = 0;
         int number_of_fields = 0;
 
-        // As of 20260313 if these are zero then there are no tags seen
         try {
           number_of_tags = m_buffer_from_table.getInt();
           number_of_fields = m_buffer_from_table.getInt();
           if (DEBUG_LOG) {
             System.out.println("num tags " + number_of_tags + " num fields " + number_of_fields + " " + m_buffer_from_table.remaining());
           }
+
+            while (number_of_tags > 0) {
+            --number_of_tags;
+
+            double distance = m_buffer_from_table.getDouble();
+            double angle = m_buffer_from_table.getDouble();
+            int tag_id = (int) m_buffer_from_table.getDouble();
+            double yaw = m_buffer_from_table.getDouble();
+            double pitch = m_buffer_from_table.getDouble();
+            double roll = m_buffer_from_table.getDouble();
+            double cameraNum = m_buffer_from_table.getDouble();
+
+            m_detections_Apriltag[cameraIndex].addDetection(
+              ObjectType.APRILTAG,
+              distance,
+              angle,
+              tag_id,
+              yaw,
+              pitch,
+              roll,
+              cameraNum
+            );
+
+          };
         } catch (BufferUnderflowException exception) {
           // nothing seen so incase we get the underflow log out then continue to the next camera
           if (DEBUG_LOG) System.out.println("VisionServer BufferUnderflowException camindex " + cameraIndex);
           continue;
         }
-
-        while (number_of_tags > 0) {
-          --number_of_tags;
-
-          double distance = m_buffer_from_table.getDouble();
-          double angle = m_buffer_from_table.getDouble();
-          int tag_id = (int) m_buffer_from_table.getDouble();
-          double yaw = m_buffer_from_table.getDouble();
-          double pitch = m_buffer_from_table.getDouble();
-          double roll = m_buffer_from_table.getDouble();
-          double cameraNum = m_buffer_from_table.getDouble();
-
-          m_detections_Apriltag[cameraIndex].addDetection(
-            ObjectType.APRILTAG,
-            distance,
-            angle,
-            tag_id,
-            yaw,
-            pitch,
-            roll,
-            cameraNum
-          );
-
-        };
 
       } else {
         if (DEBUG_LOG) System.out.println("No dice! "+cameraIndex +" " + aprilTagEntries[cameraIndex].getName());
