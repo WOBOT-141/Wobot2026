@@ -43,7 +43,6 @@ public class ChooserHandeling extends SubsystemBase {
   // }
   public String getSelectedAuton(){
    String selected =  subString.get();
-
    return selected;
   }
   // public void setSelectedAuton(){
@@ -133,6 +132,8 @@ public class ChooserHandeling extends SubsystemBase {
     } catch (Exception e) {
       e.printStackTrace();
     }
+
+    System.out.println("Selected Auton "  + getSelectedAuton());
 
     table.putValue("AutonChooser", NetworkTableValue.makeStringArray(getChooserSubscriber()));
 

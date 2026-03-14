@@ -30,7 +30,7 @@ public class IntakeRunCommand extends Command {
   @Override
   public void execute() {
 
-    if (m_leftTriggerAxisSupplier.getAsDouble() <= .89) {
+    if (m_leftTriggerAxisSupplier.getAsDouble() <= .89 && m_leftTriggerAxisSupplier.getAsDouble() >= .3) {
       m_intake.intakeRun(-.8);
     } else if (m_leftTriggerAxisSupplier.getAsDouble() > 9) {
       m_intake.intakeRun(-1);
