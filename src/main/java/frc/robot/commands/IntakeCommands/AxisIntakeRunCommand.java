@@ -9,12 +9,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class IntakeRunCommand extends Command {
+public class AxisIntakeRunCommand extends Command {
   /** Creates a new IntakeRunCommand. */
   private Intake m_intake;
   private final DoubleSupplier m_leftTriggerAxisSupplier;
 
-  public IntakeRunCommand(Intake intake, DoubleSupplier leftTriggerAxisSuplier) {
+  public AxisIntakeRunCommand(Intake intake, DoubleSupplier leftTriggerAxisSuplier) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_leftTriggerAxisSupplier = leftTriggerAxisSuplier;
     m_intake = intake;
@@ -29,11 +29,12 @@ public class IntakeRunCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    if (m_leftTriggerAxisSupplier.getAsDouble() <= .89) {
+    double axisRead = m_leftTriggerAxisSupplier.getAsDouble();
+    System.out.println("IntakeRun Axis: " + axisRead);
+    if (axisRead <= .85 && axisRead >= 0.2) {
+      m_intake.intakeRun(-.5);
+    } else if (axisRead > 0.85) {
       m_intake.intakeRun(-.8);
-    } else if (m_leftTriggerAxisSupplier.getAsDouble() > 9) {
-      m_intake.intakeRun(-1);
     }
 
   }

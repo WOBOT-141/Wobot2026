@@ -31,7 +31,9 @@ import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.commands.IntakeCommands.IntakeRunCommand;
+import frc.robot.commands.IntakeCommands.AxisIntakeRunCommand;
+import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
+import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
 import frc.robot.commands.IntakeCommands.IntakeExtend;
 import frc.robot.commands.IntakeCommands.IntakeRetract;
 import frc.robot.commands.ShooterCommands.FireShooter;
@@ -196,8 +198,9 @@ public class RobotContainer {
   private void configureXboxController() {
   
     m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
-    m_xboxController0.leftTrigger().whileTrue(new IntakeRunCommand(m_intake, () -> m_xboxController0.getLeftTriggerAxis()));
-    m_xboxController0.rightBumper().onTrue(new IntakeRetract(m_intake)); // works 50/50 - zane   
+    // m_xboxController0.leftTrigger().whileTrue(new AxisIntakeRunCommand(m_intake, () -> m_xboxController0.getLeftTriggerAxis()));
+    m_xboxController0.leftTrigger().whileTrue(new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis()));
+    // m_xboxController0.rightBumper().onTrue(new IntakeRetract(m_intake)); // works 50/50 - zane   
     m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
 
     m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
@@ -216,7 +219,7 @@ public class RobotContainer {
     m_xboxController0.b().whileTrue(new FireShooter( 335, 65, m_shooter, m_drive, m_magazine));//rev tower */
 
     m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));//TODO: test
-    m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.7), () -> m_magazine.cancel(), m_magazine));//TODO: 
+    m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));//TODO: 
     
     //m_xboxController0.mode().whileTrue(commands.startEnd(() -> m_shooter.unjam(), () -> m_shooter.cancel(), m_shooter)); mode dosent exsist 
     m_xboxController0.leftStick().onTrue(Commands.run(() -> BumpShooterVector.reset())); // reset angle/speed
