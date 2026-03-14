@@ -5,6 +5,7 @@
 package frc.robot.commands.AutonomousCommands;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Shooter;
@@ -17,11 +18,12 @@ public class HoodResetter extends SequentialCommandGroup {
   public HoodResetter(Shooter shooter, IGyro gyro) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(
-      new SendHoodToHome(shooter).andThen(
-      new SendHoodToHome(shooter)).andThen(
-      new SendHoodToHome(shooter))
-    );
-    gyro.ResetGyro();
+  
+    // addCommands(
+    //   new SendHoodToHome(shooter).andThen(
+    //   new SendHoodToHome(shooter)).andThen(
+    //   new SendHoodToHome(shooter)).andThen(
+    //     new ResetGyro(gyro))
+    // );
   }
 }

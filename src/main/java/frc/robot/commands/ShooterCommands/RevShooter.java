@@ -30,7 +30,6 @@ public class RevShooter extends Command {
   @Override
   public void execute() {
     m_shooter.setShooterVelocity(m_launchSpeed_ips + BumpShooterVector.returnLaunchSpeed());
-    m_shooter.setHoodAngle(m_hoodAngle_deg  + BumpShooterVector.returnLaunchAngle());
   }
 
   // Called once the command ends or is interrupted.

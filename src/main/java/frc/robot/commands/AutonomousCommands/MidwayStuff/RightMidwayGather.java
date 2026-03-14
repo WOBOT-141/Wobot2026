@@ -28,7 +28,7 @@ public class RightMidwayGather extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 90, 175, wheels, gyro, true);
     StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, 0, 140, wheels, gyro, true);
-    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 0, -110, wheels, gyro, true);
+    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 0, -140, wheels, gyro, true);
     StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, -90, 178, wheels, gyro, true);
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
@@ -47,7 +47,7 @@ public class RightMidwayGather extends SequentialCommandGroup {
             .andThen(
                 new RotateByAngle(drivetrain, 20, gyro,false))
             .andThen(
-                new AutonShooter(shooter, magazine, 280, 65)));
+                new AutonShooter(shooter, magazine, 340, 65)));
             //     new RevShooter(280, 65, shooter)
             //       .alongWith(new WaitCommand(0.5)
             //       .andThen(new setFeed(magazine, 0.8))))
