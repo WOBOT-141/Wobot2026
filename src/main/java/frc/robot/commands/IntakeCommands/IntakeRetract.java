@@ -8,10 +8,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class IntakeUp extends Command {
+public class IntakeRetract extends Command {
   private Intake m_Intake;
   /** Creates a new IntakeFuel. */
-  public IntakeUp(Intake AIntake) {
+  public IntakeRetract(Intake AIntake) {
     m_Intake = AIntake;
     addRequirements(m_Intake);
   }
@@ -25,18 +25,18 @@ public class IntakeUp extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_Intake.intakeUp();
+    m_Intake.retractIntake();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_Intake.intakeRollerStop();
+    m_Intake.stopArm();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_Intake.isAtUpPosition();
+    return m_Intake.isAtExtendedPosition();
   }
 }
