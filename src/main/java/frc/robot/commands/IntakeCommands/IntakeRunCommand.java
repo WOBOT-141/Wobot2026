@@ -29,11 +29,12 @@ public class IntakeRunCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    if (m_leftTriggerAxisSupplier.getAsDouble() <= .89) {
+    double axisRead = m_leftTriggerAxisSupplier.getAsDouble();
+    System.out.println("IntakeRun Axis: " + axisRead);
+    if (axisRead <= .85 && axisRead >= 0.2) {
+      m_intake.intakeRun(-.5);
+    } else if (axisRead > 0.85) {
       m_intake.intakeRun(-.8);
-    } else if (m_leftTriggerAxisSupplier.getAsDouble() > 9) {
-      m_intake.intakeRun(-1);
     }
 
   }

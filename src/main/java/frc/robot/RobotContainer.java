@@ -4,6 +4,8 @@ import static java.util.Map.entry;
 
 import java.util.Map;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -69,6 +71,11 @@ public class RobotContainer {
   //private final IBotSelector m_selectedBot = new SummerBot();
 
   private ChooserHandeling m_autonSelector;
+
+  
+  private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+
+
 
   public RobotContainer() {
 
@@ -136,6 +143,9 @@ public class RobotContainer {
             entry("03 RIGHT Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
             entry("04 LEFT Midway Gather", () -> new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
         ));
+    autoChooser.addOption("00 Do Nothing", new DoNothing());
+    autoChooser.addDefaultOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
+    autoChooser.addOption("02 Midway Gather",  new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
   }
 
   /**
@@ -205,7 +215,7 @@ public class RobotContainer {
     m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp())); //speed up
     m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown())); //speed down
 
-    m_xboxController0.a().whileTrue(new FireShooter( 290, 72, m_shooter, m_drive, m_magazine));//rev hub
+    m_xboxController0.a().whileTrue(new FireShooter( 280, 72, m_shooter, m_drive, m_magazine));//rev hub
     m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));//rev bump
     m_xboxController0.y().whileTrue(new FireShooter( 335, 65, m_shooter, m_drive, m_magazine));//rev tower
     m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral
@@ -238,19 +248,19 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
+    // return new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake);
+    // if (m_autonSelector == null) {
+    //   return Commands.none();
+    // }
 
-    if (m_autonSelector == null) {
-      return Commands.none();
-    }
+    // Command selectedCommand = m_autonSelector.getSelected();
 
-    Command selectedCommand = m_autonSelector.getSelected();
+    // if (selectedCommand != null) {
+    //   System.out.println("Selected auton: " + selectedCommand);
+    // } else {
+    //   System.out.println("Selected auton: <null>");
+    // }
 
-    if (selectedCommand != null) {
-      System.out.println("Selected auton: " + selectedCommand);
-    } else {
-      System.out.println("Selected auton: <null>");
-    }
-
-    return selectedCommand;
+    return autoChooser.get();
   }
 }
