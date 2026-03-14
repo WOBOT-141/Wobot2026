@@ -132,8 +132,8 @@ public final class Constants {
     public static final double downAngle_deg = 95.0;
 
     // Motion speeds
-    public static final double intakeUpSpeed_perc = -0.1;
-    public static final double intakeDownSpeed_perc = 0.1;
+    public static final double intakeRetractSpeed_perc = -0.4;
+    public static final double intakeExtendSpeed_perc = 0.4;
 
     public static final double positionTolerance_deg = 3.0; // Allowed error band for position checks
     public static final double moveTimeout_sec = .20; // Safety timeout while moving
@@ -146,7 +146,9 @@ public final class Constants {
     public static final double brownoutScale_perc = 0.8; // Scale factor when in brownout
     
     public static final double degPerMotorRotation_deg = 360.0; //TODO change to reflect elevation motor gear ratio
-    public static final double intakeRawExtension_rot = 63.4;
+    public static final double intakeRawExtension_rot = 63.4;//63.4
+
+    public static final double SlowSpot = 5;
   }
 
   public static class OperatorConstants {

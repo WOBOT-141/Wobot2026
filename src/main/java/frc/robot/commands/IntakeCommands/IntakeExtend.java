@@ -37,6 +37,6 @@ public class IntakeExtend extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_Intake.isAtRetractedPosition();
+    return m_Intake.isAtExtendedPosition();
   }
 }
