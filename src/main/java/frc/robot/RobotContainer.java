@@ -200,7 +200,7 @@ public class RobotContainer {
   private void configureXboxController() {
   
     m_xboxController0.leftBumper().onTrue(new IntakeDown(m_intake));
-    m_xboxController0.leftTrigger().whileTrue(new IntakeRunCommand(m_intake, this));
+    m_xboxController0.leftTrigger().whileTrue(new IntakeRunCommand(m_intake, () -> m_xboxController0.getLeftTriggerAxis()));
     leftTriggerAxis = m_xboxController0.getLeftTriggerAxis();
     rightTriggerAxis = m_xboxController0.getRightTriggerAxis();
     m_xboxController0.rightBumper().onTrue(new IntakeUp(m_intake)); // works 50/50 - zane   
