@@ -219,6 +219,9 @@ public final class Constants {
     
     public static final double hoodUpperLimit_deg = 89;
     public static final double hoodLowerLimit_deg = 46;
+
+    // Fire command constants
+    public static final double firingWaitTime_sec = 0.5;
   }
 
   public static class WheelConstants {
