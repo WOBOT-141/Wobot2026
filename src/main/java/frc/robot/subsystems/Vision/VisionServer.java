@@ -1,5 +1,6 @@
 package frc.robot.subsystems.Vision;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -64,11 +65,20 @@ public class VisionServer extends SubsystemBase {
         m_buffer_from_table.put(aprilTagEntries[cameraIndex].getRaw(null));
         m_buffer_from_table.flip(); // TODO zdw - should this be used?
 
-        // 20260313 - if these are zero then there are no tags seen
-        int number_of_tags = m_buffer_from_table.getInt();
-        int number_of_fields = m_buffer_from_table.getInt();
-        if (DEBUG_LOG) {
-          System.out.println("num tags " + number_of_tags + " num fields " + number_of_fields + " " + m_buffer_from_table.remaining());
+        int number_of_tags = 0;
+        int number_of_fields = 0;
+
+        // As of 20260313 if these are zero then there are no tags seen
+        try {
+          number_of_tags = m_buffer_from_table.getInt();
+          number_of_fields = m_buffer_from_table.getInt();
+          if (DEBUG_LOG) {
+            System.out.println("num tags " + number_of_tags + " num fields " + number_of_fields + " " + m_buffer_from_table.remaining());
+          }
+        } catch (BufferUnderflowException exception) {
+          // nothing seen so incase we get the underflow log out then continue to the next camera
+          if (DEBUG_LOG) System.out.println("VisionServer BufferUnderflowException camindex " + cameraIndex);
+          continue;
         }
 
         while (number_of_tags > 0) {
@@ -171,7 +181,6 @@ public class VisionServer extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //getDetectionList();
     updateDetectionLists();
   }
 }
