@@ -61,7 +61,7 @@ public class LeftMidwayGather extends SequentialCommandGroup {
             .andThen(
                 new RotateByAngle(drivetrain, -20, gyro, false))
             .andThen(
-                new AutonShooter(shooter, magazine, 280, 65)));
+                new AutonShooter(shooter, magazine, 360, 65)));
             //     new RevShooter(300, 65, shooter))
             // .alongWith(new WaitCommand(0.7)
             //     .andThen(new IntakeFuel(magazine, 0.8)))
