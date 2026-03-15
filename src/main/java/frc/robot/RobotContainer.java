@@ -40,6 +40,7 @@ import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.commands.AutonomousCommands.RotateByAngle;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
 import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
@@ -131,7 +132,9 @@ public class RobotContainer {
         Map.ofEntries(
             entry("00 Do Nothing", () -> new DoNothing()),
             entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine, m_gyro)),
-            entry("02 Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
+            entry("02 Depotlease", () -> new Depotlease(m_drive, m_wheels, m_gyro, m_intake, m_shooter, m_magazine)),
+            entry("03 RIGHT Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
+            entry("04 LEFT Midway Gather", () -> new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)) // fix
         ));
   }
 
@@ -202,7 +205,7 @@ public class RobotContainer {
     // m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp())); //speed up
     // m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown())); //speed down
 
-    m_xboxController0.a().whileTrue(new FireShooter( 260, 72, m_shooter, m_drive, m_magazine));//rev hub
+    m_xboxController0.a().whileTrue(new FireShooter( 290, 72, m_shooter, m_drive, m_magazine));//rev hub
     m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));//rev bump
     m_xboxController0.y().whileTrue(new FireShooter( 335, 65, m_shooter, m_drive, m_magazine));//rev tower
     m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral
