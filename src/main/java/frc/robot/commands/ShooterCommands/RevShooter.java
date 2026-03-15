@@ -41,7 +41,7 @@ public class RevShooter extends Command {
   public void execute() {
     m_shooter.setShooterVelocity(m_launchSpeed_ips + BumpShooterVector.returnLaunchSpeed());
     if (m_shooter.allAtSpeed()) {
-      if (m_controller != null) m_controller.setRumble(RumbleType.kBothRumble, .5);
+      if (m_controller != null) m_controller.setRumble(RumbleType.kBothRumble, .6);
     }
   }
 

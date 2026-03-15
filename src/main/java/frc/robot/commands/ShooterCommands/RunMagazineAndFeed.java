@@ -37,7 +37,7 @@ public class RunMagazineAndFeed extends ParallelCommandGroup {
         // Add your commands in the addCommands() call, e.g.
 
     addRequirements(m_drivetrain, m_magazineAndFeed);
-    addCommands(lockWheels.andThen(feed));
+    //addCommands(lockWheels.andThen(feed));
 
   }
 }
