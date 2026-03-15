@@ -20,12 +20,7 @@ public class RevShooter extends Command {
   private CommandXboxController m_controller;
   /** Creates a new RevShooter. */
   public RevShooter( double launchSpeed_ips, double hoodAngle_deg, Shooter shooter) {
-
-    m_shooter = shooter;
-    m_launchSpeed_ips = launchSpeed_ips;
-    m_hoodAngle_deg = hoodAngle_deg;
-    m_controller = null;
-    
+    this(launchSpeed_ips, hoodAngle_deg, shooter, null);    
   }
 
   public RevShooter( double launchSpeed_ips, double hoodAngle_deg, Shooter shooter, CommandXboxController controller) {
