@@ -31,18 +31,14 @@ public class DoubleButtonIntakeRunCommand extends Command {
   public void execute() {
 
     double maxAxisRead = m_maxAxisSupplier.getAsDouble();
-
-    if (maxAxisRead >= 0.5) {
-      m_intake.intakeRun(-.8);
-    } else if (maxAxisRead > 0.85) {
-      m_intake.intakeRun(-.5);
-    }
-
+    double speed = maxAxisRead >= 0.5 ? -0.8 : -0.4;
+    m_intake.intakeRun(speed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    System.out.println("DoubleButton END");
     m_intake.intakeRollerStop();
   }
 
