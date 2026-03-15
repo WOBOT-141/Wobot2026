@@ -7,48 +7,48 @@ package frc.robot.Util;
 /** Add your docs here. */
 public class BumpShooterVector {
 
-    private static double launchAngle = 0;
-    private static double launchSpeed = 0;
+//     private static double launchAngle = 0;
+//     private static double launchSpeed = 0;
 
-    public static double returnLaunchAngle() {
-        return launchAngle;
-    }
+//     public static double returnLaunchAngle() {
+//         return launchAngle;
+//     }
 
-    public static double returnLaunchSpeed() {
-        return launchSpeed;
-    }
+//     public static double returnLaunchSpeed() {
+//         return launchSpeed;
+//     }
 
-    public static void bumpLaunchAngle(boolean isBumpPos, double bump) {
-        launchAngle = isBumpPos ? launchAngle += bump : +-bump;
-    }
+//     public static void bumpLaunchAngle(boolean isBumpPos, double bump) {
+//         launchAngle = isBumpPos ? launchAngle += bump : +-bump;
+//     }
 
-    public static void bumpLaunchAngleDown() {
-        launchAngle -= 2;
-    }
+//     public static void bumpLaunchAngleDown() {
+//         launchAngle -= 2;
+//     }
 
-     public static void bumpLaunchAngleUp() {
-        launchAngle += 2;
-    }
+//      public static void bumpLaunchAngleUp() {
+//         launchAngle += 2;
+//     }
 
-    public static void bumpLaunchSpeedDown() {
-        launchSpeed -= 10;
-    }
+//     public static void bumpLaunchSpeedDown() {
+//         launchSpeed -= 10;
+//     }
 
-     public static void bumpLaunchSpeedUp() {
-        launchSpeed += 10;
-    }
+//      public static void bumpLaunchSpeedUp() {
+//         launchSpeed += 10;
+//     }
 
-    public static void bumpLaunchSpeed(boolean isBumpPos, double bump) {
-        launchSpeed = isBumpPos ? launchSpeed += bump : +-bump;
-    }
+//     public static void bumpLaunchSpeed(boolean isBumpPos, double bump) {
+//         launchSpeed = isBumpPos ? launchSpeed += bump : +-bump;
+//     }
 
-    public static void bumpLaunchSpeed(boolean isBumpPos) {
-        launchSpeed = isBumpPos ? launchSpeed += 10 : +-10;
-    }
+//     public static void bumpLaunchSpeed(boolean isBumpPos) {
+//         launchSpeed = isBumpPos ? launchSpeed += 10 : +-10;
+//     }
 
-    public static void reset(){
-        launchAngle = 0;
-        launchSpeed = 0;
-    }
+//     public static void reset(){
+//         launchAngle = 0;
+//         launchSpeed = 0;
+//     }
 
 }
