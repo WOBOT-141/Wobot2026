@@ -30,9 +30,10 @@ public final class Constants {
     public static final int flyWheelLeftMotorID = 15;
     public static final int feedMotorID = 16;
     public static final int magazineMotorID = 17;
-    public static final int intakeElevationMotorID = 18;
+    public static final int intakeElevationRightMotorID = 18;
     public static final int intakeRollerMotorID = 19;
     public static final int hoodMotorID = 20;
+    public static final int intakeElevationLeftMotorID = 21;
 
     public static final int climberMotorID = 0; //TODO add can ids
     public static final int climbFollowerMotorID = 0;
@@ -118,8 +119,8 @@ public final class Constants {
 
 
   public static final class IntakeConstants {
-    public static final int elevationCurrentLimit_amp = 70;
-    public static final int rollerCurrentLimit_amp = 20;
+    public static final int elevationCurrentLimit_amp = 40;
+    public static final int rollerCurrentLimit_amp = 60;
 
     // Homing (current-based)
     public static final double homingSpeed_perc = -0.20;
@@ -131,15 +132,11 @@ public final class Constants {
     public static final double downAngle_deg = 95.0;
 
     // Motion speeds
-    public static final double intakeUpSpeed_perc = 0.60;
-    public static final double intakeDownSpeed_perc = -0.2;
+    public static final double intakeRetractSpeed_perc = -0.4;
+    public static final double intakeExtendSpeed_perc = 0.4;
 
     public static final double positionTolerance_deg = 3.0; // Allowed error band for position checks
     public static final double moveTimeout_sec = .20; // Safety timeout while moving
-
-    //9:48
-    //-84688.945313 start
-    //--85408.851563 end 
 
     public static final double twoTurnDistance =1; //Math.abs(-85408.851563-(-84688.945313));
 
@@ -149,6 +146,9 @@ public final class Constants {
     public static final double brownoutScale_perc = 0.8; // Scale factor when in brownout
     
     public static final double degPerMotorRotation_deg = 360.0; //TODO change to reflect elevation motor gear ratio
+    public static final double intakeRawExtension_rot = 63.4;//63.4
+
+    public static final double SlowSpot = 5;
   }
 
   public static class OperatorConstants {
@@ -199,7 +199,7 @@ public final class Constants {
     public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
     
     // Control tuning
-    public static final double flywheelVelocityTolerance_ips = 30; //15
+    public static final double flywheelVelocityTolerance_ips = 25; //15
     public static final double hoodPositionTolerance_deg = 5;  //2
     public static final double hoodSlewRate = 0.5;
 
@@ -219,6 +219,9 @@ public final class Constants {
     
     public static final double hoodUpperLimit_deg = 89;
     public static final double hoodLowerLimit_deg = 46;
+
+    // Fire command constants
+    public static final double firingWaitTime_sec = 0.5;
   }
 
   public static class WheelConstants {

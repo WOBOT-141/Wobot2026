@@ -25,7 +25,7 @@ public class IntakeHome extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_Intake.intakeHome();
+    // m_Intake.intakeHome();
   }
 
   // Called once the command ends or is interrupted.
@@ -37,6 +37,7 @@ public class IntakeHome extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_Intake.isHomed();
+    return false;
+    // return m_Intake.isHomed();
   }
 }
