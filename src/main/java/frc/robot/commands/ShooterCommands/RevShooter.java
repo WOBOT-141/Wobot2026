@@ -24,15 +24,14 @@ public class RevShooter extends Command {
 
   @Override
   public void initialize() {
-
-    // Set hood position once
-    m_shooter.setHoodAngle(m_hoodAngle_deg);
+    // Nothing needed here
   }
 
   @Override
   public void execute() {
 
-    // Maintain shooter speed
+    // Send both commands repeatedly to ensure CAN packets arrive
+    m_shooter.setHoodAngle(m_hoodAngle_deg);
     m_shooter.setShooterVelocity(m_launchSpeed_ips);
   }
 
@@ -46,7 +45,7 @@ public class RevShooter extends Command {
   @Override
   public boolean isFinished() {
 
-    // This command runs continuously until another command interrupts it
+    // Runs until interrupted
     return false;
   }
 }

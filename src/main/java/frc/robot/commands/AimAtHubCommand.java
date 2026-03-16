@@ -7,7 +7,7 @@ package frc.robot.commands;
 import java.util.Optional;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.lib.AngleMagVector;
@@ -27,6 +27,12 @@ public class AimAtHubCommand extends Command {
 
   private final PIDController m_pidController;
 
+  // Track when we last saw the tag
+  private double m_lastSeenTime_sec = -1;
+
+  // How long we will trust the last vision reading before giving control back
+  private static final double kVisionTimeout_sec = 0.5;
+
   public AimAtHubCommand(
       StickCommand stickCommand,
       VisionServer visionServer,
@@ -38,10 +44,11 @@ public class AimAtHubCommand extends Command {
     m_shooter = shooter;
     m_aprilTagFilter = aprilTagFilter;
 
-    m_pidController = new PIDController(
-        RotateCommandConstants.P,
-        RotateCommandConstants.I,
-        RotateCommandConstants.D);
+    m_pidController =
+        new PIDController(
+            RotateCommandConstants.P,
+            RotateCommandConstants.I,
+            RotateCommandConstants.D);
 
     m_pidController.setSetpoint(0);
     m_pidController.setTolerance(2.0);
@@ -52,6 +59,7 @@ public class AimAtHubCommand extends Command {
   @Override
   public void initialize() {
     m_pidController.reset();
+    m_lastSeenTime_sec = -1;
   }
 
   @Override
@@ -62,30 +70,34 @@ public class AimAtHubCommand extends Command {
             m_visionServer.getDetectionList(),
             FieldElement.HUB);
 
-    if (vectorOptional.isEmpty()) {
-      m_stickCommand.setAlternateRotation(Optional.empty());
-      return;
+    double now = Timer.getFPGATimestamp();
+
+    if (vectorOptional.isPresent()) {
+
+      AngleMagVector vectorToHub = vectorOptional.get();
+
+      double pidOutput = m_pidController.calculate(vectorToHub.Angle);
+
+      m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
+
+      // Remember when we last saw the target
+      m_lastSeenTime_sec = now;
     }
+    else {
 
-    AngleMagVector vector = vectorOptional.get();
-    double bearing_deg = vector.Angle;
+      // If vision disappeared briefly, continue using last PID output
+      if (m_lastSeenTime_sec < 0 || (now - m_lastSeenTime_sec) > kVisionTimeout_sec) {
 
-    double pidOutput = m_pidController.calculate(bearing_deg);
-
-    if (m_pidController.atSetpoint()) {
-      pidOutput = 0;
+        // Vision has been gone too long — return control to driver
+        m_stickCommand.setAlternateRotation(Optional.empty());
+      }
     }
-
-    pidOutput = Math.max(-1.0, Math.min(1.0, pidOutput));
-
-    SmartDashboard.putNumber("Hub Angle", bearing_deg);
-    SmartDashboard.putNumber("Hub PID Output", pidOutput);
-
-    m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
   }
 
   @Override
   public void end(boolean interrupted) {
+
+    // Return control of rotation back to the driver
     m_stickCommand.setAlternateRotation(Optional.empty());
   }
 

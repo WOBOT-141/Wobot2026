@@ -141,19 +141,15 @@ public class RobotContainer {
     configureBindings();
 
     Map<String, ICommandFactory> autonCommands = Map.ofEntries(
-        entry("00 Do Nothing", (ICommandFactory) () -> new DoNothing()),
-        entry("01 Shoot and sit", (ICommandFactory) () -> new SitShots(m_shooter, m_magazine, m_gyro)),
-        entry("02 Depotlease", (ICommandFactory) () -> new DepotLease()),
-        entry("03 RIGHT Midway Gather",
-            (ICommandFactory) () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-        entry("04 LEFT Midway Gather",
-            (ICommandFactory) () -> new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-        entry("05 Right HALF Midway Gather",
-            (ICommandFactory) () -> new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine,
-                m_intake)),
-        entry("06 Left HALF Midway Gather",
-            (ICommandFactory) () -> new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine,
-                m_intake)));
+
+    entry("00 Do Nothing", (ICommandFactory) () -> DoNothing.create()),
+    entry("01 Shoot and sit", (ICommandFactory) () -> SitShots.create(m_shooter, m_magazine, m_gyro)),
+    entry("02 Depotlease", (ICommandFactory) () -> DepotLease.create(m_drive, m_wheels, m_gyro)),
+    entry("03 RIGHT Midway Gather", (ICommandFactory) () -> RightMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
+    entry("04 LEFT Midway Gather", (ICommandFactory) () -> LeftMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
+    entry("05 Right HALF Midway Gather", (ICommandFactory) () -> RightHalfMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
+    entry("06 Left HALF Midway Gather", (ICommandFactory) () -> LeftHalfMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake))
+);
 
     m_autonSelector = new ChooserHandeling("AutonChooser", autonCommands);
   }
