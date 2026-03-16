@@ -23,23 +23,15 @@ public class FireShooter extends ParallelCommandGroup {
       MagazineAndFeed magazineAndFeed) {
 
     addRequirements(shooter, drivetrain, magazineAndFeed);
-
     addCommands(
 
-        // Lock wheels immediately
         Commands.runOnce(() -> drivetrain.lockWheels(), drivetrain)
-
-            // Start revving shooter
             .andThen(new RevShooter(shooterSpeed_ips, hoodAngle_deg, shooter))
-
-            // Wait until shooter and hood are ready
             .alongWith(
                 new WaitUntilCommand(() -> shooter.isReadyToShoot())
                     // Once ready, start feeding
                     .andThen(new Feed(magazineAndFeed))
 
-            )
-
-    );
+            ));
   }
 }
