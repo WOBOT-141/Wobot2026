@@ -15,10 +15,7 @@ public class DepotLease {
 
   private DepotLease() {}
 
-  public static Command create(
-      Drivetrain drivetrain,
-      SwerveModule[] wheels,
-      IGyro gyro) {
+  public static Command create(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro) {
 
     return new StraightLineDrive(drivetrain, 90, 30, wheels, gyro, true)
         .andThen(new StraightLineDrive(drivetrain, 90, -30, wheels, gyro, true));

@@ -182,7 +182,6 @@ public class Shooter extends SubsystemBase {
   public void setPIDValues(double hoodP, double hoodI, double hoodD) {
 
     m_hoodMotorConfig.closedLoop.pid(hoodP, hoodI, hoodD);
-
     m_hoodMotor.configure(m_hoodMotorConfig,ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
@@ -241,8 +240,7 @@ public class Shooter extends SubsystemBase {
 
     if ((m_lastAvgVelocity_ips - currentVelocity_ips) > ShooterConstants.shotDipThreshold_rpm) {
 
-      if (m_lastShotTime_sec < 0 ||
-          (now_sec - m_lastShotTime_sec) > ShooterConstants.shotMinSeparation_sec) {
+      if (m_lastShotTime_sec < 0 || (now_sec - m_lastShotTime_sec) > ShooterConstants.shotMinSeparation_sec) {
 
         m_shotDetected = true;
         m_lastShotTime_sec = now_sec;

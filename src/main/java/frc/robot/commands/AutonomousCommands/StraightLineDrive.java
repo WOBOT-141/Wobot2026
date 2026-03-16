@@ -33,7 +33,7 @@ public class StraightLineDrive extends Command {
     m_gyro = gyro;
     m_speedFactor = speedFactor;
     m_startingEncoderPos_in = new double[m_wheels.length];
-    // Use addRequirements() here to declare subsystem dependencies.
+    
     addRequirements(drivetrain);
   }
 
