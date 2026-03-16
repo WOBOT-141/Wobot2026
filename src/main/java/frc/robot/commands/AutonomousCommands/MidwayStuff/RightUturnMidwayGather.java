@@ -35,17 +35,10 @@ public class RightUturnMidwayGather {
       MagazineAndFeed magazine,
       Intake intake) {
 
-    StraightLineDrive drive_over_ramp_to_center =
-        new StraightLineDrive(drivetrain, 0, 187, wheels, gyro, true);
-
-    StraightLineDrive drive_through_fuel =
-        new StraightLineDrive(drivetrain, -90, 140, wheels, gyro, true);
-
-    StraightLineDrive drive_back_to_line_up_with_ramp =
-        new StraightLineDrive(drivetrain, -90, -120, wheels, gyro, false);
-
-    StraightLineDrive drive_back_in_to_alliance_zone =
-        new StraightLineDrive(drivetrain, 0, -186, wheels, gyro, true);
+    StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 0, 187, wheels, gyro, true);
+    StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, -90, 140, wheels, gyro, true);
+    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, -90, -120, wheels, gyro, false);
+    StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, 0, -186, wheels, gyro, true);
 
     return Commands.runOnce(() -> gyro.setGyroOffset(90))
         .andThen(new HoodResetter(shooter, gyro))
