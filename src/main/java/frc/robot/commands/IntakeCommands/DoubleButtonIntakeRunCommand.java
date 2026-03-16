@@ -6,12 +6,13 @@ package frc.robot.commands.IntakeCommands;
 
 import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DoubleButtonIntakeRunCommand extends Command {
   /** Creates a new IntakeRunCommand. */
-  private Intake m_intake;
+  private final Intake m_intake;
   private final DoubleSupplier m_maxAxisSupplier;
 
   public DoubleButtonIntakeRunCommand(Intake intake, DoubleSupplier maxAxisSupplier) {
@@ -31,14 +32,16 @@ public class DoubleButtonIntakeRunCommand extends Command {
   public void execute() {
 
     double maxAxisRead = m_maxAxisSupplier.getAsDouble();
-    double speed = maxAxisRead >= 0.5 ? -0.8 : -0.4;
+    maxAxisRead = Math.max(0.0, Math.min(1.0, maxAxisRead));
+
+    double speed = maxAxisRead >= 0.5 ? IntakeConstants.intakeFastSpeed_perc : IntakeConstants.intakeSlowSpeed_perc;
     m_intake.intakeRun(speed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    System.out.println("DoubleButton END");
+  
     m_intake.intakeRollerStop();
   }
 

@@ -197,6 +197,8 @@ public final class Constants {
     
     public static final double hoodGearRatio = (10.0 / 62.0) * (50.0 / 319.0);
     public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
+    public static final double hoodHomeSpeed_perc = 0.2;
+    public static final double hoodHomingTimeout_sec = 2.0;
     
     // Control tuning
     public static final double flywheelVelocityTolerance_ips = 25; //15

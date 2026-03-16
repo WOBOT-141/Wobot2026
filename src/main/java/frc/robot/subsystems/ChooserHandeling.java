@@ -1,140 +1,129 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.*;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.commands.ICommandFactory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
 public class ChooserHandeling extends SubsystemBase {
-  private NetworkTableInstance inst;
-  private NetworkTable table;
 
-  private String[] optionNames;
-  private String key;
-  
-  private StringArrayPublisher pubChooser;
-  private StringArraySubscriber subChooser;
-  //private StringPublisher pubString;
-  private StringSubscriber subString;
+  private final NetworkTableInstance m_inst;
+  private final NetworkTable m_table;
 
-  private final Map<String, ICommandFactory> _commands;
-  private String[] _commandKeys = null;
+  private final Map<String, ICommandFactory> m_commands;
+
+  private String[] m_commandKeys = null;
+  private final String m_key;
+
+  private final StringArrayPublisher m_pubChooser;
+  private final StringArraySubscriber m_subChooser;
+  private final StringSubscriber m_subSelectedAuton;
 
   public ChooserHandeling(String key, Map<String, ICommandFactory> commands) {
-    inst = NetworkTableInstance.getDefault();
-    _commands = commands;
-    table = inst.getTable("SmartDashboard");
 
-    //pubString = table.getStringTopic("SelectedAuton").publish();
-    subString = table.getStringTopic("SelectedAuton").subscribe("");
-    pubChooser = table.getStringArrayTopic(key).publish();
-    subChooser = table.getStringArrayTopic(key).subscribe(new String[2000]);
+    m_inst = NetworkTableInstance.getDefault();
+    m_table = m_inst.getTable("SmartDashboard");
 
-    this.key = key;
+    m_commands = commands;
+    m_key = key;
 
-  }
-  // public void setSelectedAutonManual(String name){
-  //   pubString.set(name);
-  // }
-  public String getSelectedAuton(){
-   String selected =  subString.get();
+    m_pubChooser = m_table.getStringArrayTopic(key).publish();
 
-   return selected;
-  }
-  // public void setSelectedAuton(){
-  //   pubString.set(table.getValue("SelectedAuton").getString());
-  // }
-  
-  public void putSelectedAuton(){
-    table.putValue("SelectedAuton", NetworkTableValue.makeString(getSelectedAuton()));
+    // Smaller default array (was 2000)
+    m_subChooser = m_table.getStringArrayTopic(key).subscribe(new String[0]);
+
+    m_subSelectedAuton =
+        m_table.getStringTopic("SelectedAuton").subscribe("");
   }
 
-  public String[] listToArray(ArrayList<String> list) {
-    String[] arr = new String[list.size()];
-    for (int i = 0; i < list.size(); i++) {
-      arr[i] = list.get(i);
-    }
-    return arr;
+  public String getSelectedAuton() {
+    return m_subSelectedAuton.get();
+  }
+
+  public void putSelectedAuton() {
+
+    m_table.putValue(
+        "SelectedAuton",
+        NetworkTableValue.makeString(getSelectedAuton()));
   }
 
   public String[] getChooserSubscriber() {
-    return subChooser.get();
+    return m_subChooser.get();
   }
 
   public void putStringPub(String key, String value) {
-    table.putValue(key, NetworkTableValue.makeString(value));
+
+    m_table.putValue(key, NetworkTableValue.makeString(value));
   }
 
   public String getStringSub(String key) {
-    return table.getValue(key).getString();
+
+    NetworkTableValue value = m_table.getValue(key);
+
+    if (value == null) {
+      return "";
+    }
+
+    return value.getString();
   }
 
   public void putNumber(String key, double value) {
-    table.putValue(key, NetworkTableValue.makeDouble(value));
+
+    m_table.putValue(key, NetworkTableValue.makeDouble(value));
   }
 
   public double getNumber(String key) {
-    return table.getValue(key).getDouble();
-  }
 
-  public void readChooser() {
-    try {
-      optionNames = getChooserCommandStrings();
-    } catch (Exception e) {
-      e.printStackTrace();
+    NetworkTableValue value = m_table.getValue(key);
+
+    if (value == null) {
+      return 0.0;
     }
-    table.putValue(key,
-        NetworkTableValue.makeStringArray(optionNames));
-  }
 
-  /**
-   * only can pass in 20 values for commands into the chooser
-   * we can increase if needed but shouldnt ever need to get that high
-   * 
-   * @param key
-   * @return
-   */
-  public SendableChooser<Command> newChooser(String key) {
-    SendableChooser<Command> chooser = new SendableChooser<>();
-
-    return chooser;
-  }
-
-  public void addOption(SendableChooser<Command> chooser, String key, Command value) {
-    chooser.addOption(key, value);
+    return value.getDouble();
   }
 
   public Command getSelected() {
+
     String selectedAuton = getSelectedAuton();
-    return _commands.get(selectedAuton).CreateCommand();
+
+    ICommandFactory factory = m_commands.get(selectedAuton);
+
+    if (factory == null) {
+      System.out.println("Auton not found: " + selectedAuton);
+      return null;
+    }
+
+    return factory.CreateCommand();
   }
 
   public String[] getChooserCommandStrings() {
-    if (_commandKeys == null) {
-      String[] array = _commands.keySet().toArray(new String[0]);
+
+    if (m_commandKeys == null) {
+
+      String[] array = m_commands.keySet().toArray(new String[0]);
+
       Arrays.sort(array);
-      _commandKeys = array;
+
+      m_commandKeys = array;
     }
 
-    return _commandKeys;
+    return m_commandKeys;
   }
 
   @Override
   public void periodic() {
 
     putSelectedAuton();
-    try {
-      pubChooser.set(getChooserCommandStrings());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
 
-    table.putValue("AutonChooser", NetworkTableValue.makeStringArray(getChooserSubscriber()));
+    m_pubChooser.set(getChooserCommandStrings());
 
+    m_table.putValue(
+        "AutonChooser",
+        NetworkTableValue.makeStringArray(getChooserSubscriber()));
   }
 }

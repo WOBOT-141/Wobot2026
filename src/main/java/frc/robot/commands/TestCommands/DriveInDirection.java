@@ -9,17 +9,19 @@ import frc.robot.subsystems.Drivetrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveInDirection extends Command {
-  private final Drivetrain m_Drivetrain;
+  private final Drivetrain m_driveTrain;
   private final double m_angle_deg;
   private final double m_speed_perc;
 
   /** Creates a new DriveInDirection. */
-  public DriveInDirection(Drivetrain drivetrain, double angle_deg, double speed_perc) {
-    m_Drivetrain = drivetrain;
+  public DriveInDirection(Drivetrain driveTrain, double angle_deg, double speed_perc) {
+    m_driveTrain = driveTrain;
     m_angle_deg = angle_deg;
-    m_speed_perc = speed_perc;
+    
+    // Clamp speed
+    m_speed_perc = Math.max(-1.0, Math.min(1.0, speed_perc));
 
-    addRequirements(drivetrain);
+    addRequirements(driveTrain);
   }
 
   // Called when the command is initially scheduled.
@@ -29,13 +31,13 @@ public class DriveInDirection extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_Drivetrain.driveWithoutGyro(m_angle_deg, m_speed_perc, 0);
+    m_driveTrain.driveWithoutGyro(m_angle_deg, m_speed_perc, 0);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_Drivetrain.driveWithoutGyro(0, 0, 0);
+    m_driveTrain.driveWithoutGyro(0, 0, 0);
   }
 
   // Returns true when the command should end.

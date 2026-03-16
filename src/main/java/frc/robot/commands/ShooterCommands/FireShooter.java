@@ -4,43 +4,42 @@
 
 package frc.robot.commands.ShooterCommands;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.Constants.ShooterConstants;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
+
 import frc.robot.commands.Feed;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.Shooter;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class FireShooter extends ParallelCommandGroup {
-  Shooter m_shooter;
-  Drivetrain m_drivetrain;
-  MagazineAndFeed m_magazineAndFeed;
-  Command lockWheels;
-  Command feed;
-  Command revShooter;
 
-    
-   
-  /** Creates a new FireIntake. */
-  public FireShooter(double ShooterSpeed, double hoodAngle, Shooter shooter, Drivetrain drivetrain, MagazineAndFeed magazineAndFeed) {
-    m_shooter = shooter;
-    m_drivetrain = drivetrain;
-    m_magazineAndFeed = magazineAndFeed;
-    lockWheels = Commands.runOnce(() -> m_drivetrain.lockWheels());
-    feed = new Feed(m_magazineAndFeed);
-    revShooter = new RevShooter(ShooterSpeed, hoodAngle, shooter);
-    WaitCommand wait = new WaitCommand(ShooterConstants.firingWaitTime_sec);
-        //revShooter = new  ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter);
-        // Add your commands in the addCommands() call, e.g.
+  public FireShooter(
+      double shooterSpeed_ips,
+      double hoodAngle_deg,
+      Shooter shooter,
+      Drivetrain drivetrain,
+      MagazineAndFeed magazineAndFeed) {
 
-    addRequirements(m_shooter, m_drivetrain, m_magazineAndFeed);
-    addCommands(lockWheels.andThen(revShooter).alongWith((wait).andThen(feed)));
+    addRequirements(shooter, drivetrain, magazineAndFeed);
 
+    addCommands(
+
+        // Lock wheels immediately
+        Commands.runOnce(() -> drivetrain.lockWheels(), drivetrain)
+
+            // Start revving shooter
+            .andThen(new RevShooter(shooterSpeed_ips, hoodAngle_deg, shooter))
+
+            // Wait until shooter and hood are ready
+            .alongWith(
+                new WaitUntilCommand(() -> shooter.isReadyToShoot())
+                    // Once ready, start feeding
+                    .andThen(new Feed(magazineAndFeed))
+
+            )
+
+    );
   }
 }

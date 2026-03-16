@@ -4,39 +4,47 @@
 
 package frc.robot.commands.IntakeCommands;
 
-import java.util.function.DoubleSupplier;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.IntakeConstants;
+import java.util.function.DoubleSupplier;
 import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+
 public class AxisIntakeRunCommand extends Command {
-  /** Creates a new IntakeRunCommand. */
-  private Intake m_intake;
+  
+  private final Intake m_intake;
   private final DoubleSupplier m_leftTriggerAxisSupplier;
 
-  public AxisIntakeRunCommand(Intake intake, DoubleSupplier leftTriggerAxisSuplier) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    m_leftTriggerAxisSupplier = leftTriggerAxisSuplier;
-    m_intake = intake;
+  public AxisIntakeRunCommand(Intake intake, DoubleSupplier leftTriggerAxisSupplier) {
+     m_intake = intake;
+    m_leftTriggerAxisSupplier = leftTriggerAxisSupplier;
+   
     addRequirements(m_intake);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    
     double axisRead = m_leftTriggerAxisSupplier.getAsDouble();
-    System.out.println("IntakeRun Axis: " + axisRead);
-    if (axisRead <= .85 && axisRead >= 0.2) {
-      m_intake.intakeRun(-.5);
-    } else if (axisRead > 0.85) {
-      m_intake.intakeRun(-.8);
-    }
 
+    // Clamp the axis to a safe range
+    axisRead = Math.max(0.0, Math.min(1.0, axisRead));
+
+    SmartDashboard.putNumber("Intake Axis", axisRead);
+    
+    if (axisRead < IntakeConstants.intakeDeadband_perc) {
+      m_intake.intakeRollerStop();
+    } else if (axisRead < IntakeConstants.intakeFastThreshold_perc) {
+      m_intake.intakeRun(IntakeConstants.intakeSlowSpeed_perc);
+    } else {
+      m_intake.intakeRun(IntakeConstants.intakeFastSpeed_perc);
+    }
   }
 
   // Called once the command ends or is interrupted.

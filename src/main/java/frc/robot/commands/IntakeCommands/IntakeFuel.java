@@ -6,41 +6,48 @@ package frc.robot.commands.IntakeCommands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+
+import frc.robot.Constants.FeederConstants;
 import frc.robot.subsystems.MagazineAndFeed;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class IntakeFuel extends Command {
+
   private final MagazineAndFeed m_magazine;
   private final double m_speed;
-  /** Creates a new setFeed. */
+
+  private double m_startTime_sec;
+
   public IntakeFuel(MagazineAndFeed magazine, double speed) {
+
     m_magazine = magazine;
     m_speed = speed;
-    // Use addRequirements() here to declare subsystem dependencies.
+
     addRequirements(m_magazine);
   }
 
-  // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
 
-  // Called every time the scheduler runs while the command is scheduled.
+    m_startTime_sec = Timer.getFPGATimestamp();
+
+  }
+
   @Override
   public void execute() {
-    if (Timer.getFPGATimestamp() > 0.5){
-    m_magazine.setFeedVelocity(m_speed);
+
+    if (Timer.getFPGATimestamp() - m_startTime_sec > FeederConstants.feedStartDelay_sec) {
+      m_magazine.setFeedVelocity(m_speed);
     }
+
   }
 
-  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+
     m_magazine.setFeedVelocity(0);
+
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;

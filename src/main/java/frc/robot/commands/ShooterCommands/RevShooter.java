@@ -5,43 +5,48 @@
 package frc.robot.commands.ShooterCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Util.BumpShooterVector;
 import frc.robot.subsystems.Shooter;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RevShooter extends Command {
-  private double m_launchSpeed_ips;
-  private double m_hoodAngle_deg;
-  private Shooter m_shooter; 
-  /** Creates a new RevShooter. */
-  public RevShooter( double launchSpeed_ips, double hoodAngle_deg, Shooter shooter) {
+
+  private final Shooter m_shooter;
+  private final double m_launchSpeed_ips;
+  private final double m_hoodAngle_deg;
+
+  public RevShooter(double launchSpeed_ips, double hoodAngle_deg, Shooter shooter) {
+
     m_shooter = shooter;
     m_launchSpeed_ips = launchSpeed_ips;
     m_hoodAngle_deg = hoodAngle_deg;
-    
-    // Use addRequirements() here to declare subsystem dependencies.
+
+    addRequirements(shooter);
   }
 
-  // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
 
-  // Called every time the scheduler runs while the command is scheduled.
+    // Set hood position once
+    m_shooter.setHoodAngle(m_hoodAngle_deg);
+  }
+
   @Override
   public void execute() {
+
+    // Maintain shooter speed
     m_shooter.setShooterVelocity(m_launchSpeed_ips);
-    // m_shooter.setShooterVelocity(m_hoodAngle_deg);
   }
 
-  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+
+    // Stop shooter if command ends
     m_shooter.cancel();
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+
+    // This command runs continuously until another command interrupts it
     return false;
   }
 }

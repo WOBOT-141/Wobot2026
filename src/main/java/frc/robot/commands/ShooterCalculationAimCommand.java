@@ -5,52 +5,74 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+
 import frc.robot.Util.ShooterCalculations;
 import frc.robot.subsystems.Shooter;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ShooterCalculationAimCommand extends Command {
 
-  private double m_targetDistance_in;
-  private double m_deltaHeight_in;
-  private double m_rimToTargetDistance_in;
-  private double m_targetHeightAboveRim_in;
+  private final Shooter m_shooter;
 
-  private final Shooter m_Shooter;
+  private final double m_targetDistance_in;
+  private final double m_deltaHeight_in;
+  private final double m_rimToTargetDistance_in;
+  private final double m_targetHeightAboveRim_in;
 
-  /** Creates a new ShooterCalculationAimCommand. */
-  public ShooterCalculationAimCommand(double targetDistance_in, double deltaHeight_in, double rimToTargetDistance_in,
-      double targetHeightAboveRim_in, Shooter Shooter) {
+  private double m_launchAngle_deg;
+  private double m_launchSpeed_ips;
+
+  public ShooterCalculationAimCommand(
+      double targetDistance_in,
+      double deltaHeight_in,
+      double rimToTargetDistance_in,
+      double targetHeightAboveRim_in,
+      Shooter shooter) {
+
     m_targetDistance_in = targetDistance_in;
     m_deltaHeight_in = deltaHeight_in;
     m_rimToTargetDistance_in = rimToTargetDistance_in;
     m_targetHeightAboveRim_in = targetHeightAboveRim_in;
-    m_Shooter = Shooter;
-    // Use addRequirements() here to declare subsystem dependencies.
+
+    m_shooter = shooter;
+
+    addRequirements(m_shooter);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+
+    m_launchAngle_deg =
+        ShooterCalculations.getLaunchAngle(
+            m_targetDistance_in,
+            m_deltaHeight_in,
+            m_rimToTargetDistance_in,
+            m_targetHeightAboveRim_in);
+
+    m_launchSpeed_ips =
+        ShooterCalculations.getLaunchSpeed(
+            m_launchAngle_deg,
+            m_targetDistance_in,
+            m_rimToTargetDistance_in,
+            m_targetHeightAboveRim_in);
+
+    m_shooter.setShooterVelocity(m_launchSpeed_ips);
+    m_shooter.setHoodAngle(m_launchAngle_deg);
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double getLaunchAngle = ShooterCalculations.getLaunchAngle(m_targetDistance_in, m_deltaHeight_in,
-        m_rimToTargetDistance_in, m_targetHeightAboveRim_in);
-    double getLaunchSpeed = ShooterCalculations.getLaunchSpeed(getLaunchAngle, m_targetDistance_in, m_rimToTargetDistance_in, m_targetHeightAboveRim_in);
-    m_Shooter.setShooterVelocity(getLaunchSpeed);
-    m_Shooter.setHoodAngle(getLaunchAngle);
+    // Nothing needed — shooter continues running
   }
 
-  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_Shooter.cancel();
+
+    if (interrupted) {
+      m_shooter.cancel();
+    }
+
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;
