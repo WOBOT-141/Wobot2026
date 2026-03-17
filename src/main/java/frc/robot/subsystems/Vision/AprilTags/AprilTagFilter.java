@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.opencv.core.Mat.Tuple4;
-
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.lib.AngleMagVector;
 import frc.robot.subsystems.Vision.Detections.DetectionList;
@@ -94,6 +92,7 @@ public class AprilTagFilter {
             return Optional.empty();
         }
 
+        //Average the calculated vectors
         double totalMagnitude_in = 0;
         double totalAngle_deg = 0;
         for (int i = 0; i < floorVectorList.size(); i++) {
@@ -103,8 +102,8 @@ public class AprilTagFilter {
         }
         double averageMagnitude_in = totalMagnitude_in / floorVectorList.size();
         double averageAngle_in = totalAngle_deg / floorVectorList.size();
-        return Optional.of(new AngleMagVector(averageAngle_in, averageMagnitude_in));
 
+        return Optional.of(new AngleMagVector(averageAngle_in, averageMagnitude_in));
     }
 
 
