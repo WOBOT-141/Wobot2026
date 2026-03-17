@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import org.opencv.core.Mat.Tuple4;
+
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.lib.AngleMagVector;
 import frc.robot.subsystems.Vision.Detections.DetectionList;
@@ -32,7 +34,7 @@ public class AprilTagFilter {
         return getTag(tagId).FieldElement == fieldElement;
     }
 
-    public boolean isCenterTag(int tagId, DetectionList detectionList) {
+    public boolean isCenterTag(int tagId) {
         return m_tags[tagId].XToElement == 0;
     }
 
@@ -58,11 +60,11 @@ public class AprilTagFilter {
 
         for (int i = 0; i < detectionList.getSize(); i++) {
             IDetection detection = detectionList.getDetection(i);
-            if (!isCenterTag(i, detectionList)) {
+            if (!isCenterTag(detection.getId())) {
                 continue;
             }
-            Optional<AprilTagFieldInfo> tagInfoOptional = getTagInfoIfElementAndAlliance((int) detection.getId(),
-                    FieldElement.HUB);
+
+            Optional<AprilTagFieldInfo> tagInfoOptional = getTagInfoIfElementAndAlliance(detection.getId(), FieldElement.HUB);
             if (tagInfoOptional.isEmpty()) {
                 continue;
             }
@@ -72,8 +74,8 @@ public class AprilTagFilter {
             if (pairedDetection == NullDetection.Instance) {
                 continue;
             }
-            Optional<AprilTagFieldInfo> pairedTagInfoOptional = getTagInfoIfElementAndAlliance(
-                    (int) pairedDetection.getId(), FieldElement.HUB);
+
+            Optional<AprilTagFieldInfo> pairedTagInfoOptional = getTagInfoIfElementAndAlliance(pairedDetection.getId(), FieldElement.HUB);
             if (tagInfoOptional.isEmpty()) {
                 continue;
             }
@@ -82,7 +84,7 @@ public class AprilTagFilter {
 
             double centerTagAngleFromHubFace_deg = FindSSSAngle(
                     detection.getDistance(),
-                    pairedTagInfo.XToElement,
+                    Math.abs(pairedTagInfo.XToElement),
                     pairedDetection.getDistance());
             AngleMagVector floorVector = getFloorVectorFromCenterTag(detection, centerTagAngleFromHubFace_deg);
             floorVectorList.add(floorVector);
@@ -105,8 +107,9 @@ public class AprilTagFilter {
 
     }
 
+
     public AngleMagVector getFloorVectorFromCenterTag(IDetection centerTagDetection, double centerTagAngleFromHubFace_deg) {
-        AprilTagFieldInfo tagInfo = m_tags[((int) centerTagDetection.getId())];
+        AprilTagFieldInfo tagInfo = m_tags[centerTagDetection.getId()];
         double distanceToTag_in = centerTagDetection.getDistance();
         double tagToElement_in = Math.sqrt(Math.pow(tagInfo.XToElement, 2) + Math.pow(tagInfo.YToElement, 2));
         // double tagToCenterAngle_deg = 180 -
@@ -130,7 +133,7 @@ public class AprilTagFilter {
             return 0;
         }
         double numerator = Math.pow(sideA, 2) + Math.pow(sideB, 2) - Math.pow(sideC, 2);
-        double denominator = 2 * sideA * sideB;
+        double denominator = Math.abs(2 * sideA * sideB);
         return Math.toDegrees(Math.acos(numerator / denominator));
 
     }
