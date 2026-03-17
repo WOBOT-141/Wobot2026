@@ -1,8 +1,7 @@
 package frc.robot;
 
-import static java.util.Map.entry;
-
 import java.util.Map;
+import static java.util.Map.entry;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -13,44 +12,37 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.SpektrumFlightController;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.Util.BumpShooterVector;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
+import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
+import frc.robot.commands.DriveCommands.ResetGyro;
+import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
+import frc.robot.commands.IntakeCommands.IntakeExtend;
+import frc.robot.commands.MovingRotateToTag;
+import frc.robot.commands.ShooterCommands.FireShooter;
+import frc.robot.commands.ShooterCommands.SendHoodToHome;
+import frc.robot.commands.StickParameters.IStickParameters;
+import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.commands.StopRobot;
 import frc.robot.subsystems.ChooserHandeling;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.SwerveModule;
-import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
-import frc.robot.Constants.ShooterConstants;
-import frc.robot.Util.BumpShooterVector;
-import frc.robot.commands.MovingRotateToTag;
-import frc.robot.commands.StopRobot;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
-import frc.robot.commands.DriveCommands.ResetGyro;
-import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.commands.IntakeCommands.AxisIntakeRunCommand;
-import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
-import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
-import frc.robot.commands.IntakeCommands.IntakeExtend;
-import frc.robot.commands.IntakeCommands.IntakeRetract;
-import frc.robot.commands.ShooterCommands.FireShooter;
-import frc.robot.commands.ShooterCommands.RevShooter;
-import frc.robot.commands.ShooterCommands.SendHoodToHome;
-import frc.robot.commands.StickParameters.IStickParameters;
-import frc.robot.commands.StickParameters.StickBParameters;
-import frc.robot.commands.AutonomousCommands.RotateByAngle;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
-import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
-import frc.robot.commands.AutonomousCommands.ScrappedAutons.ZeeClimb;
+import frc.robot.subsystems.Vision.VisionServer;
 
 public class RobotContainer {
 
@@ -122,7 +114,7 @@ public class RobotContainer {
             m_selectedBot.rotationsPerInch_rot())
     };
 
-    m_drive = new Drivetrain(m_wheels, m_gyro);
+    m_drive = new Drivetrain(m_wheels, m_gyro,m_visionServer);
 
     configureFlightControllerParameters();
 
