@@ -42,13 +42,13 @@ private IDetection m_closestDetection;
   @Override
   public void execute() {
     IDetection currentDetection = m_visionServer.getClosestDetection();
-    double pidOutput = m_pidController.calculate(currentDetection.getAngle());
+    double pidOutput = m_pidController.calculate(currentDetection.getBearing());
     m_drivetrain.driveWithoutGyro(0, 0, -pidOutput);
     SmartDashboard.putNumber("RotateToTagP", m_pidController.getP());
     SmartDashboard.putNumber("RotateTotagI", m_pidController.getI());
     SmartDashboard.putNumber("RotateToTagD", m_pidController.getD());
     SmartDashboard.putNumber("PIDOutput", pidOutput);
-    SmartDashboard.putNumber("ClosestTagAngle", currentDetection.getAngle());
+    SmartDashboard.putNumber("ClosestTagAngle", currentDetection.getBearing());
   }
 
   // Called once the command ends or is interrupted.
