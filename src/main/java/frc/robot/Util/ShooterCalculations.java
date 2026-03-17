@@ -8,18 +8,14 @@ public class ShooterCalculations {
     }
 
     public static double getLaunchAngle(double targetDistance_in,  double deltaHeight_in, double rimToTargetDistance_in, double targetHeightAboveRim_in) {
-        double angleStep1 = (2 * targetDistance_in + rimToTargetDistance_in) * (deltaHeight_in)
-                + (targetHeightAboveRim_in / rimToTargetDistance_in) * Math.pow(targetDistance_in,2);
-        double angleStep2 = (2 * targetDistance_in + rimToTargetDistance_in) * (targetDistance_in)
-                - Math.pow(targetDistance_in, 2);
+        double angleStep1 = (2 * targetDistance_in + rimToTargetDistance_in) * (deltaHeight_in) + (targetHeightAboveRim_in / rimToTargetDistance_in) * Math.pow(targetDistance_in,2);
+        double angleStep2 = (2 * targetDistance_in + rimToTargetDistance_in) * (targetDistance_in) - Math.pow(targetDistance_in, 2);
         return Math.toDegrees(Math.atan((angleStep1 / angleStep2)));
     }
     
     public static double getLaunchSpeed(double launchAngle_deg, double targetDistance_in, double rimToTargetDistance_in, double targetHeightAboveRim_in) {
-        double step1 = Constants.ShooterConstants.g_inps2
-                * ((targetDistance_in - Constants.ShooterConstants.hubRimToCenter_in) + rimToTargetDistance_in / 2);
-        double step2 = (targetHeightAboveRim_in / rimToTargetDistance_in) * (Math.pow(Math.cos(Math.toRadians(launchAngle_deg)), 2))
-                + Math.sin(Math.toRadians(launchAngle_deg)) * Math.cos((Math.toRadians(launchAngle_deg)));
+        double step1 = Constants.ShooterConstants.g_inps2 * ((targetDistance_in - Constants.ShooterConstants.hubRimToCenter_in) + rimToTargetDistance_in / 2);
+        double step2 = (targetHeightAboveRim_in / rimToTargetDistance_in) * (Math.pow(Math.cos(Math.toRadians(launchAngle_deg)), 2)) + Math.sin(Math.toRadians(launchAngle_deg)) * Math.cos((Math.toRadians(launchAngle_deg)));
         double step3 = (step1 / step2);
         return Math.sqrt(step3);
     }

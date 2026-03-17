@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.MagazineAndFeed;
@@ -19,12 +18,7 @@ public class StopRobot extends InstantCommand {
   private final Drivetrain m_drive;
   private final Shooter m_shooter;
 
-  public StopRobot(
-      Intake intake,
-      MagazineAndFeed magazine,
-      Climber climber,
-      Drivetrain drive,
-      Shooter shooter) {
+  public StopRobot(Intake intake, MagazineAndFeed magazine, Drivetrain drive, Shooter shooter) {
 
     m_intake = intake;
     m_magazine = magazine;

@@ -20,7 +20,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.SwerveModule;
 
 import frc.robot.subsystems.Vision.VisionServer;
@@ -65,7 +64,6 @@ public class RobotContainer {
   private final Shooter m_shooter = new Shooter();
   private final Intake m_intake = new Intake();
   private final MagazineAndFeed m_magazine = new MagazineAndFeed();
-  private final Climber m_climber = new Climber();
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
@@ -212,10 +210,7 @@ public class RobotContainer {
             m_magazine));
 
     m_xboxController0.leftStick().onTrue(Commands.run(() -> BumpShooterVector.reset()));
-
-    m_xboxController0.rightStick()
-        .onTrue(new StopRobot(m_intake, m_magazine, m_climber, m_drive, m_shooter));
-  }
+   }
 
   private void configureJoystick() {
     m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
