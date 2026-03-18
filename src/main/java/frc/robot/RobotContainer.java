@@ -3,6 +3,7 @@ package frc.robot;
 import static java.util.Map.entry;
 
 import java.util.Map;
+import java.util.Set;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -73,8 +74,8 @@ public class RobotContainer {
 
   private final VisionServer m_visionServer = new VisionServer();
 
-  private final AprilTagFilter m_aprilTagFilter =
-      new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
+  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags,
+      () -> DriverStation.getAlliance());
 
   private final IBotSelector m_selectedBot = new MainBot();
 
@@ -125,10 +126,7 @@ public class RobotContainer {
 
     configureFlightControllerParameters();
 
-    m_stickCommand = new StickCommand(
-        m_drive,
-        m_gyro,
-        m_selectedBot,
+    m_stickCommand = new StickCommand(m_drive, m_gyro, m_selectedBot,
         () -> m_flightController0.getDriveX(),
         () -> m_flightController0.getDriveY(),
         () -> m_flightController0.getRotate(),
@@ -140,14 +138,20 @@ public class RobotContainer {
 
     Map<String, ICommandFactory> autonCommands = Map.ofEntries(
 
-    entry("00 Do Nothing", (ICommandFactory) () -> DoNothing.create()),
-    entry("01 Shoot and sit", (ICommandFactory) () -> SitShots.create(m_shooter, m_magazine, m_gyro)),
-    entry("02 Depotlease", (ICommandFactory) () -> DepotLease.create(m_drive, m_wheels, m_gyro)),
-    entry("03 RIGHT Midway Gather", (ICommandFactory) () -> RightMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-    entry("04 LEFT Midway Gather", (ICommandFactory) () -> LeftMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-    entry("05 Right HALF Midway Gather", (ICommandFactory) () -> RightHalfMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-    entry("06 Left HALF Midway Gather", (ICommandFactory) () -> LeftHalfMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake))
-);
+        entry("00 Do Nothing", (ICommandFactory) () -> DoNothing.create()),
+        entry("01 Shoot and sit", (ICommandFactory) () -> SitShots.create(m_shooter, m_magazine, m_gyro)),
+        entry("02 Depotlease", (ICommandFactory) () -> DepotLease.create(m_drive, m_wheels, m_gyro)),
+        entry("03 RIGHT Midway Gather",
+            (ICommandFactory) () -> RightMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine,
+                m_intake)),
+        entry("04 LEFT Midway Gather",
+            (ICommandFactory) () -> LeftMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine,
+                m_intake)),
+        entry("05 Right HALF Midway Gather",
+            (ICommandFactory) () -> RightHalfMidwayGather.create(m_drive, m_wheels, m_gyro, m_shooter, m_magazine,
+                m_intake)),
+        entry("06 Left HALF Midway Gather", (ICommandFactory) () -> LeftHalfMidwayGather.create(m_drive, m_wheels,
+            m_gyro, m_shooter, m_magazine, m_intake)));
 
     m_autonSelector = new ChooserHandeling("AutonChooser", autonCommands);
   }
@@ -183,8 +187,7 @@ public class RobotContainer {
     m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
 
     m_xboxController0.leftTrigger()
-        .whileTrue(new DoubleButtonIntakeRunCommand(m_intake,
-            () -> m_xboxController0.getRightTriggerAxis()));
+        .whileTrue(new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis()));
 
     m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
 
@@ -193,24 +196,36 @@ public class RobotContainer {
     m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp()));
     m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown()));
 
-    m_xboxController0.a().whileTrue(new FireShooter(280, 72, m_shooter, m_drive, m_magazine));
-    m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));
-    m_xboxController0.y().whileTrue(new FireShooter(335, 65, m_shooter, m_drive, m_magazine));
-    m_xboxController0.b()
-        .whileTrue(new FireShooter(1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));
+    m_xboxController0.a().whileTrue(
+        new FireShooter(280, 72, m_shooter, m_drive, m_magazine));
 
-    m_xboxController0.back().whileTrue(
-        Commands.startEnd(() -> m_intake.intakeRun(0.8),
-            () -> m_intake.intakeRollerStop(),
-            m_intake));
+    m_xboxController0.x().whileTrue(
+        new FireShooter(377, 65, m_shooter, m_drive, m_magazine));
+
+    m_xboxController0.y().whileTrue(
+        new FireShooter(335, 65, m_shooter, m_drive, m_magazine));
+
+    m_xboxController0.b().whileTrue(
+        new FireShooter(
+            1000,
+            ShooterConstants.hoodLowerLimit_deg,
+            m_shooter,
+            m_drive,
+            m_magazine));
+
+    m_xboxController0.back().whileTrue(Commands.startEnd(
+        () -> m_intake.intakeRun(0.8),
+        () -> m_intake.intakeRollerStop(),
+        m_intake));
 
     m_xboxController0.start().whileTrue(
-        Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3),
+        Commands.startEnd(
+            () -> m_magazine.setFeedVelocity(-0.3),
             () -> m_magazine.cancel(),
             m_magazine));
 
     m_xboxController0.leftStick().onTrue(Commands.run(() -> BumpShooterVector.reset()));
-   }
+  }
 
   private void configureJoystick() {
     m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
