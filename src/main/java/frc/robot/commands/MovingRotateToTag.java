@@ -65,9 +65,8 @@ public class MovingRotateToTag extends Command {
       return;
     }
 
-    double angle_deg = currentDetection.getAngle();
-
-    double pidOutput = -m_pidController.calculate(angle_deg);
+    double bearing_deg = currentDetection.getBearing();
+    double pidOutput = -m_pidController.calculate(currentDetection.getBearing());
 
     if (m_pidController.atSetpoint()) {
       pidOutput = 0;
@@ -75,10 +74,9 @@ public class MovingRotateToTag extends Command {
 
     pidOutput = Math.max(-1.0, Math.min(1.0, pidOutput));
 
-    double pidOutput = -m_pidController.calculate(currentDetection.getBearing());
     m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
 
-    SmartDashboard.putNumber("Tag Angle", angle_deg);
+    SmartDashboard.putNumber("Tag Bearing", bearing_deg);
     SmartDashboard.putNumber("PIDOutput", pidOutput);
   }
 

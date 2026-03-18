@@ -233,9 +233,8 @@ public class Shooter extends SubsystemBase {
       if (m_readyStartTime < 0) {
         m_readyStartTime = Timer.getFPGATimestamp();
       }
-
+      
       double timeReady = Timer.getFPGATimestamp() - m_readyStartTime;
-
       return timeReady > 0.1; // ✅ 100 ms stable
 
     } else {
