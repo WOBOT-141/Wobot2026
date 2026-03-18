@@ -117,13 +117,13 @@ public class Shooter extends SubsystemBase {
   public void homeHood() {
     //double startTime_sec = Timer.getFPGATimestamp();
     //if ((startTime_sec - currentTime_sec) > .05) {
-      m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
+      //m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
       
-      if (m_hoodMotor.getOutputCurrent() > ShooterConstants.hoodCurrentLim_amp) {
+      //if (m_hoodMotor.getOutputCurrent() > ShooterConstants.hoodCurrentLim_amp) {
         m_hoodMotor.stopMotor();
-        m_hoodMotorEncoder.setPosition(ShooterConstants.hoodUpperLimit_deg);
+        //m_hoodMotorEncoder.setPosition(ShooterConstants.hoodUpperLimit_deg);
         m_hoodAtHome = true;
-      }
+      //}
    // }
   }
 
@@ -141,7 +141,7 @@ public class Shooter extends SubsystemBase {
     targetPosition_deg = Math.min(targetPosition_deg, ShooterConstants.hoodUpperLimit_deg);
     m_hoodTargetPosition_deg = targetPosition_deg;
 
-   m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+   //m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
   public void setHoodPositionFromDashboard() {

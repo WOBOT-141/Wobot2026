@@ -50,14 +50,14 @@ public class DetectionList {
         (
         ObjectType tag,
         double distance,
-        double angle,
+        double bearing,
         int id,
         double yaw,
         double pitch,
         double roll,
         double cameraNum
     ) {
-        _detections[_size].update(tag, distance, angle, id, yaw, pitch, roll, cameraNum);
+        _detections[_size].update(tag, distance, bearing, id, yaw, pitch, roll, cameraNum);
         ++_size;
         return _size < _capacity;
     }

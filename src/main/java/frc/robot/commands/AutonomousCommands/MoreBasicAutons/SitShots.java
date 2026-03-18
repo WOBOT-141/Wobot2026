@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutonomousCommands.HoodResetter;
 import frc.robot.commands.IntakeCommands.IntakeFuel;
+import frc.robot.commands.ShooterCommands.AutonShooter;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.MagazineAndFeed;
@@ -23,13 +24,14 @@ public class SitShots extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       new HoodResetter(shooter, gyro).andThen(
-      new RevShooter(300, 65, shooter))
-        .alongWith(new WaitCommand(0.7)
-        .andThen(new IntakeFuel(magazine,0.8))).andThen(
-          new WaitCommand(5))
-        .andThen(
-          new RevShooter(0, 0, shooter).alongWith(
-          new IntakeFuel(magazine, 0)))
+      new AutonShooter(shooter, magazine, 290, 72))
+      // new RevShooter(300, 65, shooter))
+      //   .alongWith(new WaitCommand(0.7)
+      //   .andThen(new IntakeFuel(magazine,0.8))).andThen(
+      //     new WaitCommand(5))
+      //   .andThen(
+      //     new RevShooter(0, 0, shooter).alongWith(
+      //     new IntakeFuel(magazine, 0)))
 
     );
   }

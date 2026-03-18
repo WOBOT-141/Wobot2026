@@ -21,7 +21,7 @@ public class NullDetection implements IDetection {
     }
 
     @Override
-    public double getAngle() {
+    public double getBearing() {
         return 0;
     }
 

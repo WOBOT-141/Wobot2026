@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 public class RebuiltAprilTags{
 
     public static final AprilTagFieldInfo[] Tags = new AprilTagFieldInfo[] {
-        new AprilTagFieldInfo(0,  0, Alliance.Red, FieldElement.NONE, 0, 0, 0),
+        new AprilTagFieldInfo(0,  0, null, FieldElement.NONE, 0, 0, 0),
         
         new AprilTagFieldInfo(1,  0,  Alliance.Red, FieldElement.TRENCH_NEUTRAL, 0, 0, 0),
         new AprilTagFieldInfo(2,  11, Alliance.Red, FieldElement.HUB, 0, 23.5, 27.75),

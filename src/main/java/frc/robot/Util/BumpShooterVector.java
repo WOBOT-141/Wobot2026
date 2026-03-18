@@ -22,8 +22,20 @@ public class BumpShooterVector {
         launchAngle = isBumpPos ? launchAngle += bump : +-bump;
     }
 
-    public static void bumpLaunchAngle(boolean isBumpPos) {
-        launchAngle = isBumpPos ? launchAngle += 2 : +-2;
+    public static void bumpLaunchAngleDown() {
+        launchAngle -= 2;
+    }
+
+     public static void bumpLaunchAngleUp() {
+        launchAngle += 2;
+    }
+
+    public static void bumpLaunchSpeedDown() {
+        launchSpeed -= 10;
+    }
+
+     public static void bumpLaunchSpeedUp() {
+        launchSpeed += 10;
     }
 
     public static void bumpLaunchSpeed(boolean isBumpPos, double bump) {

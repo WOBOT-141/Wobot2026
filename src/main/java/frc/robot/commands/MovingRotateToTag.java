@@ -55,7 +55,7 @@ public class MovingRotateToTag extends Command {
     if (!currentDetection.isValid())
       return;
 
-    double pidOutput = -m_pidController.calculate(currentDetection.getAngle());
+    double pidOutput = -m_pidController.calculate(currentDetection.getBearing());
     m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
 
     SmartDashboard.putNumber("PIDOutput", pidOutput);
