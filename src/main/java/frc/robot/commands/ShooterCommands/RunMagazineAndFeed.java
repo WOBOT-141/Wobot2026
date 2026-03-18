@@ -22,9 +22,6 @@ public class RunMagazineAndFeed extends ParallelCommandGroup {
   MagazineAndFeed m_magazineAndFeed;
   Command lockWheels;
   Command feed;
-
-
-    
    
   /** Creates a new FireIntake. */
   public RunMagazineAndFeed(Drivetrain drivetrain, MagazineAndFeed magazineAndFeed) {
@@ -37,7 +34,7 @@ public class RunMagazineAndFeed extends ParallelCommandGroup {
         // Add your commands in the addCommands() call, e.g.
 
     addRequirements(m_drivetrain, m_magazineAndFeed);
-    //addCommands(lockWheels.andThen(feed));
+        addCommands(lockWheels.andThen(feed));
 
   }
 }
