@@ -255,7 +255,7 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kReset.value))
         .onTrue(new ResetGyro(m_gyro));
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
-        .onTrue(Commands.run(() -> m_stickCommand.lockWheels())); //TODO lock wheels dosent deactivate when driver moves wheels move but always come back to postion like its 0 and they never stop moving so dosent deacting 
+        .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
         .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
   }
