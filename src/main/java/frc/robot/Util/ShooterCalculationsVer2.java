@@ -4,16 +4,6 @@ import frc.robot.Constants;
 
 public class ShooterCalculationsVer2 {
 
-    public static class ShotSolution {
-        public double angle_deg;
-        public double velocity_IPS;
-
-        public ShotSolution(double angle_deg, double velocity_IPS) {
-            this.angle_deg = angle_deg;
-            this.velocity_IPS = velocity_IPS;
-        }
-    }
-
     public static double getLaunchSpeed(
             double angle_deg,
             double distance_in,
@@ -63,7 +53,7 @@ public class ShooterCalculationsVer2 {
             }
         }
 
-        // 🔴 CRITICAL FIX: Never return NaN
+        // Never return NaN
         if (Double.isInfinite(bestVelocity) || Double.isNaN(bestVelocity)) {
             bestVelocity = 0.0;
             bestAngle = Constants.ShooterConstants.hoodLowerLimit_deg;
