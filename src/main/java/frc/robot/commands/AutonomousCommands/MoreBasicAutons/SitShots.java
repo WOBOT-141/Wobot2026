@@ -5,24 +5,18 @@
 package frc.robot.commands.AutonomousCommands.MoreBasicAutons;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.AutonomousCommands.HoodResetter;
-import frc.robot.commands.ShooterCommands.AutonShooter;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.Shooter;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class SitShots extends SequentialCommandGroup {
-  
-   private SitShots() {}
+public class SitShots {
+
+  private SitShots() {}
 
   public static Command create(Shooter shooter, MagazineAndFeed magazine, IGyro gyro) {
 
-    return new HoodResetter(shooter, gyro)
-        .andThen(new AutonShooter(shooter, magazine, 290, 72));
+  return shooter.homeHoodCommand()
+      .andThen(shooter.autonShootCommand(magazine, 290, 72));
 
-  }
+}
 }

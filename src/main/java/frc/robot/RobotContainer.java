@@ -29,7 +29,6 @@ import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
 import frc.robot.Constants.ShooterConstants;
 
 import frc.robot.Util.BumpShooterVector;
-
 import frc.robot.commands.ICommandFactory;
 import frc.robot.commands.MovingRotateToTag;
 
@@ -42,14 +41,7 @@ import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
 
-import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
-
-import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
-import frc.robot.commands.IntakeCommands.IntakeExtend;
-
-import frc.robot.commands.ShooterCommands.FireShooter;
-import frc.robot.commands.ShooterCommands.SendHoodToHome;
 
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
@@ -182,19 +174,18 @@ public class RobotContainer {
 
   private void configureXboxController() {
 
-    m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
+    m_xboxController0.leftBumper().onTrue(m_intake.intakeExtendCommand());
     m_xboxController0.leftTrigger()
-        .whileTrue(new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis()));
-    m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
-    m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp()));
-    m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleDown()));
-    m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp()));
-    m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown()));
-    m_xboxController0.a().whileTrue(new FireShooter(280, 72, m_shooter, m_drive, m_magazine));
-    m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));
-    m_xboxController0.y().whileTrue(new FireShooter(335, 65, m_shooter, m_drive, m_magazine));
-    m_xboxController0.b()
-        .whileTrue(new FireShooter(1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));
+        .whileTrue(m_intake.doubleButtonIntakeRunCommand(() -> m_xboxController0.getRightTriggerAxis()));
+    m_xboxController0.rightTrigger().onTrue(m_shooter.homeHoodCommand());
+    m_xboxController0.povUp().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchAngleUp()));
+    m_xboxController0.povDown().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchAngleDown()));
+    m_xboxController0.povLeft().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchSpeedUp()));
+    m_xboxController0.povRight().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchSpeedDown()));
+    m_xboxController0.a().whileTrue(fireShooterCommand(280, 72));
+    m_xboxController0.x().whileTrue(fireShooterCommand(377, 65));
+    m_xboxController0.y().whileTrue(fireShooterCommand(335, 65));
+    m_xboxController0.b().whileTrue(fireShooterCommand(1000, ShooterConstants.hoodLowerLimit_deg));
     m_xboxController0.back()
         .whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));
     m_xboxController0.start()
@@ -210,7 +201,7 @@ public class RobotContainer {
   private void configureFlightController() {
 
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kReset.value))
-        .onTrue(new ResetGyro(m_gyro));
+        .onTrue(Commands.runOnce(() -> m_gyro.ResetGyro()));
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.run(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
@@ -243,6 +234,42 @@ public class RobotContainer {
     }
   }
 
+  private Command autonShooterCommand(double speed, double angle) {
+
+    return Commands.sequence(Commands.run(() -> {
+      m_shooter.setHoodAngle(angle);
+      m_shooter.setShooterVelocity(speed);
+    },
+        m_shooter).until(() -> m_shooter.isReadyToShoot()),
+
+        // Feed + keep shooter running at same time
+        Commands.deadline(
+            Commands.waitSeconds(5),
+            // Keep shooter running
+            Commands.run(() -> {
+              m_shooter.setHoodAngle(angle);
+              m_shooter.setShooterVelocity(speed);
+            },
+                m_shooter),
+
+            // Feed
+            Commands.startEnd(() -> m_magazine.setFeedVelocity(0.8), () -> m_magazine.cancel(), m_magazine)),
+
+        // Stop everything
+        Commands.runOnce(() -> {
+          m_shooter.cancel();
+          m_magazine.cancel();
+        }));
+  }
+
+  private Command fireShooterCommand(double speed, double angle) {
+
+    return Commands.deadline(m_shooter.runShooterCommand(speed, angle),Commands.sequence(Commands.waitUntil(() -> m_shooter.isReadyToShoot()),
+            m_magazine.feedCommand()),
+
+        Commands.runOnce(() -> m_drive.lockWheels(), m_drive));
+  }
+
   public Command getAutonomousCommand() {
 
     Command selectedCommand = m_autonSelector.getSelected();
@@ -255,4 +282,5 @@ public class RobotContainer {
     System.out.println("Selected auton: <null>");
     return Commands.none();
   }
+
 }

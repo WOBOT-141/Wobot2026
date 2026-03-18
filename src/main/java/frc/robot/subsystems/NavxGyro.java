@@ -9,6 +9,8 @@ import com.studica.frc.AHRS.NavXComType;
 import com.studica.frc.AHRS.NavXUpdateRate;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class NavxGyro extends SubsystemBase implements IGyro {
@@ -116,6 +118,10 @@ public class NavxGyro extends SubsystemBase implements IGyro {
     }
 
     return smallestAngle + currentAngle; // left as-is per your TODO
+  }
+
+  public Command resetGyroCommand() {
+    return Commands.runOnce(() -> ResetGyro());
   }
 
   @Override

@@ -6,26 +6,21 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+
 import frc.robot.IBotSelector;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 
-/**
- * StickCommand
- *
- */
 public class StickCommand extends Command {
 
   private final Drivetrain m_drive;
   private final IBotSelector m_selectedBot;
 
-  // Axis suppliers (injected from RobotContainer)
   private final DoubleSupplier m_driveXSupplier;
   private final DoubleSupplier m_driveYSupplier;
   private final DoubleSupplier m_rotateSupplier;
   private final DoubleSupplier m_throttleSupplier;
 
-  // Ramp only linear magnitude (as original code did)
   private final SlewRateLimiter m_rampRate = new SlewRateLimiter(1.0);
 
   private double m_lastRightDirectional = 0.0;
@@ -33,7 +28,6 @@ public class StickCommand extends Command {
   private boolean m_lockdown = false;
   private Optional<Double> m_altCommandedRotation_perc = Optional.empty();
 
-  // Throttle dashboard updates to 5 Hz
   private int m_dashboardCounter = 0;
   private static final int DASHBOARD_DIVIDER = 10;
 
@@ -48,6 +42,7 @@ public class StickCommand extends Command {
 
     m_drive = drive;
     m_selectedBot = selectedBot;
+
     m_driveXSupplier = driveXSupplier;
     m_driveYSupplier = driveYSupplier;
     m_rotateSupplier = rotateSupplier;
@@ -65,57 +60,49 @@ public class StickCommand extends Command {
   @Override
   public void execute() {
 
-    /* ---------------- Dashboard Debug (throttled) ---------------- */
     if (++m_dashboardCounter % DASHBOARD_DIVIDER == 0) {
       stickDebug();
     }
 
-    /* ---------------- Read Controller ---------------- */
-    double stickX_perc = m_driveXSupplier.getAsDouble();
-    double stickY_perc = m_driveYSupplier.getAsDouble();
-    double stickRotate_perc = m_rotateSupplier.getAsDouble();
+    double stickX_perc = applyDeadband(m_driveXSupplier.getAsDouble(), 0.05);
+    double stickY_perc = applyDeadband(m_driveYSupplier.getAsDouble(), 0.05);
+    double stickRotate_perc = applyDeadband(m_rotateSupplier.getAsDouble(), 0.05);
     double stickThrottle_perc = m_throttleSupplier.getAsDouble();
 
     double throttle_perc = calcThrottle_perc(stickThrottle_perc);
 
-     if (stickX_perc == 0 && stickY_perc == 0 && stickRotate_perc == 0) {
-   // Maintain last heading when the sticks are at 0.
-   m_rampRate.reset(0);
-   m_drive.driveWithGyro(m_lastRightDirectional, 0.0, 0.0);
-   return;
- }
+    boolean isStopped =
+        Math.abs(stickX_perc) < 0.01 &&
+        Math.abs(stickY_perc) < 0.01 &&
+        Math.abs(stickRotate_perc) < 0.01;
 
-    /* ---------------- Vector Math ---------------- */
+    if (isStopped) {
+      m_drive.driveWithGyro(m_lastRightDirectional, 0.0, 0.0);
+      return;
+    }
+   
     double translationMagnitude_perc = throttle_perc * calcTranslationMagnitude_perc(stickX_perc, stickY_perc);
     double translationAngle_deg = calcTranslationAngle_deg(stickX_perc, stickY_perc);
     double rotationalMagnitude_perc = throttle_perc * stickRotate_perc;
-    translationMagnitude_perc = m_rampRate.calculate(translationMagnitude_perc);
 
-    /* ---------------- Clamping ---------------- */
+    translationMagnitude_perc = m_rampRate.calculate(translationMagnitude_perc);
     translationMagnitude_perc = Math.max(-1.0, Math.min(1.0, translationMagnitude_perc));
     rotationalMagnitude_perc = Math.max(-1.0, Math.min(1.0, rotationalMagnitude_perc));
 
-    /* ---------------- Lockdown Logic ---------------- */
-    if (translationMagnitude_perc != 0 || rotationalMagnitude_perc != 0) { 
-      // Exit lockdown if driver commands movement
+   if (translationMagnitude_perc != 0 || rotationalMagnitude_perc != 0) {
       m_lockdown = false;
     }
 
     if (m_lockdown) {
-      m_drive.lockWheels(); 
+      m_drive.lockWheels();
       return;
     }
 
-    /* ---------------- Override Rotation --------------- */
     if (rotationalMagnitude_perc == 0 && m_altCommandedRotation_perc.isPresent()) {
       rotationalMagnitude_perc = m_altCommandedRotation_perc.get();
     }
 
-    /* ---------------- Drive ---------------- */
-
-    double yDist = m_isRotateCenter
-        ? m_selectedBot.getDistToFront()
-        : 0.0;
+   double yDist = m_isRotateCenter ? m_selectedBot.getDistToFront() : 0.0;
 
     m_drive.driveWithGyro(
         translationAngle_deg,
@@ -124,33 +111,35 @@ public class StickCommand extends Command {
         0.0,
         yDist);
 
-    m_lastRightDirectional = translationAngle_deg;
+    if (translationMagnitude_perc > 0.05) {
+      m_lastRightDirectional = translationAngle_deg;
+    }
+  }
+
+  private double applyDeadband(double value, double deadband) {
+    return Math.abs(value) < deadband ? 0.0 : value;
   }
 
   private double calcThrottle_perc(double stickThrottle_perc) {
-    // Convert throttle from [-1,1] to [0,1] with a floor
-    double throttle_perc = ((stickThrottle_perc + 1) / 2.0) + 0.1;
+    double throttle = ((stickThrottle_perc + 1) / 2.0) + 0.1;
 
-    // Slow the bot down if we are aiming at something
     if (m_altCommandedRotation_perc.isPresent()) {
-      throttle_perc = throttle_perc / 2.0;
+      throttle *= 0.5;
     }
 
-    return throttle_perc;
+    return Math.min(throttle, 1.0); // clamp
   }
 
-    // The formula for ellipical input normalization comes from here:
-    // https://raw.org/article/how-to-map-a-square-to-a-circle/
   private double calcTranslationMagnitude_perc(double stickX_perc, double stickY_perc) {
-    double xPrime_perc = stickX_perc * Math.sqrt(1 - (Math.pow(stickY_perc, 2) / 2));
-    double yPrime_perc = stickY_perc * Math.sqrt(1 - (Math.pow(stickX_perc, 2) / 2));
+    double xPrime = stickX_perc * Math.sqrt(1 - (Math.pow(stickY_perc, 2) / 2));
+    double yPrime = stickY_perc * Math.sqrt(1 - (Math.pow(stickX_perc, 2) / 2));
 
-    return Math.sqrt( Math.pow(xPrime_perc, 2) + Math.pow(yPrime_perc, 2) );
+    return Math.sqrt(xPrime * xPrime + yPrime * yPrime);
   }
 
-  private double calcTranslationAngle_deg(double stickX_perc, double stickY_perc){
-    double translationAngle_deg = Math.toDegrees(Math.atan2(stickX_perc, stickY_perc));
-    return (translationAngle_deg + 360.0) % 360.0;
+  private double calcTranslationAngle_deg(double stickX_perc, double stickY_perc) {
+    double angle = Math.toDegrees(Math.atan2(stickX_perc, stickY_perc));
+    return (angle + 360.0) % 360.0;
   }
 
   public void setFrontDrive(boolean isTrue) {
@@ -161,7 +150,7 @@ public class StickCommand extends Command {
     m_altCommandedRotation_perc = altRotation_perc;
   }
 
-  public void lockWheels(){
+  public void lockWheels() {
     m_lockdown = true;
   }
 

@@ -57,27 +57,28 @@ public class MovingRotateToTag extends Command {
   @Override
   public void execute() {
 
-    IDetection currentDetection =
-        m_visionServer.getDetectionList().getDetectionById(m_closestTagId);
+    IDetection currentDetection = m_visionServer.getDetectionList().getDetectionById(m_closestTagId);
 
-    if (!currentDetection.isValid()) {
+    if (currentDetection == null || !currentDetection.isValid()) {
       m_stickCommand.setAlternateRotation(Optional.empty());
       return;
     }
 
     double bearing_deg = currentDetection.getBearing();
-    double pidOutput = -m_pidController.calculate(currentDetection.getBearing());
+    double pidOutput = -m_pidController.calculate(bearing_deg);
 
-    if (m_pidController.atSetpoint()) {
-      pidOutput = 0;
+    // Deadband to prevent jitter
+    if (Math.abs(bearing_deg) < 1.0) {
+      pidOutput = 0.0;
     }
 
+    // Clamp output
     pidOutput = Math.max(-1.0, Math.min(1.0, pidOutput));
 
     m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
 
     SmartDashboard.putNumber("Tag Bearing", bearing_deg);
-    SmartDashboard.putNumber("PIDOutput", pidOutput);
+    SmartDashboard.putNumber("PID Output", pidOutput);
   }
 
   @Override

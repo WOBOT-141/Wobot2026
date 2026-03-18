@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
 
@@ -175,6 +177,62 @@ public class Drivetrain extends SubsystemBase {
     return RotationAngle_deg;
   }
 
+public Command rotateByAngleCommand(double rotationAmount_deg, IGyro gyro, boolean speedFactor) {
+
+  final double[] desiredAngle_deg = new double[1];
+  final double[] gyroyaw = new double[1];
+
+  return Commands.runEnd(
+
+      // execute
+      () -> {
+
+        gyroyaw[0] = gyro.getYaw();
+
+        double missingAngle_deg = gyroyaw[0] - desiredAngle_deg[0];
+
+        double remainingRotation_perc;
+        if (Math.abs(rotationAmount_deg) < 0.001) {
+          remainingRotation_perc = 0;
+        } else {
+          remainingRotation_perc = Math.abs(missingAngle_deg / rotationAmount_deg);
+        }
+
+        double rotationSpeed = 0.05;
+        double finalRotationSpeed = 0.05;
+
+        if (remainingRotation_perc < 0.25) {
+          rotationSpeed = remainingRotation_perc * 10 - 0.15;
+        } else if (remainingRotation_perc <= 0.6) {
+          rotationSpeed = 0.5;
+        } else if (remainingRotation_perc <= 0.95) {
+          rotationSpeed = remainingRotation_perc * (-1.25) + 1.25;
+        }
+
+        if (speedFactor) {
+          finalRotationSpeed = rotationSpeed * (rotationAmount_deg * 0.00555556);
+        } else {
+          finalRotationSpeed = rotationSpeed;
+        }
+
+        if (remainingRotation_perc < 0.05) {
+          finalRotationSpeed = 0.05;
+          if (rotationAmount_deg <= -1) {
+            finalRotationSpeed *= -1;
+          }
+        }
+
+        driveWithoutGyro(0, 0, finalRotationSpeed);
+      },
+      () -> driveWithoutGyro(0, 0, 0),
+
+      this
+  )
+
+  .beforeStarting(() -> desiredAngle_deg[0] = gyro.getYaw() + rotationAmount_deg)
+  .until(() -> Math.abs(desiredAngle_deg[0] - gyroyaw[0]) <= 5);
+}
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -194,26 +252,26 @@ public class Drivetrain extends SubsystemBase {
     return _wheels;
   }
 
-  public void sysIdQuasistaticForward(){
-    for (int i = 0; i < _wheels.length; i++){
+  public void sysIdQuasistaticForward() {
+    for (int i = 0; i < _wheels.length; i++) {
       _wheels[i].sysIdQuasistaticForward();
     }
   }
 
-  public void sysIdQuasistaticReverse(){
-    for (int i = 0; i < _wheels.length; i++){
+  public void sysIdQuasistaticReverse() {
+    for (int i = 0; i < _wheels.length; i++) {
       _wheels[i].sysIdQuasistaticReverse();
     }
   }
 
-  public void sysIdDynamicForward(){
-    for (int i = 0; i < _wheels.length; i++){
+  public void sysIdDynamicForward() {
+    for (int i = 0; i < _wheels.length; i++) {
       _wheels[i].sysIdDynamicForward();
     }
   }
 
-  public void sysIdDynamicReverse(){
-    for (int i = 0; i < _wheels.length; i++){
+  public void sysIdDynamicReverse() {
+    for (int i = 0; i < _wheels.length; i++) {
       _wheels[i].sysIdDynamicReverse();
     }
   }

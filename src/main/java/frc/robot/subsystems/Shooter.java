@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import frc.robot.subsystems.MagazineAndFeed;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -11,8 +13,10 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.ClosedLoopSlot;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.Constants.ShooterConstants;
@@ -233,7 +237,7 @@ public class Shooter extends SubsystemBase {
       if (m_readyStartTime < 0) {
         m_readyStartTime = Timer.getFPGATimestamp();
       }
-      
+
       double timeReady = Timer.getFPGATimestamp() - m_readyStartTime;
       return timeReady > 0.1; // ✅ 100 ms stable
 
@@ -281,6 +285,56 @@ public class Shooter extends SubsystemBase {
   public void stopHood() {
     m_hoodMotor.stopMotor();
   }
+
+  public Command autonShootCommand(MagazineAndFeed magazine, double speed, double angle) {
+
+    return Commands.sequence(runShooterCommand(speed, angle)
+        .until(() -> isReadyToShoot()),
+
+        Commands.deadline(Commands.waitSeconds(5),
+            runShooterCommand(speed, angle),
+            Commands.startEnd(
+                () -> magazine.setFeedVelocity(0.8),
+                () -> magazine.cancel(),
+                magazine)),
+
+        Commands.runOnce(() -> {
+          cancel();
+          magazine.cancel();
+        }));
+  }
+
+  public Command homeHoodCommand() {
+    return this.startEnd(() -> {
+          setHoodAtHome(false);
+          homeHood();
+        },
+        () -> stopHood()).until(() -> isHoodAtHome());
+  }
+
+  public Command runShooterCommand(double speed, double angle) {
+    return this.startEnd(() -> {
+      setHoodAngle(angle);
+      setShooterVelocity(speed);
+    },
+        () -> {
+          cancel();
+        });
+  }
+
+  public Command setShooterPIDFromDashboardCommand() {
+  return this.runOnce(() -> {
+
+    double hoodP = SmartDashboard.getNumber("Hood0 P", 0);
+    double hoodI = SmartDashboard.getNumber("Hood0 I", 0);
+    double hoodD = SmartDashboard.getNumber("Hood0 D", 0);
+
+    System.out.printf("SetPidShooter start Hood0P: %f, Hood0I: %f, Hood0D: %f\n", hoodP, hoodI, hoodD);
+
+    setPIDValues(hoodP, hoodI, hoodD);
+
+  });
+}
 
   @Override
   public void periodic() {

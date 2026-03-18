@@ -14,13 +14,18 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
+
 import frc.robot.Constants.CANIdConstants;
+import frc.robot.Constants.FeederConstants;
 import frc.robot.Constants.IntakeConstants;
-import pabeles.concurrency.IntRangeTask;
+
+import java.util.function.DoubleSupplier;
 
 public class Intake extends SubsystemBase {
 
@@ -258,6 +263,79 @@ public class Intake extends SubsystemBase {
     }
 
     return commandedSpeed_perc;
+  }
+
+  public Command axisIntakeRunCommand(DoubleSupplier axisSupplier) {
+
+    return this.runEnd(() -> {
+      double axisRead = axisSupplier.getAsDouble();
+
+      // Clamp
+      axisRead = Math.max(0.0, Math.min(1.0, axisRead));
+
+      SmartDashboard.putNumber("Intake Axis", axisRead);
+
+      if (axisRead < IntakeConstants.intakeDeadband_perc) {
+        intakeRollerStop();
+      } else if (axisRead < IntakeConstants.intakeFastThreshold_perc) {
+        intakeRun(IntakeConstants.intakeSlowSpeed_perc);
+      } else {
+        intakeRun(IntakeConstants.intakeFastSpeed_perc);
+      }
+    },
+        () -> intakeRollerStop());
+  }
+
+  public Command doubleButtonIntakeRunCommand(DoubleSupplier axisSupplier) {
+
+    return this.runEnd(() -> {
+      double axis = axisSupplier.getAsDouble();
+      axis = Math.max(0.0, Math.min(1.0, axis));
+
+      double speed = axis >= 0.5 ? IntakeConstants.intakeFastSpeed_perc : IntakeConstants.intakeSlowSpeed_perc;
+      intakeRun(speed);
+    },
+        () -> intakeRollerStop());
+  }
+
+  public Command intakeExtendCommand() {
+    return this.run(() -> extendIntake()).until(() -> isAtExtendedPosition()).finallyDo(() -> stopArm());
+  }
+
+  public Command intakeRetractCommand() {
+    return this.run(() -> retractIntake()).until(() -> isAtRetractedPosition()).finallyDo(() -> stopArm());
+  }
+
+  public Command intakeSetCommand(double speed) {
+    return this.runOnce(() -> intakeRun(speed));
+  }
+
+  public Command intakeFuelCommand(double speed) {
+
+    return Commands.sequence(Commands.runOnce(() -> intakeRun(speed), this),
+        Commands.waitSeconds(FeederConstants.feedStartDelay_sec), this.runEnd(
+            () -> intakeRun(speed),
+            () -> intakeRollerStop()));
+  }
+
+  public Command homeIntakeCommand() {
+
+    return this.runEnd(
+        () -> {
+          // TODO: implement homing logic
+          // Example:
+          // retractIntake();
+        }, () -> stopArm())
+        .until(() -> {
+          // TODO: replace with real homing condition
+          // Example:
+          // return isHomed();
+          return false;
+        });
+  }
+
+  public Command runRollerCommand(DoubleSupplier speedSupplier) {
+    return this.runEnd(() -> intakeRun(speedSupplier.getAsDouble()), () -> intakeRollerStop());
   }
 
   @Override
