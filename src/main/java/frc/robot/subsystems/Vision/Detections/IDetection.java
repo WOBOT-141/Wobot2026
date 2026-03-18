@@ -7,7 +7,7 @@ package frc.robot.subsystems.Vision.Detections;
 public interface IDetection {
     public ObjectType getTag();
     public double getDistance();
-    public double getAngle();
+    public double getBearing();
     public int    getId();
     public double getYaw();
     public double getPitch();
