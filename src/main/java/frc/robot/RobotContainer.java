@@ -3,7 +3,6 @@ package frc.robot;
 import static java.util.Map.entry;
 
 import java.util.Map;
-import java.util.Set;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,7 +32,6 @@ import frc.robot.Util.BumpShooterVector;
 
 import frc.robot.commands.ICommandFactory;
 import frc.robot.commands.MovingRotateToTag;
-import frc.robot.commands.StopRobot;
 
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
@@ -185,45 +183,22 @@ public class RobotContainer {
   private void configureXboxController() {
 
     m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
-
     m_xboxController0.leftTrigger()
         .whileTrue(new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis()));
-
     m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
-
     m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp()));
     m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleDown()));
     m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp()));
     m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown()));
-
-    m_xboxController0.a().whileTrue(
-        new FireShooter(280, 72, m_shooter, m_drive, m_magazine));
-
-    m_xboxController0.x().whileTrue(
-        new FireShooter(377, 65, m_shooter, m_drive, m_magazine));
-
-    m_xboxController0.y().whileTrue(
-        new FireShooter(335, 65, m_shooter, m_drive, m_magazine));
-
-    m_xboxController0.b().whileTrue(
-        new FireShooter(
-            1000,
-            ShooterConstants.hoodLowerLimit_deg,
-            m_shooter,
-            m_drive,
-            m_magazine));
-
-    m_xboxController0.back().whileTrue(Commands.startEnd(
-        () -> m_intake.intakeRun(0.8),
-        () -> m_intake.intakeRollerStop(),
-        m_intake));
-
-    m_xboxController0.start().whileTrue(
-        Commands.startEnd(
-            () -> m_magazine.setFeedVelocity(-0.3),
-            () -> m_magazine.cancel(),
-            m_magazine));
-
+    m_xboxController0.a().whileTrue(new FireShooter(280, 72, m_shooter, m_drive, m_magazine));
+    m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));
+    m_xboxController0.y().whileTrue(new FireShooter(335, 65, m_shooter, m_drive, m_magazine));
+    m_xboxController0.b()
+        .whileTrue(new FireShooter(1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));
+    m_xboxController0.back()
+        .whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));
+    m_xboxController0.start()
+        .whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));
     m_xboxController0.leftStick().onTrue(Commands.run(() -> BumpShooterVector.reset()));
   }
 
@@ -236,10 +211,8 @@ public class RobotContainer {
 
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kReset.value))
         .onTrue(new ResetGyro(m_gyro));
-
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.run(() -> m_stickCommand.lockWheels()));
-
     new Trigger(() -> m_flightController0.getIButton())
         .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
   }
