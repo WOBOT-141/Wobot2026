@@ -17,19 +17,19 @@ import frc.robot.subsystems.Shooter;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class RunMagazineAndFeed extends ParallelCommandGroup {
+public class MagazineAndLock extends ParallelCommandGroup {
   Drivetrain m_drivetrain;
   MagazineAndFeed m_magazineAndFeed;
   Command lockWheels;
   Command feed;
    
   /** Creates a new FireIntake. */
-  public RunMagazineAndFeed(Drivetrain drivetrain, MagazineAndFeed magazineAndFeed) {
+  public MagazineAndLock(Drivetrain drivetrain, MagazineAndFeed magazineAndFeed) {
     m_drivetrain = drivetrain;
     m_magazineAndFeed = magazineAndFeed;
     lockWheels = Commands.runOnce(() -> m_drivetrain.lockWheels());
     feed = new Feed(m_magazineAndFeed);
-    WaitCommand wait = new WaitCommand(ShooterConstants.firingWaitTime_sec);
+    
         //revShooter = new  ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter);
         // Add your commands in the addCommands() call, e.g.
 

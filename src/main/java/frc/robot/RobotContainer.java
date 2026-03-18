@@ -40,7 +40,7 @@ import frc.robot.commands.IntakeCommands.IntakeExtend;
 import frc.robot.commands.IntakeCommands.IntakeRetract;
 import frc.robot.commands.ShooterCommands.FireShooter;
 import frc.robot.commands.ShooterCommands.RevShooter;
-import frc.robot.commands.ShooterCommands.RunMagazineAndFeed;
+import frc.robot.commands.ShooterCommands.MagazineAndLock;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
@@ -217,11 +217,9 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    m_xboxController0.leftTrigger().whileTrue(new AxisIntakeRunCommand(m_intake, () -> m_xboxController0.getLeftTriggerAxis()));
     m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
-    // m_xboxController0.leftTrigger().whileTrue(new AxisIntakeRunCommand(m_intake, () -> m_xboxController0.getLeftTriggerAxis()));
     m_xboxController0.leftTrigger().whileTrue(new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis()));
-    m_xboxController0.rightBumper().whileTrue(new RunMagazineAndFeed(m_drive, m_magazine));// locks wheels and runs feed/mag 
+    m_xboxController0.rightBumper().whileTrue(new MagazineAndLock(m_drive, m_magazine));// locks wheels and runs feed/mag 
     //m_xboxController0.rightBumper().whileTrue(Commands.run(() -> m_magazine.setFeedVelocity(-0.3)).alongWith(Commands.run(() -> m_drive.lockWheels()))); //just runs feed/mag
 
     // m_xboxController0.rightBumper().onTrue(new IntakeRetract(m_intake)); // works 50/50 - zane   
