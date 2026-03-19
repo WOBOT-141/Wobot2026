@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Vision.Detections.DetectionList;
 import frc.robot.subsystems.Vision.Detections.IDetection;
+import frc.robot.subsystems.Vision.Detections.NullDetection;
 import frc.robot.subsystems.Vision.Detections.ObjectType;
 
 public class VisionServer extends SubsystemBase {
@@ -56,6 +57,8 @@ public class VisionServer extends SubsystemBase {
   public void updateDetectionLists() {
     for (int cameraIndex = 0; cameraIndex < m_number_of_cameras; ++cameraIndex) {
 
+      if (DEBUG_LOG) System.out.println("Cam" + cameraIndex + "-----");
+
       // Clear out old data since we might not be seeing the same things anymore
       m_detections_Apriltag[cameraIndex].clear();
 
@@ -86,7 +89,8 @@ public class VisionServer extends SubsystemBase {
             double roll = m_buffer_from_table.getDouble();
             double cameraNum = m_buffer_from_table.getDouble();
 
-            m_detections_Apriltag[cameraIndex].addDetection(
+            if (tag_id != 0) {
+              m_detections_Apriltag[cameraIndex].addDetection(
               ObjectType.APRILTAG,
               distance,
               angle,
@@ -96,6 +100,10 @@ public class VisionServer extends SubsystemBase {
               roll,
               cameraNum
             );
+            }
+            else System.out.println("Tag id 0");
+
+            if (DEBUG_LOG) System.out.println("Detection: " + m_detections_Apriltag[cameraIndex].getDetectionById(tag_id).toString());
 
           };
         } catch (BufferUnderflowException exception) {
@@ -105,77 +113,28 @@ public class VisionServer extends SubsystemBase {
         }
 
       } else {
-        if (DEBUG_LOG) System.out.println("No dice! "+cameraIndex +" " + aprilTagEntries[cameraIndex].getName());
+        if (DEBUG_LOG) System.out.println("No dice! " + aprilTagEntries[cameraIndex].getName());
       }
     }
   }
 
-  public DetectionList getApriltagDetectionList(int ACameraSelect) {
-    return m_detections_Apriltag[ACameraSelect];
-  }
-
-  public DetectionList getDetectionList() {
-    DetectionList _detectlist = null; // TODO? maybe shouldn't be null?
-    if (aprilTagEntry.exists()) {
-      m_buffer_from_table.clear();
-      m_buffer_from_table.put(aprilTagEntry.getRaw(null));
-      m_buffer_from_table.flip();
-
-      int number_of_tags = m_buffer_from_table.getInt();
-      int number_of_fields = m_buffer_from_table.getInt();
-      if (DEBUG_LOG)
-        System.out.println("num tags " + number_of_tags + " num fields " + number_of_fields);
-
-      _detectlist = new DetectionList(ObjectType.APRILTAG, number_of_tags);
-
-      for (int i = 0; i < number_of_tags; i++) {
-        double distance = m_buffer_from_table.getDouble();
-        double angle = m_buffer_from_table.getDouble();
-        int id = (int) m_buffer_from_table.getDouble();
-        double yaw = m_buffer_from_table.getDouble();
-        double pitch = m_buffer_from_table.getDouble();
-        double roll = m_buffer_from_table.getDouble();
-        double cameraNum = m_buffer_from_table.getDouble();
-        
-        _detectlist.addDetection(
-            ObjectType.APRILTAG,
-            distance,
-            angle,
-            id,
-            yaw,
-            pitch,
-            roll,
-            cameraNum);
-      }
-
-      for (int i = 0; i < _detectlist.getSize(); i++) {
-        if (DEBUG_LOG)
-          System.out.println(_detectlist.getDetection(i).toString());
-      }
-
-    } else {
-      if (DEBUG_LOG)
-        System.out.println("No dice!");
-    }
-    return _detectlist;
+  public DetectionList[] getApriltagDetectionLists() {
+    return m_detections_Apriltag;
   }
 
   public IDetection getClosestDetection() {
-    DetectionList detectionList = getDetectionList();
-    IDetection closestDetection = detectionList.getDetection(0);
-    for (int i = 0; i < detectionList.getSize(); i++){
-      IDetection currentDetection = detectionList.getDetection(i);
-      if (currentDetection.getDistance() < closestDetection.getDistance())
-      {
+    IDetection closestDetection = NullDetection.Instance;
+    for (DetectionList detection_list : m_detections_Apriltag) {
+      for (int i = 0; i < detection_list.getSize(); i++){
+        IDetection currentDetection = detection_list.getDetection(i);
+        if (currentDetection.getDistance() < closestDetection.getDistance())
+        {
           closestDetection = currentDetection;
+        }
       }
     }
-    return closestDetection;
-  }
-  
 
-  public double angleYaw() {
-    return m_nt_table.getEntry("yaw").getDouble(0);
+    return closestDetection;
   }
 
   @Override

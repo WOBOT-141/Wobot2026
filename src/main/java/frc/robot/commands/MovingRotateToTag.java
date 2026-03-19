@@ -51,7 +51,7 @@ public class MovingRotateToTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    IDetection currentDetection = m_visionServer.getDetectionList().getDetectionById(m_closestTagId);
+    IDetection currentDetection = m_visionServer.getApriltagDetectionLists()[0].getDetectionById(m_closestTagId);
     if (!currentDetection.isValid())
       return;
 

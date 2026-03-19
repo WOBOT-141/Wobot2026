@@ -40,7 +40,7 @@ public final class Constants {
   }
 
   public static class VisionServerConstants {
-    public static final int NumberOfCameras = 1;
+    public static final int NumberOfCameras = 2;
   }
 
 
