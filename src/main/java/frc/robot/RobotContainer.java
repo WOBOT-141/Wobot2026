@@ -26,6 +26,7 @@ import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.VisionServerConstants;
 import frc.robot.Util.BumpShooterVector;
 import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.StopRobot;
@@ -68,9 +69,8 @@ public class RobotContainer {
   private final CommandJoystick m_joystick = new CommandJoystick(2);
   private final StickCommand m_stickCommand;
 
-  private final VisionServer m_visionServer = new VisionServer();
-  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags,
-      () -> DriverStation.getAlliance());
+  private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
+  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
   private final IBotSelector m_selectedBot = new MainBot();
   //private final IBotSelector m_selectedBot = new SummerBot();
