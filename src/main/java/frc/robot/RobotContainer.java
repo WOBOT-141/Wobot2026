@@ -49,10 +49,10 @@ public class RobotContainer {
   private final SwerveModule[] m_wheels;
   private final Drivetrain m_drive;
   private final IGyro m_gyro = new NavxGyro();
-  private final Shooter m_shooter = new Shooter();
-  private final Intake m_intake = new Intake();
-  private final MagazineAndFeed m_magazine = new MagazineAndFeed();
-  private final Climber m_climbe = new Climber();
+  // private final Shooter m_shooter = new Shooter();
+  // private final Intake m_intake = new Intake();
+  // private final MagazineAndFeed m_magazine = new MagazineAndFeed();
+  // private final Climber m_climbe = new Climber();
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
@@ -63,8 +63,8 @@ public class RobotContainer {
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags,
       () -> DriverStation.getAlliance());
 
-  private final IBotSelector m_selectedBot = new MainBot();
-  //private final IBotSelector m_selectedBot = new SummerBot();
+  // private final IBotSelector m_selectedBot = new MainBot();
+  private final IBotSelector m_selectedBot = new SummerBot();
 
   private ChooserHandeling m_autonSelector;
 
@@ -131,25 +131,25 @@ public class RobotContainer {
 
     configureBindings();
 
-    m_autonSelector = new ChooserHandeling("Autonomous Selector",
-        Map.ofEntries(
-            entry("00 Do Nothing", () -> new DoNothing()),
-            entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine, m_gyro)),
-            entry("02 Depotlease", () -> new Depotlease(m_drive, m_wheels, m_gyro, m_intake, m_shooter, m_magazine)),
-            entry("03 RIGHT Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-            entry("04 LEFT Midway Gather", () -> new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-            entry("05 Right HALF Midway Gather", () -> new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-            entry("05 Left HALF Midway Gather", () -> new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake))
-            //Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake
-             // fix
-        ));
-    autoChooser.addOption("00 Do Nothing", new DoNothing());
-    autoChooser.addDefaultOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
-    autoChooser.addOption("02 Depotlease", new Depotlease(m_drive, m_wheels, m_gyro, m_intake, m_shooter, m_magazine));
-    autoChooser.addOption("03 RIGHT Midway Gather", new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));    
-    autoChooser.addOption("04 LEFT Midway Gather", new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
-    autoChooser.addOption("05 Right HALF Midway Gather", new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
-    autoChooser.addOption("05 Left HALF Midway Gather", new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+    // m_autonSelector = new ChooserHandeling("Autonomous Selector",
+    //     Map.ofEntries(
+    //         entry("00 Do Nothing", () -> new DoNothing()),
+    //         entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine, m_gyro)),
+    //         entry("02 Depotlease", () -> new Depotlease(m_drive, m_wheels, m_gyro, m_intake, m_shooter, m_magazine)),
+    //         entry("03 RIGHT Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
+    //         entry("04 LEFT Midway Gather", () -> new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
+    //         entry("05 Right HALF Midway Gather", () -> new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
+    //         entry("05 Left HALF Midway Gather", () -> new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake))
+    //         //Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake
+    //          // fix
+    //     ));
+    // autoChooser.addOption("00 Do Nothing", new DoNothing());
+    // autoChooser.addDefaultOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
+    // autoChooser.addOption("02 Depotlease", new Depotlease(m_drive, m_wheels, m_gyro, m_intake, m_shooter, m_magazine));
+    // autoChooser.addOption("03 RIGHT Midway Gather", new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));    
+    // autoChooser.addOption("04 LEFT Midway Gather", new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+    // autoChooser.addOption("05 Right HALF Midway Gather", new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+    // autoChooser.addOption("05 Left HALF Midway Gather", new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
   }
 
   /**
@@ -209,33 +209,33 @@ public class RobotContainer {
 
   private void configureXboxController() {
   
-    m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
-    // m_xboxController0.leftTrigger().whileTrue(new AxisIntakeRunCommand(m_intake, () -> m_xboxController0.getLeftTriggerAxis()));
-    m_xboxController0.leftTrigger().whileTrue(new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis()));
-    // m_xboxController0.rightBumper().onTrue(new IntakeRetract(m_intake)); // works 50/50 - zane   
-    m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
+  //   m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
+  //   // m_xboxController0.leftTrigger().whileTrue(new AxisIntakeRunCommand(m_intake, () -> m_xboxController0.getLeftTriggerAxis()));
+  //   m_xboxController0.leftTrigger().whileTrue(new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis()));
+  //   // m_xboxController0.rightBumper().onTrue(new IntakeRetract(m_intake)); // works 50/50 - zane   
+  //   m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
 
-    m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
-    m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleDown())); // Angle down
-    m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp())); //speed up
-    m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown())); //speed down
+  //   m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
+  //   m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleDown())); // Angle down
+  //   m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp())); //speed up
+  //   m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown())); //speed down
 
-    m_xboxController0.a().whileTrue(new FireShooter( 280, 72, m_shooter, m_drive, m_magazine));//rev hub
-    m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));//rev bump
-    m_xboxController0.y().whileTrue(new FireShooter( 335, 65, m_shooter, m_drive, m_magazine));//rev tower
-    m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral
+  //   m_xboxController0.a().whileTrue(new FireShooter( 280, 72, m_shooter, m_drive, m_magazine));//rev hub
+  //   m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));//rev bump
+  //   m_xboxController0.y().whileTrue(new FireShooter( 335, 65, m_shooter, m_drive, m_magazine));//rev tower
+  //   m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral
 
-   /*  m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));//rev trench (this should be bump middway like autonomous) 
-    m_xboxController0.y().whileTrue(new FireShooter( 260, 72, m_shooter, m_drive, m_magazine));//rev hub
-    m_xboxController0.a().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral
-    m_xboxController0.b().whileTrue(new FireShooter( 335, 65, m_shooter, m_drive, m_magazine));//rev tower */
+  //  /*  m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));//rev trench (this should be bump middway like autonomous) 
+  //   m_xboxController0.y().whileTrue(new FireShooter( 260, 72, m_shooter, m_drive, m_magazine));//rev hub
+  //   m_xboxController0.a().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral
+  //   m_xboxController0.b().whileTrue(new FireShooter( 335, 65, m_shooter, m_drive, m_magazine));//rev tower */
 
-    m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));//TODO: test
-    m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));//TODO: 
+  //   m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));//TODO: test
+  //   m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));//TODO: 
     
-    //m_xboxController0.mode().whileTrue(commands.startEnd(() -> m_shooter.unjam(), () -> m_shooter.cancel(), m_shooter)); mode dosent exsist 
-    m_xboxController0.leftStick().onTrue(Commands.run(() -> BumpShooterVector.reset())); // reset angle/speed
-    m_xboxController0.rightStick().onTrue(new StopRobot(m_intake, m_magazine, m_climbe, m_drive, m_shooter));
+  //   //m_xboxController0.mode().whileTrue(commands.startEnd(() -> m_shooter.unjam(), () -> m_shooter.cancel(), m_shooter)); mode dosent exsist 
+  //   m_xboxController0.leftStick().onTrue(Commands.run(() -> BumpShooterVector.reset())); // reset angle/speed
+  //   m_xboxController0.rightStick().onTrue(new StopRobot(m_intake, m_magazine, m_climbe, m_drive, m_shooter));
   }
 
   private void configureJoystick() {

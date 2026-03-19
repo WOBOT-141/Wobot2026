@@ -3,7 +3,7 @@ package frc.robot.Util;
 import frc.robot.Constants;
 
 public class ShooterCalculations {
-    public double getLaunchAngle(double targetDistance_in){
+    public static double getLaunchAngle(double targetDistance_in){
         return getLaunchAngle(targetDistance_in, Constants.ShooterConstants.muzzleToRimHeight_in, Constants.ShooterConstants.hubRimToCenter_in, targetDistance_in );
     }
 

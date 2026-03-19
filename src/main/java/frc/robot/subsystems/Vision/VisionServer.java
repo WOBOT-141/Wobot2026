@@ -52,7 +52,7 @@ public class VisionServer extends SubsystemBase {
                     Filesystem.getDeployDirectory().toPath().resolve("2026-official.json")
             );
         } catch (IOException e) {
-            e.printStackTrace();
+
         }
 
         SmartDashboard.setDefaultBoolean("SimVision/HasTarget", true);
@@ -114,6 +114,9 @@ public class VisionServer extends SubsystemBase {
 
     public IDetection getClosestDetection() {
         DetectionList detectionList = getDetectionList();
+        if(detectionList == null){
+            return null;
+        }
         IDetection closestDetection = detectionList.getDetection(0);
         for (int i = 0; i < detectionList.getSize(); i++) {
             IDetection currentDetection = detectionList.getDetection(i);
@@ -141,24 +144,42 @@ public class VisionServer extends SubsystemBase {
             return null;
         }
 
-        Pose3d p = pose.get();
-        Logger.recordOutput("VisionPose", new Pose2d(
-                p.getX(),
-                p.getY(),
-                p.getRotation().toRotation2d()
-        ));
-        return new Pose2d(
-                p.getX(),
-                p.getY(),
-                p.getRotation().toRotation2d()
-        );
+        Pose3d p3 = pose.get();
+        Pose2d p2 = p3.toPose2d();
+        Logger.recordOutput("VisionPose", p2);
+        return p2;
     }
 
     public Pose2d getEstimatedRobotPose() {
-        // IDetection detection = getClosestDetection();     TODO add this back in
-        // if (detection == null) {
-        //     return null;
-        // }
+        IDetection detection = getClosestDetection();
+        if (detection == null) {
+            return null;
+        }
+
+        Optional<Pose3d> tagPoseOptional = m_aprilTagFieldLayout.getTagPose(getClosestDetection().getId()); //Get the current tag from the apriltagFieldLayout
+        if (tagPoseOptional.isEmpty()) {
+            return null; // null detection should probably change 
+        }
+
+        Pose2d tagPose = tagPoseOptional.get().toPose2d(); // getTagPose returns a pose3d, this turns it into a pose3d. for using odom in shooting we need that 3d axis
+
+        double distanceMeters = Units.inchesToMeters(detection.getDistance());//change our inches to meters as the pose excpets meters 
+        double bearingRadians = Units.degreesToRadians(-detection.getAngle());//same here but for degrees
+
+        double tagYawRadians = Units.degreesToRadians(detection.getDistance());//same again 
+
+        Rotation2d relativeRotation = new Rotation2d(Math.PI + tagYawRadians);// our system of getting the angle from the gyro is different from the WPI coordinate system. this flips the angle to match
+
+        Transform2d cameraToTag = new Transform2d(
+                distanceMeters * Math.cos(bearingRadians), // X offset (Forward)
+                distanceMeters * Math.sin(bearingRadians), // Y offset (Sideways)
+                relativeRotation // The combined rotation
+        );
+
+        return tagPose.transformBy(cameraToTag.inverse());
+    }
+
+    public Pose2d getSimulatedRobotPose() {
         int tagToFind = (int) SmartDashboard.getNumber("SimVision/TagID", 3); //This is what powers the Testing UI 
         double distFromTag = SmartDashboard.getNumber("SimVision/Distance_in", 72.0);
         double angleFromTag = SmartDashboard.getNumber("SimVision/Angle_deg", 30.0);
@@ -184,7 +205,6 @@ public class VisionServer extends SubsystemBase {
                 relativeRotation // The combined rotation
         );
 
-        // 5. Calculate the Robot Pose
         return tagPose.transformBy(cameraToTag.inverse());
     }
 
@@ -204,4 +224,6 @@ public class VisionServer extends SubsystemBase {
     public void periodic() {
         getDetectionList();
     }
+
+ 
 }

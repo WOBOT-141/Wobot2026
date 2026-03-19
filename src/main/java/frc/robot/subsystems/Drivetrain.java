@@ -25,11 +25,6 @@ import frc.robot.subsystems.Vision.VisionServer;
 
 public class Drivetrain extends SubsystemBase {
 
-    public static final double driveBaseRadius = Math.hypot(.232 / 2.0, .3556 / 2.0);
-    public static final double driveMotorReduction = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
-    public static final double maxSpeedMetersPerSec = 5676.0 / 60.0 / driveMotorReduction * 2.0 * Math.PI
-            * Units.inchesToMeters(4) * 0.95;
-
     private final SwerveModule[] _wheels;
     private final IGyro m_gyro;
     private final VisionServer m_visionServer;
@@ -236,9 +231,18 @@ public class Drivetrain extends SubsystemBase {
 
     @Override
     public void periodic() {
+        rawGyroRotation = m_gyro.getRotationAs2d();
         poseEstimator.update(rawGyroRotation, getModulePositions());//Update the odometry without vision first
 
-        if (Constants.currentMode == Mode.REAL || Constants.currentMode == Mode.SIM) {//this is something the code i was looking at had 
+        if (Constants.currentMode == Mode.SIM) {//this is something the code i was looking at had 
+            Pose2d visionRobotPose = m_visionServer.getSimulatedRobotPose();//get the estimatedpose from vision
+
+            if (visionRobotPose != null) {
+                Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);//output our estimated position so we can see the deviation from our actual to the vision estimate
+
+                poseEstimator.addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp());//this is so we dont try to update based on old data 
+            }
+        } else if (Constants.currentMode == Mode.REAL) {
             Pose2d visionRobotPose = m_visionServer.getEstimatedRobotPose();//get the estimatedpose from vision
 
             if (visionRobotPose != null) {
@@ -253,6 +257,13 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("Pose/X", lastPose.getX());//List  our X,Y, and current rotation from our pose 
         Logger.recordOutput("Pose/Y", lastPose.getY());
         Logger.recordOutput("Pose/Rotation", lastPose.getRotation().getDegrees());
+
+        Logger.recordOutput("rightface", Constants.Hub.getRightFace());
+        Logger.recordOutput("leftface", Constants.Hub.getLeftFace());
+        Logger.recordOutput("frontface", Constants.Hub.getNearFace());
+        Logger.recordOutput("backface", Constants.Hub.getFarFace());
+
+
     }
 
     public Translation2d[] getWheelPositions() {
@@ -308,9 +319,6 @@ public class Drivetrain extends SubsystemBase {
         return getPose().getRotation();
     }
 
-    public Pose2d getRobotRelativeToTag() {
-        return getPose().relativeTo(m_visionServer.getTagPose());
-    }
 
     public void resetWheelPositions() {
         for (SwerveModule wheel : _wheels) {
@@ -347,18 +355,18 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public double getMaxAngularSpeedRadPerSec() {
-        return maxSpeedMetersPerSec / driveBaseRadius;
+        return Constants.DriveConstants.maxSpeedMetersPerSec / Constants.DriveConstants.driveBaseRadius;
     }
 
     public double getMaxLinearSpeedMetersPerSec() {
-        return maxSpeedMetersPerSec;
+        return Constants.DriveConstants.maxSpeedMetersPerSec;
     }
 
     public void runVelocity(ChassisSpeeds speeds) {
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, maxSpeedMetersPerSec);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, Constants.DriveConstants.maxSpeedMetersPerSec);
 
         // Log unoptimized setpoints
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
