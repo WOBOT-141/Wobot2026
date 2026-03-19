@@ -245,6 +245,7 @@ public class RobotContainer {
   private void configureJoystick() {
     m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
     m_joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
+    
   }
 
   private void configureFlightController() {
