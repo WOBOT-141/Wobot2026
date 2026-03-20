@@ -39,6 +39,10 @@ public final class Constants {
     public static final int climbFollowerMotorID = 0;
   }
 
+  public static class VisionServerConstants {
+    public static final int NumberOfCameras = 2;
+  }
+
 
   public static class ClimberConstants {
     public static final double homeRPM = 0;
