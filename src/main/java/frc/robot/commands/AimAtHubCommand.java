@@ -20,7 +20,6 @@ import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.FieldElement;
 import frc.robot.subsystems.Vision.Detections.DetectionList;
-import frc.robot.subsystems.Vision.Detections.IDetection;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AimAtHubCommand extends Command {
@@ -30,12 +29,15 @@ public class AimAtHubCommand extends Command {
   private final Shooter m_shooter;
   private final AprilTagFilter m_aprilTagFilter;
   private PIDController m_pidController;
-  private final ShooterCalculations m_ShooterCalculations;
   private CommandXboxController m_controller;
 
-  public AimAtHubCommand(StickCommand stickCommand, VisionServer visionServer, Shooter shooter,
-      AprilTagFilter aprilTagFilter, ShooterCalculations shooterCalculations, CommandXboxController controller) {
-    m_ShooterCalculations = shooterCalculations;
+  public AimAtHubCommand(
+      StickCommand stickCommand,
+      VisionServer visionServer,
+      Shooter shooter,
+      AprilTagFilter aprilTagFilter,
+      CommandXboxController controller) {
+
     m_stickCommand = stickCommand;
     m_shooter = shooter;
     m_visionServer = visionServer;
@@ -60,31 +62,26 @@ public class AimAtHubCommand extends Command {
     DetectionList detectionList = m_visionServer.getApriltagDetectionLists()[0];
     Optional<AngleMagVector> vectorToHubOptional = m_aprilTagFilter
         .getFloorVectorToTaggedElement(detectionList, FieldElement.HUB);
-    if (vectorToHubOptional.isEmpty()) {
-      return;
-    }
-    AngleMagVector vectorToHub = vectorToHubOptional.get();
-    double pidOutput = 0;
-    for (int i = 0; i < detectionList.getSize(); i++) {
-      IDetection detection = detectionList.getDetection(i);
-      if (m_aprilTagFilter.isCenterTag(detection.getId())) {
-        pidOutput = m_pidController.calculate(detection.getBearing() - vectorToHub.Angle);
-      }
-    }
 
-    m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
+    if (vectorToHubOptional.isEmpty())
+      return;
+
+    AngleMagVector vectorToHub = vectorToHubOptional.get();
+
+    double pidOutput = m_pidController.calculate(vectorToHub.Angle);
     double launchAngle = ShooterCalculations.getLaunchAngle(vectorToHub.Magnitude,
         ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24);
-    m_shooter.setHoodAngle(launchAngle);
     double launchSpeed = ShooterCalculations.getLaunchSpeed(launchAngle, vectorToHub.Magnitude,
         ShooterConstants.hubRimToCenter_in, 24);
+    
+    m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
+    m_shooter.setHoodAngle(launchAngle);
     m_shooter.setShooterVelocity(launchSpeed);
 
     if (m_shooter.isReadyToShoot() && m_pidController.atSetpoint()) {
+      m_controller.setRumble(RumbleType.kBothRumble, 0.6);
+    } else {
       m_controller.setRumble(RumbleType.kBothRumble, 0.0);
-      // TODO Use bearing and subtract the vector to hub angle from it to get pid
-      // output, check to make sure the pid output is within tolerance, and then
-      // create a keybinding, finished, just test and make sure we are doing everything right
     }
   }
 

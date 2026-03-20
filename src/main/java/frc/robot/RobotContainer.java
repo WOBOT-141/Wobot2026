@@ -38,7 +38,6 @@ import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.IntakeCommands.AxisIntakeRunCommand;
 import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
-import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
 import frc.robot.commands.IntakeCommands.IntakeExtend;
 import frc.robot.commands.IntakeCommands.IntakeRetract;
 import frc.robot.commands.ShooterCommands.FireShooter;
@@ -237,7 +236,7 @@ public class RobotContainer {
     m_xboxController0.x().whileTrue(new RevShooter(377, 65, m_shooter, m_xboxController0));//rev bump
     m_xboxController0.y().whileTrue(new RevShooter( 335, 65, m_shooter, m_xboxController0));//rev tower
     //m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral */
-    m_xboxController0.b().whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_aprilTagFilter, m_shooterCalculations, m_xboxController0));
+    m_xboxController0.b().whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_aprilTagFilter, m_xboxController0));
 
     m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));//TODO: test
     m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));//TODO: 

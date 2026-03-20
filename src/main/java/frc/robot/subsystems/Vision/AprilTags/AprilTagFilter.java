@@ -84,7 +84,10 @@ public class AprilTagFilter {
                     detection.getDistance(),
                     Math.abs(pairedTagInfo.XToElement),
                     pairedDetection.getDistance());
+
             AngleMagVector floorVector = getFloorVectorFromCenterTag(detection, centerTagAngleFromHubFace_deg);
+
+            floorVector.Angle = detection.getBearing() - floorVector.Angle;
             floorVectorList.add(floorVector);
         }
 
