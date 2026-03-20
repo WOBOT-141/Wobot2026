@@ -43,6 +43,34 @@ import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
 import frc.robot.subsystems.Vision.VisionServer;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.VisionServerConstants;
+import frc.robot.Util.BumpShooterVector;
+import frc.robot.commands.MovingRotateToTag;
+import frc.robot.commands.StopRobot;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
+import frc.robot.commands.DriveCommands.ResetGyro;
+import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.IntakeCommands.AxisIntakeRunCommand;
+import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
+import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
+import frc.robot.commands.IntakeCommands.IntakeExtend;
+import frc.robot.commands.IntakeCommands.IntakeRetract;
+import frc.robot.commands.ShooterCommands.FireShooter;
+import frc.robot.commands.ShooterCommands.RevShooter;
+import frc.robot.commands.ShooterCommands.MagazineAndLock;
+import frc.robot.commands.ShooterCommands.SendHoodToHome;
+import frc.robot.commands.StickParameters.IStickParameters;
+import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.commands.AutonomousCommands.RotateByAngle;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
+import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
+import frc.robot.commands.AutonomousCommands.ScrappedAutons.ZeeClimb;
 
 public class RobotContainer {
 
@@ -59,9 +87,8 @@ public class RobotContainer {
   private final CommandJoystick m_joystick = new CommandJoystick(2);
   private final StickCommand m_stickCommand;
 
-  private final VisionServer m_visionServer = new VisionServer();
-  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags,
-      () -> DriverStation.getAlliance());
+  private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
+  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
   // private final IBotSelector m_selectedBot = new MainBot();
   private final IBotSelector m_selectedBot = new SummerBot();
@@ -208,27 +235,22 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-  
-  //   m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
-  //   // m_xboxController0.leftTrigger().whileTrue(new AxisIntakeRunCommand(m_intake, () -> m_xboxController0.getLeftTriggerAxis()));
-  //   m_xboxController0.leftTrigger().whileTrue(new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis()));
-  //   // m_xboxController0.rightBumper().onTrue(new IntakeRetract(m_intake)); // works 50/50 - zane   
-  //   m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
+    //m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
+    //m_xboxController0.leftTrigger().whileTrue(new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis()));
+    //m_xboxController0.rightBumper().whileTrue(new MagazineAndLock(m_drive, m_magazine));// locks wheels and runs feed/mag 
+    //m_xboxController0.rightBumper().whileTrue(Commands.run(() -> m_magazine.setFeedVelocity(-0.3)).alongWith(Commands.run(() -> m_drive.lockWheels()))); //just runs feed/mag
 
-  //   m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
-  //   m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleDown())); // Angle down
-  //   m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp())); //speed up
-  //   m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown())); //speed down
+    // m_xboxController0.rightBumper().onTrue(new IntakeRetract(m_intake)); // works 50/50 - zane   
+    //m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
+    //m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
+    //m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleDown())); // Angle down
+    //m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp())); //speed up
+    //m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown())); //speed down
 
-  //   m_xboxController0.a().whileTrue(new FireShooter( 280, 72, m_shooter, m_drive, m_magazine));//rev hub
-  //   m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));//rev bump
-  //   m_xboxController0.y().whileTrue(new FireShooter( 335, 65, m_shooter, m_drive, m_magazine));//rev tower
-  //   m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral
-
-  //  /*  m_xboxController0.x().whileTrue(new FireShooter(377, 65, m_shooter, m_drive, m_magazine));//rev trench (this should be bump middway like autonomous) 
-  //   m_xboxController0.y().whileTrue(new FireShooter( 260, 72, m_shooter, m_drive, m_magazine));//rev hub
-  //   m_xboxController0.a().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral
-  //   m_xboxController0.b().whileTrue(new FireShooter( 335, 65, m_shooter, m_drive, m_magazine));//rev tower */
+    //m_xboxController0.a().whileTrue(new RevShooter( 280, 72, m_shooter, m_xboxController0));//rev hub //TODO addvibration last priority split rev and fire 
+    //m_xboxController0.x().whileTrue(new RevShooter(377, 65, m_shooter, m_xboxController0));//rev bump
+    //m_xboxController0.y().whileTrue(new RevShooter( 335, 65, m_shooter, m_xboxController0));//rev tower
+    //m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral */
 
   //   m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));//TODO: test
   //   m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));//TODO: 
@@ -247,7 +269,7 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kReset.value))
         .onTrue(new ResetGyro(m_gyro));
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
-        .onTrue(Commands.run(() -> m_stickCommand.lockWheels()));
+        .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
         .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
   }

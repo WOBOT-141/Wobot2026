@@ -28,6 +28,11 @@ public final class Constants {
     public static final double fieldWidth = AprilTagLayoutType.OFFICIAL.getLayout().getFieldWidth();
 
     public static boolean disableHAL = false;
+    
+    public static class VisionServerConstants {
+        public static final int NumberOfCameras = 2;
+    }
+
 
     public static enum Mode {
         /**

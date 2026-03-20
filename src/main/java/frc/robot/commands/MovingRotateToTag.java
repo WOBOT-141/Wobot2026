@@ -51,11 +51,11 @@ public class MovingRotateToTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    IDetection currentDetection = m_visionServer.getDetectionList().getDetectionById(m_closestTagId);
+    IDetection currentDetection = m_visionServer.getApriltagDetectionLists()[0].getDetectionById(m_closestTagId);
     if (!currentDetection.isValid())
       return;
 
-    double pidOutput = -m_pidController.calculate(currentDetection.getAngle());
+    double pidOutput = -m_pidController.calculate(currentDetection.getBearing());
     m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
 
     SmartDashboard.putNumber("PIDOutput", pidOutput);

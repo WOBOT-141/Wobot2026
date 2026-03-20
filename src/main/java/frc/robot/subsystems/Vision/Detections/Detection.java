@@ -7,7 +7,7 @@ package frc.robot.subsystems.Vision.Detections;
 public class Detection implements IDetection {
     private ObjectType _tag;
     private double _distance;
-    private double _angle;
+    private double _bearing;
     private int _id;
     private double _yaw;
     private double _pitch;
@@ -18,7 +18,7 @@ public class Detection implements IDetection {
     public Detection clone() {
         Detection detect = new Detection();
         detect._distance = _distance;
-        detect._angle = _angle;
+        detect._bearing = _bearing;
         detect._id = _id;
         detect._yaw = _yaw;
         detect._pitch = _pitch;
@@ -38,8 +38,8 @@ public class Detection implements IDetection {
     }
 
     @Override
-    public double getAngle() {
-        return _angle;
+    public double getBearing() {
+        return _bearing;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class Detection implements IDetection {
     (
         ObjectType tag,
         double distance,
-        double angle,
+        double bearing,
         int id,
         double yaw,
         double pitch,
@@ -85,7 +85,7 @@ public class Detection implements IDetection {
     ) {
         _tag = tag;
         _distance = distance;
-        _angle = angle;
+        _bearing = bearing;
         _id = id;
         _yaw = yaw;
         _pitch = pitch;
@@ -99,7 +99,7 @@ public class Detection implements IDetection {
             return
                 _cameraNum+" "+
                 _distance+" "+
-                _angle+" "+
+                _bearing+" "+
                 _id+" "+
                 _yaw+" "+
                 _pitch+" "+
