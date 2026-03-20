@@ -16,12 +16,11 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringSubscriber;
-import edu.wpi.first.networktables.StringTopic;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.subsystems.Vision.Detections.DetectionList;
 import frc.robot.subsystems.Vision.Detections.IDetection;
 import frc.robot.subsystems.Vision.Detections.NullDetection;
@@ -31,18 +30,17 @@ public class VisionServer extends SubsystemBase {
 
   private final boolean DEBUG_LOG = false;
 
-  NetworkTableInstance m_nt_Instance;
-  NetworkTable m_nt_table;
-  NetworkTableEntry aprilTagEntry;
-  NetworkTableEntry[] aprilTagEntries;
-  StringTopic aprilTagStringTopic;
+  private NetworkTableInstance m_nt_Instance;
+  private NetworkTable m_nt_table;
+  private NetworkTableEntry[] aprilTagEntries;
+
+  private ByteBuffer m_buffer_from_table;
+  private int m_number_of_cameras;
+  private int m_number_of_Apriltags;
+
+  private DetectionList[] m_detections_Apriltag;
+
   private AprilTagFieldLayout m_aprilTagFieldLayout;
-
-  ByteBuffer m_buffer_from_table;
-  int m_number_of_cameras;
-  int m_number_of_Apriltags;
-
-  DetectionList[] m_detections_Apriltag;
 
   public VisionServer(int ANumberOfCameras, int AnumberOfTags) {
 
@@ -62,7 +60,7 @@ public class VisionServer extends SubsystemBase {
 
     m_detections_Apriltag = new DetectionList[ANumberOfCameras];
     for (int i = 0; i < m_detections_Apriltag.length; ++i) {
-      m_detections_Apriltag[i] = new DetectionList(ObjectType.APRILTAG, AnumberOfTags);
+      m_detections_Apriltag[i] = new DetectionList(ObjectType.APRILTAG, m_number_of_Apriltags);
     }
 
     try {
