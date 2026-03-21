@@ -44,6 +44,9 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("translation Angle", translationAngle_deg);
     SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_perc);
 
+    if (failedNaNcheck(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc))
+      return;
+
     double rotationalCenterX = rotX;
     double rotationalCenterY = rotY;
     double[] calcWheelAngle_deg = new double[_wheels.length];
@@ -90,6 +93,20 @@ public class Drivetrain extends SubsystemBase {
       _wheels[i].setAngle(outputState.angle.getDegrees());
       _wheels[i].setSpeed(outputState.speedMetersPerSecond);
     }
+  }
+
+  public boolean failedNaNcheck(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+
+    if (Double.isNaN(translationAngle_deg) || Double.isNaN(translationSpeed_perc) || Double.isNaN(rotationalSpeed_perc)) {
+      System.out.println("ERROR: A Drivetrain commanded value is NaN!!!");
+      System.out.printf("translationSpeed:%.3f  translationAngle:%.3f  rotationalSpeed:%.3f\n", translationSpeed_perc, translationAngle_deg, rotationalSpeed_perc);
+      
+      for (SwerveModule swerveModule : _wheels) {
+        swerveModule.cancelMovement();
+      }
+      return true;
+    }
+    return false;
   }
 
   public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
@@ -194,26 +211,26 @@ public class Drivetrain extends SubsystemBase {
     return _wheels;
   }
 
-  public void sysIdQuasistaticForward(){
-    for (int i = 0; i < _wheels.length; i++){
+  public void sysIdQuasistaticForward() {
+    for (int i = 0; i < _wheels.length; i++) {
       _wheels[i].sysIdQuasistaticForward();
     }
   }
 
-  public void sysIdQuasistaticReverse(){
-    for (int i = 0; i < _wheels.length; i++){
+  public void sysIdQuasistaticReverse() {
+    for (int i = 0; i < _wheels.length; i++) {
       _wheels[i].sysIdQuasistaticReverse();
     }
   }
 
-  public void sysIdDynamicForward(){
-    for (int i = 0; i < _wheels.length; i++){
+  public void sysIdDynamicForward() {
+    for (int i = 0; i < _wheels.length; i++) {
       _wheels[i].sysIdDynamicForward();
     }
   }
 
-  public void sysIdDynamicReverse(){
-    for (int i = 0; i < _wheels.length; i++){
+  public void sysIdDynamicReverse() {
+    for (int i = 0; i < _wheels.length; i++) {
       _wheels[i].sysIdDynamicReverse();
     }
   }

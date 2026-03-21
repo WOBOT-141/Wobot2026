@@ -54,6 +54,7 @@ public class AimAtHubCommand extends Command {
   @Override
   public void initialize() {
     m_pidController.reset();
+    System.out.println("AimAtHub initialize");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -63,17 +64,21 @@ public class AimAtHubCommand extends Command {
     Optional<AngleMagVector> vectorToHubOptional = m_aprilTagFilter
         .getFloorVectorToTaggedElement(detectionList, FieldElement.HUB);
 
+    System.out.printf("AimAtHubCommand tags:%d  hasVector:%b\n", detectionList.getSize(), vectorToHubOptional.isPresent());
+
     if (vectorToHubOptional.isEmpty())
       return;
 
     AngleMagVector vectorToHub = vectorToHubOptional.get();
 
-    double pidOutput = m_pidController.calculate(vectorToHub.Angle);
+    double pidOutput = -m_pidController.calculate(vectorToHub.Angle);
     double launchAngle = ShooterCalculations.getLaunchAngle(vectorToHub.Magnitude,
         ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24);
     double launchSpeed = ShooterCalculations.getLaunchSpeed(launchAngle, vectorToHub.Magnitude,
         ShooterConstants.hubRimToCenter_in, 24);
-    
+
+    System.out.printf("vectorAngle:%.3f  altRotation:%.3f  launchAngle:%.3f  launchSpeed:%.3f\n", vectorToHub.Angle, pidOutput, launchAngle, launchSpeed);
+
     m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
     m_shooter.setHoodAngle(launchAngle);
     m_shooter.setShooterVelocity(launchSpeed);
@@ -89,6 +94,7 @@ public class AimAtHubCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     m_stickCommand.setAlternateRotation(Optional.empty());
+    System.out.println("AimAtHub end");
   }
 
   // Returns true when the command should end.

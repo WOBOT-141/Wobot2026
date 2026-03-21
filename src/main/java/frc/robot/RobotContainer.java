@@ -67,7 +67,7 @@ public class RobotContainer {
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
-  private final CommandJoystick m_joystick = new CommandJoystick(2);
+  // private final CommandJoystick m_joystick = new CommandJoystick(2);
   private final StickCommand m_stickCommand;
   private final ShooterCalculations m_shooterCalculations;
 
@@ -75,7 +75,7 @@ public class RobotContainer {
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
   private final IBotSelector m_selectedBot = new MainBot();
-  //private final IBotSelector m_selectedBot = new SummerBot();
+  // private final IBotSelector m_selectedBot = new SummerBot();
 
   private ChooserHandeling m_autonSelector;
 
@@ -247,8 +247,8 @@ public class RobotContainer {
   }
 
   private void configureJoystick() {
-    m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
-    m_joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
+    // m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
+    // m_joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
     
   }
 
@@ -259,6 +259,7 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
         .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
+        // .whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_aprilTagFilter, m_xboxController0));
   }
 
   public Command getAutonomousCommand() {

@@ -127,20 +127,33 @@ public class AprilTagFilter {
         return new AngleMagVector(angleToHub_deg, hubDistance_in);
     }
 
-    /*
-     * Returns the angle of the vertex opposite side C
+    /**
+     * 
+     * @param sideA
+     * @param sideB
+     * @param sideC
+     * @return The angle of the vertex opposite side C, in degrees
      */
     public static double FindSSSAngle(double sideA, double sideB, double sideC) {
+        System.out.printf("(SSS sideA: %.3f  sideB: %.3f  sideC: %.3f)\n", sideA, sideB, sideC);
         if (sideA == 0 || sideB == 0 || sideC == 0) {
             return 0;
         }
         double numerator = Math.pow(sideA, 2) + Math.pow(sideB, 2) - Math.pow(sideC, 2);
         double denominator = Math.abs(2 * sideA * sideB);
+        System.out.printf("{numerator:%.3f  denominator:%.3f  acos:%.3f}\n", numerator, denominator, Math.acos(numerator/denominator));
         return Math.toDegrees(Math.acos(numerator / denominator));
-
     }
 
+    /**
+     * 
+     * @param sideA
+     * @param sideB
+     * @param angleC in degrees
+     * @return length of the side opposite angleC
+     */
     public static double LawOfCosines(double sideA, double sideB, double angleC) {
+        // System.out.printf("(LOC sideA: %.3f  sideB: %.3f  angleC: %.3f)\n", sideA, sideB, angleC);
         if (sideA == 0 || sideB == 0) {
             return 0;
         }
@@ -149,6 +162,8 @@ public class AprilTagFilter {
         }
         double step1 = Math.pow(sideB, 2) + Math.pow(sideA, 2);
         double step2 = 2 * sideA * sideB * Math.cos(Math.toRadians(angleC));
+        // System.out.printf("[step1:%.3f  step2:%.3f  diff:%.3f  sqrt:%.3f]\n", step1, step2, step1-step2, Math.sqrt(step1-step2));
+
         double sideC = Math.sqrt(step1 - step2);
         return sideC;
     }
