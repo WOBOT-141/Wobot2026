@@ -101,7 +101,7 @@ public class VisionServer extends SubsystemBase {
               cameraNum
             );
             }
-            else System.out.println("Tag id 0");
+            //else System.out.println("Tag id 0");
 
             if (DEBUG_LOG) System.out.println("Detection: " + m_detections_Apriltag[cameraIndex].getDetectionById(tag_id).toString());
 

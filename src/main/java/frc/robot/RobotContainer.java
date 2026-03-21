@@ -28,6 +28,8 @@ import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionServerConstants;
 import frc.robot.Util.BumpShooterVector;
+import frc.robot.Util.ShooterCalculations;
+import frc.robot.commands.AimAtHubCommand;
 import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.StopRobot;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
@@ -35,7 +37,6 @@ import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbMIDDLE;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.IntakeCommands.AxisIntakeRunCommand;
-import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
 import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
 import frc.robot.commands.IntakeCommands.IntakeExtend;
 import frc.robot.commands.IntakeCommands.IntakeRetract;
@@ -66,14 +67,15 @@ public class RobotContainer {
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
-  private final CommandJoystick m_joystick = new CommandJoystick(2);
+  // private final CommandJoystick m_joystick = new CommandJoystick(2);
   private final StickCommand m_stickCommand;
+  private final ShooterCalculations m_shooterCalculations;
 
   private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
   private final IBotSelector m_selectedBot = new MainBot();
-  //private final IBotSelector m_selectedBot = new SummerBot();
+  // private final IBotSelector m_selectedBot = new SummerBot();
 
   private ChooserHandeling m_autonSelector;
 
@@ -83,6 +85,7 @@ public class RobotContainer {
 
 
   public RobotContainer() {
+    m_shooterCalculations = new ShooterCalculations();
 
     m_wheels = new SwerveModule[] {
 
@@ -232,7 +235,8 @@ public class RobotContainer {
     m_xboxController0.a().whileTrue(new RevShooter( 280, 72, m_shooter, m_xboxController0));//rev hub //TODO addvibration last priority split rev and fire 
     m_xboxController0.x().whileTrue(new RevShooter(377, 65, m_shooter, m_xboxController0));//rev bump
     m_xboxController0.y().whileTrue(new RevShooter( 335, 65, m_shooter, m_xboxController0));//rev tower
-    m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral */
+    //m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral */
+    m_xboxController0.b().whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_aprilTagFilter, m_xboxController0));
 
     m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(0.8), () -> m_intake.intakeRollerStop(), m_intake));//TODO: test
     m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));//TODO: 
@@ -243,8 +247,9 @@ public class RobotContainer {
   }
 
   private void configureJoystick() {
-    m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
-    m_joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
+    // m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
+    // m_joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
+    
   }
 
   private void configureFlightController() {
@@ -254,6 +259,7 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
         .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
+        // .whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_aprilTagFilter, m_xboxController0));
   }
 
   public Command getAutonomousCommand() {

@@ -7,16 +7,19 @@ package frc.robot.commands;
 import java.util.Optional;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.AngleMagVector;
-import frc.robot.Constants;
 import frc.robot.Constants.RotateCommandConstants;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.Util.ShooterCalculations;
 import frc.robot.commands.DriveCommands.StickCommand;
-import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.FieldElement;
+import frc.robot.subsystems.Vision.Detections.DetectionList;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AimAtHubCommand extends Command {
@@ -26,42 +29,72 @@ public class AimAtHubCommand extends Command {
   private final Shooter m_shooter;
   private final AprilTagFilter m_aprilTagFilter;
   private PIDController m_pidController;
+  private CommandXboxController m_controller;
 
-  public AimAtHubCommand(StickCommand stickCommand, VisionServer visionServer, Shooter shooter, AprilTagFilter aprilTagFilter) {
+  public AimAtHubCommand(
+      StickCommand stickCommand,
+      VisionServer visionServer,
+      Shooter shooter,
+      AprilTagFilter aprilTagFilter,
+      CommandXboxController controller) {
 
     m_stickCommand = stickCommand;
     m_shooter = shooter;
     m_visionServer = visionServer;
     m_aprilTagFilter = aprilTagFilter;
+    m_controller = controller;
+    m_pidController = new PIDController(RotateCommandConstants.P, RotateCommandConstants.I, RotateCommandConstants.D);
+    m_pidController.setSetpoint(0);
+    m_pidController.setTolerance(2.0);
 
-  m_pidController = new PIDController(RotateCommandConstants.P, RotateCommandConstants.I, RotateCommandConstants.D);
-  m_pidController.setSetpoint(0);
-  m_pidController.setTolerance(2.0);
-  
-
-  addRequirements(shooter);
+    addRequirements(shooter);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    m_pidController.reset();
+    System.out.println("AimAtHub initialize");
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Optional<AngleMagVector> vectorToHubOptional = m_aprilTagFilter.getFloorVectorToTaggedElement(m_visionServer.getApriltagDetectionLists()[0], FieldElement.HUB);
-    if (vectorToHubOptional.isEmpty()){
+    DetectionList detectionList = m_visionServer.getApriltagDetectionLists()[0];
+    Optional<AngleMagVector> vectorToHubOptional = m_aprilTagFilter
+        .getFloorVectorToTaggedElement(detectionList, FieldElement.HUB);
+
+    System.out.printf("AimAtHubCommand tags:%d  hasVector:%b\n", detectionList.getSize(), vectorToHubOptional.isPresent());
+
+    if (vectorToHubOptional.isEmpty())
       return;
-    }
+
     AngleMagVector vectorToHub = vectorToHubOptional.get();
-     double pidOutput = m_pidController.calculate(vectorToHub.Angle);
-     m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
+
+    double pidOutput = -m_pidController.calculate(vectorToHub.Angle);
+    double launchAngle = ShooterCalculations.getLaunchAngle(vectorToHub.Magnitude,
+        ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24);
+    double launchSpeed = ShooterCalculations.getLaunchSpeed(launchAngle, vectorToHub.Magnitude,
+        ShooterConstants.hubRimToCenter_in, 24);
+
+    System.out.printf("vectorAngle:%.3f  altRotation:%.3f  launchAngle:%.3f  launchSpeed:%.3f\n", vectorToHub.Angle, pidOutput, launchAngle, launchSpeed);
+
+    m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
+    m_shooter.setHoodAngle(launchAngle);
+    m_shooter.setShooterVelocity(launchSpeed);
+
+    if (m_shooter.isReadyToShoot() && m_pidController.atSetpoint()) {
+      m_controller.setRumble(RumbleType.kBothRumble, 0.6);
+    } else {
+      m_controller.setRumble(RumbleType.kBothRumble, 0.0);
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     m_stickCommand.setAlternateRotation(Optional.empty());
+    System.out.println("AimAtHub end");
   }
 
   // Returns true when the command should end.

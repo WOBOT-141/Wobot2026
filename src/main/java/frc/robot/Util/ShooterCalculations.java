@@ -6,8 +6,15 @@ public class ShooterCalculations {
     public double getLaunchAngle(double targetDistance_in){
         return getLaunchAngle(targetDistance_in, Constants.ShooterConstants.muzzleToRimHeight_in, Constants.ShooterConstants.hubRimToCenter_in, targetDistance_in );
     }
-
-    public static double getLaunchAngle(double targetDistance_in,  double deltaHeight_in, double rimToTargetDistance_in, double targetHeightAboveRim_in) {
+    /**
+     * @param targetDistance_in horizontal distance to target
+     * @param deltaHeight_in difference between height of robot and height of target
+     * @param rimToTargetDistance_in horizontal distance from rim to target plane of penetration
+     * @param targetHeightAboveRim_in max height above rim that parabola should cross through
+     *
+     * @return  initial launch Angle (degrees)
+     */
+        public static double getLaunchAngle(double targetDistance_in,  double deltaHeight_in, double rimToTargetDistance_in, double targetHeightAboveRim_in) {
         double angleStep1 = (2 * targetDistance_in + rimToTargetDistance_in) * (deltaHeight_in)
                 + (targetHeightAboveRim_in / rimToTargetDistance_in) * Math.pow(targetDistance_in,2);
         double angleStep2 = (2 * targetDistance_in + rimToTargetDistance_in) * (targetDistance_in)
