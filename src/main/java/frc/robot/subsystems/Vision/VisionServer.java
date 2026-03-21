@@ -207,7 +207,7 @@ public class VisionServer extends SubsystemBase {
     double distanceMeters = Units.inchesToMeters(detection.getDistance());//change our inches to meters as the pose excpets meters 
     double bearingRadians = Units.degreesToRadians(-detection.getBearing());//same here but for degrees // zane, this was getAngle()
 
-    double tagYawRadians = Units.degreesToRadians(detection.getDistance());//same again 
+    double tagYawRadians = Units.degreesToRadians(detection.getYaw());//same again 
 
     Rotation2d relativeRotation = new Rotation2d(Math.PI + tagYawRadians);// our system of getting the angle from the gyro is different from the WPI coordinate system. this flips the angle to match
 
