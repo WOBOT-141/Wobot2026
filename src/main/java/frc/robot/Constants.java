@@ -195,9 +195,10 @@ public final class Constants {
     public static final double D = 0.00000;
     public static final double kF = 0.0018;
 
-    public static final double hoodP = 0.05;
+    public static final double hoodP = 0.02;
     public static final double hoodI = 0;
     public static final double hoodD = 0; //.001
+    public static final double hood_kF = 1.7;
     
     public static final double hoodGearRatio = (10.0 / 62.0) * (50.0 / 319.0);
     public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
@@ -207,11 +208,11 @@ public final class Constants {
     // Control tuning
     public static final double flywheelVelocityTolerance_ips = 25; //15
     public static final double hoodPositionTolerance_deg = 5;  //2
-    public static final double hoodSlewRate = 0.5;
+    public static final double hoodSlewRate = 0.8;
 
     // Current limits
     public static final int flywheelCurrentLimit_amp = 40;
-    public static final int hoodCurrentLim_amp = 20;
+    public static final int hoodCurrentLim_amp = 30;//20;
 
     // Brownout protection
     public static final double BrownoutStartVoltage_V = 10.8;
@@ -221,7 +222,7 @@ public final class Constants {
     public static final double shotDipThreshold_rpm = 250.0;
     public static final double shotMinSeparation_sec = 0.08;
   
-    public static final double hoodHomeRPM = 0.1;
+    public static final double hoodHomeRPM = 0.2;
     
     public static final double hoodUpperLimit_deg = 89;
     public static final double hoodLowerLimit_deg = 46;

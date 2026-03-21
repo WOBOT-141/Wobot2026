@@ -52,6 +52,8 @@ public class Shooter extends SubsystemBase {
 
   private String m_hoodPosition_SD = "SETHOODPOS!!"; // SmartDashboard key for hood position
 
+  private double m_startTime_sec = -1;
+
   public Shooter() {
 
     SmartDashboard.putNumber("hoodP", ShooterConstants.hoodP);
@@ -92,8 +94,9 @@ public class Shooter extends SubsystemBase {
     m_hoodMotorConfig.encoder.positionConversionFactor(ShooterConstants.hoodDegPerMotorRot); 
     m_hoodMotorConfig.closedLoop
         .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD)
-        .minOutput(-0.3)
-        .maxOutput(0.3);
+        //.velocityFF(ShooterConstants.hood_kF)
+        .minOutput(-0.2)
+        .maxOutput(0.2);
 
     m_hoodMotor.configure(m_hoodMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
@@ -115,15 +118,16 @@ public class Shooter extends SubsystemBase {
   }
 
   public void homeHood() {
-    //double startTime_sec = Timer.getFPGATimestamp();
-    //if ((startTime_sec - currentTime_sec) > .05) {
+    double currentTime_sec = Timer.getFPGATimestamp();
+    //if ((m_startTime_sec - currentTime_sec) > .05) {
       //m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
       
-      //if (m_hoodMotor.getOutputCurrent() > ShooterConstants.hoodCurrentLim_amp) {
+      if (m_hoodMotor.getOutputCurrent() > ShooterConstants.hoodCurrentLim_amp) {
+        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
         m_hoodMotor.stopMotor();
-        //m_hoodMotorEncoder.setPosition(ShooterConstants.hoodUpperLimit_deg);
+        m_hoodMotorEncoder.setPosition(ShooterConstants.hoodUpperLimit_deg);
         m_hoodAtHome = true;
-      //}
+      }
    // }
   }
 
@@ -133,20 +137,27 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setHoodAtHome(boolean atHome) {
+    m_startTime_sec = Timer.getFPGATimestamp();
+    m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
     m_hoodAtHome = atHome;
   }
 
   public void setHoodAngle(double targetPosition_deg) {
+    System.out.println("---------- setHoodAngle ----------");
+    System.out.println("max "+ShooterConstants.hoodLowerLimit_deg);
     targetPosition_deg = Math.max(targetPosition_deg, ShooterConstants.hoodLowerLimit_deg);
+    System.out.println(targetPosition_deg);
     targetPosition_deg = Math.min(targetPosition_deg, ShooterConstants.hoodUpperLimit_deg);
+    System.out.println(targetPosition_deg);
     m_hoodTargetPosition_deg = targetPosition_deg;
-
-   //m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    
+    m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
   public void setHoodPositionFromDashboard() {
     double targetPosition_deg = SmartDashboard.getNumber(m_hoodPosition_SD, m_hoodTargetPosition_deg);
-    
+    System.out.println("setHoodPositionFromDashboard "+ m_hoodPosition_SD +" "+m_hoodTargetPosition_deg+ " "+targetPosition_deg);
+    m_hoodMotor.set(-Constants.ShooterConstants.hoodHomeRPM);
     setHoodAngle(targetPosition_deg);
   }
   
