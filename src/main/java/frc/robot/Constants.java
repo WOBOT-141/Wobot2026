@@ -39,6 +39,7 @@ public final class Constants {
     public static final int climbFollowerMotorID = 0;
   }
 
+
   public static class VisionServerConstants {
     public static final int NumberOfCameras = 2;
   }
@@ -72,20 +73,8 @@ public final class Constants {
   }
 
 
-  public static class ControllerOneConstants {
-    public static final double RotateFactor = 1.35;
-    public static final double DriveXFactor = 1.26;
-    public static final double DriveYFactor = 1.23;
-    public static final double ThrottleFactor = 1.55;
-
-    public static final double RotateOffset = -0.056375;
-    public static final double DriveXOffset = 0.039816 + 0.029202;
-    public static final double DriveYOffset = -0.024228;
-    public static final double ThrottleOffset = 0;
-
-    public static final double deadbandRot = 0.025;
-    public static final double deadbandX = 0.025;
-    public static final double deadbandY = 0.025;
+  public static class ControllerConstants {
+    public static final double rumbleFeedback_perc = 0.6;
   }
 
 
@@ -202,8 +191,6 @@ public final class Constants {
     
     public static final double hoodGearRatio = (10.0 / 62.0) * (50.0 / 319.0);
     public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
-   
-
     
     // Control tuning
     public static final double flywheelVelocityTolerance_ips = 15; //25 //15
@@ -229,6 +216,7 @@ public final class Constants {
 
     // Fire command constants
     public static final double firingWaitTime_sec = 0.5;
+    public static final double defaultHeightAboveRim_in = 36;
   }
 
   public static class WheelConstants {

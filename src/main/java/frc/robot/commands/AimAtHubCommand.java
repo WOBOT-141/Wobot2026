@@ -8,9 +8,11 @@ import java.util.Optional;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.AngleMagVector;
+import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.RotateCommandConstants;
 import frc.robot.Constants.RotateVisionConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -35,7 +37,10 @@ public class AimAtHubCommand extends Command {
   private final CommandXboxController m_controller;
 
   private AngleMagVector m_lastFoundVector;
-  private double m_gyroAtLastDetection_deg = 0;
+  private double m_targetGyroAngle_deg = 0;
+  private double m_launchAngle_deg;
+  private double m_launchSpeed_ips;
+  private boolean m_initialVectorFound = false;
 
   public AimAtHubCommand(
       StickCommand stickCommand,
@@ -52,75 +57,85 @@ public class AimAtHubCommand extends Command {
     m_aprilTagFilter = aprilTagFilter;
     m_controller = controller;
     m_pidController = new PIDController(RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D);
-    m_pidController.setSetpoint(0);
     m_pidController.setTolerance(2.0);
-
-    m_lastFoundVector = new AngleMagVector(0, 0);
 
     addRequirements(shooter);
   }
 
-  // Called when the command is initially scheduled.
+
   @Override
   public void initialize() {
     m_pidController.reset();
+    m_pidController.setSetpoint(0);
+
+    m_lastFoundVector = new AngleMagVector(0, 0);
+    m_targetGyroAngle_deg = 0;
+    m_launchSpeed_ips = 0;
+    m_launchAngle_deg = 0;
+    m_initialVectorFound = false;
+
     System.out.println("AimAtHub START");
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
+
   @Override
   public void execute() {
+    //Get data to operate on
+    double currentGyroAngle_deg = m_gyro.getRawGyroAngle();
     DetectionList detectionList = m_visionServer.getApriltagDetectionLists()[0];
-    Optional<AngleMagVector> m_vectorToHubOptional = m_aprilTagFilter
-        .getFloorVectorToTaggedElement(detectionList, FieldElement.HUB);
+    Optional<AngleMagVector> m_vectorToHubOptional = m_aprilTagFilter.getFloorVectorToTaggedElement(detectionList, FieldElement.HUB);
 
-    System.out.printf("AimAtHubCommand tags:%d  hasVector:%b  lastGyro:%.3f\n", detectionList.getSize(),
-        m_vectorToHubOptional.isPresent(), m_gyroAtLastDetection_deg);
-
-    double pidOutput = 0;
+    //Update our targeting if we have usable tag data
     if (m_vectorToHubOptional.isPresent()) {
       m_lastFoundVector = m_vectorToHubOptional.get();
-      pidOutput = m_pidController.calculate(-m_lastFoundVector.Angle);
+      m_targetGyroAngle_deg = currentGyroAngle_deg - m_lastFoundVector.Angle; //TODO may need to be added instead of subtracted.
 
-    } else {
-      // TODO Double-check the signage in this math
-      double gyroAngleDiff_deg = m_gyro.getRawGyroAngle() - m_gyroAtLastDetection_deg;
-      double vectorAngleDiff_deg = gyroAngleDiff_deg - m_lastFoundVector.Angle;
-      pidOutput = m_pidController.calculate(vectorAngleDiff_deg);
+      m_pidController.setSetpoint(m_targetGyroAngle_deg);
+      m_launchAngle_deg = ShooterCalculations.getLaunchAngle(m_lastFoundVector.Magnitude,
+          ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 36);
+      m_launchSpeed_ips = ShooterCalculations.getLaunchSpeed(m_launchAngle_deg, m_lastFoundVector.Magnitude,
+          ShooterConstants.hubRimToCenter_in, 36);
+
+      m_initialVectorFound = true;
+    }
+    
+    //Don't command anything if we don't have something to work off yet.
+    if (!m_initialVectorFound){
+      System.out.println("AimAtHub: Initial vector not yet found");
+      return;
     }
 
-    m_gyroAtLastDetection_deg = m_gyro.getRawGyroAngle();
+    //Command output
+    double rotationPidOutput = m_pidController.calculate(currentGyroAngle_deg);
+    m_stickCommand.setAlternateRotation(Optional.of(rotationPidOutput));
+    m_shooter.setHoodAngle(m_launchAngle_deg);
+    m_shooter.setShooterVelocity(m_launchSpeed_ips);
 
-    double launchAngle = ShooterCalculations.getLaunchAngle(m_lastFoundVector.Magnitude,
-        ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24);
-    double launchSpeed = ShooterCalculations.getLaunchSpeed(launchAngle, m_lastFoundVector.Magnitude,
-        ShooterConstants.hubRimToCenter_in, 24);
-
-    System.out.printf("[vectorAngle:%.3f  vectorDist:%.3f  altRotation:%.3f  launchAngle:%.3f  launchSpeed:%.3f]\n",
-        m_lastFoundVector.Angle, m_lastFoundVector.Magnitude, pidOutput, launchAngle, launchSpeed);
-
-    m_stickCommand.setAlternateRotation(Optional.of(pidOutput));
-    m_shooter.setHoodAngle(launchAngle);
-    m_shooter.setShooterVelocity(launchSpeed);
-
-    if (m_shooter.isReadyToShoot() && m_pidController.atSetpoint()) {
-      m_controller.setRumble(RumbleType.kBothRumble, 0.6);
-    } else {
-      m_controller.setRumble(RumbleType.kBothRumble, 0.0);
-    }
+    //Controller Feedback
+    double rightRumble = m_shooter.isReadyToShoot() ? ControllerConstants.rumbleFeedback_perc : 0.0;
+    double leftRumble = m_pidController.atSetpoint() ? ControllerConstants.rumbleFeedback_perc : 0.0;
+    m_controller.setRumble(RumbleType.kLeftRumble, leftRumble);
+    m_controller.setRumble(RumbleType.kRightRumble, rightRumble);
+   
+    //Debug output
+    System.out.printf("[AimAtHub1 tags:%d  hasVector:%b  gyroTarget:%.3f  gyroCurrent:%.3f  pidOutput:%.3f]\n", detectionList.getSize(),
+        m_vectorToHubOptional.isPresent(), m_targetGyroAngle_deg, currentGyroAngle_deg, rotationPidOutput);
+    System.out.printf("[AimAtHub2 vectorAngle:%.3f  vectorDist:%.3f  altRotation:%.3f  launchAngle:%.3f  launchSpeed:%.3f]\n",
+        m_lastFoundVector.Angle, m_lastFoundVector.Magnitude, rotationPidOutput, m_launchAngle_deg, m_launchSpeed_ips);
+    SmartDashboard.putNumber("AimAtHub targetAngle", m_targetGyroAngle_deg);
+    SmartDashboard.putNumber("AimAtHub currentAngle", currentGyroAngle_deg);
   }
 
-  // Called once the command ends or is interrupted.
+
   @Override
   public void end(boolean interrupted) {
     System.out.println("AimAtHub END");
     m_stickCommand.setAlternateRotation(Optional.empty());
-    m_gyroAtLastDetection_deg = 0;
-    m_lastFoundVector = new AngleMagVector(0, 0);
+    m_controller.setRumble(RumbleType.kBothRumble, 0);
     m_shooter.cancel();
   }
 
-  // Returns true when the command should end.
+
   @Override
   public boolean isFinished() {
     return false;
