@@ -19,14 +19,14 @@ public class StopRobot extends Command {
   private Drivetrain m_drive;
   private Shooter m_shooter;
   /** Creates a new StopRobot. */
-  public StopRobot(Intake intake, MagazineAndFeed magazine, Climber climbe, Drivetrain drive, Shooter shooter) {
+  public StopRobot(Intake intake, MagazineAndFeed magazine, Drivetrain drive, Shooter shooter) {
      m_intake = intake;
      m_magazine = magazine;
-     m_climbe = climbe;
+    //  m_climbe = climbe;
      m_drive = drive;
      m_shooter = shooter;
 
-    // Use addRequirements() here to declare subsystem dependencies.
+     addRequirements(intake, magazine, drive, shooter);
   }
 
   // Called when the command is initially scheduled.
@@ -40,7 +40,7 @@ public class StopRobot extends Command {
     m_magazine.cancel();
     m_intake.stopArm(); 
     m_intake.intakeRollerStop(); 
-    m_climbe.stopClimber(); 
+    // m_climbe.stopClimber(); 
     m_drive.stopMotors();  
     
   }

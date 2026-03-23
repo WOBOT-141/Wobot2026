@@ -167,8 +167,8 @@ public final class Constants {
   }
 
   public static class RotateVisionConstants {
-    public static final double P = 0.004;
-    public static final double I = 0.002;
+    public static final double P = 0.01;
+    public static final double I = 0.00002;
     public static final double D = 0.00000;
     public static final double rotateTargetTolerance_deg = 2;
   }
@@ -188,12 +188,12 @@ public final class Constants {
     public static final double hubRimHeight_in = 72;
     public static final double muzzleToRimHeight_in = hubRimHeight_in - muzzleHeight_in;
 
-    public static final double leftP = 0.0012;
-    public static final double middleP = 0.0025;
-    public static final double rightP = 0.0015;
-    public static final double I = 0.00000;
-    public static final double D = 0.00000;
-    public static final double kF = 0.0018;
+    public static final double leftP = 0.002; //0.0015;
+    public static final double middleP = 0.002;//0.0025;
+    public static final double rightP = 0.002; //0.0012;
+    public static final double I = 0.0000;
+    public static final double D = 0.000000;
+    public static final double kF = 0.0018; //0.0018;
 
     public static final double hoodP = 0.02;
     public static final double hoodI = 0;
@@ -206,7 +206,7 @@ public final class Constants {
 
     
     // Control tuning
-    public static final double flywheelVelocityTolerance_ips = 25; //15
+    public static final double flywheelVelocityTolerance_ips = 15; //25 //15
     public static final double hoodPositionTolerance_deg = 5;  //2
     public static final double hoodSlewRate = 0.8;
 

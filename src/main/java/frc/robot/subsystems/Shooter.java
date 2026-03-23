@@ -78,9 +78,9 @@ public class Shooter extends SubsystemBase {
     m_middleMotorConfig.encoder.velocityConversionFactor(ShooterConstants.flywheelVelocity_RPMtoIPS);
     m_leftMotorConfig.encoder.velocityConversionFactor(ShooterConstants.flywheelVelocity_RPMtoIPS);
 
-    m_rightMotorConfig.closedLoop.pid(ShooterConstants.leftP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
-    m_middleMotorConfig.closedLoop.pid(ShooterConstants.middleP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
-    m_leftMotorConfig.closedLoop.pid(ShooterConstants.rightP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+    m_rightMotorConfig.closedLoop.pid(ShooterConstants.rightP, ShooterConstants.I, ShooterConstants.D).feedForward.kV(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+    m_middleMotorConfig.closedLoop.pid(ShooterConstants.middleP, ShooterConstants.I, ShooterConstants.D).feedForward.kV(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+    m_leftMotorConfig.closedLoop.pid(ShooterConstants.leftP, ShooterConstants.I, ShooterConstants.D).feedForward.kV(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
 
     m_rightMotorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(ShooterConstants.flywheelCurrentLimit_amp, ShooterConstants.flywheelCurrentLimit_amp);
     m_middleMotorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(ShooterConstants.flywheelCurrentLimit_amp, ShooterConstants.flywheelCurrentLimit_amp);
@@ -176,7 +176,7 @@ public class Shooter extends SubsystemBase {
     if (targetVelocity_ips == m_targetVelocity_ips)
       return;
 
-    m_targetVelocity_ips =  targetVelocity_ips*ShooterConstants.flywheelSlipFactor;
+    m_targetVelocity_ips =  targetVelocity_ips * ShooterConstants.flywheelSlipFactor;
 
     m_rightController.setSetpoint(m_targetVelocity_ips, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     m_middleController.setSetpoint(m_targetVelocity_ips, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
