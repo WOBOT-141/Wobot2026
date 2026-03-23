@@ -127,10 +127,11 @@ public class StickCommand extends Command {
 
 
   private double calcThrottle_perc(double stickThrottle_perc) {
-    // Convert throttle from [-0.72, 0.65] to [0,0.5] with a floor
-    double throttle_perc = (stickThrottle_perc + .72) / 1.37;
+    // Convert throttle from [-1,1] to [0,1]
+    double throttle_perc = (stickThrottle_perc + 1) / 2;
     SmartDashboard.putNumber("throttle_perc1OLD", throttle_perc);
-    throttle_perc = (throttle_perc*(1-OperatorConstants.throttleFloor_perc)) + OperatorConstants.throttleFloor_perc;
+    // Add a floor to the throttle, and normalize to to keep <= 1
+    throttle_perc = (throttle_perc * (1 - OperatorConstants.throttleFloor_perc)) + OperatorConstants.throttleFloor_perc;
     SmartDashboard.putNumber("throttle_perc2NEW", throttle_perc);
     // throttle_perc /= 1 + OperatorConstants.throttleFloor_perc;
     // throttle_perc += OperatorConstants.throttleFloor_perc;

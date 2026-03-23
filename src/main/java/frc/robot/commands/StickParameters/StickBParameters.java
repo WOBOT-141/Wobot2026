@@ -15,14 +15,14 @@ public class StickBParameters implements IStickParameters {
     double deadbandRot;
 
     public StickBParameters() {
-        RotateFactor = 1.35;
-        DriveXFactor = 1.26;
-        DriveYFactor = 1.23;
-        ThrottleFactor = 1.55;
-        RotateOffset = 0.031890;
-        DriveXOffset = -0.03373;
-        DriveYOffset = 0.024772;
-        ThrottleOffset = 0;
+        RotateFactor = 1.2;
+        DriveXFactor = 1.17;
+        DriveYFactor = 1.12;
+        ThrottleFactor = 1.45;
+        RotateOffset = 0.02;
+        DriveXOffset = -0.04;
+        DriveYOffset = 0.02;
+        ThrottleOffset = 0.04;
         deadbandRot = 0.2;
         deadbandX = 0.2;
         deadbandY = 0.2;
