@@ -32,9 +32,12 @@ public class VisionServer extends SubsystemBase {
 
   DetectionList[] m_detections_Apriltag;
 
+  int logCounter = 0;
+
   public VisionServer(int ANumberOfCameras, int AnumberOfTags) {
 
-    if (DEBUG_LOG) DriverStation.silenceJoystickConnectionWarning(true);
+    if (DEBUG_LOG)
+      DriverStation.silenceJoystickConnectionWarning(true);
 
     m_number_of_cameras = ANumberOfCameras;
     m_number_of_Apriltags = AnumberOfTags;
@@ -45,7 +48,7 @@ public class VisionServer extends SubsystemBase {
 
     aprilTagEntries = new NetworkTableEntry[ANumberOfCameras];
     for (int i = 0; i < aprilTagEntries.length; ++i) {
-      aprilTagEntries[i] = m_nt_table.getEntry("Camid"+i+"/Apriltag");
+      aprilTagEntries[i] = m_nt_table.getEntry("Camid" + i + "/Apriltag");
     }
 
     m_detections_Apriltag = new DetectionList[ANumberOfCameras];
@@ -57,13 +60,15 @@ public class VisionServer extends SubsystemBase {
   public void updateDetectionLists() {
     for (int cameraIndex = 0; cameraIndex < m_number_of_cameras; ++cameraIndex) {
 
-      if (DEBUG_LOG) System.out.println("Cam" + cameraIndex + "-----");
+      if (DEBUG_LOG)
+        System.out.println("Cam" + cameraIndex + "-----");
 
       // Clear out old data since we might not be seeing the same things anymore
       m_detections_Apriltag[cameraIndex].clear();
 
       if (aprilTagEntries[cameraIndex].exists()) {
-        // Empty the buffer so it is fresh and then pull everything from the NT table in to it
+        // Empty the buffer so it is fresh and then pull everything from the NT table in
+        // to it
         m_buffer_from_table.clear();
         m_buffer_from_table.put(aprilTagEntries[cameraIndex].getRaw(null));
         m_buffer_from_table.flip(); // TODO zdw - should this be used?
@@ -75,10 +80,11 @@ public class VisionServer extends SubsystemBase {
           number_of_tags = m_buffer_from_table.getInt();
           number_of_fields = m_buffer_from_table.getInt();
           if (DEBUG_LOG) {
-            System.out.println("num tags " + number_of_tags + " num fields " + number_of_fields + " " + m_buffer_from_table.remaining());
+            System.out.println("num tags " + number_of_tags + " num fields " + number_of_fields + " "
+                + m_buffer_from_table.remaining());
           }
 
-            while (number_of_tags > 0) {
+          while (number_of_tags > 0) {
             --number_of_tags;
 
             double distance = m_buffer_from_table.getDouble();
@@ -91,29 +97,34 @@ public class VisionServer extends SubsystemBase {
 
             if (tag_id != 0) {
               m_detections_Apriltag[cameraIndex].addDetection(
-              ObjectType.APRILTAG,
-              distance,
-              angle,
-              tag_id,
-              yaw,
-              pitch,
-              roll,
-              cameraNum
-            );
+                  ObjectType.APRILTAG,
+                  distance,
+                  angle,
+                  tag_id,
+                  yaw,
+                  pitch,
+                  roll,
+                  cameraNum);
             }
-            //else System.out.println("Tag id 0");
+            // else System.out.println("Tag id 0");
 
-            if (DEBUG_LOG) System.out.println("Detection: " + m_detections_Apriltag[cameraIndex].getDetectionById(tag_id).toString());
+            if (DEBUG_LOG)
+              System.out
+                  .println("Detection: " + m_detections_Apriltag[cameraIndex].getDetectionById(tag_id).toString());
 
-          };
+          }
+          ;
         } catch (BufferUnderflowException exception) {
-          // nothing seen so incase we get the underflow log out then continue to the next camera
-          if (DEBUG_LOG) System.out.println("VisionServer BufferUnderflowException camindex " + cameraIndex);
+          // nothing seen so incase we get the underflow log out then continue to the next
+          // camera
+          if (DEBUG_LOG)
+            System.out.println("VisionServer BufferUnderflowException camindex " + cameraIndex);
           continue;
         }
 
       } else {
-        if (DEBUG_LOG) System.out.println("No dice! " + aprilTagEntries[cameraIndex].getName());
+        if (DEBUG_LOG)
+          System.out.println("No dice! " + aprilTagEntries[cameraIndex].getName());
       }
     }
   }
@@ -125,10 +136,9 @@ public class VisionServer extends SubsystemBase {
   public IDetection getClosestDetection() {
     IDetection closestDetection = NullDetection.Instance;
     for (DetectionList detection_list : m_detections_Apriltag) {
-      for (int i = 0; i < detection_list.getSize(); i++){
+      for (int i = 0; i < detection_list.getSize(); i++) {
         IDetection currentDetection = detection_list.getDetection(i);
-        if (currentDetection.getDistance() < closestDetection.getDistance())
-        {
+        if (currentDetection.getDistance() < closestDetection.getDistance()) {
           closestDetection = currentDetection;
         }
       }
@@ -140,7 +150,18 @@ public class VisionServer extends SubsystemBase {
   @Override
   public void periodic() {
     updateDetectionLists();
+
+    if (true) return;
+
+    if (logCounter++ % 50 == 0) {
+      logCounter = 0;
+
+      System.out.print("[Detections:");
+      for (int i = 0; i < m_detections_Apriltag.length; i++) {
+        System.out.printf("  Cam%d:%d", i, m_detections_Apriltag[i].getSize());
+      }
+
+      System.out.println("]");
+    }
   }
 }
-
-
