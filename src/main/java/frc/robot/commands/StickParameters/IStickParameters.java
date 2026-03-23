@@ -6,27 +6,19 @@ package frc.robot.commands.StickParameters;
 
 /** Add your docs here. */
 public interface IStickParameters {
-    double get_RotateFactor();
+    public double getLeftXMax();
+    public double getLeftXMid();
+    public double getLeftXMin();
 
-    double get_DriveXFactor();
+    public double getLeftYMax();
+    public double getLeftYMid();
+    public double getLeftYMin();
 
-    double get_DriveYFactor();
-
-    double get_ThrottleFactor();
-
-    double get_RotateOffset();
-
-    double get_DriveXOffset();
-
-    double get_DriveYOffset();
-
-    double get_ThrottleOffset();
-
-    double get_knobOffset();
-
-    double get_deadbandX();
-
-    double get_deadbandY();
-
-    double get_deadbandRot();
+    public double getRightXMax();
+    public double getRightXMid();
+    public double getRightXMin();
+    
+    public double getRightYMax();
+    public double getRightYMid();
+    public double getRightYMin();
 }
