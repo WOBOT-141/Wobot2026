@@ -97,6 +97,7 @@ public class AimAtHubCommand extends Command {
           ShooterConstants.hubRimToCenter_in, 36);
 
       m_initialVectorFound = true;
+      System.out.println("Gyro angle " + currentGyroAngle_deg  + "vision angle " + m_lastFoundVector.Angle);
     }
     
     //Don't command anything if we don't have something to work off yet.
