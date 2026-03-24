@@ -81,14 +81,14 @@ public class AimAtHubCommand extends Command {
   @Override
   public void execute() {
     //Get data to operate on
-    double currentGyroAngle_deg = m_gyro.getRawGyroAngle();
+    double currentGyroAngle_deg = m_gyro.getRealGyroAngle();
     DetectionList detectionList = m_visionServer.getApriltagDetectionLists()[0];
     Optional<AngleMagVector> m_vectorToHubOptional = m_aprilTagFilter.getFloorVectorToTaggedElement(detectionList, FieldElement.HUB);
 
     //Update our targeting if we have usable tag data
     if (m_vectorToHubOptional.isPresent()) {
       m_lastFoundVector = m_vectorToHubOptional.get();
-      m_targetGyroAngle_deg = currentGyroAngle_deg - m_lastFoundVector.Angle; //TODO may need to be added instead of subtracted.
+      m_targetGyroAngle_deg = currentGyroAngle_deg + m_lastFoundVector.Angle; //TODO may need to be added instead of subtracted.
 
       m_pidController.setSetpoint(m_targetGyroAngle_deg);
       m_launchAngle_deg = ShooterCalculations.getLaunchAngle(m_lastFoundVector.Magnitude,

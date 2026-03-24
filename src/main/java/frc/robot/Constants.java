@@ -149,9 +149,9 @@ public final class Constants {
   }
 
   public static class RotateCommandConstants {
-    public static final double P = 0.0035;
+    public static final double P = 0.00009;
     public static final double I = 0.00000;
-    public static final double D = 0.00000;
+    public static final double D = 0.00004;
     public static final double rotateTargetTolerance_deg = 3.0;
   }
 

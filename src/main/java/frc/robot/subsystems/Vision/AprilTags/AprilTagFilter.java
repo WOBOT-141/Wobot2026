@@ -55,26 +55,31 @@ public class AprilTagFilter {
 
     public Optional<AngleMagVector> getFloorVectorToTaggedElement(DetectionList detectionList, FieldElement element) {
         ArrayList<AngleMagVector> floorVectorList = new ArrayList<AngleMagVector>();
+        System.out.println("detection list size " + detectionList.getSize());
 
         for (int i = 0; i < detectionList.getSize(); i++) {
             IDetection detection = detectionList.getDetection(i);
             if (!isCenterTag(detection.getId())) {
+                System.out.println("Continue 1");
                 continue;
             }
 
             Optional<AprilTagFieldInfo> tagInfoOptional = getTagInfoIfElementAndAlliance(detection.getId(), FieldElement.HUB);
             if (tagInfoOptional.isEmpty()) {
+                System.out.println("Continue 2");
                 continue;
             }
 
             AprilTagFieldInfo centerTagInfo = tagInfoOptional.get();
             IDetection pairedDetection = detectionList.getDetectionById(centerTagInfo.PairedId);
             if (pairedDetection == NullDetection.Instance) {
+                System.out.println("Continue 3");
                 continue;
             }
 
             Optional<AprilTagFieldInfo> pairedTagInfoOptional = getTagInfoIfElementAndAlliance(pairedDetection.getId(), FieldElement.HUB);
             if (tagInfoOptional.isEmpty()) {
+                System.out.println("Continue 4");
                 continue;
             }
 
