@@ -98,15 +98,15 @@ public class StickCommand extends Command {
     double translationAngle_deg = calcTranslationAngle_deg(stickX_perc, stickY_perc);
     double rotationalMagnitude_perc = throttle_perc * stickRotate_perc;
 
-    /* ---------------- Clamping ---------------- */
-    translationMagnitude_perc = m_rampRate.calculate(translationMagnitude_perc);
-    translationMagnitude_perc = Math.max(-1.0, Math.min(1.0, translationMagnitude_perc));
-    rotationalMagnitude_perc = Math.max(-1.0, Math.min(1.0, rotationalMagnitude_perc));
-
     /* ---------------- Override Rotation --------------- */
     if (rotationalMagnitude_perc == 0 && m_altCommandedRotation_perc.isPresent()) {
       rotationalMagnitude_perc = m_altCommandedRotation_perc.get();
     }
+
+    /* ---------------- Clamping ---------------- */
+    translationMagnitude_perc = m_rampRate.calculate(translationMagnitude_perc);
+    translationMagnitude_perc = Math.max(-1.0, Math.min(1.0, translationMagnitude_perc));
+    rotationalMagnitude_perc = Math.max(-1.0, Math.min(1.0, rotationalMagnitude_perc));
 
     /* ---------------- Drive ---------------- */
     double yDist = m_isRotateCenter

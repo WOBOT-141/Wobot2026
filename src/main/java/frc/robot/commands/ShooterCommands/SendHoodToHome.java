@@ -23,6 +23,7 @@ public class SendHoodToHome extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    System.err.println("##########################################################");
     m_shooter.setHoodAtHome(false);
   }
 
@@ -37,6 +38,7 @@ public class SendHoodToHome extends Command {
   @Override
   public void end(boolean interrupted) {
     m_shooter.stopHood();
+    System.out.println("=================================");
   }
 
   // Returns true when the command should end.

@@ -39,6 +39,7 @@ public final class Constants {
     public static final int climbFollowerMotorID = 0;
   }
 
+
   public static class VisionServerConstants {
     public static final int NumberOfCameras = 2;
   }
@@ -72,20 +73,8 @@ public final class Constants {
   }
 
 
-  public static class ControllerOneConstants {
-    public static final double RotateFactor = 1.35;
-    public static final double DriveXFactor = 1.26;
-    public static final double DriveYFactor = 1.23;
-    public static final double ThrottleFactor = 1.55;
-
-    public static final double RotateOffset = -0.056375;
-    public static final double DriveXOffset = 0.039816 + 0.029202;
-    public static final double DriveYOffset = -0.024228;
-    public static final double ThrottleOffset = 0;
-
-    public static final double deadbandRot = 0.025;
-    public static final double deadbandX = 0.025;
-    public static final double deadbandY = 0.025;
+  public static class ControllerConstants {
+    public static final double rumbleFeedback_perc = 0.6;
   }
 
 
@@ -167,8 +156,8 @@ public final class Constants {
   }
 
   public static class RotateVisionConstants {
-    public static final double P = 0.004;
-    public static final double I = 0.002;
+    public static final double P = 0.01;
+    public static final double I = 0.00002;
     public static final double D = 0.00000;
     public static final double rotateTargetTolerance_deg = 2;
   }
@@ -188,28 +177,29 @@ public final class Constants {
     public static final double hubRimHeight_in = 72;
     public static final double muzzleToRimHeight_in = hubRimHeight_in - muzzleHeight_in;
 
-    public static final double leftP = 0.0012;
-    public static final double middleP = 0.0025;
-    public static final double rightP = 0.0015;
-    public static final double I = 0.00000;
-    public static final double D = 0.00000;
-    public static final double kF = 0.0018;
+    public static final double leftP = 0.002; //0.0015;
+    public static final double middleP = 0.002;//0.0025;
+    public static final double rightP = 0.002; //0.0012;
+    public static final double I = 0.0000;
+    public static final double D = 0.000000;
+    public static final double kF = 0.0018; //0.0018;
 
-    public static final double hoodP = 0.05;
+    public static final double hoodP = 0.02;
     public static final double hoodI = 0;
     public static final double hoodD = 0; //.001
+    public static final double hood_kF = 1.7;
     
     public static final double hoodGearRatio = (10.0 / 62.0) * (50.0 / 319.0);
     public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
     
     // Control tuning
-    public static final double flywheelVelocityTolerance_ips = 25; //15
+    public static final double flywheelVelocityTolerance_ips = 15; //25 //15
     public static final double hoodPositionTolerance_deg = 5;  //2
-    public static final double hoodSlewRate = 0.5;
+    public static final double hoodSlewRate = 0.8;
 
     // Current limits
     public static final int flywheelCurrentLimit_amp = 40;
-    public static final int hoodCurrentLim_amp = 20;
+    public static final int hoodCurrentLim_amp = 30;//20;
 
     // Brownout protection
     public static final double BrownoutStartVoltage_V = 10.8;
@@ -219,13 +209,14 @@ public final class Constants {
     public static final double shotDipThreshold_rpm = 250.0;
     public static final double shotMinSeparation_sec = 0.08;
   
-    public static final double hoodHomeRPM = 0.1;
+    public static final double hoodHomeRPM = 0.2;
     
     public static final double hoodUpperLimit_deg = 89;
     public static final double hoodLowerLimit_deg = 46;
 
     // Fire command constants
     public static final double firingWaitTime_sec = 0.5;
+    public static final double defaultHeightAboveRim_in = 36;
   }
 
   public static class WheelConstants {

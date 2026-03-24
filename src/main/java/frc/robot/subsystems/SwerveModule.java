@@ -115,17 +115,15 @@ public class SwerveModule extends SubsystemBase {
 
     _wheelDriveEncoder = _driveMotor.getEncoder();
 
-    driveSysId =
-    new SysIdRoutine(
+    driveSysId = new SysIdRoutine(
         new SysIdRoutine.Config(
-          edu.wpi.first.units.Units.Volts.of(1.0).per(Second),
-          edu.wpi.first.units.Units.Volts.of(7.0),
-          edu.wpi.first.units.Units.Second.of(10.0)
-        ),
+            edu.wpi.first.units.Units.Volts.of(1.0).per(Second),
+            edu.wpi.first.units.Units.Volts.of(7.0),
+            edu.wpi.first.units.Units.Second.of(10.0)),
         new SysIdRoutine.Mechanism(
             volts -> {
               // Disable steering during SysId
-              //_steerMotor.stopMotor();
+              // _steerMotor.stopMotor();
               setAngle(0);
               setDriveVoltage(volts.in(edu.wpi.first.units.Units.Volts));
             },
@@ -135,10 +133,7 @@ public class SwerveModule extends SubsystemBase {
                   .linearPosition(edu.wpi.first.units.Units.Meters.of(getDrivePositionMeters()))
                   .linearVelocity(edu.wpi.first.units.Units.MetersPerSecond.of(getDriveVelocityMetersPerSec()));
             },
-            this
-        )
-    );
-
+            this));
 
     settoZero();
   }
@@ -168,15 +163,30 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public void setSpeed(double speed) {
+    if (Double.isNaN(speed)) {
+      System.out.println("ERROR, commanded speed is NaN!!!");
+      return;
+    }
+
     _drivePID.setSetpoint(speed, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     SmartDashboard.putNumber("The speed of commanding", speed);
   }
 
   public void setPos(double pos) {
+    if (Double.isNaN(pos)) {
+      System.out.println("ERROR, commanded position is NaN!!!");
+      return;
+    }
+
     _drivePID.setSetpoint(pos, ControlType.kPosition);
   }
 
   public void setAngle(double angle) {
+    if (Double.isNaN(angle)) {
+      System.out.println("ERROR, commanded angle is NaN!!!");
+      return;
+    }
+
     _steerPID.setSetpoint(angle, ControlType.kPosition);
   }
 
@@ -304,6 +314,7 @@ public class SwerveModule extends SubsystemBase {
 
   public void steerMotorPosDebug() {
     double currentAngle_deg = (_steerMotor.getEncoder().getPosition());
+
     switch (steerMotorID) {
 
       case CANIdConstants.backLeftSteerMotorID:
@@ -322,6 +333,7 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber("Neo position Front Right", currentAngle_deg);
         // System.out.printf("Neo position Front Right: %.3f\n", currentAngle_deg);
         break;
+
     }
   }
 
@@ -357,15 +369,15 @@ public class SwerveModule extends SubsystemBase {
 
   public void setDriveVoltage(double volts) {
     _driveMotor.setVoltage(volts);
-  }  
+  }
 
   public double getDrivePositionMeters() {
     return _wheelDriveEncoder.getPosition();
-  }  
+  }
 
   public double getDriveVelocityMetersPerSec() {
     return _wheelDriveEncoder.getVelocity();
-  }  
+  }
 
   public double getAppliedDriveVoltage() {
     return _driveMotor.getAppliedOutput() * _driveMotor.getBusVoltage();
@@ -374,15 +386,15 @@ public class SwerveModule extends SubsystemBase {
   public Command sysIdQuasistaticForward() {
     return driveSysId.quasistatic(SysIdRoutine.Direction.kForward);
   }
-  
+
   public Command sysIdQuasistaticReverse() {
     return driveSysId.quasistatic(SysIdRoutine.Direction.kReverse);
   }
-  
+
   public Command sysIdDynamicForward() {
     return driveSysId.dynamic(SysIdRoutine.Direction.kForward);
   }
-  
+
   public Command sysIdDynamicReverse() {
     return driveSysId.dynamic(SysIdRoutine.Direction.kReverse);
   }

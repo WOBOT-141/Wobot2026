@@ -59,9 +59,9 @@ public class MagazineAndFeed extends SubsystemBase {
 
   }
 
-  public void setFeedVelocity(double targetVelocity_ips){
-    m_feedMotor.set(targetVelocity_ips);
-    m_magazineMotor.set(targetVelocity_ips);
+  public void setFeedVelocity(double targetVelocity_perc){
+    m_feedMotor.set(targetVelocity_perc);
+    m_magazineMotor.set(targetVelocity_perc);
     
   }
   
