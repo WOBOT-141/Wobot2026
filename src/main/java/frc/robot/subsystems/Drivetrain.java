@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
 import frc.robot.Constants;
-import frc.robot.Constants.Mode;
 import frc.robot.subsystems.Vision.VisionServer;
 
 public class Drivetrain extends SubsystemBase {
@@ -50,7 +49,8 @@ public class Drivetrain extends SubsystemBase {
 
     SwerveModuleState[] swerveStatesArray;
 
-    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault().getStructTopic("MyPoseNTVersion", Pose2d.struct)
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("MyPoseNTVersion", Pose2d.struct)
             .publish();
     StructArrayPublisher<SwerveModuleState> arrayPublisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("swerveModuleState", SwerveModuleState.struct).publish();
@@ -98,7 +98,8 @@ public class Drivetrain extends SubsystemBase {
         m_climbing = climb;
     }
 
-    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc,
+            double rotationalSpeed_perc) {
         driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
     }
 
@@ -232,32 +233,73 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         rawGyroRotation = m_gyro.getRotationAs2d();
-        poseEstimator.update(rawGyroRotation, getModulePositions());//Update the odometry without vision first
+        poseEstimator.update(rawGyroRotation, getModulePositions());// Update the odometry without vision first
+        Pose2d visionRobotPose;
 
-        if (Constants.currentMode == Mode.SIM) {//this is something the code i was looking at had 
-            Pose2d visionRobotPose = m_visionServer.getSimulatedRobotPose();//get the estimatedpose from vision
-            Logger.recordOutput("Distance from Hub to Robot centers", getRobotToHubDist_m() );
+        switch (Constants.currentMode) {
+            case REAL -> {
+                // System.out.println("REAL");
+                Logger.recordOutput("VISIONCLOSESTPOSE", m_visionServer.getTagPose());
+                visionRobotPose = m_visionServer.getEstimatedRobotPose(m_gyro.getRawGyroAngle());// get the
+                                                                                                 // estimatedpose
+                                                                                                 // from vision
 
-            if (visionRobotPose != null) {
-                Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);//output our estimated position so we can see the deviation from our actual to the vision estimate
+                if (visionRobotPose != null) {
+                    Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);// output our estimated position so we
+                                                                               // can
+                                                                               // see the deviation from our actual to
+                                                                               // the
+                                                                               // vision estimate
 
-                poseEstimator.addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp());//this is so we dont try to update based on old data 
+                    poseEstimator.addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp());// this is so we dont
+                                                                                                  // try
+                                                                                                  // to update based on
+                                                                                                  // old
+                                                                                                  // data
+                }
             }
-        } 
+            case SIM -> {
+                visionRobotPose = m_visionServer.getSimulatedRobotPose();// get the estimatedpose from vision
+                Logger.recordOutput("Distance from Hub to Robot centers", getRobotToHubDist_m());
 
-        else if (Constants.currentMode == Mode.REAL) {
-            Pose2d visionRobotPose = m_visionServer.getEstimatedRobotPose();//get the estimatedpose from vision
+                if (visionRobotPose != null) {
+                    Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);// output our estimated position so we
+                                                                               // can
+                                                                               // see the deviation from our actual to
+                                                                               // the
+                                                                               // vision estimate
 
-            if (visionRobotPose != null) {
-                Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);//output our estimated position so we can see the deviation from our actual to the vision estimate
-
-                poseEstimator.addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp());//this is so we dont try to update based on old data 
+                    poseEstimator.addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp());// this is so we dont
+                                                                                                  // try
+                                                                                                  // to update based on
+                                                                                                  // old
+                                                                                                  // data
+                }
             }
+            default -> {
+                visionRobotPose = m_visionServer.getSimulatedRobotPose();// get the estimatedpose from vision
+                Logger.recordOutput("Distance from Hub to Robot centers", getRobotToHubDist_m());
+
+                if (visionRobotPose != null) {
+                    Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);// output our estimated position so we
+                                                                               // can
+                                                                               // see the deviation from our actual to
+                                                                               // the
+                                                                               // vision estimate
+
+                    poseEstimator.addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp());// this is so we dont
+                                                                                                  // try
+                                                                                                  // to update based on
+                                                                                                  // old
+                                                                                                  // data
+                }
+            }
+
         }
 
-        lastPose = poseEstimator.getEstimatedPosition();// update our pose 
-        Logger.recordOutput("Odometry/Robot", lastPose);//update our pose on AdvantageScope
-        Logger.recordOutput("Pose/X", lastPose.getX());//List  our X,Y, and current rotation from our pose 
+        lastPose = poseEstimator.getEstimatedPosition();// update our pose
+        Logger.recordOutput("Odometry/Robot", lastPose);// update our pose on AdvantageScope
+        Logger.recordOutput("Pose/X", lastPose.getX());// List our X,Y, and current rotation from our pose
         Logger.recordOutput("Pose/Y", lastPose.getY());
         Logger.recordOutput("Pose/Rotation", lastPose.getRotation().getDegrees());
 
@@ -265,7 +307,6 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("leftface", Constants.Hub.getLeftFace());
         Logger.recordOutput("frontface", Constants.Hub.getNearFace());
         Logger.recordOutput("backface", Constants.Hub.getFarFace());
-
 
     }
 
@@ -290,17 +331,25 @@ public class Drivetrain extends SubsystemBase {
     public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] positions = new SwerveModulePosition[_wheels.length];
 
-        if (Constants.currentMode == Constants.Mode.REAL) {
-            for (int i = 0; i < _wheels.length; i++) {
-                double distanceMeters = Units.inchesToMeters(_wheels[i].getEncoderDistance());
-                Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
-                positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
+        switch (Constants.currentMode) {
+            case REAL -> {
+                for (int i = 0; i < _wheels.length; i++) {
+                    double distanceMeters = Units.inchesToMeters(_wheels[i].getEncoderDistance());
+                    Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
+                    positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
+                }
             }
-        } else {
-            // For simulation, provide default positions
-            for (int i = 0; i < _wheels.length; i++) {
-                positions[i] = new SwerveModulePosition(0.0, new Rotation2d());
+            case SIM -> {
+                for (int i = 0; i < _wheels.length; i++) {
+                    positions[i] = new SwerveModulePosition(0.0, new Rotation2d());
+                }
             }
+            default -> {
+                for (int i = 0; i < _wheels.length; i++) {
+                    positions[i] = new SwerveModulePosition(0.0, new Rotation2d());
+                }
+            }
+
         }
 
         return positions;
@@ -321,17 +370,20 @@ public class Drivetrain extends SubsystemBase {
     public Rotation2d getPoseRotation() {
         return getPose().getRotation();
     }
-public double getHubX(){
-    return Constants.Hub.getTopCenterPoint().getX();
-}
-public double getHubY(){
-    return Constants.Hub.getTopCenterPoint().getY();
-}
-public  double getRobotToHubDist_m(){
-    double distStep1 = Math.pow(getPoseX() - getHubX() , 2);
-    double distStep2 = Math.pow(getPoseY() - getHubY(), 2);
-    return Math.sqrt(distStep1 + distStep2);
-}
+
+    public double getHubX() {
+        return Constants.Hub.getTopCenterPoint().getX();
+    }
+
+    public double getHubY() {
+        return Constants.Hub.getTopCenterPoint().getY();
+    }
+
+    public double getRobotToHubDist_m() {
+        double distStep1 = Math.pow(getPoseX() - getHubX(), 2);
+        double distStep2 = Math.pow(getPoseY() - getHubY(), 2);
+        return Math.sqrt(distStep1 + distStep2);
+    }
 
     public void resetWheelPositions() {
         for (SwerveModule wheel : _wheels) {

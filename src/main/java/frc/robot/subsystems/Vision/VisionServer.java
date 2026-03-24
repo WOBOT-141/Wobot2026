@@ -16,11 +16,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.subsystems.Vision.Detections.DetectionList;
 import frc.robot.subsystems.Vision.Detections.IDetection;
 import frc.robot.subsystems.Vision.Detections.NullDetection;
@@ -44,7 +43,8 @@ public class VisionServer extends SubsystemBase {
 
   public VisionServer(int ANumberOfCameras, int AnumberOfTags) {
 
-    if (DEBUG_LOG) DriverStation.silenceJoystickConnectionWarning(true);
+    if (DEBUG_LOG)
+      DriverStation.silenceJoystickConnectionWarning(true);
 
     m_number_of_cameras = ANumberOfCameras;
     m_number_of_Apriltags = AnumberOfTags;
@@ -55,7 +55,7 @@ public class VisionServer extends SubsystemBase {
 
     aprilTagEntries = new NetworkTableEntry[ANumberOfCameras];
     for (int i = 0; i < aprilTagEntries.length; ++i) {
-      aprilTagEntries[i] = m_nt_table.getEntry("Camid"+i+"/Apriltag");
+      aprilTagEntries[i] = m_nt_table.getEntry("Camid" + i + "/Apriltag");
     }
 
     m_detections_Apriltag = new DetectionList[ANumberOfCameras];
@@ -65,8 +65,7 @@ public class VisionServer extends SubsystemBase {
 
     try {
       m_aprilTagFieldLayout = new AprilTagFieldLayout(
-        Filesystem.getDeployDirectory().toPath().resolve("2026-official.json")
-      );
+          Filesystem.getDeployDirectory().toPath().resolve("2026-official.json"));
     } catch (IOException e) {
 
     }
@@ -81,13 +80,15 @@ public class VisionServer extends SubsystemBase {
   public void updateDetectionLists() {
     for (int cameraIndex = 0; cameraIndex < m_number_of_cameras; ++cameraIndex) {
 
-      if (DEBUG_LOG) System.out.println("Cam" + cameraIndex + "-----");
+      if (DEBUG_LOG)
+        System.out.println("Cam" + cameraIndex + "-----");
 
       // Clear out old data since we might not be seeing the same things anymore
       m_detections_Apriltag[cameraIndex].clear();
 
       if (aprilTagEntries[cameraIndex].exists()) {
-        // Empty the buffer so it is fresh and then pull everything from the NT table in to it
+        // Empty the buffer so it is fresh and then pull everything from the NT table in
+        // to it
         m_buffer_from_table.clear();
         m_buffer_from_table.put(aprilTagEntries[cameraIndex].getRaw(null));
         m_buffer_from_table.flip(); // TODO zdw - should this be used?
@@ -99,10 +100,11 @@ public class VisionServer extends SubsystemBase {
           number_of_tags = m_buffer_from_table.getInt();
           number_of_fields = m_buffer_from_table.getInt();
           if (DEBUG_LOG) {
-            System.out.println("num tags " + number_of_tags + " num fields " + number_of_fields + " " + m_buffer_from_table.remaining());
+            System.out.println("num tags " + number_of_tags + " num fields " + number_of_fields + " "
+                + m_buffer_from_table.remaining());
           }
 
-            while (number_of_tags > 0) {
+          while (number_of_tags > 0) {
             --number_of_tags;
 
             double distance = m_buffer_from_table.getDouble();
@@ -115,45 +117,52 @@ public class VisionServer extends SubsystemBase {
 
             if (tag_id != 0) {
               m_detections_Apriltag[cameraIndex].addDetection(
-              ObjectType.APRILTAG,
-              distance,
-              angle,
-              tag_id,
-              yaw,
-              pitch,
-              roll,
-              cameraNum
-            );
-            }
-            else System.out.println("Tag id 0");
+                  ObjectType.APRILTAG,
+                  distance,
+                  angle,
+                  tag_id,
+                  yaw,
+                  pitch,
+                  roll,
+                  cameraNum);
+            } else
+              System.out.println("Tag id 0");
 
-            if (DEBUG_LOG) System.out.println("Detection: " + m_detections_Apriltag[cameraIndex].getDetectionById(tag_id).toString());
+            if (DEBUG_LOG)
+              System.out
+                  .println("Detection: " + m_detections_Apriltag[cameraIndex].getDetectionById(tag_id).toString());
 
-          };
+          }
+          ;
         } catch (BufferUnderflowException exception) {
-          // nothing seen so incase we get the underflow log out then continue to the next camera
-          if (DEBUG_LOG) System.out.println("VisionServer BufferUnderflowException camindex " + cameraIndex);
+          // nothing seen so incase we get the underflow log out then continue to the next
+          // camera
+          if (DEBUG_LOG)
+            System.out.println("VisionServer BufferUnderflowException camindex " + cameraIndex);
           continue;
         }
 
       } else {
-        if (DEBUG_LOG) System.out.println("No dice! " + aprilTagEntries[cameraIndex].getName());
+        if (DEBUG_LOG)
+          System.out.println("No dice! " + aprilTagEntries[cameraIndex].getName());
       }
     }
   }
 
   public boolean hasTargets() {
-    if (getClosestDetection() == null) {
-        return true;
+    if (getClosestDetection() == NullDetection.Instance) {
+      return false;
     } else {
-        return false;
+      return true;
     }
   }
 
   public Pose2d getTagPose() {
     IDetection detection = getClosestDetection();
-    if (detection == null) {
-        return null;
+    if (detection == NullDetection.Instance) {
+      System.out.println("NOTAG");
+
+      return getTagPose(NullDetection.Instance.getId());
     }
 
     return getTagPose(detection.getId());
@@ -163,7 +172,7 @@ public class VisionServer extends SubsystemBase {
     Optional<Pose3d> pose = m_aprilTagFieldLayout.getTagPose(tagID);
 
     if (pose.isEmpty()) {
-      return null;
+      return new Pose2d(0.0, 0.0, new Rotation2d(0.0));
     }
 
     Pose3d p3 = pose.get();
@@ -179,10 +188,9 @@ public class VisionServer extends SubsystemBase {
   public IDetection getClosestDetection() {
     IDetection closestDetection = NullDetection.Instance;
     for (DetectionList detection_list : m_detections_Apriltag) {
-      for (int i = 0; i < detection_list.getSize(); i++){
+      for (int i = 0; i < detection_list.getSize(); i++) {
         IDetection currentDetection = detection_list.getDetection(i);
-        if (currentDetection.getDistance() < closestDetection.getDistance())
-        {
+        if (currentDetection.getDistance() < closestDetection.getDistance()) {
           closestDetection = currentDetection;
         }
       }
@@ -191,59 +199,71 @@ public class VisionServer extends SubsystemBase {
     return closestDetection;
   }
 
-  public Pose2d getEstimatedRobotPose() {
+  public Pose2d getEstimatedRobotPose(double gyroAngle) {
     IDetection detection = getClosestDetection();
-    if (detection == null) {
-        return null;
+    if (detection == NullDetection.Instance) {
+      return getTagPose(detection.getId());
     }
 
-    Optional<Pose3d> tagPoseOptional = m_aprilTagFieldLayout.getTagPose(getClosestDetection().getId()); //Get the current tag from the apriltagFieldLayout
+    Optional<Pose3d> tagPoseOptional = m_aprilTagFieldLayout.getTagPose(getClosestDetection().getId()); // Get the
+                                                                                                        // current tag
+                                                                                                        // from the
+                                                                                                        // apriltagFieldLayout
     if (tagPoseOptional.isEmpty()) {
-        return null; // null detection should probably change 
+      return getTagPose(detection.getId()); // null detection should probably change
     }
 
-    Pose2d tagPose = tagPoseOptional.get().toPose2d(); // getTagPose returns a pose3d, this turns it into a pose3d. for using odom in shooting we need that 3d axis
+    Pose2d tagPose = tagPoseOptional.get().toPose2d(); // getTagPose returns a pose3d, this turns it into a pose2d. for
+                                                       // using odom in shooting we might need that 3rd axis
 
-    double distanceMeters = Units.inchesToMeters(detection.getDistance());//change our inches to meters as the pose excpets meters 
-    double bearingRadians = Units.degreesToRadians(-detection.getBearing());//same here but for degrees // zane, this was getAngle()
+    double distanceMeters = Units.inchesToMeters(detection.getDistance());// change our inches to meters as the pose
+                                                                          // excpets meters
+    double bearingRadians = Units.degreesToRadians(-detection.getYaw());// same here but for degrees // zane, this
+                                                                        // was getAngle()
 
-    double tagYawRadians = Units.degreesToRadians(detection.getYaw());//same again 
+    double tagYawRadians = Units.degreesToRadians(gyroAngle);// same again
 
-    Rotation2d relativeRotation = new Rotation2d(Math.PI + tagYawRadians);// our system of getting the angle from the gyro is different from the WPI coordinate system. this flips the angle to match
+    Rotation2d relativeRotation = new Rotation2d(Math.PI + tagYawRadians);// our system of getting the angle from the
+                                                                          // gyro is different from the WPI coordinate
+                                                                          // system. this flips the angle to match
 
     Transform2d cameraToTag = new Transform2d(
-            distanceMeters * Math.cos(bearingRadians), // X offset (Forward)
-            distanceMeters * Math.sin(bearingRadians), // Y offset (Sideways)
-            relativeRotation // The combined rotation
+        distanceMeters * Math.cos(bearingRadians), // X offset (Forward)
+        distanceMeters * Math.sin(bearingRadians), // Y offset (Sideways)
+        relativeRotation // The combined rotation
     );
 
     return tagPose.transformBy(cameraToTag.inverse());
   }
 
   public Pose2d getSimulatedRobotPose() {
-    int tagToFind = (int) SmartDashboard.getNumber("SimVision/TagID", 3); //This is what powers the Testing UI 
+    int tagToFind = (int) SmartDashboard.getNumber("SimVision/TagID", 3); // This is what powers the Testing UI
     double distFromTag = SmartDashboard.getNumber("SimVision/Distance_in", 72.0);
     double angleFromTag = SmartDashboard.getNumber("SimVision/Angle_deg", 30.0);
     double robotBearing = SmartDashboard.getNumber("SimVision/RobotBearing_deg", 10.0);
 
-    Optional<Pose3d> tagPoseOptional = m_aprilTagFieldLayout.getTagPose(tagToFind); //Get the current tag from the apriltagFieldLayout
+    Optional<Pose3d> tagPoseOptional = m_aprilTagFieldLayout.getTagPose(tagToFind); // Get the current tag from the
+                                                                                    // apriltagFieldLayout
     if (tagPoseOptional.isEmpty()) {
-        return null; // null detection should probably change 
+      return null; // null detection should probably change
     }
 
-    Pose2d tagPose = tagPoseOptional.get().toPose2d(); // getTagPose returns a pose3d, this turns it into a pose3d. for using odom in shooting we need that 3d axis
+    Pose2d tagPose = tagPoseOptional.get().toPose2d(); // getTagPose returns a pose3d, this turns it into a pose2d. for
+                                                       // using odom in shooting we might need that 3rd axis
 
-    double distanceMeters = Units.inchesToMeters(distFromTag);//change our inches to meters as the pose excpets meters 
-    double bearingRadians = Units.degreesToRadians(-angleFromTag);//same here but for degrees
+    double distanceMeters = Units.inchesToMeters(distFromTag);// change our inches to meters as the pose excpets meters
+    double bearingRadians = Units.degreesToRadians(-angleFromTag);// same here but for degrees
 
-    double tagYawRadians = Units.degreesToRadians(robotBearing);//same again 
+    double tagYawRadians = Units.degreesToRadians(robotBearing);// same again
 
-    Rotation2d relativeRotation = new Rotation2d(Math.PI + tagYawRadians);// our system of getting the angle from the gyro is different from the WPI coordinate system. this flips the angle to match
+    Rotation2d relativeRotation = new Rotation2d(Math.PI + tagYawRadians);// our system of getting the angle from the
+                                                                          // gyro is different from the WPI coordinate
+                                                                          // system. this flips the angle to match
 
     Transform2d cameraToTag = new Transform2d(
-            distanceMeters * Math.cos(bearingRadians), // X offset (Forward)
-            distanceMeters * Math.sin(bearingRadians), // Y offset (Sideways)
-            relativeRotation // The combined rotation
+        distanceMeters * Math.cos(bearingRadians), // X offset (Forward)
+        distanceMeters * Math.sin(bearingRadians), // Y offset (Sideways)
+        relativeRotation // The combined rotation
     );
 
     return tagPose.transformBy(cameraToTag.inverse());
