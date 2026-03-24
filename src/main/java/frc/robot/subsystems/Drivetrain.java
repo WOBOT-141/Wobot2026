@@ -236,13 +236,16 @@ public class Drivetrain extends SubsystemBase {
 
         if (Constants.currentMode == Mode.SIM) {//this is something the code i was looking at had 
             Pose2d visionRobotPose = m_visionServer.getSimulatedRobotPose();//get the estimatedpose from vision
+            Logger.recordOutput("Distance from Hub to Robot centers", getRobotToHubDist_m() );
 
             if (visionRobotPose != null) {
                 Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);//output our estimated position so we can see the deviation from our actual to the vision estimate
 
                 poseEstimator.addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp());//this is so we dont try to update based on old data 
             }
-        } else if (Constants.currentMode == Mode.REAL) {
+        } 
+
+        else if (Constants.currentMode == Mode.REAL) {
             Pose2d visionRobotPose = m_visionServer.getEstimatedRobotPose();//get the estimatedpose from vision
 
             if (visionRobotPose != null) {
@@ -318,7 +321,17 @@ public class Drivetrain extends SubsystemBase {
     public Rotation2d getPoseRotation() {
         return getPose().getRotation();
     }
-
+public double getHubX(){
+    return Constants.Hub.getTopCenterPoint().getX();
+}
+public double getHubY(){
+    return Constants.Hub.getTopCenterPoint().getY();
+}
+public  double getRobotToHubDist_m(){
+    double distStep1 = Math.pow(getPoseX() - getHubX() , 2);
+    double distStep2 = Math.pow(getPoseY() - getHubY(), 2);
+    return Math.sqrt(distStep1 + distStep2);
+}
 
     public void resetWheelPositions() {
         for (SwerveModule wheel : _wheels) {
