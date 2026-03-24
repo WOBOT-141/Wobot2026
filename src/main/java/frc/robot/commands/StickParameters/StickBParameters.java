@@ -1,91 +1,37 @@
 package frc.robot.commands.StickParameters;
 
 public class StickBParameters implements IStickParameters {
-    double RotateFactor;
-    double DriveXFactor;
-    double DriveYFactor;
-    double ThrottleFactor;
-    double RotateOffset;
-    double DriveXOffset;
-    double DriveYOffset;
-    double ThrottleOffset;
-    double KnobOffset;
-    double deadbandX;
-    double deadbandY;
-    double deadbandRot;
+
+    private AxisParameters leftXAxisParams;
+    private AxisParameters leftYAxisParams;
+    private AxisParameters rightXAxisParams;
+    private AxisParameters rightYAxisParams;
 
     public StickBParameters() {
-        RotateFactor = 1.2;
-        DriveXFactor = 1.17;
-        DriveYFactor = 1.12;
-        ThrottleFactor = 1.45;
-        RotateOffset = 0.02;
-        DriveXOffset = -0.04;
-        DriveYOffset = 0.02;
-        ThrottleOffset = 0.04;
-        deadbandRot = 0.2;
-        deadbandX = 0.2;
-        deadbandY = 0.2;
-        KnobOffset = 1;
+        leftXAxisParams  = new AxisParameters(-0.82, 0.02, 0.85, 0.2);
+        leftYAxisParams  = new AxisParameters(-0.73, 0.04, 0.65, 0.0);
+        rightXAxisParams = new AxisParameters(-0.89, -.04, 0.81, 0.2);
+        rightYAxisParams = new AxisParameters(-0.89, 0.02, 0.9, 0.2);
     }
 
     @Override
-    public double get_RotateFactor() {
-        return RotateFactor;
+    public AxisParameters getLeftXAxisParams() {
+        return leftXAxisParams;
     }
 
     @Override
-    public double get_DriveXFactor() {
-        return DriveXFactor;
+    public AxisParameters getLeftYAxisParams() {
+        return leftYAxisParams;
     }
 
     @Override
-    public double get_DriveYFactor() {
-        return DriveYFactor;
+    public AxisParameters getRightXAxisParams() {
+        return rightXAxisParams;
     }
 
     @Override
-    public double get_ThrottleFactor() {
-        return ThrottleFactor;
+    public AxisParameters getRightYAxisParams() {
+        return rightYAxisParams;
     }
 
-    @Override
-    public double get_RotateOffset() {
-        return RotateOffset;
-    }
-
-    @Override
-    public double get_DriveXOffset() {
-        return DriveXOffset;
-    }
-
-    @Override
-    public double get_DriveYOffset() {
-        return DriveYOffset;
-    }
-
-    @Override
-    public double get_ThrottleOffset() {
-        return ThrottleOffset;
-    }
-
-    @Override
-    public double get_knobOffset() {
-        return KnobOffset;
-    }
-
-    @Override
-    public double get_deadbandX() {
-        return deadbandX;
-    }
-
-    @Override
-    public double get_deadbandY() {
-        return deadbandY;
-    }
-
-    @Override
-    public double get_deadbandRot() {
-        return deadbandRot;
-    }
 }

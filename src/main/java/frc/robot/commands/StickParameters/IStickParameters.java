@@ -4,21 +4,14 @@
 
 package frc.robot.commands.StickParameters;
 
+import edu.wpi.first.wpilibj.PS4Controller.Axis;
+
 /** Add your docs here. */
 public interface IStickParameters {
-    public double getLeftXMax();
-    public double getLeftXMid();
-    public double getLeftXMin();
 
-    public double getLeftYMax();
-    public double getLeftYMid();
-    public double getLeftYMin();
+    public AxisParameters getLeftXAxisParams();
+    public AxisParameters getLeftYAxisParams();
+    public AxisParameters getRightXAxisParams();
+    public AxisParameters getRightYAxisParams();
 
-    public double getRightXMax();
-    public double getRightXMid();
-    public double getRightXMin();
-    
-    public double getRightYMax();
-    public double getRightYMid();
-    public double getRightYMin();
 }
