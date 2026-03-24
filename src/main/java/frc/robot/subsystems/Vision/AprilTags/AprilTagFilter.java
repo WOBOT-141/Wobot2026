@@ -92,6 +92,7 @@ public class AprilTagFilter {
         }
 
         if (floorVectorList.size() == 0) {
+            System.out.println("AprilTagFilter - No vectors found.");
             return Optional.empty();
         }
 
