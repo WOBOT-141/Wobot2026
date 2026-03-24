@@ -53,6 +53,17 @@ public class AprilTagFilter {
         return Optional.of(tag);
     }
 
+    public Optional<AprilTagFieldInfo> getTagInfoIfRelevantCenter(int tagId, FieldElement fieldElement) {
+        Optional<AprilTagFieldInfo> tagInfoOpt = getTagInfoIfElementAndAlliance(tagId, fieldElement);
+        if (tagInfoOpt.isEmpty())
+            return tagInfoOpt;
+
+        if (tagInfoOpt.get().XToElement != 0)
+            return Optional.empty();
+            
+        return tagInfoOpt;
+    }
+
     public Optional<AngleMagVector> getFloorVectorToTaggedElement(DetectionList detectionList, FieldElement element) {
         ArrayList<AngleMagVector> floorVectorList = new ArrayList<AngleMagVector>();
 
