@@ -74,6 +74,7 @@ public final class Constants {
 
 
   public static class ControllerConstants {
+    public static final double throttleFloor_perc = 0.05;
     public static final double rumbleFeedback_perc = 0.6;
   }
 

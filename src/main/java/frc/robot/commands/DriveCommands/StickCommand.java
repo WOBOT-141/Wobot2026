@@ -6,6 +6,9 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
+import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.IBotSelector;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
@@ -125,8 +128,15 @@ public class StickCommand extends Command {
 
 
   private double calcThrottle_perc(double stickThrottle_perc) {
-    // Convert throttle from [-1,1] to [0,1] with a floor
-    double throttle_perc = ((stickThrottle_perc + 1) / 2.0) + 0.1;
+    // Convert throttle from [-1,1] to [0,1]
+    double throttle_perc = (stickThrottle_perc + 1) / 2;
+    SmartDashboard.putNumber("throttle_perc1OLD", throttle_perc);
+    // Add a floor to the throttle, and normalize to to keep <= 1
+    throttle_perc = (throttle_perc * (1 - ControllerConstants.throttleFloor_perc)) + ControllerConstants.throttleFloor_perc;
+    SmartDashboard.putNumber("throttle_perc2NEW", throttle_perc);
+
+    //TODO This is a gross hack and should be removed once we fix the controller inputs.
+    throttle_perc *= 1.5;
 
     // Slow the bot down if we are aiming at something
     if (m_altCommandedRotation_perc.isPresent()) {
