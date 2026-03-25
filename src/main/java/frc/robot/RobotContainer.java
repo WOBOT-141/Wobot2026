@@ -4,8 +4,6 @@ import static java.util.Map.entry;
 
 import java.util.Map;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -78,9 +76,7 @@ public class RobotContainer {
   private final IBotSelector m_selectedBot = new MainBot();
   // private final IBotSelector m_selectedBot = new SummerBot();
 
-  private ChooserHandeling m_autonSelector;
-  private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
-
+ private final SendableChooser<Command> m_autonChooser = new SendableChooser<>();
 
   public RobotContainer() {
 
@@ -140,28 +136,21 @@ public class RobotContainer {
 
     configureBindings();
 
-    m_autonSelector = new ChooserHandeling("Autonomous Selector",
-        Map.ofEntries(
-            entry("00 Do Nothing", () -> new DoNothing()),
-            entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine, m_gyro)),
-            entry("02 Depotlease", () -> new Depotlease(m_drive, m_wheels, m_gyro, m_intake, m_shooter, m_magazine)),
-            entry("03 RIGHT Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-            entry("04 LEFT Midway Gather", () -> new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-            entry("05 Right HALF Midway Gather", () -> new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-            entry("05 Left HALF Midway Gather", () -> new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake))
-            //Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake
-             // fix
-        ));
-    autoChooser.addOption("00 Do Nothing", new DoNothing());
-    autoChooser.addDefaultOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
-    autoChooser.addOption("02 Depotlease", new Depotlease(m_drive, m_wheels, m_gyro, m_intake, m_shooter, m_magazine));
-    autoChooser.addOption("03 RIGHT Midway Gather", new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));    
-    autoChooser.addOption("04 LEFT Midway Gather", new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
-    autoChooser.addOption("05 Right HALF Midway Gather", new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
-    autoChooser.addOption("05 Left HALF Midway Gather", new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+    m_autonChooser.setDefaultOption("00 Do Nothing", new DoNothing());
+    m_autonChooser.addOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
+    m_autonChooser.addOption("03 RIGHT Midway Gather",
+        new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+    m_autonChooser.addOption("04 LEFT Midway Gather",
+        new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+    m_autonChooser.addOption("05 Right HALF Midway Gather",
+        new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+    m_autonChooser.addOption("06 Left HALF Midway Gather",
+        new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+
+            SmartDashboard.putData("AutonChooser", m_autonChooser);
   }
 
-  /**
+   /**
    * Restore flight controller scaling, offsets, and deadbands.
    */
   private void configureFlightControllerParameters() {
@@ -260,20 +249,17 @@ public class RobotContainer {
         // .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
   }
 
-  public Command getAutonomousCommand() {
-    // return new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake);
-    // if (m_autonSelector == null) {
-    //   return Commands.none();
-    // }
+ public Command getAutonomousCommand() {
+    Command selectedCommand = m_autonChooser.getSelected();
 
-    // Command selectedCommand = m_autonSelector.getSelected();
+    if (selectedCommand != null) {
+      System.out.println("Selected auton: " + selectedCommand.getName());
+      return selectedCommand;
+    }
 
-    // if (selectedCommand != null) {
-    //   System.out.println("Selected auton: " + selectedCommand);
-    // } else {
-    //   System.out.println("Selected auton: <null>");
-    // }
-
-    return autoChooser.get();
+    System.out.println("Selected auton: <null>");
+    return Commands.none();
   }
-}
+
+  }
+
