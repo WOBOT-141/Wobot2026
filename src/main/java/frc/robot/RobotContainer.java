@@ -29,6 +29,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionServerConstants;
 import frc.robot.Util.BumpShooterVector;
 import frc.robot.Util.ShooterCalculations;
+import frc.robot.commands.AimAtCenterTagCommand;
 import frc.robot.commands.AimAtHubCommand;
 import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.StopRobot;
@@ -75,8 +76,8 @@ public class RobotContainer {
   private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
-  private final IBotSelector m_selectedBot = new MainBot();
-  // private final IBotSelector m_selectedBot = new SummerBot();
+  //private final IBotSelector m_selectedBot = new MainBot();
+  private final IBotSelector m_selectedBot = new SummerBot();
 
   private ChooserHandeling m_autonSelector;
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
@@ -256,7 +257,8 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
-        .whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
+        .whileTrue(new AimAtCenterTagCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
+        // .whileTrue(new RotateByAnglePID(90, m_gyro, m_drive));
         // .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
   }
 

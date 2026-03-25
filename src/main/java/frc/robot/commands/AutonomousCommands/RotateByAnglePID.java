@@ -24,9 +24,10 @@ public class RotateByAnglePID extends Command {
   public RotateByAnglePID(double rotationAmount_deg, IGyro gyro, Drivetrain drivetrain) {
     m_drive = drivetrain;
     m_gyro = gyro;
-    m_getter = new DashboardPIDGetter("RotateAngle", RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D, rotationAmount_deg);
+    
+    m_pidController = new PIDController(RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D);
+    m_getter = new DashboardPIDGetter(m_pidController, "RotateAngle", RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D , rotationAmount_deg);
     m_targetRotationAmount_deg = rotationAmount_deg;
-    m_pidController = new PIDController(m_getter.getDashboardP(), m_getter.getDashboardI(), m_getter.getDashboardD());
     m_pidController.setTolerance(RotateCommandConstants.rotateTargetTolerance_deg);
 
     addRequirements(m_drive);

@@ -16,6 +16,7 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.RotateCommandConstants;
 import frc.robot.Constants.RotateVisionConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Util.DashboardPIDGetter;
 import frc.robot.Util.ShooterCalculations;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.subsystems.IGyro;
@@ -37,6 +38,7 @@ public class AimAtCenterTagCommand extends Command {
   private final AprilTagFilter m_aprilTagFilter;
   private final PIDController m_pidController;
   private final CommandXboxController m_controller;
+  private final DashboardPIDGetter m_getter;
 
   private IDetection m_lastFoundVector;
   private double m_targetGyroAngle_deg = 0;
@@ -59,6 +61,7 @@ public class AimAtCenterTagCommand extends Command {
     m_aprilTagFilter = aprilTagFilter;
     m_controller = controller;
     m_pidController = new PIDController(RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D);
+    m_getter = new DashboardPIDGetter(m_pidController, "RotateCenterTag", RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D, 0);
     m_pidController.setTolerance(2.0);
 
     addRequirements(shooter);
@@ -69,6 +72,7 @@ public class AimAtCenterTagCommand extends Command {
   public void initialize() {
     m_pidController.reset();
     m_pidController.setSetpoint(0);
+    m_getter.setPIDValuesFromDashboard();
 
     m_lastFoundVector = NullDetection.Instance;
     m_targetGyroAngle_deg = 0;
@@ -90,7 +94,7 @@ public class AimAtCenterTagCommand extends Command {
     //Update our targeting if we have usable tag data
     if (detection.isValid()) {
       m_lastFoundVector = detection;
-      m_targetGyroAngle_deg = currentGyroAngle_deg - m_lastFoundVector.getBearing(); //TODO may need to be added instead of subtracted.
+      m_targetGyroAngle_deg = currentGyroAngle_deg + m_lastFoundVector.getBearing(); //TODO may need to be added instead of subtracted.
 
       m_pidController.setSetpoint(m_targetGyroAngle_deg);
       m_launchAngle_deg = ShooterCalculations.getLaunchAngle(m_lastFoundVector.getDistance(),
