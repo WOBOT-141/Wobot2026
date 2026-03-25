@@ -88,7 +88,7 @@ public class AimAtHubCommand extends Command {
     //Update our targeting if we have usable tag data
     if (m_vectorToHubOptional.isPresent()) {
       m_lastFoundVector = m_vectorToHubOptional.get();
-      m_targetGyroAngle_deg = currentGyroAngle_deg - m_lastFoundVector.Angle; //TODO may need to be added instead of subtracted.
+      m_targetGyroAngle_deg = currentGyroAngle_deg + m_lastFoundVector.Angle; //TODO may need to be added instead of subtracted.
 
       m_pidController.setSetpoint(m_targetGyroAngle_deg);
       m_launchAngle_deg = ShooterCalculations.getLaunchAngle(m_lastFoundVector.Magnitude,

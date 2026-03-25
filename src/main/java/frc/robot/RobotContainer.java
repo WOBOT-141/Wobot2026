@@ -75,8 +75,8 @@ public class RobotContainer {
   private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
-  private final IBotSelector m_selectedBot = new MainBot();
-  // private final IBotSelector m_selectedBot = new SummerBot();
+  //private final IBotSelector m_selectedBot = new MainBot();
+   private final IBotSelector m_selectedBot = new SummerBot();
 
   private ChooserHandeling m_autonSelector;
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");

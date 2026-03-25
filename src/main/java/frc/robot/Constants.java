@@ -176,6 +176,7 @@ public final class Constants {
     public static final double hubRimToCenter_in = 23.5;
     public static final double hubRimHeight_in = 72;
     public static final double muzzleToRimHeight_in = hubRimHeight_in - muzzleHeight_in;
+    public static final double tagCenterToFloorHeight_in = 44.25;
 
     public static final double leftP = 0.002; //0.0015;
     public static final double middleP = 0.002;//0.0025;
