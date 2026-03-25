@@ -5,6 +5,7 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -12,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -150,15 +152,12 @@ public class VisionServer extends SubsystemBase {
   }
 
   public boolean hasTargets() {
-    if (getClosestDetection() == NullDetection.Instance) {
-      return false;
-    } else {
-      return true;
-    }
+    return getClosestDetection() != NullDetection.Instance;
   }
 
+  @AutoLogOutput(key = "VisionServer/getTagPose/")
   public Pose2d getTagPose() {
-    IDetection detection = getClosestDetection();
+    IDetection detection = getApriltagDetectionLists()[0].getDetection(0);
     if (detection == NullDetection.Instance) {
       System.out.println("NOTAG");
 
@@ -181,17 +180,32 @@ public class VisionServer extends SubsystemBase {
     return p2;
   }
 
+  @AutoLogOutput(key = "/vision/tagValues/DistanceInches")
+  public double getTagDistance() {
+    return getApriltagDetectionLists()[0].getDetection(0).getDistance();
+  }
+
+  @AutoLogOutput(key = "/vision/tagValues/DistanceMeters")
+  public double getTagDistance_m() {
+    return Units.inchesToMeters(getTagDistance());
+  }
+
   public DetectionList[] getApriltagDetectionLists() {
     return m_detections_Apriltag;
   }
 
   public IDetection getClosestDetection() {
     IDetection closestDetection = NullDetection.Instance;
+    double minDistance = Double.MAX_VALUE; // Start with an infinitely large distance
+
     for (DetectionList detection_list : m_detections_Apriltag) {
       for (int i = 0; i < detection_list.getSize(); i++) {
         IDetection currentDetection = detection_list.getDetection(i);
-        if (currentDetection.getDistance() < closestDetection.getDistance()) {
+
+        // If this tag is closer than our current record, update it
+        if (currentDetection.getDistance() < minDistance) {
           closestDetection = currentDetection;
+          minDistance = currentDetection.getDistance();
         }
       }
     }
@@ -202,38 +216,38 @@ public class VisionServer extends SubsystemBase {
   public Pose2d getEstimatedRobotPose(double gyroAngle) {
     IDetection detection = getClosestDetection();
     if (detection == NullDetection.Instance) {
-      return getTagPose(detection.getId());
+      return null; // Return null safely if no tag is seen
     }
 
-    Optional<Pose3d> tagPoseOptional = m_aprilTagFieldLayout.getTagPose(getClosestDetection().getId()); // Get the
-                                                                                                        // current tag
-                                                                                                        // from the
-                                                                                                        // apriltagFieldLayout
+    Optional<Pose3d> tagPoseOptional = m_aprilTagFieldLayout.getTagPose(detection.getId());
     if (tagPoseOptional.isEmpty()) {
-      return getTagPose(detection.getId()); // null detection should probably change
+      return null;
     }
 
-    Pose2d tagPose = tagPoseOptional.get().toPose2d(); // getTagPose returns a pose3d, this turns it into a pose2d. for
-                                                       // using odom in shooting we might need that 3rd axis
+    Pose2d tagPose = tagPoseOptional.get().toPose2d();
 
-    double distanceMeters = Units.inchesToMeters(detection.getDistance());// change our inches to meters as the pose
-                                                                          // excpets meters
-    double bearingRadians = Units.degreesToRadians(-detection.getYaw());// same here but for degrees // zane, this
-                                                                        // was getAngle()
+    double distanceMeters = Units.inchesToMeters(detection.getDistance());
+    double bearingRadians = Units.degreesToRadians(-detection.getBearing());
+    double tagYawRadians = Units.degreesToRadians(gyroAngle);
 
-    double tagYawRadians = Units.degreesToRadians(gyroAngle);// same again
-
-    Rotation2d relativeRotation = new Rotation2d(Math.PI + tagYawRadians);// our system of getting the angle from the
-                                                                          // gyro is different from the WPI coordinate
-                                                                          // system. this flips the angle to match
+    Rotation2d relativeRotation = new Rotation2d(Math.PI + tagYawRadians);
 
     Transform2d cameraToTag = new Transform2d(
-        distanceMeters * Math.cos(bearingRadians), // X offset (Forward)
-        distanceMeters * Math.sin(bearingRadians), // Y offset (Sideways)
-        relativeRotation // The combined rotation
-    );
+        distanceMeters * Math.cos(bearingRadians),
+        distanceMeters * Math.sin(bearingRadians),
+        relativeRotation);
 
-    return tagPose.transformBy(cameraToTag.inverse());
+    // 1. Calculate where the camera lens is
+    Pose2d cameraPose = tagPose.transformBy(cameraToTag.inverse());
+
+    // 2. FIX: Apply the 4-inch physical offset to find the center of the swerve
+    // drive
+    Transform2d robotToCamera = new Transform2d(
+        new Translation2d(Units.inchesToMeters(-4.0), 0.0),
+        new Rotation2d(0.0));
+
+    // 3. Return the true robot center
+    return cameraPose.transformBy(robotToCamera.inverse());
   }
 
   public Pose2d getSimulatedRobotPose() {
