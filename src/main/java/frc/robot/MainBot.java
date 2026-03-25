@@ -27,21 +27,21 @@ public class MainBot implements IBotSelector {
     double wheelCircumference_in;
 
     public MainBot() {
-        distToFront = Units.inchesToMeters(15.25);
+        distToFront = 15.25;
 
         frontLeftOffset  = 0.551025;
         backLeftOffset   = 0.340332;
         frontRightOffset = 0.004395;
         backRightOffset  = 0.745605;
 
-        frontLeftLocationX = -.229;
-        frontLeftLocationY = .229;
-        backLeftLocationX = -.229;
-        backLeftLocationY = -.229;
-        frontRightLocationX = .229;
-        frontRightLocationY = .229;
-        backRightLocationX = .229;
-        backRightLocationY = -.229;
+        frontLeftLocationX = -18.25;
+        frontLeftLocationY = 18.25;
+        backLeftLocationX = -18.25;
+        backLeftLocationY = -18.25;
+        frontRightLocationX = 18.25;
+        frontRightLocationY = 18.25;
+        backRightLocationX = 18.25;
+        backRightLocationY = -18.25;
 
         driveGearRatio = 5.14;
         wheelCircumference_in = 4 * Math.PI;

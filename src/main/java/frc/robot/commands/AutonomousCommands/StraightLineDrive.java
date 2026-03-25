@@ -86,7 +86,7 @@ public class StraightLineDrive extends Command {
     if (m_speedFactor) {
       finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00544306);
     } else {
-      finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00909091);
+      finalDriveSpeed = driveSpeed * (m_distance_in);
     }
 
     return finalDriveSpeed;

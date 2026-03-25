@@ -28,24 +28,25 @@ public class RightHalfMidwayGather extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 90, 175, wheels, gyro, true);
     StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, 0, 70, wheels, gyro, true);
-    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 0, -60, wheels, gyro, true);
-    StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, -90, 178, wheels, gyro, true);
+    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 0, -50, wheels, gyro, false);
+    StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, -90, 178, wheels, gyro, false);
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new HoodResetter(shooter, gyro)
             .andThen(
-                drive_over_ramp_to_center.alongWith(new IntakeExtend(intake)).andThen(
-                new setIntake(intake, -0.6)).andThen(
-                new WaitCommand(0.5)))
+                drive_over_ramp_to_center)
+                // .alongWith(new IntakeExtend(intake)).andThen(
+                // new setIntake(intake, -0.6)).andThen(
+                // new WaitCommand(0.5)))
             .andThen(
-                drive_through_fuel.andThen(
-                new setIntake(intake, 0.0)))
+                drive_through_fuel)
+                // .andThen(new setIntake(intake, 0.0)))
             .andThen(
                 drive_back_to_line_up_with_ramp)
             .andThen(
                 drive_back_in_to_alliance_zone)
             .andThen(
-                new RotateByAngle(drivetrain, 20, gyro,false))
+                new RotateByAngle(drivetrain, 40, gyro,false))
             .andThen(
                 new AutonShooter(shooter, magazine, 360, 65)));
   }

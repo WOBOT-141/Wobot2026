@@ -48,8 +48,12 @@ import frc.robot.commands.ShooterCommands.MagazineAndLock;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
+import frc.robot.commands.AutonomousCommands.DriveCommand;
 import frc.robot.commands.AutonomousCommands.RotateByAngle;
 import frc.robot.commands.AutonomousCommands.RotateByAnglePID;
+import frc.robot.commands.AutonomousCommands.RotateToTag;
+import frc.robot.commands.AutonomousCommands.TestDrive;
+import frc.robot.commands.AutonomousCommands.UniversalDriveCommand;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
@@ -146,8 +150,8 @@ public class RobotContainer {
             entry("00 Do Nothing", () -> new DoNothing()),
             entry("01 Shoot and sit", () -> new SitShots(m_shooter, m_magazine, m_gyro)),
             entry("02 Depotlease", () -> new Depotlease(m_drive, m_wheels, m_gyro, m_intake, m_shooter, m_magazine)),
-            entry("03 RIGHT Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
-            entry("04 LEFT Midway Gather", () -> new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
+            entry("03 RIGHT Midway Gather", () -> new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer)),
+            entry("04 LEFT Midway Gather", () -> new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer)),
             entry("05 Right HALF Midway Gather", () -> new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake)),
             entry("05 Left HALF Midway Gather", () -> new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake))
             //Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake
@@ -156,8 +160,8 @@ public class RobotContainer {
     autoChooser.addOption("00 Do Nothing", new DoNothing());
     autoChooser.addDefaultOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
     autoChooser.addOption("02 Depotlease", new Depotlease(m_drive, m_wheels, m_gyro, m_intake, m_shooter, m_magazine));
-    autoChooser.addOption("03 RIGHT Midway Gather", new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));    
-    autoChooser.addOption("04 LEFT Midway Gather", new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+    autoChooser.addOption("03 RIGHT Midway Gather", new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer));    
+    autoChooser.addOption("04 LEFT Midway Gather", new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer));
     autoChooser.addOption("05 Right HALF Midway Gather", new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
     autoChooser.addOption("05 Left HALF Midway Gather", new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
   }
@@ -257,9 +261,12 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
-        .whileTrue(new AimAtCenterTagCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
+        // .whileTrue(new AimAtCenterTagCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
         // .whileTrue(new RotateByAnglePID(90, m_gyro, m_drive));
         // .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
+        // .onTrue(new TestDrive(m_drive, 0, 140, 180, m_wheels, m_gyro, true));
+        // .onTrue(new UniversalDriveCommand(m_drive, m_gyro, 0, 140, 180, 0.8));
+        .whileTrue(new RotateToTag(11, m_visionServer, m_drive));
   }
 
   public Command getAutonomousCommand() {

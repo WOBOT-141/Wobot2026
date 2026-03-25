@@ -17,18 +17,22 @@ public class RotateByAnglePID extends Command {
   private final IGyro m_gyro;
   private final PIDController m_pidController;
 
-  private final DashboardPIDGetter m_getter;
+  // private final DashboardPIDGetter m_getter;
   private double m_targetRotationAmount_deg;
   private double m_targetAngle_deg;
 
   public RotateByAnglePID(double rotationAmount_deg, IGyro gyro, Drivetrain drivetrain) {
+    this(rotationAmount_deg, RotateVisionConstants.rotateTargetTolerance_deg, gyro, drivetrain);
+  }
+  
+  public RotateByAnglePID(double rotationAmount_deg, double rotationTolerance_deg, IGyro gyro, Drivetrain drivetrain) {
     m_drive = drivetrain;
     m_gyro = gyro;
     
     m_pidController = new PIDController(RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D);
-    m_getter = new DashboardPIDGetter(m_pidController, "RotateAngle", RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D , rotationAmount_deg);
+    // m_getter = new DashboardPIDGetter(m_pidController, "RotateAngle", RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D , rotationAmount_deg);
     m_targetRotationAmount_deg = rotationAmount_deg;
-    m_pidController.setTolerance(RotateCommandConstants.rotateTargetTolerance_deg);
+    m_pidController.setTolerance(rotationTolerance_deg);
 
     addRequirements(m_drive);
   }
@@ -36,11 +40,11 @@ public class RotateByAnglePID extends Command {
   @Override
   public void initialize() {
     System.out.println("RotateByAngle BEGIN");
-    m_targetRotationAmount_deg = m_getter.getDashboardTarget();
+    // m_targetRotationAmount_deg = m_getter.getDashboardTarget();
     m_targetAngle_deg = m_gyro.getRawGyroAngle() + m_targetRotationAmount_deg;
     m_pidController.reset();
     m_pidController.setSetpoint(m_targetAngle_deg);
-    m_getter.setPIDValuesFromDashboard();
+    // m_getter.setPIDValuesFromDashboard();
   }
 
   @Override
