@@ -30,11 +30,13 @@ public class Intake extends SubsystemBase {
   // Hardware
   private final SparkMax m_intakeExtensionRightMotor;
   private final SparkMax m_intakeExtensionLeftMotor;
-  private final SparkFlex m_intakeRollerMotor;
+  private final SparkFlex m_intakeRollerLeaderMotor;
+  private final SparkFlex m_intakeRollerFollowerMotor;
 
   private final RelativeEncoder m_intakeRightEncoder;
   private final RelativeEncoder m_intakeLeftEncoder;
-  private final RelativeEncoder m_intakeRollerEncoder;
+  private final RelativeEncoder m_intakeRollerLeaderEncoder;
+  private final RelativeEncoder m_intakeRollerFollowerEncoder;
 
   // State
   private boolean m_isHomed = true;
@@ -51,15 +53,16 @@ public class Intake extends SubsystemBase {
 
     m_intakeExtensionRightMotor = new SparkMax(CANIdConstants.intakeElevationRightMotorID, MotorType.kBrushless);
     m_intakeExtensionLeftMotor = new SparkMax(CANIdConstants.intakeElevationLeftMotorID, MotorType.kBrushless);
-    m_intakeRollerMotor = new SparkFlex(CANIdConstants.intakeRollerLeaderMotorID, MotorType.kBrushless);
+    m_intakeRollerLeaderMotor = new SparkFlex(CANIdConstants.intakeRollerLeaderMotorID, MotorType.kBrushless);
     m_intakeRollerFollowerMotor = new SparkFlex(CANIdConstants.intakeRollerFollowerMotorID, MotorType.kBrushless);
 
-    configureIntakeRollerMotor(m_intakeRollerMotor);
+    configureIntakeRollerMotor();
     configureIntaknMotors();
 
     m_intakeRightEncoder = m_intakeExtensionRightMotor.getEncoder();
     m_intakeLeftEncoder = m_intakeExtensionLeftMotor.getEncoder();
-    m_intakeRollerEncoder = m_intakeRollerMotor.getEncoder();
+    m_intakeRollerLeaderEncoder = m_intakeRollerLeaderMotor.getEncoder();
+    m_intakeRollerFollowerEncoder = m_intakeRollerFollowerMotor.getEncoder();
   }
 
   // Motor configuration
@@ -71,7 +74,6 @@ public class Intake extends SubsystemBase {
         .idleMode(IdleMode.kBrake)
         .inverted(true)
         .smartCurrentLimit(IntakeConstants.elevationCurrentLimit_amp, IntakeConstants.elevationCurrentLimit_amp);
-
     intakeLeftConfig
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(IntakeConstants.elevationCurrentLimit_amp, IntakeConstants.elevationCurrentLimit_amp);
@@ -80,25 +82,34 @@ public class Intake extends SubsystemBase {
         intakeRightConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
-
     m_intakeExtensionLeftMotor.configure(
         intakeLeftConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
   }
 
-  private void configureIntakeRollerMotor(SparkFlex intakeRollerMotor) {
-    SparkFlexConfig intakeRollerMotorConfig = new SparkFlexConfig();
+  private void configureIntakeRollerMotor(){
+    SparkFlexConfig intakeRollerLeaderMotorConfig = new SparkFlexConfig();
+    SparkFlexConfig intakeRollerFollowerMotorConfig = new SparkFlexConfig();
     
-        intakeRollerMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).velocityFF(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
+    intakeRollerLeaderMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).feedForward.kV(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
+    intakeRollerFollowerMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).feedForward.kV(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
 
-    intakeRollerMotorConfig
-        .inverted(false)
+    intakeRollerLeaderMotorConfig
         .idleMode(IdleMode.kCoast)
+        .inverted(true)
         .smartCurrentLimit(IntakeConstants.rollerCurrentLimit_amp, IntakeConstants.rollerCurrentLimit_amp);
-
-    intakeRollerMotor.configure(
-        intakeRollerMotorConfig,
+    intakeRollerFollowerMotorConfig
+        .idleMode(IdleMode.kCoast)
+        .follow(CANIdConstants.intakeRollerLeaderMotorID, true)
+        .smartCurrentLimit(IntakeConstants.rollerCurrentLimit_amp, IntakeConstants.rollerCurrentLimit_amp);
+    
+    m_intakeRollerLeaderMotor.configure(
+        intakeRollerLeaderMotorConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
+    m_intakeRollerFollowerMotor.configure(
+        intakeRollerFollowerMotorConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
   }
@@ -114,11 +125,11 @@ public class Intake extends SubsystemBase {
 
   // Roller control
   public void intakeRun(double speed_rpm) {
-    m_intakeRollerMotor.getClosedLoopController().setSetpoint(speed_rpm, ControlType.kVelocity);
+    m_intakeRollerLeaderMotor.getClosedLoopController().setSetpoint(speed_rpm, ControlType.kVelocity);
   }
 
   public void intakeRollerStop() {
-    m_intakeRollerMotor.stopMotor();
+    m_intakeRollerLeaderMotor.stopMotor();
   }
 
   // Arm control
@@ -127,8 +138,7 @@ public class Intake extends SubsystemBase {
       m_intakeExtensionLeftMotor.set(0);
       return;
     }
-    if (m_intakeLeftEncoder
-        .getPosition() > (IntakeConstants.intakeRawExtension_rot - IntakeConstants.SlowSpot)) {
+    if (m_intakeLeftEncoder.getPosition() > (IntakeConstants.intakeRawExtension_rot - IntakeConstants.SlowSpot)) {
       m_intakeExtensionLeftMotor.set(applyBrownoutScale(IntakeConstants.intakeExtendSpeed_perc / 2));
     } else {
       m_intakeExtensionLeftMotor.set(applyBrownoutScale(IntakeConstants.intakeExtendSpeed_perc));
@@ -143,8 +153,7 @@ public class Intake extends SubsystemBase {
       m_intakeExtensionRightMotor.set(0);
       return;
     }
-    if (m_intakeRightEncoder
-        .getPosition() > (IntakeConstants.intakeRawExtension_rot - IntakeConstants.SlowSpot)) {
+    if (m_intakeRightEncoder.getPosition() > (IntakeConstants.intakeRawExtension_rot - IntakeConstants.SlowSpot)) {
       m_intakeExtensionRightMotor.set(applyBrownoutScale(IntakeConstants.intakeExtendSpeed_perc / 2));
     } else {
       m_intakeExtensionRightMotor.set(applyBrownoutScale(IntakeConstants.intakeExtendSpeed_perc));
@@ -286,7 +295,7 @@ public class Intake extends SubsystemBase {
 
     SmartDashboard.putNumber(
         "Intake Roller RPM",
-        m_intakeRollerEncoder.getVelocity());
+        m_intakeRollerLeaderEncoder.getVelocity());
 
     // Change-only status updates
     boolean atUpNow = isAtExtendedPosition();

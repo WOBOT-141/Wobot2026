@@ -32,9 +32,10 @@ public final class Constants {
     public static final int magazineMotorID = 17;
     public static final int intakeElevationRightMotorID = 18;
     public static final int intakeRollerLeaderMotorID = 19;
-    public static final int intakeRollerFollowerMotorID = 20;
     public static final int hoodMotorID = 20;
     public static final int intakeElevationLeftMotorID = 21;
+    public static final int intakeRollerFollowerMotorID = 22;
+
 
     public static final int climberMotorID = 0; //TODO add can ids
     public static final int climbFollowerMotorID = 0;
