@@ -31,7 +31,8 @@ public final class Constants {
     public static final int feedMotorID = 16;
     public static final int magazineMotorID = 17;
     public static final int intakeElevationRightMotorID = 18;
-    public static final int intakeRollerMotorID = 19;
+    public static final int intakeRollerLeaderMotorID = 19;
+    public static final int intakeRollerFollowerMotorID = 20;
     public static final int hoodMotorID = 20;
     public static final int intakeElevationLeftMotorID = 21;
 
@@ -136,8 +137,8 @@ public final class Constants {
     public static final double downAngle_deg = 95.0;
 
     // Motion speeds
-    public static final double intakeRetractSpeed_perc = -0.4;
-    public static final double intakeExtendSpeed_perc = 0.4;
+    public static final double intakeRetractSpeed_perc = -0.1; //-0.4;
+    public static final double intakeExtendSpeed_perc = 0.1 ;//0.4;
 
     public static final double positionTolerance_deg = 3.0; // Allowed error band for position checks
     public static final double moveTimeout_sec = .20; // Safety timeout while moving
@@ -150,9 +151,17 @@ public final class Constants {
     public static final double brownoutScale_perc = 0.8; // Scale factor when in brownout
     
     public static final double degPerMotorRotation_deg = 360.0; //TODO change to reflect elevation motor gear ratio
-    public static final double intakeRawExtension_rot = 63.4;//63.4
+    public static final double intakeRawExtension_rot = 15.85 ;//63.4
 
-    public static final double SlowSpot = 5;
+    public static final double SlowSpot = 5.0;
+
+    public static final double intakeRollerP = 0.0;
+    public static final double intakeRollerI = 0.0;
+    public static final double intakeRollerD = 0.0;
+    public static final double intakeRollerFF = 0.0013;
+
+    public static final double rollerInSpeed_rpm = -5040.0; //rpm max 6,300
+    public static final double rollerOutSpeed_rpm = 5040.0; //rpm max 6,300
   }
 
   public static class OperatorConstants {
