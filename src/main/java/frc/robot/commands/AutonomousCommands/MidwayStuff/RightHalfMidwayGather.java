@@ -39,13 +39,13 @@ public class RightHalfMidwayGather extends SequentialCommandGroup {
     addCommands(
         new HoodResetter(shooter, gyro)
             .andThen(
-                drive_over_ramp_to_center)
-                // .alongWith(new IntakeExtend(intake)).andThen(
-                // new setIntake(intake, -0.6)).andThen(
-                // new WaitCommand(0.5)))
+                drive_over_ramp_to_center
+                .alongWith(new IntakeExtend(intake)).andThen(
+                new setIntake(intake, -0.6)).andThen(
+                new WaitCommand(0.5)))
             .andThen(
-                drive_through_fuel)
-                // .andThen(new setIntake(intake, 0.0)))
+                drive_through_fuel
+                .andThen(new setIntake(intake, 0.0)))
             .andThen(
                 drive_back_to_line_up_with_ramp)
             .andThen(
