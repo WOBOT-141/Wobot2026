@@ -224,12 +224,13 @@ public class RobotContainer {
     // m_xboxController0.rightBumper().whileTrue(new SendHoodToDashboardValue(m_shooter));
     // m_xboxController0.rightBumper().onTrue(new IntakeRetract(m_intake)); // works 50/50 - zane   
     m_xboxController0.rightTrigger().onTrue(new SendHoodToHome(m_shooter));
-    m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
-    m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleDown())); // Angle down
-    m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp())); //speed up
-    m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown())); //speed down
 
-    m_xboxController0.a().whileTrue(new RevShooter( 280, 72, m_shooter, m_xboxController0));//rev hub //TODO addvibration last priority split rev and fire 
+    // m_xboxController0.povUp().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
+    // m_xboxController0.povDown().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchAngleDown())); // Angle down
+    // m_xboxController0.povLeft().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedUp())); //speed up
+    // m_xboxController0.povRight().onTrue(Commands.run(() -> BumpShooterVector.bumpLaunchSpeedDown())); //speed down  
+
+    m_xboxController0.a().whileTrue(new RevShooter( 280, 72, m_shooter, m_xboxController0));//rev hub 
     m_xboxController0.x().whileTrue(new RevShooter(377, 65, m_shooter, m_xboxController0));//rev bump
     m_xboxController0.y().whileTrue(new RevShooter( 335, 65, m_shooter, m_xboxController0));//rev tower
     //m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral */
