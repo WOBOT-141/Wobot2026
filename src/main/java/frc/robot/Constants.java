@@ -156,7 +156,7 @@ public final class Constants {
   }
 
   public static class RotateVisionConstants {
-    public static final double P = 0.01;
+    public static final double P = 0.006; //0.006
     public static final double I = 0.00002;
     public static final double D = 0.00000;
     public static final double rotateTargetTolerance_deg = 2;
@@ -176,6 +176,7 @@ public final class Constants {
     public static final double hubRimToCenter_in = 23.5;
     public static final double hubRimHeight_in = 72;
     public static final double muzzleToRimHeight_in = hubRimHeight_in - muzzleHeight_in;
+    public static final double tagCenterToFloorHeight_in = 44.25;
 
     public static final double leftP = 0.002; //0.0015;
     public static final double middleP = 0.002;//0.0025;

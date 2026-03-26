@@ -123,13 +123,13 @@ public class RobotContainer {
     m_autonChooser.setDefaultOption("00 Do Nothing", new DoNothing());
     m_autonChooser.addOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
     m_autonChooser.addOption("03 RIGHT Midway Gather",
-        new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+        new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("04 LEFT Midway Gather",
-        new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+        new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("05 Right HALF Midway Gather",
-        new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+        new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("06 Left HALF Midway Gather",
-        new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
+        new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
 
             SmartDashboard.putData("AutonChooser", m_autonChooser);
   }

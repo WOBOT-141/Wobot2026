@@ -46,17 +46,15 @@ public class DetectionList {
         return _size < _capacity;
     }
 
-    public boolean addDetection
-        (
-        ObjectType tag,
-        double distance,
-        double bearing,
-        int id,
-        double yaw,
-        double pitch,
-        double roll,
-        double cameraNum
-    ) {
+    public boolean addDetection(
+            ObjectType tag,
+            double distance,
+            double bearing,
+            int id,
+            double yaw,
+            double pitch,
+            double roll,
+            double cameraNum) {
         _detections[_size].update(tag, distance, bearing, id, yaw, pitch, roll, cameraNum);
         ++_size;
         return _size < _capacity;
@@ -69,11 +67,10 @@ public class DetectionList {
         return _detections[index];
     }
 
-
     public IDetection getDetectionById(int tagId) {
-            for (int i = 0; i < _size; i++){
+        for (int i = 0; i < _detections.length; i++) {
             IDetection currentDetection = getDetection(i);
-            if ((int) currentDetection.getId() == tagId){
+            if ((int) currentDetection.getId() == tagId) {
                 return currentDetection;
             }
         }
