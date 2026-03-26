@@ -29,7 +29,6 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionServerConstants;
 import frc.robot.Util.BumpShooterVector;
 import frc.robot.Util.ShooterCalculations;
-import frc.robot.commands.AimAtCenterTagCommand;
 import frc.robot.commands.AimAtHubCommand;
 import frc.robot.commands.MovingRotateToTag;
 import frc.robot.commands.StopRobot;
@@ -50,7 +49,6 @@ import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.commands.AutonomousCommands.RotateByAngle;
 import frc.robot.commands.AutonomousCommands.RotateByAnglePID;
-import frc.robot.commands.AutonomousCommands.RotateToTag;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
@@ -58,9 +56,6 @@ import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
 import frc.robot.commands.AutonomousCommands.ScrappedAutons.Depotlease;
 import frc.robot.commands.AutonomousCommands.ScrappedAutons.ZeeClimb;
-import frc.robot.commands.AutonomousCommands.ScrappedDriveCommands.DriveCommand;
-import frc.robot.commands.AutonomousCommands.ScrappedDriveCommands.TestDrive;
-import frc.robot.commands.AutonomousCommands.ScrappedDriveCommands.UniversalDriveCommand;
 
 public class RobotContainer {
 
@@ -80,8 +75,8 @@ public class RobotContainer {
   private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
-  //private final IBotSelector m_selectedBot = new MainBot();
-  private final IBotSelector m_selectedBot = new SummerBot();
+  private final IBotSelector m_selectedBot = new MainBot();
+  // private final IBotSelector m_selectedBot = new SummerBot();
 
   private ChooserHandeling m_autonSelector;
   private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
@@ -261,12 +256,8 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
-        // .whileTrue(new AimAtCenterTagCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
-        // .whileTrue(new RotateByAnglePID(90, m_gyro, m_drive));
+        .whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
         // .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
-        // .onTrue(new TestDrive(m_drive, 0, 140, 180, m_wheels, m_gyro, true));
-        // .onTrue(new UniversalDriveCommand(m_drive, m_gyro, 0, 140, 180, 0.8));
-        .whileTrue(new RotateToTag(11, m_visionServer, m_drive));
   }
 
   public Command getAutonomousCommand() {

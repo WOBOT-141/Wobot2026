@@ -56,7 +56,7 @@ public class RightMidwayGather extends SequentialCommandGroup {
                 // new RotateByAnglePID(20, gyro, drivetrain)
                 // .andThen(new RotateToTag(11, visionServer, drivetrain)))
                 new RotateByAngle(drivetrain, 20, gyro,false)
-                .andThen(new AimAtSpecificTag(11, stickCommand, visionServer, shooter, gyro, aprilTagFilter, controller)))
+                .andThen(new AimAtSpecificTag(11, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)))
             .andThen(
                 new AutonShooter(shooter, magazine, 360, 65)));
             //     new RevShooter(280, 65, shooter)

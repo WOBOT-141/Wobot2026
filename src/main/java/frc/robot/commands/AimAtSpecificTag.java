@@ -19,6 +19,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Util.DashboardPIDGetter;
 import frc.robot.Util.ShooterCalculations;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision.Detections.IDetection;
@@ -32,7 +33,6 @@ import frc.robot.subsystems.Vision.Detections.NullDetection;
 public class AimAtSpecificTag extends Command {
 
   private final int m_tagId;
-  private final StickCommand m_stickCommand;
   private final VisionServer m_visionServer;
   private final Shooter m_shooter;
   private final IGyro m_gyro;
@@ -40,6 +40,7 @@ public class AimAtSpecificTag extends Command {
   private final PIDController m_pidController;
   private final CommandXboxController m_controller;
   private final DashboardPIDGetter m_getter;
+  private final Drivetrain m_drivetrain;
 
   private IDetection m_lastFoundVector;
   private double m_targetGyroAngle_deg = 0;
@@ -47,15 +48,14 @@ public class AimAtSpecificTag extends Command {
 
   public AimAtSpecificTag(
     int tagId,
-      StickCommand stickCommand,
       VisionServer visionServer,
       Shooter shooter,
       IGyro gyro,
       AprilTagFilter aprilTagFilter,
-      CommandXboxController controller) {
+      CommandXboxController controller,
+      Drivetrain drivetrain) {
 
     m_tagId = tagId;
-    m_stickCommand = stickCommand;
     m_shooter = shooter;
     m_gyro = gyro;
     m_visionServer = visionServer;
@@ -64,6 +64,7 @@ public class AimAtSpecificTag extends Command {
     m_pidController = new PIDController(RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D);
     m_getter = new DashboardPIDGetter(m_pidController, "RotateCenterTag", RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D, 0);
     m_pidController.setTolerance(2.0);
+    m_drivetrain = drivetrain;
 
     addRequirements(shooter);
   }
@@ -107,7 +108,7 @@ public class AimAtSpecificTag extends Command {
 
     //Command output
     double rotationPidOutput = m_pidController.calculate(currentGyroAngle_deg);
-    m_stickCommand.setAlternateRotation(Optional.of(rotationPidOutput));
+    m_drivetrain.driveWithoutGyro(0,0, rotationPidOutput);
 
     //Controller Feedback
     double rightRumble = m_shooter.isReadyToShoot() ? ControllerConstants.rumbleFeedback_perc : 0.0;
@@ -123,29 +124,10 @@ public class AimAtSpecificTag extends Command {
   }
 
 
-  public IDetection getFacingCenterDetection(DetectionList detectionList) {
-    IDetection centerDetection = NullDetection.Instance;
-
-    for (int i=0; i<detectionList.getSize(); i++) {
-      IDetection detection = detectionList.getDetection(i);
-      if (m_aprilTagFilter.getTagInfoIfRelevantCenter(detection.getId(), FieldElement.HUB).isEmpty())
-        continue;
-
-      if (!centerDetection.isValid() || detection.getYaw() < centerDetection.getYaw())
-      {
-        centerDetection = detection;
-        continue;
-      }
-    }
-
-    return centerDetection;
-  }
-
-
   @Override
   public void end(boolean interrupted) {
     System.out.println("AimAtHub END");
-    m_stickCommand.setAlternateRotation(Optional.empty());
+    m_drivetrain.driveWithoutGyro(0, 0, 0);
     m_controller.setRumble(RumbleType.kBothRumble, 0);
     m_shooter.cancel();
   }
