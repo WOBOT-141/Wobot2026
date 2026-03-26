@@ -31,12 +31,14 @@ public final class Constants {
     public static final int feedMotorID = 16;
     public static final int magazineMotorID = 17;
     public static final int intakeElevationRightMotorID = 18;
-    public static final int intakeRollerMotorID = 19;
+    public static final int intakeRollerLeaderMotorID = 19;
     public static final int hoodMotorID = 20;
     public static final int intakeElevationLeftMotorID = 21;
+    public static final int intakeRollerFollowerMotorID = 22;
 
-    public static final int climberMotorID = 0; //TODO add can ids
-    public static final int climbFollowerMotorID = 0;
+
+    public static final int climberMotorID = 99; //TODO add can ids
+    public static final int climbFollowerMotorID = 99;
   }
 
 
@@ -112,12 +114,12 @@ public final class Constants {
 
 
   public static final class IntakeConstants {
-    public static final int elevationCurrentLimit_amp = 40;
-    public static final int rollerCurrentLimit_amp = 60;
+    public static final int extensionCurrentLimit_amp = 40;
+    public static final int rollerCurrentLimit_amp = 40;
 
     // Homing (current-based)
     public static final double homingSpeed_perc = -0.20;
-    public static final double homingCurrentThreshold_amp = 20.0;
+    public static final double homingCurrentThreshold_amp = 40.0;
     public static final double homingTimeout_sec = 2.0;
 
     // Intake positions
@@ -125,8 +127,8 @@ public final class Constants {
     public static final double downAngle_deg = 95.0;
 
     // Motion speeds
-    public static final double intakeRetractSpeed_perc = -0.4;
-    public static final double intakeExtendSpeed_perc = 0.4;
+    public static final double intakeRetractSpeed_perc = -0.1; //-0.4;
+    public static final double intakeExtendSpeed_perc = 0.1 ;//0.4;
 
     public static final double positionTolerance_deg = 3.0; // Allowed error band for position checks
     public static final double moveTimeout_sec = .20; // Safety timeout while moving
@@ -139,9 +141,17 @@ public final class Constants {
     public static final double brownoutScale_perc = 0.8; // Scale factor when in brownout
     
     public static final double degPerMotorRotation_deg = 360.0; //TODO change to reflect elevation motor gear ratio
-    public static final double intakeRawExtension_rot = 63.4;//63.4
+    public static final double intakeRawExtension_rot =  15.85;//15.38;
 
-    public static final double SlowSpot = 5;
+    public static final double SlowSpot = 5.0;
+
+    public static final double intakeRollerP = 0.0;
+    public static final double intakeRollerI = 0.0;
+    public static final double intakeRollerD = 0.0;
+    public static final double intakeRollerFF = 0.00015;
+
+    public static final double rollerInSpeed_rpm = 3200.0; //rpm max 6,300
+    public static final double rollerOutSpeed_rpm = -3200.0; //rpm max 6,300
   }
 
   public static class OperatorConstants {
@@ -170,25 +180,26 @@ public final class Constants {
     public static final double flywheelCircum_in = Math.PI * flywheelDiameter_in;
     public static final double flywheelGearRatio = 29 / 24;
     public static final double flywheelVelocity_RPMtoIPS = (flywheelCircum_in * flywheelGearRatio / 60.0) / 2.0; // /2.0 accounts for balls spin
-    public static final double flywheelSlipFactor = 1.1; // May need to be scaled with commanded speed
+    public static final double flywheelSlipFactor = 1.7; //2.3
     
     public static final double muzzleHeight_in = 27;
     public static final double hubRimToCenter_in = 23.5;
     public static final double hubRimHeight_in = 72;
     public static final double muzzleToRimHeight_in = hubRimHeight_in - muzzleHeight_in;
     public static final double tagCenterToFloorHeight_in = 44.25;
+    public static final double cameraToMuzzleDist_in = 10;
 
-    public static final double leftP = 0.002; //0.0015;
+    public static final double leftP = 0.0017; //0.0015;
     public static final double middleP = 0.002;//0.0025;
     public static final double rightP = 0.002; //0.0012;
     public static final double I = 0.0000;
     public static final double D = 0.000000;
     public static final double kF = 0.0018; //0.0018;
 
-    public static final double hoodP = 0.02;
-    public static final double hoodI = 0;
+    public static final double hoodP = 0.08;
+    public static final double hoodI = 0.00005;
     public static final double hoodD = 0; //.001
-    public static final double hood_kF = 1.7;
+    public static final double hood_kF = 0;
     
     public static final double hoodGearRatio = (10.0 / 62.0) * (50.0 / 319.0);
     public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
@@ -200,7 +211,7 @@ public final class Constants {
 
     // Current limits
     public static final int flywheelCurrentLimit_amp = 40;
-    public static final int hoodCurrentLim_amp = 30;//20;
+    public static final int hoodCurrentLim_amp = 40;//20;
 
     // Brownout protection
     public static final double BrownoutStartVoltage_V = 10.8;

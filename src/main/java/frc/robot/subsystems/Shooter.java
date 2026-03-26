@@ -93,10 +93,9 @@ public class Shooter extends SubsystemBase {
         .openLoopRampRate(ShooterConstants.hoodSlewRate);
     m_hoodMotorConfig.encoder.positionConversionFactor(ShooterConstants.hoodDegPerMotorRot); 
     m_hoodMotorConfig.closedLoop
-        .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD)
-        //.velocityFF(ShooterConstants.hood_kF)
-        .minOutput(-0.2)
-        .maxOutput(0.2);
+        .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD);
+        // .minOutput(-0.2)
+        // .maxOutput(0.2);
 
     m_hoodMotor.configure(m_hoodMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
@@ -247,7 +246,7 @@ public class Shooter extends SubsystemBase {
     m_leftMotor.stopMotor();
     m_hoodMotor.stopMotor();
     m_targetVelocity_ips = 0;
-    m_hoodTargetPosition_deg = ShooterConstants.hoodLowerLimit_deg;
+    // m_hoodTargetPosition_deg = ShooterConstants.hoodUpperLimit_deg;
   }
 
   public void stopHood() {

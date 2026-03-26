@@ -269,12 +269,12 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("encoderDist", getEncoderDistance());
-    SmartDashboard.putNumber("speeed", getSpeed());
+    // SmartDashboard.putNumber("encoderDist", getEncoderDistance());
+    // SmartDashboard.putNumber("speeed", getSpeed());
 
-    steerMotorPosDebug();
-    absEncoderDebug();
-    tractionMotorAMPDebug();
+    // steerMotorPosDebug();
+    // absEncoderDebug();
+    // tractionMotorAMPDebug();
   }
 
   public void tractionMotorAMPDebug() {
