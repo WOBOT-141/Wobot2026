@@ -94,7 +94,7 @@ public class AimAtSpecificTag extends Command {
     //Update our targeting if we have usable tag data
     if (detection.isValid()) {
       m_lastFoundVector = detection;
-      m_targetGyroAngle_deg = currentGyroAngle_deg + m_lastFoundVector.getBearing(); //TODO may need to be added instead of subtracted.
+      m_targetGyroAngle_deg = currentGyroAngle_deg + m_lastFoundVector.getBearing(); 
 
       m_pidController.setSetpoint(m_targetGyroAngle_deg);
       m_initialVectorFound = true;
@@ -110,12 +110,6 @@ public class AimAtSpecificTag extends Command {
     double rotationPidOutput = m_pidController.calculate(currentGyroAngle_deg);
     m_drivetrain.driveWithoutGyro(0,0, rotationPidOutput);
 
-    //Controller Feedback
-    double rightRumble = m_shooter.isReadyToShoot() ? ControllerConstants.rumbleFeedback_perc : 0.0;
-    double leftRumble = m_pidController.atSetpoint() ? ControllerConstants.rumbleFeedback_perc : 0.0;
-    m_controller.setRumble(RumbleType.kLeftRumble, leftRumble);
-    m_controller.setRumble(RumbleType.kRightRumble, rightRumble);
-   
     //Debug output
     System.out.printf("[AimAtCenterTag1 tags:%d  hasDetection:%b  gyroTarget:%.3f  gyroCurrent:%.3f  pidOutput:%.3f]\n", detectionList.getSize(),
         m_lastFoundVector.isValid(), m_targetGyroAngle_deg, currentGyroAngle_deg, rotationPidOutput);

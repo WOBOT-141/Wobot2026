@@ -40,9 +40,9 @@ public class Drivetrain extends SubsystemBase {
       rotY = 0;
     }
 
-    SmartDashboard.putNumber("translation Speed", translationSpeed_perc);
-    SmartDashboard.putNumber("translation Angle", translationAngle_deg);
-    SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_perc);
+    // SmartDashboard.putNumber("translation Speed", translationSpeed_perc);
+    // SmartDashboard.putNumber("translation Angle", translationAngle_deg);
+    // SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_perc);
 
     if (failedNaNcheck(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc))
       return;

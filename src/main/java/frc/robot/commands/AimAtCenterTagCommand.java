@@ -40,7 +40,7 @@ public class AimAtCenterTagCommand extends Command {
   private final CommandXboxController m_controller;
   private final DashboardPIDGetter m_getter;
 
-  private IDetection m_lastFoundVector;
+  private IDetection m_lastFoundDetection;
   private double m_targetGyroAngle_deg = 0;
   private double m_launchAngle_deg;
   private double m_launchSpeed_ips;
@@ -74,7 +74,7 @@ public class AimAtCenterTagCommand extends Command {
     m_pidController.setSetpoint(0);
     m_getter.setPIDValuesFromDashboard();
 
-    m_lastFoundVector = NullDetection.Instance;
+    m_lastFoundDetection = NullDetection.Instance;
     m_targetGyroAngle_deg = 0;
     m_launchSpeed_ips = 0;
     m_launchAngle_deg = 0;
@@ -93,19 +93,20 @@ public class AimAtCenterTagCommand extends Command {
 
     //Update our targeting if we have usable tag data
     if (detection.isValid()) {
-      m_lastFoundVector = detection;
-      m_targetGyroAngle_deg = currentGyroAngle_deg + m_lastFoundVector.getBearing(); //TODO may need to be added instead of subtracted.
+      m_lastFoundDetection = detection;
+      m_targetGyroAngle_deg = currentGyroAngle_deg + m_lastFoundDetection.getBearing();
 
       m_pidController.setSetpoint(m_targetGyroAngle_deg);
-      double tagDistance_in =  m_lastFoundVector.getDistance() + ShooterConstants.cameraToMuzzleDist_in;
-      double floorDistance_in = AprilTagFilter.FindRightTriangleLeg(ShooterConstants.tagCenterToFloorHeight_in, tagDistance_in);
+      double floorDistance_in = AprilTagFilter.FindRightTriangleLeg(ShooterConstants.tagCenterToFloorHeight_in, m_lastFoundDetection.getDistance());
+      double shootDistance_in = floorDistance_in + ShooterConstants.cameraToMuzzleDist_in;
 
-      SmartDashboard.putNumber("AimAtCenter TagDist", tagDistance_in);
+      SmartDashboard.putNumber("AimAtCenter TagDist", m_lastFoundDetection.getDistance());
       SmartDashboard.putNumber("AimAtCenter FloorDist", floorDistance_in);
+      SmartDashboard.putNumber("AimAtCenter ShootDist", shootDistance_in);
 
       m_launchAngle_deg = ShooterCalculations.getLaunchAngle(floorDistance_in,
           ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24);
-      m_launchSpeed_ips = ShooterCalculations.getLaunchSpeed(m_launchAngle_deg, m_lastFoundVector.getDistance(),
+      m_launchSpeed_ips = ShooterCalculations.getLaunchSpeed(m_launchAngle_deg, m_lastFoundDetection.getDistance(),
           ShooterConstants.hubRimToCenter_in, 24);
 
       m_initialVectorFound = true;
@@ -131,9 +132,9 @@ public class AimAtCenterTagCommand extends Command {
    
     //Debug output
     System.out.printf("[AimAtCenterTag1 tags:%d  hasDetection:%b  gyroTarget:%.3f  gyroCurrent:%.3f  pidOutput:%.3f]\n", detectionList.getSize(),
-        m_lastFoundVector.isValid(), m_targetGyroAngle_deg, currentGyroAngle_deg, rotationPidOutput);
+        m_lastFoundDetection.isValid(), m_targetGyroAngle_deg, currentGyroAngle_deg, rotationPidOutput);
     System.out.printf("[AimAtCenterTag2 vectorAngle:%.3f  vectorDist:%.3f  altRotation:%.3f  launchAngle:%.3f  launchSpeed:%.3f]\n",
-        m_lastFoundVector.getBearing(), m_lastFoundVector.getDistance(), rotationPidOutput, m_launchAngle_deg, m_launchSpeed_ips);
+        m_lastFoundDetection.getBearing(), m_lastFoundDetection.getDistance(), rotationPidOutput, m_launchAngle_deg, m_launchSpeed_ips);
     SmartDashboard.putNumber("AimAtHub targetAngle", m_targetGyroAngle_deg);
     SmartDashboard.putNumber("AimAtHub currentAngle", currentGyroAngle_deg);
   }

@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.AngleMagVector;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Vision.Detections.DetectionList;
@@ -92,14 +93,18 @@ public class AprilTagFilter {
 
             AprilTagFieldInfo pairedTagInfo = pairedTagInfoOptional.get();
 
+
             double centerTagAngleFromHubFace_deg = FindSSSAngle(
                     FindRightTriangleLeg(ShooterConstants.tagCenterToFloorHeight_in, detection.getDistance()),
                     Math.abs(pairedTagInfo.XToElement),
                     FindRightTriangleLeg(ShooterConstants.tagCenterToFloorHeight_in, pairedDetection.getDistance()));
 
             AngleMagVector floorVector = getFloorVectorFromCenterTag(detection, centerTagAngleFromHubFace_deg);
+            
+            SmartDashboard.putNumber("GetFloorVector - centerBearing", detection.getBearing());
+            SmartDashboard.putNumber("GetFloorVector - vectorAngle", floorVector.Angle);
 
-            floorVector.Angle = detection.getBearing() - floorVector.Angle;
+            floorVector.Angle = floorVector.Angle - detection.getBearing();
             floorVectorList.add(floorVector);
         }
 
