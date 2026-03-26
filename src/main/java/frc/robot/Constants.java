@@ -37,8 +37,8 @@ public final class Constants {
     public static final int intakeRollerFollowerMotorID = 22;
 
 
-    public static final int climberMotorID = 0; //TODO add can ids
-    public static final int climbFollowerMotorID = 0;
+    public static final int climberMotorID = 99; //TODO add can ids
+    public static final int climbFollowerMotorID = 99;
   }
 
   public static class VisionServerConstants {
@@ -125,8 +125,8 @@ public final class Constants {
 
 
   public static final class IntakeConstants {
-    public static final int elevationCurrentLimit_amp = 40;
-    public static final int rollerCurrentLimit_amp = 60;
+    public static final int extensionCurrentLimit_amp = 40;
+    public static final int rollerCurrentLimit_amp = 40;
 
     // Homing (current-based)
     public static final double homingSpeed_perc = -0.20;
@@ -152,17 +152,17 @@ public final class Constants {
     public static final double brownoutScale_perc = 0.8; // Scale factor when in brownout
     
     public static final double degPerMotorRotation_deg = 360.0; //TODO change to reflect elevation motor gear ratio
-    public static final double intakeRawExtension_rot = 15.85 ;//63.4
+    public static final double intakeRawExtension_rot =  15.85;//15.38;
 
     public static final double SlowSpot = 5.0;
 
     public static final double intakeRollerP = 0.0;
     public static final double intakeRollerI = 0.0;
     public static final double intakeRollerD = 0.0;
-    public static final double intakeRollerFF = 0.0013;
+    public static final double intakeRollerFF = 0.00015;
 
-    public static final double rollerInSpeed_rpm = -5040.0; //rpm max 6,300
-    public static final double rollerOutSpeed_rpm = 5040.0; //rpm max 6,300
+    public static final double rollerInSpeed_rpm = 3200.0; //rpm max 6,300
+    public static final double rollerOutSpeed_rpm = -3200.0; //rpm max 6,300
   }
 
   public static class OperatorConstants {

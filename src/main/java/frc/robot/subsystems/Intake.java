@@ -73,10 +73,10 @@ public class Intake extends SubsystemBase {
     intakeRightConfig
         .idleMode(IdleMode.kBrake)
         .inverted(true)
-        .smartCurrentLimit(IntakeConstants.elevationCurrentLimit_amp, IntakeConstants.elevationCurrentLimit_amp);
+        .smartCurrentLimit(IntakeConstants.extensionCurrentLimit_amp, IntakeConstants.extensionCurrentLimit_amp);
     intakeLeftConfig
         .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(IntakeConstants.elevationCurrentLimit_amp, IntakeConstants.elevationCurrentLimit_amp);
+        .smartCurrentLimit(IntakeConstants.extensionCurrentLimit_amp, IntakeConstants.extensionCurrentLimit_amp);
 
     m_intakeExtensionRightMotor.configure(
         intakeRightConfig,
@@ -133,7 +133,7 @@ public class Intake extends SubsystemBase {
   }
 
   // Arm control
-  public void extendFollowerIntake() {
+  public void extendLeftIntake() {
     if (m_intakeLeftEncoder.getPosition() > IntakeConstants.intakeRawExtension_rot) {
       m_intakeExtensionLeftMotor.set(0);
       return;
@@ -148,7 +148,7 @@ public class Intake extends SubsystemBase {
     System.out.println("intakeMovingDown");
   }
 
-  public void extendLeaderIntake() {
+  public void extendRightIntake() {
     if (m_intakeRightEncoder.getPosition() > IntakeConstants.intakeRawExtension_rot) {
       m_intakeExtensionRightMotor.set(0);
       return;
@@ -163,7 +163,7 @@ public class Intake extends SubsystemBase {
     System.out.println("intakeMovingDown");
   }
 
-  public void retractFollowerIntake() {
+  public void retractLeftIntake() {
     if (m_intakeLeftEncoder.getPosition() < 0) {
       m_intakeExtensionLeftMotor.set(0);
       return;
@@ -178,7 +178,7 @@ public class Intake extends SubsystemBase {
     System.out.println("intakeMovingDown");
   }
 
-  public void retractLeaderIntake() {
+  public void retractRightIntake() {
     if (m_intakeRightEncoder.getPosition() < 0) {
       m_intakeExtensionRightMotor.set(0);
       return;
@@ -194,13 +194,13 @@ public class Intake extends SubsystemBase {
   }
 
   public void extendIntake() {
-    extendFollowerIntake();
-    extendLeaderIntake();
+    extendLeftIntake();
+    extendRightIntake();
   }
 
   public void retractIntake() {
-    retractFollowerIntake();
-    retractLeaderIntake();
+    retractLeftIntake();
+    retractRightIntake();
   }
 
   public double getElevationCurrent() {
