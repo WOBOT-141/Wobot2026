@@ -180,7 +180,7 @@ public final class Constants {
     public static final double flywheelCircum_in = Math.PI * flywheelDiameter_in;
     public static final double flywheelGearRatio = 29 / 24;
     public static final double flywheelVelocity_RPMtoIPS = (flywheelCircum_in * flywheelGearRatio / 60.0) / 2.0; // /2.0 accounts for balls spin
-    public static final double flywheelSlipFactor = 1.7; //2.3
+    public static final double flywheelDefaultSlipFactor = 1.7; //2.3
     
     public static final double muzzleHeight_in = 27;
     public static final double hubRimToCenter_in = 23.5;
@@ -229,6 +229,9 @@ public final class Constants {
     // Fire command constants
     public static final double firingWaitTime_sec = 0.5;
     public static final double defaultHeightAboveRim_in = 36;
+    public static final double slipFactorSlopeRise = 2.3-1.7;
+    public static final double slipFactorSlopeRun = 71.1 - 57.8;
+    public static final double slipFactorSlope = slipFactorSlopeRise/slipFactorSlopeRun;
   }
 
   public static class WheelConstants {
