@@ -113,11 +113,11 @@ public final class Constants {
 
   public static final class IntakeConstants {
     public static final int elevationCurrentLimit_amp = 40;
-    public static final int rollerCurrentLimit_amp = 60;
+    public static final int rollerCurrentLimit_amp = 40;
 
     // Homing (current-based)
     public static final double homingSpeed_perc = -0.20;
-    public static final double homingCurrentThreshold_amp = 20.0;
+    public static final double homingCurrentThreshold_amp = 40.0;
     public static final double homingTimeout_sec = 2.0;
 
     // Intake positions
@@ -170,25 +170,26 @@ public final class Constants {
     public static final double flywheelCircum_in = Math.PI * flywheelDiameter_in;
     public static final double flywheelGearRatio = 29 / 24;
     public static final double flywheelVelocity_RPMtoIPS = (flywheelCircum_in * flywheelGearRatio / 60.0) / 2.0; // /2.0 accounts for balls spin
-    public static final double flywheelSlipFactor = 1.1; // May need to be scaled with commanded speed
+    public static final double flywheelSlipFactor = 1.7; //2.3
     
     public static final double muzzleHeight_in = 27;
     public static final double hubRimToCenter_in = 23.5;
     public static final double hubRimHeight_in = 72;
     public static final double muzzleToRimHeight_in = hubRimHeight_in - muzzleHeight_in;
     public static final double tagCenterToFloorHeight_in = 44.25;
+    public static final double cameraToMuzzleDist_in = 10;
 
-    public static final double leftP = 0.002; //0.0015;
+    public static final double leftP = 0.0017; //0.0015;
     public static final double middleP = 0.002;//0.0025;
     public static final double rightP = 0.002; //0.0012;
     public static final double I = 0.0000;
     public static final double D = 0.000000;
     public static final double kF = 0.0018; //0.0018;
 
-    public static final double hoodP = 0.02;
-    public static final double hoodI = 0;
+    public static final double hoodP = 0.08;
+    public static final double hoodI = 0.00005;
     public static final double hoodD = 0; //.001
-    public static final double hood_kF = 1.7;
+    public static final double hood_kF = 0;
     
     public static final double hoodGearRatio = (10.0 / 62.0) * (50.0 / 319.0);
     public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;

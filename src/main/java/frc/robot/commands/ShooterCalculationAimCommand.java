@@ -4,7 +4,10 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.ControllerConstants;
 import frc.robot.Util.ShooterCalculations;
 import frc.robot.subsystems.Shooter;
 
@@ -16,16 +19,18 @@ public class ShooterCalculationAimCommand extends Command {
   private double m_rimToTargetDistance_in;
   private double m_targetHeightAboveRim_in;
 
-  private final Shooter m_Shooter;
+  private final Shooter m_shooter;
+  private final CommandXboxController m_controller;
 
   /** Creates a new ShooterCalculationAimCommand. */
   public ShooterCalculationAimCommand(double targetDistance_in, double deltaHeight_in, double rimToTargetDistance_in,
-      double targetHeightAboveRim_in, Shooter Shooter) {
+      double targetHeightAboveRim_in, CommandXboxController controller, Shooter shooter) {
     m_targetDistance_in = targetDistance_in;
     m_deltaHeight_in = deltaHeight_in;
     m_rimToTargetDistance_in = rimToTargetDistance_in;
     m_targetHeightAboveRim_in = targetHeightAboveRim_in;
-    m_Shooter = Shooter;
+    m_controller = controller;
+    m_shooter = shooter;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -40,14 +45,18 @@ public class ShooterCalculationAimCommand extends Command {
     double getLaunchAngle = ShooterCalculations.getLaunchAngle(m_targetDistance_in, m_deltaHeight_in,
         m_rimToTargetDistance_in, m_targetHeightAboveRim_in);
     double getLaunchSpeed = ShooterCalculations.getLaunchSpeed(getLaunchAngle, m_targetDistance_in, m_rimToTargetDistance_in, m_targetHeightAboveRim_in);
-    m_Shooter.setShooterVelocity(getLaunchSpeed);
-    m_Shooter.setHoodAngle(getLaunchAngle);
+    m_shooter.setShooterVelocity(getLaunchSpeed);
+    m_shooter.setHoodAngle(getLaunchAngle);
+        //Controller Feedback
+    double rumble = m_shooter.isReadyToShoot() ? ControllerConstants.rumbleFeedback_perc : 0.0;
+    m_controller.setRumble(RumbleType.kBothRumble, rumble);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_Shooter.cancel();
+    m_controller.setRumble(RumbleType.kBothRumble, 0);
+    m_shooter.cancel();
   }
 
   // Returns true when the command should end.

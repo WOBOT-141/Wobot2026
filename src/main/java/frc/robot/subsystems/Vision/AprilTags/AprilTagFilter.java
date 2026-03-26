@@ -185,7 +185,7 @@ public class AprilTagFilter {
     }
 
     public static double FindRightTriangleLeg(double leg1, double hypotenuse) {
-        double step1 = Math.pow(hypotenuse, 2) - Math.pow(leg1, 2);
+        double step1 = Math.abs(Math.pow(hypotenuse, 2) - Math.pow(leg1, 2));
         return Math.sqrt(step1);
     }
 }
