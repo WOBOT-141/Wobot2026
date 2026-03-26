@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -21,6 +23,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
 import frc.robot.Constants;
+import frc.robot.Util.HubConstants;
 import frc.robot.subsystems.Vision.VisionServer;
 
 public class Drivetrain extends SubsystemBase {
@@ -70,7 +73,7 @@ public class Drivetrain extends SubsystemBase {
 
         resetWheelPositions();
         swerveStatesArray = new SwerveModuleState[4];
-        
+
     }
 
     private void makeOdometryItems(SwerveDriveKinematics kinematics) {
@@ -79,7 +82,7 @@ public class Drivetrain extends SubsystemBase {
                 rawGyroRotation,
                 getModulePositions(),
                 lastPose,
-                VecBuilder.fill(0.05, 0.05, 1.0), // State StdDevs: Trust wheel odometry normally
+                VecBuilder.fill(0.05, 0.05, 1.0),
                 VecBuilder.fill(0.05, 0.05, 1000.0));
 
         odometry = new SwerveDriveOdometry(
@@ -237,19 +240,28 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         rawGyroRotation = m_gyro.getRotationAs2d();
-        poseEstimator.update(rawGyroRotation, getModulePositions());// Update the odometry without vision first
+        poseEstimator.update(rawGyroRotation, getModulePositions());
         Pose2d visionRobotPose;
 
         switch (Constants.currentMode) {
             case REAL -> {
                 Logger.recordOutput("VISIONCLOSESTPOSE", m_visionServer.getTagPose());
-                Logger.recordOutput("DistanceToHubCenter" , getRobotToHubDist_m());
+                Logger.recordOutput("DistanceToHubCenter", getRobotToHubDist_m());
                 visionRobotPose = m_visionServer.getEstimatedRobotPose(m_gyro.getRawGyroAngle());
 
                 if (visionRobotPose != null && m_visionServer.hasTargets()) {
                     Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
 
-                    addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp(), m_visionServer.getTagDistance_m());
+                    // Optimized Loop matching the filtered arrays
+                    ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
+                    ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
+
+                    for (int i = 0; i < poses.size(); i++) {
+                        addVisionMeasurement(
+                                poses.get(i),
+                                Timer.getFPGATimestamp(),
+                                Units.inchesToMeters(distances.get(i)));
+                    }
                 }
             }
             case SIM -> {
@@ -260,9 +272,15 @@ public class Drivetrain extends SubsystemBase {
 
                 if (visionRobotPose != null) {
                     Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
+                    ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
+                    ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
 
-                    // FIX: Pass the actual distance dynamically to the estimator
-                    addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp(), currentDistance);
+                    for (int i = 0; i < poses.size(); i++) {
+                        addVisionMeasurement(
+                                poses.get(i),
+                                Timer.getFPGATimestamp(),
+                                Units.inchesToMeters(distances.get(i)));
+                    }
                 }
             }
             default -> {
@@ -273,23 +291,29 @@ public class Drivetrain extends SubsystemBase {
 
                 if (visionRobotPose != null) {
                     Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
+                    ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
+                    ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
 
-                    // FIX: Pass the actual distance dynamically to the estimator
-                    addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp(), currentDistance);
+                    for (int i = 0; i < poses.size(); i++) {
+                        addVisionMeasurement(
+                                poses.get(i),
+                                Timer.getFPGATimestamp(),
+                                Units.inchesToMeters(distances.get(i)));
+                    }
                 }
             }
         }
 
-        lastPose = poseEstimator.getEstimatedPosition();// update our pose
-        Logger.recordOutput("Odometry/Robot", lastPose);// update our pose on AdvantageScope
-        Logger.recordOutput("Pose/X", lastPose.getX());// List our X,Y, and current rotation from our pose
+        lastPose = poseEstimator.getEstimatedPosition();
+        Logger.recordOutput("Odometry/Robot", lastPose);
+        Logger.recordOutput("Pose/X", lastPose.getX());
         Logger.recordOutput("Pose/Y", lastPose.getY());
         Logger.recordOutput("Pose/Rotation", lastPose.getRotation().getDegrees());
 
-        Logger.recordOutput("rightface", Constants.Hub.getRightFace());
-        Logger.recordOutput("leftface", Constants.Hub.getLeftFace());
-        Logger.recordOutput("frontface", Constants.Hub.getNearFace());
-        Logger.recordOutput("backface", Constants.Hub.getFarFace());
+        Logger.recordOutput("rightface", HubConstants.getRightFace());
+        Logger.recordOutput("leftface", HubConstants.getLeftFace());
+        Logger.recordOutput("frontface", HubConstants.getNearFace());
+        Logger.recordOutput("backface", HubConstants.getFarFace());
     }
 
     public Translation2d[] getWheelPositions() {
@@ -353,17 +377,23 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public double getHubX() {
-        return Constants.Hub.getTopCenterPoint().getX();
+        return HubConstants.getTopCenterPoint().getX();
     }
 
     public double getHubY() {
-        return Constants.Hub.getTopCenterPoint().getY();
+        return HubConstants.getTopCenterPoint().getY();
     }
 
     public double getRobotToHubDist_m() {
         double distStep1 = Math.pow(getPoseX() - getHubX(), 2);
         double distStep2 = Math.pow(getPoseY() - getHubY(), 2);
         return Math.sqrt(distStep1 + distStep2);
+    }
+
+    public void resetPose(Pose2d startingPose) {
+        odometry.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), startingPose);
+        poseEstimator.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), startingPose);
+        lastPose = startingPose;
     }
 
     public void resetWheelPositions() {
@@ -409,21 +439,17 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void runVelocity(ChassisSpeeds speeds) {
-        // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, Constants.DriveConstants.maxSpeedMetersPerSec);
 
-        // Log unoptimized setpoints
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
         Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
 
-        // Send setpoints to modules
         for (int i = 0; i < 4; i++) {
             _wheels[i].runSetpoint(setpointStates[i]);
         }
 
-        // Log optimized setpoints (runSetpoint mutates each state)
         Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
     }
 
@@ -440,7 +466,6 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void addVisionMeasurement(Pose2d visionRobotPose, double timestampSeconds, double distanceToTargetMeters) {
-
         double xyStdDev = 0.5;
 
         xyStdDev = xyStdDev * Math.pow(distanceToTargetMeters, 2);
@@ -452,8 +477,7 @@ public class Drivetrain extends SubsystemBase {
         poseEstimator.addVisionMeasurement(
                 visionRobotPose,
                 timestampSeconds,
-                VecBuilder.fill(xyStdDev, xyStdDev, 1.0)
-        );
+                VecBuilder.fill(xyStdDev, xyStdDev, 1.0));
     }
 
     public SwerveModule[] getWheels() {

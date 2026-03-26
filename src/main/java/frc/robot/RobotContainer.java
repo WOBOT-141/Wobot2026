@@ -2,6 +2,7 @@ package frc.robot;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -11,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.SpektrumFlightController;
 import frc.robot.Constants.VisionServerConstants;
 import frc.robot.commands.DriveCommands.ResetGyro;
-import frc.robot.commands.DriveCommands.RotateToHub;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
@@ -223,7 +223,7 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
-        .whileTrue(new RotateToHub(m_drive,0.0,0.0));
+        .onTrue(Commands.runOnce(() -> m_drive.resetPose(new Pose2d())));
   }
 
   public Command getAutonomousCommand() {
