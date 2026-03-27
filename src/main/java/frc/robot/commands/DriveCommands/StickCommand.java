@@ -143,9 +143,8 @@ public class StickCommand extends Command {
     double xPrime_perc = stickX_perc * Math.sqrt(1 - (Math.pow(stickY_perc, 2) / 2));
     double yPrime_perc = stickY_perc * Math.sqrt(1 - (Math.pow(stickX_perc, 2) / 2));
 
-
-    double mag =  Math.sqrt(Math.pow(xPrime_perc, 2) + Math.pow(yPrime_perc, 2));
-    return mag * 1.5; //TODO Not this gross hack
+    double magnitude_perc = Math.sqrt(Math.pow(xPrime_perc, 2) + Math.pow(yPrime_perc, 2));
+    return magnitude_perc * 2; //TODO This is a gross hack. Figure out the real problem please
   }
 
 
