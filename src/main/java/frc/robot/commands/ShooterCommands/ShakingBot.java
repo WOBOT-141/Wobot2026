@@ -12,10 +12,12 @@ import frc.robot.subsystems.Drivetrain;
 public class ShakingBot extends Command {
   private final Drivetrain m_drivetrain;
   private double startTime;
+  private final double m_translationAngle;
 
   /** Creates a new ShakingBot. */
-  public ShakingBot(Drivetrain drivetrain) {
+  public ShakingBot(double translationAngle, Drivetrain drivetrain) {
     m_drivetrain = drivetrain;
+    m_translationAngle = translationAngle;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drivetrain);
   }
@@ -23,15 +25,17 @@ public class ShakingBot extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    startTime = (Timer.getFPGATimestamp() % 1);
+    startTime = Timer.getFPGATimestamp();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drivetrain.driveWithoutGyro(0, 0.1, 0);
-    if (startTime > 0.5) {
-      m_drivetrain.driveWithoutGyro(0, -0.1, 0);
+    double currentTime = Timer.getFPGATimestamp();
+    if (((currentTime - startTime) % 0.6) < 0.3) {
+      m_drivetrain.driveWithoutGyro(m_translationAngle, -0.4, 0);
+    } else {
+      m_drivetrain.driveWithoutGyro(m_translationAngle, 0.4, 0);
     }
   }
 
