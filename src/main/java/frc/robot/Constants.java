@@ -76,7 +76,7 @@ public final class Constants {
 
 
   public static class ControllerConstants {
-    public static final double rumbleFeedback_perc = 0.6;
+    public static final double rumbleFeedback_perc = 1;
   }
 
 
