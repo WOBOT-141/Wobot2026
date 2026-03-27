@@ -31,10 +31,10 @@ public class RightHalfMidwayGather extends SequentialCommandGroup {
   /** Creates a new MidwayGather. */
   public RightHalfMidwayGather(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake,  VisionServer visionServer, StickCommand stickCommand, AprilTagFilter aprilTagFilter, CommandXboxController controller) {
     // Add your commands in the addCommands() call, e.g.
-    StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 90, 175, wheels, gyro, true);
+    StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 90, 198, wheels, gyro, true);
     StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, 0, 70, wheels, gyro, true);
-    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 0, -50, wheels, gyro, false);
-    StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, -90, 178, wheels, gyro, false);
+    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 0, -55, wheels, gyro, false);
+    StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, -90, 201, wheels, gyro, false);
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new HoodResetter(shooter, gyro)

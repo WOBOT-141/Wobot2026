@@ -32,9 +32,10 @@ public class AxisIntakeRunCommand extends Command {
     double axisRead = m_leftTriggerAxisSupplier.getAsDouble();
     System.out.println("IntakeRun Axis: " + axisRead);
     if (axisRead <= .85 && axisRead >= 0.2) {
-      m_intake.intakeRun(-.5);
+      //m_intake.intakeRun(3200);//slow
+      System.out.print("");
     } else if (axisRead > 0.85) {
-      m_intake.intakeRun(-.8);
+      m_intake.intakeRun(3500);//fast
     }
 
   }
