@@ -35,6 +35,7 @@ public class DoubleButtonIntakeRunCommand extends Command {
     double maxAxisRead = m_maxAxisSupplier.getAsDouble();
     double speed = maxAxisRead >= 0.5 ? 3500 : IntakeConstants.rollerInSpeed_rpm;
     m_intake.intakeRun(speed);
+    
   }
 
   // Called once the command ends or is interrupted.

@@ -7,6 +7,8 @@ package frc.robot.commands;
 import java.util.Optional;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,7 +34,7 @@ import frc.robot.subsystems.Vision.Detections.NullDetection;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AimAtSpecificTag extends Command {
 
-  private final int m_tagId;
+  private int m_tagId;
   private final VisionServer m_visionServer;
   private final Shooter m_shooter;
   private final IGyro m_gyro;
@@ -47,7 +49,8 @@ public class AimAtSpecificTag extends Command {
   private boolean m_initialVectorFound = false;
 
   public AimAtSpecificTag(
-    int tagId,
+    int redTagId,
+    int blueTagId,
       VisionServer visionServer,
       Shooter shooter,
       IGyro gyro,
@@ -55,7 +58,12 @@ public class AimAtSpecificTag extends Command {
       CommandXboxController controller,
       Drivetrain drivetrain) {
 
-    m_tagId = tagId;
+    m_tagId = redTagId;
+    Optional<Alliance> allianceSelection = DriverStation.getAlliance();
+
+    if (allianceSelection.isEmpty() || allianceSelection.get() == Alliance.Blue)
+      m_tagId = blueTagId;
+
     m_shooter = shooter;
     m_gyro = gyro;
     m_visionServer = visionServer;
@@ -89,6 +97,7 @@ public class AimAtSpecificTag extends Command {
     //Get data to operate on
     double currentGyroAngle_deg = m_gyro.getRawGyroAngle();
     DetectionList detectionList = m_visionServer.getApriltagDetectionLists()[0];
+    System.out.println("AimAtSpecificTag detects "+ detectionList.getSize());
     IDetection detection = detectionList.getDetectionById(m_tagId);
 
     //Update our targeting if we have usable tag data
@@ -129,6 +138,6 @@ public class AimAtSpecificTag extends Command {
 
   @Override
   public boolean isFinished() {
-    return false;
+    return m_pidController.atSetpoint();
   }
 }

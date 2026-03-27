@@ -67,9 +67,9 @@ public class LeftMidwayGather extends SequentialCommandGroup {
                 drive_back_in_to_alliance_zone)
             .andThen(
                 // new RotateByAngle(drivetrain, -20, gyro, true)
-                new RotateByAnglePID(-40, 7, gyro, drivetrain))
+                new RotateByAnglePID(-40, 7, gyro, drivetrain)
                 // .andThen(new RotateToTag(8, visionServer, drivetrain)))
-                // .andThen(new AimAtSpecificTag(8, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)))
+                .andThen(new AimAtSpecificTag(8, 24, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)))
             .andThen(
                 new AutonShooter(shooter, magazine, 200, 65)));
             //     new RevShooter(300, 65, shooter))

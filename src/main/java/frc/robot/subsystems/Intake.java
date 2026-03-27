@@ -19,6 +19,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CANIdConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -132,6 +134,19 @@ public class Intake extends SubsystemBase {
     m_intakeRollerLeaderMotor.stopMotor();
   }
 
+  public void extendIntakeBoth(double speed_perc){
+    m_intakeExtensionLeftMotor.set(speed_perc);
+    m_intakeExtensionRightMotor.set(speed_perc);
+  }
+
+  public Command extendIntakeCommand(double speed_perc) {
+    return Commands.startEnd(
+      () -> extendIntakeBoth(speed_perc),
+      () -> extendIntakeBoth(0),
+      this
+    );
+  }
+  
   // Arm control
   public void extendLeftIntake() {
     if (m_intakeLeftEncoder.getPosition() > IntakeConstants.intakeRawExtension_rot) {
