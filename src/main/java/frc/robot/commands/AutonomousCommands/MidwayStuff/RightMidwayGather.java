@@ -33,17 +33,18 @@ public class RightMidwayGather extends SequentialCommandGroup {
   /** Creates a new MidwayGather. */    
   public RightMidwayGather(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake, VisionServer visionServer, StickCommand stickCommand, AprilTagFilter aprilTagFilter, CommandXboxController controller) {
     // Add your commands in the addCommands() call, e.g.
-    StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 90, 180, wheels, gyro, true);
+    StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, 90, 198, wheels, gyro, true);
     StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, 0, 140, wheels, gyro, true);
-    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 0, -118, wheels, gyro, false);
-    StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, -90, 183, wheels, gyro, false);
+    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 0, -110, wheels, gyro, false);
+    StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, -90, 201, wheels, gyro, false);
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new HoodResetter(shooter, gyro)
             .andThen(
                 drive_over_ramp_to_center
-                .alongWith(new IntakeExtend(intake)).andThen(
-                new setIntake(intake, -0.6)).andThen(
+                .alongWith(new IntakeExtend(intake))
+                .andThen(
+                new setIntake(intake, 2000)).andThen(
                 new WaitCommand(0.5)))
             .andThen(
                 drive_through_fuel
@@ -56,9 +57,9 @@ public class RightMidwayGather extends SequentialCommandGroup {
                 // new RotateByAnglePID(20, gyro, drivetrain)
                 // .andThen(new RotateToTag(11, visionServer, drivetrain)))
                 new RotateByAngle(drivetrain, 20, gyro,false)
-                .andThen(new AimAtSpecificTag(11, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)))
+                .andThen(new AimAtSpecificTag(11, 27, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)))
             .andThen(
-                new AutonShooter(shooter, magazine, 360, 65)));
+                new AutonShooter(shooter, magazine, 200, 65)));
             //     new RevShooter(280, 65, shooter)
             //       .alongWith(new WaitCommand(0.5)
             //       .andThen(new setFeed(magazine, 0.8))))

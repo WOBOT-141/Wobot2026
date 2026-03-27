@@ -41,7 +41,7 @@ public class RightHalfMidwayGather extends SequentialCommandGroup {
             .andThen(
                 drive_over_ramp_to_center
                 .alongWith(new IntakeExtend(intake)).andThen(
-                new setIntake(intake, -0.6)).andThen(
+                new setIntake(intake, 2000)).andThen(
                 new WaitCommand(0.5)))
             .andThen(
                 drive_through_fuel
@@ -52,7 +52,7 @@ public class RightHalfMidwayGather extends SequentialCommandGroup {
                 drive_back_in_to_alliance_zone)
             .andThen(
                 new RotateByAngle(drivetrain, 20, gyro,false)
-                .andThen(new AimAtSpecificTag(11, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)))
+                .andThen(new AimAtSpecificTag(11, 27, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)))
             .andThen(
                 new AutonShooter(shooter, magazine, 360, 65)));
   }

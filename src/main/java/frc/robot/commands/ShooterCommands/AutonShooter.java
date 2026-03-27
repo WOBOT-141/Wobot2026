@@ -32,8 +32,7 @@ public class AutonShooter extends SequentialCommandGroup {
         new RevShooter(m_launchSpeed_ips, m_hoodAngle, m_Shooter)
             .alongWith(new WaitCommand(0.7)
                 .andThen(new IntakeFuel(m_magazine, 0.8)))
-            .andThen(
-                new WaitCommand(5))
+                .withTimeout(5)
             .andThen(Commands.run(() -> m_Shooter.cancel()).alongWith(new IntakeFuel(m_magazine, 0))));
 
   }
