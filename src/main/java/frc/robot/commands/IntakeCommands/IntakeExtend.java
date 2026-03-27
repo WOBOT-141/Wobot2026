@@ -19,7 +19,7 @@ public class IntakeExtend extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
+    System.out.println("IntakeExtend START");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -31,6 +31,7 @@ public class IntakeExtend extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    System.out.println("IntakeExtend END " + interrupted);
     m_Intake.stopArm();
   }
 

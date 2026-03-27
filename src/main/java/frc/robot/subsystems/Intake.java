@@ -94,8 +94,8 @@ public class Intake extends SubsystemBase {
     SparkFlexConfig intakeRollerLeaderMotorConfig = new SparkFlexConfig();
     SparkFlexConfig intakeRollerFollowerMotorConfig = new SparkFlexConfig();
     
-    intakeRollerLeaderMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).feedForward.kV(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
-    intakeRollerFollowerMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).feedForward.kV(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
+    // intakeRollerLeaderMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).feedForward.kV(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
+    // intakeRollerFollowerMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).feedForward.kV(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
 
     intakeRollerLeaderMotorConfig
         .idleMode(IdleMode.kCoast)
@@ -125,9 +125,9 @@ public class Intake extends SubsystemBase {
         && m_intakeLeftEncoder.getPosition() >= IntakeConstants.intakeRawExtension_rot;
   }
 
-  // Roller control
-  public void intakeRun(double speed_rpm) {
-    m_intakeRollerLeaderMotor.getClosedLoopController().setSetpoint(speed_rpm, ControlType.kVelocity);
+  public void intakeRun(double speed_perc) {
+    // m_intakeRollerLeaderMotor.getClosedLoopController().setSetpoint(speed_perc, ControlType.kVelocity);
+    m_intakeRollerLeaderMotor.set(speed_perc);
   }
 
   public void intakeRollerStop() {

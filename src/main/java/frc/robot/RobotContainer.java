@@ -200,8 +200,8 @@ public class RobotContainer {
   }
 
   private void configureXboxController() {
-    // m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
-    m_xboxController0.leftBumper().whileTrue(m_intake.extendIntakeCommand(IntakeConstants.intakeExtendSpeed_perc));
+    m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
+    // m_xboxController0.leftBumper().whileTrue(m_intake.extendIntakeCommand(IntakeConstants.intakeExtendSpeed_perc));
     // m_xboxController0.leftTrigger().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(IntakeConstants.rollerInSpeed_rpm),() -> m_intake.intakeRollerStop(), m_intake));
     m_xboxController0.leftTrigger().whileTrue((new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis())));
     m_xboxController0.rightBumper().whileTrue(new MagazineAndLock(m_drive, m_magazine));// locks wheels and runs feed/mag 
