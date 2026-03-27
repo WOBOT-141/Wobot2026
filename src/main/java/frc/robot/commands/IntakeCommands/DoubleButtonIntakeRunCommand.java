@@ -6,6 +6,7 @@ package frc.robot.commands.IntakeCommands;
 
 import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -31,7 +32,7 @@ public class DoubleButtonIntakeRunCommand extends Command {
   public void execute() {
 
     double maxAxisRead = m_maxAxisSupplier.getAsDouble();
-    double speed = maxAxisRead >= 0.5 ? -0.8 : -0.4;
+    double speed = maxAxisRead >= Constants.IntakeConstants.rollerInSpeed_rpm ? 3500 : -0.4;
     m_intake.intakeRun(speed);
   }
 
