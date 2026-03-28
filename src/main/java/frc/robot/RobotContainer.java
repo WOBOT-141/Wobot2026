@@ -235,6 +235,7 @@ public class RobotContainer {
     m_xboxController0.leftStick().onTrue(new SendHoodToHome(m_shooter));
     m_xboxController0.rightStick().onTrue(new StopRobot(m_intake, m_magazine, m_drive, m_shooter));
   }
+  
 
   private void configureJoystick() {
     // m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));

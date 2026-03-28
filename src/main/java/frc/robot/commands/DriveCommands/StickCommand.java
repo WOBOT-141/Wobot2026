@@ -106,7 +106,7 @@ public class StickCommand extends Command {
 
     /* ---------------- Clamping ---------------- */
     translationMagnitude_perc = m_rampRate.calculate(translationMagnitude_perc);
-    translationMagnitude_perc = Math.max(-1, Math.max(1, translationMagnitude_perc));
+    translationMagnitude_perc = Math.max(-1, Math.min(1, translationMagnitude_perc));
     rotationalMagnitude_perc = Math.max(-1, Math.min(1.0, rotationalMagnitude_perc));
 
     /* ---------------- Drive ---------------- */
