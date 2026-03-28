@@ -70,7 +70,7 @@ public class LeftMidwayGather extends SequentialCommandGroup {
                 // new RotateByAngle(drivetrain, -20, gyro, true)
                 new RotateByAnglePID(-40, 7, gyro, drivetrain)
                 // .andThen(new RotateToTag(8, visionServer, drivetrain)))
-                .andThen(new AimAtSpecificTag(8, 24, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)).withTimeout(4))
+                .andThen(new AimAtSpecificTag(8, 24, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)).withTimeout(1.5))
             .andThen(
                 new AutonShooter(shooter, magazine, 200, 65)));
             //     new RevShooter(300, 65, shooter))
