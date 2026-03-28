@@ -15,11 +15,13 @@ public class RotShakes extends Command {
   private final MagazineAndFeed m_magazine;
   private double startTime;
   private final double m_speed;
+  private final boolean m_forward;
 
   /** Creates a new ShakingBot. */
-  public RotShakes(double speed, Drivetrain drivetrain, MagazineAndFeed magazine) {
+  public RotShakes(double speed, boolean forward, Drivetrain drivetrain, MagazineAndFeed magazine) {
     m_drivetrain = drivetrain;
     m_speed = speed;
+    m_forward = forward;
     m_magazine = magazine;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drivetrain);
@@ -36,7 +38,7 @@ public class RotShakes extends Command {
   public void execute() {
     double currentTime = Timer.getFPGATimestamp() - startTime;
     if (currentTime < 0.5) {
-      m_drivetrain.driveWithoutGyro(0, -0.3, 0);
+      m_drivetrain.driveWithoutGyro(0, m_forward ? 0.3 : -0.3, 0);
       m_magazine.setFeedVelocity(-0.3);
       return;
     }
