@@ -7,6 +7,7 @@ package frc.robot.commands.AutonomousCommands.MidwayStuff;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.AimAtSpecificTag;
 import frc.robot.commands.AutonomousCommands.HoodResetter;
 import frc.robot.commands.AutonomousCommands.RotateByAngle;
@@ -38,7 +39,7 @@ public class LeftMidwayGather extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     StraightLineDrive drive_over_ramp_to_center = new StraightLineDrive(drivetrain, -90, 198, wheels, gyro, true);
     StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, 0, 140, wheels, gyro, true);
-    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 0, -125, wheels, gyro, true);
+    StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 180, 125, wheels, gyro, true);
     StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, 90, 201, wheels, gyro, true);
 
         // StraightLineDrive drive_over_ramp_to_center = new
@@ -55,8 +56,8 @@ public class LeftMidwayGather extends SequentialCommandGroup {
         new HoodResetter(shooter, gyro)
             .andThen(
                 drive_over_ramp_to_center
-                    .alongWith(new IntakeExtend(intake))
-                    .andThen(new setIntake(intake, 2000))
+                    .alongWith(new IntakeExtend(intake).withTimeout(3))
+                    .andThen(new setIntake(intake, IntakeConstants.rollerInSpeed_rpm))
                     .andThen(new WaitCommand(0.5)))
             .andThen(
                 drive_through_fuel
@@ -69,7 +70,7 @@ public class LeftMidwayGather extends SequentialCommandGroup {
                 // new RotateByAngle(drivetrain, -20, gyro, true)
                 new RotateByAnglePID(-40, 7, gyro, drivetrain)
                 // .andThen(new RotateToTag(8, visionServer, drivetrain)))
-                .andThen(new AimAtSpecificTag(8, 24, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)))
+                .andThen(new AimAtSpecificTag(8, 24, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)).withTimeout(4))
             .andThen(
                 new AutonShooter(shooter, magazine, 200, 65)));
             //     new RevShooter(300, 65, shooter))

@@ -150,8 +150,8 @@ public final class Constants {
     public static final double intakeRollerD = 0.0;
     public static final double intakeRollerFF = 0.00015;
 
-    public static final double rollerInSpeed_rpm = 0.6; //2250.0; //rpm max 6,300 //3500
-    public static final double rollerInMaxSpeed_rpm = 1;
+    public static final double rollerInSpeed_rpm = 0.4; //2250.0; //rpm max 6,300 //3500
+    public static final double rollerInMaxSpeed_rpm = 0.8 ;
     public static final double rollerOutSpeed_rpm = -0.6; //-2250.0; //rpm max 6,300 //3500
   }
 

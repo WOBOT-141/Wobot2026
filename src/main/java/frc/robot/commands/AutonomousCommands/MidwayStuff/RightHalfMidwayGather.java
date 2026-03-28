@@ -53,8 +53,8 @@ public class RightHalfMidwayGather extends SequentialCommandGroup {
             .andThen(
                 drive_back_in_to_alliance_zone)
             .andThen(
-                new RotateByAngle(drivetrain, 20, gyro,false)
-                .andThen(new AimAtSpecificTag(11, 27, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)).withTimeout(5))
+                new RotateByAngle(drivetrain, 30, gyro,false)
+                .andThen(new AimAtSpecificTag(11, 27, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)).withTimeout(4))
             .andThen(
                 new AutonShooter(shooter, magazine, 200, 65)));
   }
