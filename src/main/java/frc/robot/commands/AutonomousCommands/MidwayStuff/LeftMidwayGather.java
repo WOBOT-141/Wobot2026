@@ -77,7 +77,7 @@ public class LeftMidwayGather extends SequentialCommandGroup {
             .andThen(
                 new AimAtSpecificTag(8, 24, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain).withTimeout(1.5))
             .andThen(
-                new AutonShooter(shooter, magazine, 210, 65)));
+                new AutonShooter(shooter, magazine, 200, 65)));
                 // (new IntakeFuel(magazine, 0.8)).withTimeout(5)));
                 // new RevShooter(300, 65, shooter))
             // .alongWith(new WaitCommand(0.7)

@@ -65,6 +65,6 @@ public class RightHalfMidwayGather extends SequentialCommandGroup {
                 new AimAtSpecificTag(11, 27, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain)
                 .withTimeout(1.5))
             .andThen(
-                new AutonShooter(shooter, magazine, 210, 65)));
+                new AutonShooter(shooter, magazine, 200, 65)));
   }
 }
