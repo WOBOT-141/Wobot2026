@@ -15,9 +15,11 @@ public class RunUntilCurrentLimit extends Command {
   double m_currentLimit;
   boolean m_leftAtLimit;
   boolean m_rightAtLimit;
+  double m_speed;
   /** Creates a new RunUntilCurrentLimit. */
-  public RunUntilCurrentLimit(double currentLimit, Intake intake) {
+  public RunUntilCurrentLimit(double speed, double currentLimit, Intake intake) {
     m_intake = intake;
+    m_speed = speed;
     m_currentLimit = currentLimit;
     addRequirements(intake);
     // Use addRequirements() here to declare subsystem dependencies.
@@ -26,6 +28,7 @@ public class RunUntilCurrentLimit extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    System.out.println("RunUntilCurrentLimit START");
     m_leftAtLimit = false;
     m_rightAtLimit = false;
   }
@@ -34,10 +37,10 @@ public class RunUntilCurrentLimit extends Command {
   @Override
   public void execute() {
     if (!m_leftAtLimit)
-      m_leftAtLimit = m_intake.runLeftUntilCurrentLimit(IntakeConstants.intakeExtendSpeed_perc, m_currentLimit);
+      m_leftAtLimit = m_intake.runLeftUntilCurrentLimit(m_speed, m_currentLimit);
 
     if (!m_rightAtLimit)
-      m_rightAtLimit = m_intake.runRightUntilCurrentLimit(IntakeConstants.intakeExtendSpeed_perc, m_currentLimit);
+      m_rightAtLimit = m_intake.runRightUntilCurrentLimit(m_speed, m_currentLimit);
   }
 
   // Called once the command ends or is interrupted.
@@ -47,6 +50,6 @@ public class RunUntilCurrentLimit extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return m_leftAtLimit && m_rightAtLimit;
   }
 }

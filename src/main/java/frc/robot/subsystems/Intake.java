@@ -178,12 +178,24 @@ public class Intake extends SubsystemBase {
     System.out.println("intakeMovingDown");
   }
 
-  public void retractLeftIntake() {
+  public void retractLeftIntake(){
+    retractLeftIntake(IntakeConstants.SlowSpot);
+  }
+  public void retractRightIntake(){
+    retractRightIntake(IntakeConstants.SlowSpot);
+  }
+
+  public void retractIntakeToPos(double pos){
+    retractLeftIntake(pos);
+    retractRightIntake(pos);
+    return;
+  }
+  public void retractLeftIntake(double position) {
     if (m_intakeLeftEncoder.getPosition() < 0) {
       m_intakeExtensionLeftMotor.set(0);
       return;
     }
-    if (m_intakeLeftEncoder.getPosition() < IntakeConstants.SlowSpot) {
+    if (m_intakeLeftEncoder.getPosition() < position) {
       m_intakeExtensionLeftMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc / 2));
     } else {
       m_intakeExtensionLeftMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc));
@@ -193,13 +205,13 @@ public class Intake extends SubsystemBase {
     System.out.println("intakeMovingDown");
   }
 
-  public void retractRightIntake() {
+  public void retractRightIntake(double position) {
     if (m_intakeRightEncoder.getPosition() < 0) {
       m_intakeExtensionRightMotor.set(0);
       return;
     }
 
-    if (m_intakeRightEncoder.getPosition() < IntakeConstants.SlowSpot) {
+    if (m_intakeRightEncoder.getPosition() < position) {
       m_intakeExtensionRightMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc / 2));
     } else {
       m_intakeExtensionRightMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc));
@@ -218,8 +230,35 @@ public class Intake extends SubsystemBase {
     retractRightIntake();
   }
 
-  public double getElevationCurrent() {
+  public boolean runLeftUntilCurrentLimit(double speed, double currentLimit) {
+    if (m_intakeExtensionLeftMotor.getOutputCurrent() > currentLimit) {
+      m_intakeExtensionLeftMotor.stopMotor();
+      return true;
+    }
+    m_intakeExtensionLeftMotor.set(speed);
+    return false;
+  }
+
+  public boolean runRightUntilCurrentLimit(double speed, double currentLimit) {
+    if (m_intakeExtensionRightMotor.getOutputCurrent() > currentLimit) {
+      m_intakeExtensionRightMotor.stopMotor();
+      return true;
+    }
+    m_intakeExtensionRightMotor.set(speed);
+    return false;
+  }
+
+  public boolean runUntilCurrentLimit(double speed, double currentLimit) {
+    return runRightUntilCurrentLimit(speed, currentLimit) &&
+    runLeftUntilCurrentLimit(speed, currentLimit);
+  }
+
+  public double getRightExtensionCurrent() {
     return m_intakeExtensionRightMotor.getOutputCurrent();
+  }
+
+  public double getLefttExtensionCurrent() {
+    return m_intakeExtensionLeftMotor.getOutputCurrent();
   }
 
   public void stopArm() {

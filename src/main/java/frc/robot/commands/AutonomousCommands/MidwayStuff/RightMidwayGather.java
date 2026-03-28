@@ -62,7 +62,7 @@ public class RightMidwayGather extends SequentialCommandGroup {
             .andThen(
                 // new RotateByAnglePID(20, gyro, drivetrain)
                 // .andThen(new RotateToTag(11, visionServer, drivetrain)))
-                new RotateByAngle(drivetrain, 30, gyro,false))
+                new RotateByAngle(drivetrain, 20, gyro,false))
             .andThen(
                 drive_for_tag)
             .andThen(
