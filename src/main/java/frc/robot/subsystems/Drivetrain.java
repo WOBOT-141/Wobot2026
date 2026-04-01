@@ -20,12 +20,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
 import frc.robot.Constants;
 import frc.robot.Util.HubConstants;
 import frc.robot.subsystems.Vision.VisionServer;
 
+// Note: Ensure your Gyro and SwerveModule are imported correctly
 public class Drivetrain extends SubsystemBase {
 
     private final SwerveModule[] _wheels;
@@ -46,7 +49,9 @@ public class Drivetrain extends SubsystemBase {
     private Rotation2d rawGyroRotation = new Rotation2d();
 
     private Pose2d lastPose = new Pose2d();
+    private Field2d field = new Field2d();
     private double restAngle_deg;
+    private double m_simulatedGyroAngle_deg = 0.0;
 
     @AutoLogOutput
     public int counter = 0;
@@ -59,10 +64,6 @@ public class Drivetrain extends SubsystemBase {
     StructArrayPublisher<SwerveModuleState> arrayPublisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("swerveModuleState", SwerveModuleState.struct).publish();
 
-    private double _lastSimTime = 0;
-    private double[] _simDistances;
-    private boolean _simInitialized = false;
-
     public Drivetrain(SwerveModule[] wheels, IGyro gyro, VisionServer visionServer) {
         _wheels = wheels;
         m_gyro = gyro;
@@ -73,7 +74,6 @@ public class Drivetrain extends SubsystemBase {
 
         resetWheelPositions();
         swerveStatesArray = new SwerveModuleState[4];
-
     }
 
     private void makeOdometryItems(SwerveDriveKinematics kinematics) {
@@ -105,16 +105,12 @@ public class Drivetrain extends SubsystemBase {
         m_climbing = climb;
     }
 
-    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc,
-            double rotationalSpeed_perc) {
+    // --- PRESERVED NATIVE VECTOR DRIVE LOGIC ---
+    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
         driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
     }
 
-    public void driveWithoutGyro(double translationAngle_deg,
-            double translationSpeed_perc,
-            double rotationalSpeed_perc,
-            double rotX, double rotY) {
-
+    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY) {
         if (m_isTipping && !m_climbing) {
             translationAngle_deg = m_tipDirection_deg;
             translationSpeed_perc = m_tipMagnitude / (m_tipThreshold * 2);
@@ -135,7 +131,6 @@ public class Drivetrain extends SubsystemBase {
         for (int i = 0; i < _wheels.length; ++i) {
             double wheelX = _wheels[i].get_xPos();
             double wheelY = _wheels[i].get_yPos();
-
             double deltaX = wheelX - rotX;
             double deltaY = wheelY - rotY;
 
@@ -143,10 +138,7 @@ public class Drivetrain extends SubsystemBase {
             double rotationAngle = getRotationAngle(deltaX, deltaY, translationAngle_deg, rotationalSpeed_perc);
             XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed_perc, deltaX, deltaY);
 
-            XYVector resultXY = new XYVector(
-                    linearVector.X + rotationVector.X,
-                    linearVector.Y + rotationVector.Y);
-
+            XYVector resultXY = new XYVector(linearVector.X + rotationVector.X, linearVector.Y + rotationVector.Y);
             double resultSpeed = Math.hypot(resultXY.X, resultXY.Y);
             double resultAngle = getResultAngle(resultXY);
 
@@ -156,25 +148,14 @@ public class Drivetrain extends SubsystemBase {
         }
 
         for (int i = 0; i < _wheels.length; i++) {
-
-            var inputState = new SwerveModuleState(
-                    (calcWheelSpeed[i] / normalizingFactor),
-                    Rotation2d.fromDegrees(calcWheelAngle[i]));
-
+            var inputState = new SwerveModuleState((calcWheelSpeed[i] / normalizingFactor), Rotation2d.fromDegrees(calcWheelAngle[i]));
             var outputState = _wheels[i].bestAngle(inputState);
-
             _wheels[i].setAngle(outputState.angle.getDegrees());
             _wheels[i].setSpeed(outputState.speedMetersPerSecond);
-
-            Logger.recordOutput("wheel " + i + " angle", outputState.angle.getDegrees());
-            Logger.recordOutput("wheel " + i + " speed", outputState.speedMetersPerSecond);
         }
     }
 
-    public void driveWithGyro(double translationAngle_deg,
-            double translationSpeed_perc,
-            double rotationalSpeed_perc,
-            double rotX, double rotY) {
+    public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY) {
         translationAngle_deg -= m_gyro.getRealGyroAngle();
         driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY);
     }
@@ -183,10 +164,10 @@ public class Drivetrain extends SubsystemBase {
         driveWithGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
     }
 
+    // --- HELPER MATH ---
     public double getResultAngle(XYVector resultXY) {
         double resultAngle_deg = Math.toDegrees(Math.atan2(resultXY.Y, resultXY.X));
         resultAngle_deg = -(90 - resultAngle_deg);
-
         if (resultXY.X == 0 && resultXY.Y == 0) {
             resultAngle_deg = restAngle_deg;
         } else {
@@ -195,11 +176,9 @@ public class Drivetrain extends SubsystemBase {
         return resultAngle_deg;
     }
 
-    public XYVector getRotationVector(double rotationAngle_deg, double rotationalSpeed_perc,
-            double deltaX, double deltaY) {
+    public XYVector getRotationVector(double rotationAngle_deg, double rotationalSpeed_perc, double deltaX, double deltaY) {
         double y = Math.cos(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
         double x = Math.sin(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
-
         if (deltaX == 0 && deltaY == 0) {
             x = 0;
             y = 0;
@@ -213,10 +192,7 @@ public class Drivetrain extends SubsystemBase {
         return new XYVector(x, y);
     }
 
-    public double getRotationAngle(double deltaX, double deltaY,
-            double translationAngle_deg,
-            double rotationalSpeed_perc) {
-
+    public double getRotationAngle(double deltaX, double deltaY, double translationAngle_deg, double rotationalSpeed_perc) {
         double alpha;
         if (deltaY == 0 && deltaX > 0) {
             alpha = 90;
@@ -239,125 +215,102 @@ public class Drivetrain extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // 1. UPDATE SUBSYSTEM INPUTS (AdvantageKit)
+        // Since modules no longer extend SubsystemBase, we MUST call their periodic here.
+        for (SwerveModule wheel : _wheels) {
+            wheel.periodic();
+        }
+
+        Logger.recordOutput("CurrentMode", Constants.currentMode.toString());
+
+        // 2. GYRO HANDLING
         rawGyroRotation = m_gyro.getRotationAs2d();
+        if (Constants.currentMode == Constants.Mode.SIM) {
+            // Keep your legacy sim variable in sync with the actual Sim IO
+            rawGyroRotation = Rotation2d.fromDegrees(m_simulatedGyroAngle_deg);
+        }
+
+        // 3. ODOMETRY & VISION
         poseEstimator.update(rawGyroRotation, getModulePositions());
-        Pose2d visionRobotPose;
 
-        switch (Constants.currentMode) {
-            case REAL -> {
-                Logger.recordOutput("VISIONCLOSESTPOSE", m_visionServer.getTagPose());
-                Logger.recordOutput("DistanceToHubCenter", getRobotToHubDist_m());
-                visionRobotPose = m_visionServer.getEstimatedRobotPose(m_gyro.getRawGyroAngle());
-
-                if (visionRobotPose != null && m_visionServer.hasTargets()) {
-                    Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
-
-                    // Optimized Loop matching the filtered arrays
-                    ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
-                    ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
-
-                    for (int i = 0; i < poses.size(); i++) {
-                        addVisionMeasurement(
-                                poses.get(i),
-                                Timer.getFPGATimestamp(),
-                                Units.inchesToMeters(distances.get(i)));
-                    }
+        Pose2d visionRobotPose = null;
+        if (Constants.currentMode == Constants.Mode.REAL) {
+            visionRobotPose = m_visionServer.getEstimatedRobotPose(m_gyro.getRawGyroAngle());
+            if (visionRobotPose != null && m_visionServer.hasTargets()) {
+                ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
+                ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
+                for (int i = 0; i < poses.size(); i++) {
+                    addVisionMeasurement(poses.get(i), Timer.getFPGATimestamp(), Units.inchesToMeters(distances.get(i)));
                 }
             }
-            case SIM -> {
-                visionRobotPose = m_visionServer.getSimulatedRobotPose();
-
-                double currentDistance = getRobotToHubDist_m();
-                Logger.recordOutput("Distance from Hub to Robot centers", currentDistance);
-
-                if (visionRobotPose != null) {
-                    Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
-                    ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
-                    ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
-
-                    for (int i = 0; i < poses.size(); i++) {
-                        addVisionMeasurement(
-                                poses.get(i),
-                                Timer.getFPGATimestamp(),
-                                Units.inchesToMeters(distances.get(i)));
-                    }
-                }
-            }
-            default -> {
-                visionRobotPose = m_visionServer.getSimulatedRobotPose();
-
-                double currentDistance = getRobotToHubDist_m();
-                Logger.recordOutput("Distance from Hub to Robot centers", currentDistance);
-
-                if (visionRobotPose != null) {
-                    Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
-                    ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
-                    ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
-
-                    for (int i = 0; i < poses.size(); i++) {
-                        addVisionMeasurement(
-                                poses.get(i),
-                                Timer.getFPGATimestamp(),
-                                Units.inchesToMeters(distances.get(i)));
-                    }
-                }
+        } else {
+            visionRobotPose = m_visionServer.getSimulatedRobotPose();
+            boolean useVisionPose = SmartDashboard.getBoolean("SimVision/Use_Sim_Vision_Pose", true);
+            if (visionRobotPose != null && useVisionPose) {
+                double simDist = Units.inchesToMeters(SmartDashboard.getNumber("SimVision/Distance_in", 72.0));
+                addVisionMeasurement(visionRobotPose, Timer.getFPGATimestamp(), simDist);
             }
         }
 
+        // 4. LOGGING & DASHBOARD
         lastPose = poseEstimator.getEstimatedPosition();
-        Logger.recordOutput("Odometry/Robot", lastPose);
-        Logger.recordOutput("Pose/X", lastPose.getX());
-        Logger.recordOutput("Pose/Y", lastPose.getY());
-        Logger.recordOutput("Pose/Rotation", lastPose.getRotation().getDegrees());
+        field.setRobotPose(lastPose);
+        SmartDashboard.putData("Field/FieldMap", field);
 
-        Logger.recordOutput("rightface", HubConstants.getRightFace());
-        Logger.recordOutput("leftface", HubConstants.getLeftFace());
-        Logger.recordOutput("frontface", HubConstants.getNearFace());
-        Logger.recordOutput("backface", HubConstants.getFarFace());
+        Logger.recordOutput("Odometry/Robot", lastPose);
+        Logger.recordOutput("Pose/Rotation", lastPose.getRotation().getDegrees());
+        Logger.recordOutput("SwerveStates/Measured", getModuleStates());
     }
 
+    public SwerveModulePosition[] getModulePositions() {
+        SwerveModulePosition[] positions = new SwerveModulePosition[_wheels.length];
+        for (int i = 0; i < _wheels.length; i++) {
+            // Updated to pull from AdvantageKit inputs inside the module
+            double distanceMeters = Units.inchesToMeters(_wheels[i].getEncoderDistance());
+            Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
+            positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
+        }
+        return positions;
+    }
+
+    public SwerveModuleState[] getModuleStates() {
+        SwerveModuleState[] states = new SwerveModuleState[_wheels.length];
+        for (int i = 0; i < _wheels.length; i++) {
+            states[i] = new SwerveModuleState(_wheels[i].getSpeed(), Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg()));
+        }
+        return states;
+    }
+
+    public double getMaxAngularSpeedRadPerSec() {
+        return Constants.DriveConstants.maxSpeedMetersPerSec / Constants.DriveConstants.driveBaseRadius;
+    }
+
+    public double getMaxLinearSpeedMetersPerSec() {
+        return Constants.DriveConstants.maxSpeedMetersPerSec;
+    }
+
+    public void runVelocity(ChassisSpeeds speeds) {
+        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+        SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, Constants.DriveConstants.maxSpeedMetersPerSec);
+
+        if (Constants.currentMode == Constants.Mode.SIM) {
+            m_simulatedGyroAngle_deg += Math.toDegrees(speeds.omegaRadiansPerSecond * 0.02);
+        }
+
+        Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+        for (int i = 0; i < 4; i++) {
+            _wheels[i].runSetpoint(setpointStates[i]);
+        }
+    }
+
+    // --- PRESERVED UTILITY METHODS ---
     public Translation2d[] getWheelPositions() {
         Translation2d[] translations = new Translation2d[_wheels.length];
         for (int i = 0; i < _wheels.length; i++) {
             translations[i] = _wheels[i].getTranslation();
         }
         return translations;
-    }
-
-    public SwerveModuleState[] getModuleStates() {
-        SwerveModuleState[] states = new SwerveModuleState[_wheels.length];
-        for (int i = 0; i < _wheels.length; i++) {
-            double speedMetersPerSecond = Units.inchesToMeters(_wheels[i].getEncoderDistance()) / 0.02;
-            Rotation2d angle = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
-            states[i] = new SwerveModuleState(speedMetersPerSecond, angle);
-        }
-        return states;
-    }
-
-    public SwerveModulePosition[] getModulePositions() {
-        SwerveModulePosition[] positions = new SwerveModulePosition[_wheels.length];
-
-        switch (Constants.currentMode) {
-            case REAL -> {
-                for (int i = 0; i < _wheels.length; i++) {
-                    double distanceMeters = Units.inchesToMeters(_wheels[i].getEncoderDistance());
-                    Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
-                    positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
-                }
-            }
-            case SIM -> {
-                for (int i = 0; i < _wheels.length; i++) {
-                    positions[i] = new SwerveModulePosition(0.0, new Rotation2d());
-                }
-            }
-            default -> {
-                for (int i = 0; i < _wheels.length; i++) {
-                    positions[i] = new SwerveModulePosition(0.0, new Rotation2d());
-                }
-            }
-        }
-
-        return positions;
     }
 
     public Pose2d getPose() {
@@ -385,9 +338,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public double getRobotToHubDist_m() {
-        double distStep1 = Math.pow(getPoseX() - getHubX(), 2);
-        double distStep2 = Math.pow(getPoseY() - getHubY(), 2);
-        return Math.sqrt(distStep1 + distStep2);
+        return Math.hypot(getPoseX() - getHubX(), getPoseY() - getHubY());
     }
 
     public void resetPose(Pose2d startingPose) {
@@ -400,13 +351,7 @@ public class Drivetrain extends SubsystemBase {
         for (SwerveModule wheel : _wheels) {
             wheel.resetEncoder();
         }
-
-        Pose2d resetPose = new Pose2d(0, 0, new Rotation2d());
-
-        odometry.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
-        poseEstimator.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
-
-        lastPose = resetPose;
+        resetPose(new Pose2d(0, 0, new Rotation2d()));
     }
 
     public void stop() {
@@ -426,85 +371,33 @@ public class Drivetrain extends SubsystemBase {
         }
     }
 
-    public Rotation2d getRotation() {
-        return getPose().getRotation();
-    }
-
-    public double getMaxAngularSpeedRadPerSec() {
-        return Constants.DriveConstants.maxSpeedMetersPerSec / Constants.DriveConstants.driveBaseRadius;
-    }
-
-    public double getMaxLinearSpeedMetersPerSec() {
-        return Constants.DriveConstants.maxSpeedMetersPerSec;
-    }
-
-    public void runVelocity(ChassisSpeeds speeds) {
-        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-        SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, Constants.DriveConstants.maxSpeedMetersPerSec);
-
-        Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-        Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
-
-        for (int i = 0; i < 4; i++) {
-            _wheels[i].runSetpoint(setpointStates[i]);
-        }
-
-        Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
-    }
-
-    public void driveToPose(Pose2d targetPose) {
-        Pose2d error = targetPose.relativeTo(getPose());
-
-        double kP = 2.0;
-
-        double vx = error.getX() * kP;
-        double vy = error.getY() * kP;
-        double omega = error.getRotation().getRadians() * kP;
-
-        runVelocity(new ChassisSpeeds(vx, vy, omega));
-    }
-
     public void addVisionMeasurement(Pose2d visionRobotPose, double timestampSeconds, double distanceToTargetMeters) {
-        double xyStdDev = 0.5;
-
-        xyStdDev = xyStdDev * Math.pow(distanceToTargetMeters, 2);
-
-        if (xyStdDev < 0.01) {
-            xyStdDev = 0.01;
-        }
-
-        poseEstimator.addVisionMeasurement(
-                visionRobotPose,
-                timestampSeconds,
-                VecBuilder.fill(xyStdDev, xyStdDev, 1.0));
+        double xyStdDev = Math.max(0.01, 0.5 * Math.pow(distanceToTargetMeters, 2));
+        poseEstimator.addVisionMeasurement(visionRobotPose, timestampSeconds, VecBuilder.fill(xyStdDev, xyStdDev, 1.0));
     }
 
-    public SwerveModule[] getWheels() {
-        return _wheels;
-    }
-
+    // --- SYSID NATIVE LOGIC ---
     public void sysIdQuasistaticForward() {
-        for (int i = 0; i < _wheels.length; i++) {
-            _wheels[i].sysIdQuasistaticForward();
+        for (SwerveModule wheel : _wheels) {
+            wheel.sysIdQuasistaticForward();
         }
     }
 
     public void sysIdQuasistaticReverse() {
-        for (int i = 0; i < _wheels.length; i++) {
-            _wheels[i].sysIdQuasistaticReverse();
+        for (SwerveModule wheel : _wheels) {
+            wheel.sysIdQuasistaticReverse();
         }
     }
 
     public void sysIdDynamicForward() {
-        for (int i = 0; i < _wheels.length; i++) {
-            _wheels[i].sysIdDynamicForward();
+        for (SwerveModule wheel : _wheels) {
+            wheel.sysIdDynamicForward();
         }
     }
 
     public void sysIdDynamicReverse() {
-        for (int i = 0; i < _wheels.length; i++) {
-            _wheels[i].sysIdDynamicReverse();
+        for (SwerveModule wheel : _wheels) {
+            wheel.sysIdDynamicReverse();
         }
     }
 }

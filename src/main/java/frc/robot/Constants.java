@@ -15,9 +15,9 @@ public final class Constants {
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
 
     public static class VisionServerConstants {
+
         public static final int NumberOfCameras = 2;
     }
-
 
     public static enum Mode {
         /**
@@ -33,7 +33,6 @@ public final class Constants {
          */
         REPLAY
     }
-
 
     public static final class CANIdConstants {
 
@@ -224,6 +223,7 @@ public final class Constants {
 
         public static final double hoodGearRatio = (10.0 / 62.0) * (50.0 / 319.0);
         public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
+        public static final double simHoodGearing = 1.0 / hoodGearRatio;
 
         // Control tuning
         public static final double flywheelVelocityTolerance_ips = 25; //15

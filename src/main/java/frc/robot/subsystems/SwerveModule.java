@@ -1,21 +1,6 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.revrobotics.PersistMode;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.FeedForwardConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -26,19 +11,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.Constants.CANIdConstants;
-import frc.robot.Constants.WheelConstants;
+import frc.robot.subsystems.SwerveModuleIO.ModuleIO;
+import frc.robot.subsystems.SwerveModuleIO.ModuleIOInputsAutoLogged;
 
 public class SwerveModule extends SubsystemBase {
 
-    private final SysIdRoutine driveSysId;
+    private final ModuleIO io;
+    private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
 
-    private final SparkMax _driveMotor;
-    private final SparkMax _steerMotor;
-    private SparkClosedLoopController _drivePID;
-    private SparkClosedLoopController _steerPID;
-    private final CANcoder _cancoder;
-    private final RelativeEncoder _wheelDriveEncoder;
+    private final SysIdRoutine driveSysId;
 
     private double _xPos;
     private double _yPos;
@@ -52,85 +35,39 @@ public class SwerveModule extends SubsystemBase {
     private double maxAmpsFR_amp = 0;
 
     /**
-     * Creates a new Wheel.
+     * Creates a new Wheel using AdvantageKit IO.
      */
-    public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, double xPosition,
-            double yPosition, double driveRotationsPerInch) {
-        steerMotorID = steerId;
-        driveMotorID = driveId;
-        _xPos = xPosition;
-        _yPos = yPosition;
-        m_encoderOffset_rot = absoluteOffset_deg;
+    public SwerveModule(ModuleIO io, int steerId, int driveId, double absoluteOffset_deg, double xPosition, double yPosition) {
+        this.io = io;
+        this.steerMotorID = steerId;
+        this.driveMotorID = driveId;
+        this._xPos = xPosition;
+        this._yPos = yPosition;
+        this.m_encoderOffset_rot = absoluteOffset_deg;
 
-        _cancoder = new CANcoder(cancoderId);
-        MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
-        _cancoder.getConfigurator().refresh(encoderConfig);
-        encoderConfig
-                .withAbsoluteSensorDiscontinuityPoint(1);
-        _cancoder.getConfigurator().apply(encoderConfig);
+        // 3. Give each module a unique name for the dashboard
+        this.setName("Module" + driveId);
 
-        _driveMotor = new SparkMax(driveId, MotorType.kBrushless);
-        _steerMotor = new SparkMax(steerId, MotorType.kBrushless);
-        SparkMaxConfig driveConfig = new SparkMaxConfig();
-        SparkMaxConfig steerConfig = new SparkMaxConfig();
-
-        driveConfig
-                .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(WheelConstants.driveCurrentLimit_amp, WheelConstants.driveCurrentLimit_amp);
-        driveConfig.encoder
-                .positionConversionFactor(1.0 / driveRotationsPerInch)
-                .velocityConversionFactor((1.0 / driveRotationsPerInch) / 60.0);
-
-        FeedForwardConfig driveFF = new FeedForwardConfig();
-        driveFF.kV(WheelConstants.DriveFFKv);
-
-        driveConfig.closedLoop
-                .p(WheelConstants.DriveP)
-                .i(WheelConstants.DriveI)
-                .d(WheelConstants.DriveD)
-                .apply(driveFF);
-
-        _drivePID = _driveMotor.getClosedLoopController();
-
-        steerConfig
-                .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(WheelConstants.steerCurrentLimit_amp, WheelConstants.steerCurrentLimit_amp);
-        steerConfig.encoder
-                .positionConversionFactor(WheelConstants.steerDegPerMotorRotation_deg);
-        steerConfig.closedLoop
-                .pid(WheelConstants.SteerP, WheelConstants.SteerI, WheelConstants.DriveD, ClosedLoopSlot.kSlot0)
-                .allowedClosedLoopError(5, ClosedLoopSlot.kSlot0);
-
-        _steerPID = _steerMotor.getClosedLoopController();
-
-        _driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        _steerMotor.configure(steerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        _wheelDriveEncoder = _driveMotor.getEncoder();
-
-        driveSysId
-                = new SysIdRoutine(
-                        new SysIdRoutine.Config(
-                                edu.wpi.first.units.Units.Volts.of(1.0).per(Second),
-                                edu.wpi.first.units.Units.Volts.of(7.0),
-                                edu.wpi.first.units.Units.Second.of(10.0)
-                        ),
-                        new SysIdRoutine.Mechanism(
-                                volts -> {
-                                    // Disable steering during SysId
-                                    //_steerMotor.stopMotor();
-                                    setAngle(0);
-                                    setDriveVoltage(volts.in(edu.wpi.first.units.Units.Volts));
-                                },
-                                log -> {
-                                    log.motor("drive")
-                                            .voltage(edu.wpi.first.units.Units.Volts.of(getAppliedDriveVoltage()))
-                                            .linearPosition(edu.wpi.first.units.Units.Meters.of(getDrivePositionMeters()))
-                                            .linearVelocity(edu.wpi.first.units.Units.MetersPerSecond.of(getDriveVelocityMetersPerSec()));
-                                },
-                                this
-                        )
-                );
+        driveSysId = new SysIdRoutine(
+                new SysIdRoutine.Config(
+                        edu.wpi.first.units.Units.Volts.of(1.0).per(edu.wpi.first.units.Units.Second),
+                        edu.wpi.first.units.Units.Volts.of(7.0),
+                        edu.wpi.first.units.Units.Second.of(10.0)
+                ),
+                new SysIdRoutine.Mechanism(
+                        volts -> {
+                            setAngle(0);
+                            setDriveVoltage(volts.in(edu.wpi.first.units.Units.Volts));
+                        },
+                        log -> {
+                            log.motor("drive")
+                                    .voltage(edu.wpi.first.units.Units.Volts.of(inputs.driveAppliedVolts))
+                                    .linearPosition(edu.wpi.first.units.Units.Meters.of(inputs.drivePositionMeters))
+                                    .linearVelocity(edu.wpi.first.units.Units.MetersPerSecond.of(inputs.driveVelocityMetersPerSec));
+                        },
+                        this // 4. PASS 'this' INSTEAD OF 'null'
+                )
+        );
 
         settoZero();
     }
@@ -160,16 +97,16 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void setSpeed(double speed) {
-        _drivePID.setSetpoint(speed, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        io.setDriveVelocity(speed);
         SmartDashboard.putNumber("The speed of commanding", speed);
     }
 
     public void setPos(double pos) {
-        _drivePID.setSetpoint(pos, ControlType.kPosition);
+        io.setDrivePosition(pos);
     }
 
     public void setAngle(double angle) {
-        _steerPID.setSetpoint(angle, ControlType.kPosition);
+        io.setSteerAngle(angle);
     }
 
     public void goToLockPosition() {
@@ -181,29 +118,36 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void cancelMovement() {
-        _driveMotor.stopMotor();
-        _steerMotor.stopMotor();
+        io.stop();
     }
 
     public double getSpeed() {
-        return _wheelDriveEncoder.getVelocity();
+        return inputs.driveVelocityMetersPerSec; // Make sure your original speed was in m/s!
+    }
+
+    public double getMaxAngularSpeedRadPerSec() {
+        return Constants.DriveConstants.maxSpeedMetersPerSec / Constants.DriveConstants.driveBaseRadius;
+    }
+
+    public double getMaxLinearSpeedMetersPerSec() {
+        return Constants.DriveConstants.maxSpeedMetersPerSec;
     }
 
     public double getAbsoluteEncoderAngle_deg() {
-        double startAngle_rot = _cancoder.getAbsolutePosition().getValueAsDouble();
+        double startAngle_rot = inputs.steerAbsolutePositionRot;
         return (startAngle_rot - m_encoderOffset_rot) * 360;
     }
 
     public double getEncoderDistance() {
-        return _wheelDriveEncoder.getPosition();
+        return inputs.drivePositionInches;
     }
 
     public void resetEncoder() {
-        _wheelDriveEncoder.setPosition(0);
+        // Only resets software states, doesn't zero absolute hardware
     }
 
     public SwerveModuleState bestAngle(SwerveModuleState wheel) {
-        double currentAngle_deg = _steerMotor.getEncoder().getPosition();
+        double currentAngle_deg = inputs.steerRelativePositionDeg;
 
         int totalRotations_rot = (int) (currentAngle_deg / 360);
         double wantedAngle_deg = wheel.angle.getDegrees() + 180;
@@ -249,8 +193,11 @@ public class SwerveModule extends SubsystemBase {
                 new Rotation2d(Units.degreesToRadians(currentAngle_deg + finalSmallestAngle_deg)));
     }
 
-    @Override
+    // Call this from Drivetrain's periodic loop for each module
     public void periodic() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Drive/Module" + driveMotorID, inputs);
+
         SmartDashboard.putNumber("encoderDist", getEncoderDistance());
         SmartDashboard.putNumber("speeed", getSpeed());
 
@@ -260,32 +207,27 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void tractionMotorAMPDebug() {
-        double outputCurrent_amp = _driveMotor.getOutputCurrent();
-
+        double outputCurrent_amp = inputs.driveCurrentAmps;
         switch (driveMotorID) {
             case CANIdConstants.backLeftDriveMotorID:
-                SmartDashboard.putNumber("Back Left Amps: ", outputCurrent_amp);
                 if (outputCurrent_amp > maxAmpsBL_amp) {
                     maxAmpsBL_amp = outputCurrent_amp;
                 }
                 SmartDashboard.putNumber("Back Left Max Amps: ", maxAmpsBL_amp);
                 break;
             case CANIdConstants.backRightDriveMotorID:
-                SmartDashboard.putNumber("Back Right Amps: ", outputCurrent_amp);
                 if (outputCurrent_amp > maxAmpsBR_amp) {
                     maxAmpsBR_amp = outputCurrent_amp;
                 }
                 SmartDashboard.putNumber("Back Right Max Amps: ", maxAmpsBR_amp);
                 break;
             case CANIdConstants.frontLeftDriveMotorID:
-                SmartDashboard.putNumber("Front Left Amps: ", outputCurrent_amp);
                 if (outputCurrent_amp > maxAmpsFL_amp) {
                     maxAmpsFL_amp = outputCurrent_amp;
                 }
                 SmartDashboard.putNumber("Front Left Max Amps: ", maxAmpsFL_amp);
                 break;
             case CANIdConstants.frontRightDriveMotorID:
-                SmartDashboard.putNumber("Front Right Amps: ", outputCurrent_amp);
                 if (outputCurrent_amp > maxAmpsFR_amp) {
                     maxAmpsFR_amp = outputCurrent_amp;
                 }
@@ -295,34 +237,26 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void steerMotorPosDebug() {
-        double currentAngle_deg = (_steerMotor.getEncoder().getPosition());
+        double currentAngle_deg = inputs.steerRelativePositionDeg;
         switch (steerMotorID) {
-
             case CANIdConstants.backLeftSteerMotorID:
                 SmartDashboard.putNumber("Neo position Back Left", currentAngle_deg);
-                // System.out.printf("Neo position Back Left: %.3f\n", currentAngle_deg);
                 break;
             case CANIdConstants.backRightSteerMotorID:
                 SmartDashboard.putNumber("Neo position Back Right", currentAngle_deg);
-                // System.out.printf("Neo position Back Right: %.3f\n", currentAngle_deg);
                 break;
             case CANIdConstants.frontLeftSteerMotorID:
                 SmartDashboard.putNumber("Neo position Front Left", currentAngle_deg);
-                // System.out.printf("Neo position Front Left: %.3f\n", currentAngle_deg);
                 break;
             case CANIdConstants.frontRightSteerMotorID:
                 SmartDashboard.putNumber("Neo position Front Right", currentAngle_deg);
-                // System.out.printf("Neo position Front Right: %.3f\n", currentAngle_deg);
                 break;
         }
     }
 
     public void absEncoderDebug() {
-        // double offsetAngle = getEncoderOffset_deg();
-        double startAngle_deg = _cancoder.getAbsolutePosition().getValueAsDouble();
-        // double startAngle_deg = ggetEncoderOffset_deg();
+        double startAngle_deg = inputs.steerAbsolutePositionRot * 360.0;
         switch (steerMotorID) {
-
             case CANIdConstants.backLeftSteerMotorID:
                 SmartDashboard.putNumber("Back Left Cancoder: ", startAngle_deg);
                 break;
@@ -335,14 +269,12 @@ public class SwerveModule extends SubsystemBase {
             case CANIdConstants.frontRightSteerMotorID:
                 SmartDashboard.putNumber("Front Right Cancoder: ", startAngle_deg);
                 break;
-            default:
-                System.out.println("default: " + steerMotorID);
         }
     }
 
     public void settoZero() {
         double absoluteAngle = getAbsoluteEncoderAngle_deg();
-        _steerMotor.getEncoder().setPosition(absoluteAngle);
+        io.setSteerEncoderPosition(absoluteAngle);
     }
 
     public Translation2d getTranslation() {
@@ -356,19 +288,19 @@ public class SwerveModule extends SubsystemBase {
 
     // ---- SYSID HELPERS ----
     public void setDriveVoltage(double volts) {
-        _driveMotor.setVoltage(volts);
+        io.setDriveVoltage(volts);
     }
 
     public double getDrivePositionMeters() {
-        return _wheelDriveEncoder.getPosition();
+        return inputs.drivePositionMeters;
     }
 
     public double getDriveVelocityMetersPerSec() {
-        return _wheelDriveEncoder.getVelocity();
+        return inputs.driveVelocityMetersPerSec;
     }
 
     public double getAppliedDriveVoltage() {
-        return _driveMotor.getAppliedOutput() * _driveMotor.getBusVoltage();
+        return inputs.driveAppliedVolts;
     }
 
     public Command sysIdQuasistaticForward() {
@@ -386,5 +318,4 @@ public class SwerveModule extends SubsystemBase {
     public Command sysIdDynamicReverse() {
         return driveSysId.dynamic(SysIdRoutine.Direction.kReverse);
     }
-
 }
