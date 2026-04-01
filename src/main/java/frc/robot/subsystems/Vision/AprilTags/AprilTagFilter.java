@@ -68,26 +68,31 @@ public class AprilTagFilter {
 
     public Optional<AngleMagVector> getFloorVectorToTaggedElement(DetectionList detectionList, FieldElement element) {
         ArrayList<AngleMagVector> floorVectorList = new ArrayList<AngleMagVector>();
+        System.out.println("AprilTagFilter list size: " +  detectionList.getSize());
 
         for (int i = 0; i < detectionList.getSize(); i++) {
             IDetection detection = detectionList.getDetection(i);
             if (!isCenterTag(detection.getId())) {
+                System.out.println("not center tag: " + detection.getId());
                 continue;
             }
 
             Optional<AprilTagFieldInfo> tagInfoOptional = getTagInfoIfElementAndAlliance(detection.getId(), FieldElement.HUB);
             if (tagInfoOptional.isEmpty()) {
+                System.out.println("no center tag info: " + detection.getId());
                 continue;
             }
 
             AprilTagFieldInfo centerTagInfo = tagInfoOptional.get();
             IDetection pairedDetection = detectionList.getDetectionById(centerTagInfo.PairedId);
             if (pairedDetection == NullDetection.Instance) {
+                System.out.println("no paired detection: " + centerTagInfo.PairedId);
                 continue;
             }
 
             Optional<AprilTagFieldInfo> pairedTagInfoOptional = getTagInfoIfElementAndAlliance(pairedDetection.getId(), FieldElement.HUB);
             if (tagInfoOptional.isEmpty()) {
+                System.out.println("no paired info: " + centerTagInfo.PairedId);
                 continue;
             }
 
@@ -156,7 +161,7 @@ public class AprilTagFilter {
      * @return The angle of the vertex opposite side C, in degrees
      */
     public static double FindSSSAngle(double sideA, double sideB, double sideC) {
-        // System.out.printf("(SSS sideA: %.3f  sideB: %.3f  sideC: %.3f)\n", sideA, sideB, sideC);
+        System.out.printf("(SSS sideA: %.3f  sideB: %.3f  sideC: %.3f)\n", sideA, sideB, sideC);
         if (sideA == 0 || sideB == 0 || sideC == 0) {
             return 0;
         }
@@ -174,7 +179,7 @@ public class AprilTagFilter {
      * @return length of the side opposite angleC
      */
     public static double LawOfCosines(double sideA, double sideB, double angleC) {
-        // System.out.printf("(LOC sideA: %.3f  sideB: %.3f  angleC: %.3f)\n", sideA, sideB, angleC);
+        System.out.printf("(LOC sideA: %.3f  sideB: %.3f  angleC: %.3f)\n", sideA, sideB, angleC);
         if (sideA == 0 || sideB == 0) {
             return 0;
         }
