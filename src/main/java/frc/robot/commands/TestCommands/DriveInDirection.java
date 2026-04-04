@@ -29,13 +29,13 @@ public class DriveInDirection extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_Drivetrain.driveWithoutGyro(m_angle_deg, m_speed_perc, 0);
+    m_Drivetrain.driveWithoutGyro(m_angle_deg, m_speed_perc, 0, false);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_Drivetrain.driveWithoutGyro(0, 0, 0);
+    m_Drivetrain.driveWithoutGyro(0, 0, 0, false);
   }
 
   // Returns true when the command should end.

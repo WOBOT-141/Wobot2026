@@ -1,9 +1,11 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -47,6 +49,9 @@ import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.TestRightMiday;
+import frc.robot.commands.AutonomousCommands.StraightLineDrivePlus;
+import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.RRRightMidwayAuton;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
@@ -63,14 +68,14 @@ public class RobotContainer {
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
-  // private final CommandJoystick m_joystick = new CommandJoystick(2);
+  private final CommandJoystick m_joystick = new CommandJoystick(2);
   private final StickCommand m_stickCommand;
 
   private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
-  private final IBotSelector m_selectedBot = new MainBot();
-  // private final IBotSelector m_selectedBot = new SummerBot();
+  // private final IBotSelector m_selectedBot = new MainBot();
+  private final IBotSelector m_selectedBot = new SummerBot();
 
  private final SendableChooser<Command> m_autonChooser = new SendableChooser<>();
 
@@ -245,6 +250,14 @@ public class RobotContainer {
   private void configureJoystick() {
     // m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
     // m_joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
+    m_joystick.button(5)
+      .onTrue(new StraightLineDrivePlus(m_drive, 0, 60, 0, m_wheels, m_gyro, 0));
+    m_joystick.button(3)
+      .onTrue(new StraightLineDrivePlus(m_drive, 0, 60, 0, m_wheels, m_gyro, 0.5));
+    m_joystick.button(4)
+      .onTrue(new StraightLineDrivePlus(m_drive, 0, 60, 0, m_wheels, m_gyro, 1));
+    m_joystick.button(6)
+      .onTrue(new StraightLineDrivePlus(m_drive, 0, 140, 0, m_wheels, m_gyro, 5));
     
   }
 
@@ -253,7 +266,10 @@ public class RobotContainer {
         .onTrue(new ResetGyro(m_gyro));
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
-    // new Trigger(() -> m_flightController0.getIButton())
+    new Trigger(() -> m_flightController0.getIButton())
+      .onTrue(new RRRightMidwayAuton(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+    // .onTrue(new TestRightMiday(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+      // .onTrue(new StraightLineDrivePlus(m_drive, 0, 120, 180, m_wheels, m_gyro, 0.25));
     //   .whileTrue(m_intake.extendIntakeCommand(-IntakeConstants.intakeExtendSpeed_perc));
     //     .whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
         // .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));

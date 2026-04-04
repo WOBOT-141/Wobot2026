@@ -27,12 +27,12 @@ public class Drivetrain extends SubsystemBase {
     m_climbing = climb;
   }
 
-  public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0, false);
+  public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, boolean autonMode) {
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0, false, autonMode);
   }
 
   public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
-      double rotX, double rotY, boolean fromSticks) {
+      double rotX, double rotY, boolean fromSticks, boolean autonMode) {
     if (m_isTipping && !m_climbing) {
       translationAngle_deg = m_tipDirection_deg;
       translationSpeed_perc = m_tipMagnitude / (m_tipThreshold * 2);
@@ -74,7 +74,10 @@ public class Drivetrain extends SubsystemBase {
       XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed_perc, deltaX, deltaY);
       XYVector resultXY = new XYVector(translationVector.X + rotationVector.X, translationVector.Y + rotationVector.Y);
 
-      double resultSpeed_perc = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2));
+      double resultSpeed_perc = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2)); //This number also changes robot speed
+      if (!autonMode) {
+        resultSpeed_perc = translationSpeed_perc;
+      }
 
       double resultAngle_deg = getResultAngle(resultXY);
 
@@ -82,7 +85,7 @@ public class Drivetrain extends SubsystemBase {
       calcWheelSpeed_perc[i] = resultSpeed_perc;
 
       // normalizing the vectors
-      if (resultSpeed_perc > normalizingFactor) {
+      if (resultSpeed_perc > normalizingFactor && !autonMode) {
         normalizingFactor = resultSpeed_perc;
       }
     }
@@ -91,7 +94,7 @@ public class Drivetrain extends SubsystemBase {
 
       double translation = calcWheelSpeed_perc[i] / normalizingFactor;
       if (fromSticks)
-        translation *= 1.5;
+        translation *= 1.5; //This number changes scaling (robot speed)
 
       var inputState = new SwerveModuleState(translation,
           Rotation2d.fromDegrees(calcWheelAngle_deg[i]));
@@ -116,22 +119,22 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
-      double rotX, double rotY, boolean fromSticks) {
+      double rotX, double rotY, boolean fromSticks, boolean autonMode) {
     // Field-oriented adjustment
     translationAngle_deg -= m_gyro.getRealGyroAngle();
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, fromSticks);
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, fromSticks, autonMode);
   }
 
   public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
-      double rotX, double rotY) {
+      double rotX, double rotY, boolean autonMode) {
     // Field-oriented adjustment
     translationAngle_deg -= m_gyro.getRealGyroAngle();
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, false);
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, false, autonMode);
   }
 
-  public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+  public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, boolean autonMode) {
     translationAngle_deg -= m_gyro.getRealGyroAngle();
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc);
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, autonMode);
   }
 
   // Temp command for testing
@@ -211,7 +214,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void stopMotors() {
-    driveWithoutGyro(0, 0, 0);
+    driveWithoutGyro(0, 0, 0, false);
   }
 
   public void lockWheels() {

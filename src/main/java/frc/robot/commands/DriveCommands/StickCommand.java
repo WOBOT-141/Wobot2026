@@ -86,7 +86,7 @@ public class StickCommand extends Command {
       if (m_altCommandedRotation_perc.isEmpty() || m_altCommandedRotation_perc.get().isNaN()) {
         // Maintain last heading when the sticks are at 0, the wheels aren't being locked, and there is no commanded rotation.
         m_rampRate.reset(0);
-        m_drive.driveWithGyro(m_lastTranslationAngle_deg, 0.0, 0.0);
+        m_drive.driveWithGyro(m_lastTranslationAngle_deg, 0.0, 0.0,false);
         return;
       }
     } else {
@@ -180,7 +180,7 @@ public class StickCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    m_drive.driveWithGyro(m_lastTranslationAngle_deg, 0.0, 0.0);
+    m_drive.driveWithGyro(m_lastTranslationAngle_deg, 0.0, 0.0, false);
   }
 
   @Override

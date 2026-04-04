@@ -36,10 +36,10 @@ public class ShakingBot extends Command {
   public void execute() {
     double currentTime = Timer.getFPGATimestamp();
     if (((currentTime - startTime) % 0.6) < 0.3) {
-      m_drivetrain.driveWithoutGyro(m_translationAngle, -0.5, 0);
+      m_drivetrain.driveWithoutGyro(m_translationAngle, -0.5, 0, false);
       m_magazine.setFeedVelocity(-0.3);
     } else {
-      m_drivetrain.driveWithoutGyro(m_translationAngle, 0.5, 0);
+      m_drivetrain.driveWithoutGyro(m_translationAngle, 0.5, 0, false);
       m_magazine.setFeedVelocity(-0.3);
     }
   }
@@ -47,7 +47,7 @@ public class ShakingBot extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drivetrain.driveWithoutGyro(0, 0, 0);
+    m_drivetrain.driveWithoutGyro(0, 0, 0, false);
     m_magazine.cancel();
   }
 

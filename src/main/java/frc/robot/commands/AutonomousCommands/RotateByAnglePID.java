@@ -51,7 +51,7 @@ public class RotateByAnglePID extends Command {
   public void execute() {
     double currentAngle_deg = m_gyro.getRawGyroAngle();
     double pidOutput_perc = m_pidController.calculate(currentAngle_deg);
-    m_drive.driveWithGyro(0, 0, pidOutput_perc);
+    m_drive.driveWithGyro(0, 0, pidOutput_perc, false);
     System.out.printf("[target:%.3f  current:%.3f  pidOut:%.3f]\n", m_targetAngle_deg, currentAngle_deg, pidOutput_perc);
   }
 

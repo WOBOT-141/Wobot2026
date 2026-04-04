@@ -43,7 +43,7 @@ public class LeftMidwayGather extends SequentialCommandGroup {
     StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, 0, 140, wheels, gyro, true);
     StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 180, 125, wheels, gyro, false);
     StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, 90, 201, wheels, gyro, false);
-    Command drive_for_tag = Commands.runEnd(() -> drivetrain.driveWithoutGyro(0,-0.1,0),() -> drivetrain.driveWithoutGyro(0,0,0)).withTimeout(0.5);
+    Command drive_for_tag = Commands.runEnd(() -> drivetrain.driveWithoutGyro(0,-0.1,0, false),() -> drivetrain.driveWithoutGyro(0,0,0, false)).withTimeout(0.5);
 
         // StraightLineDrive drive_over_ramp_to_center = new
         // StraightLineDrive(drivetrain, 90, 175, wheels, gyro, true);
