@@ -3,6 +3,7 @@ package frc.robot;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -11,14 +12,19 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.SpektrumFlightController;
 import frc.robot.Constants.VisionServerConstants;
+import frc.robot.commands.DriveCommands.DriveToPose;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.subsystems.ChooserHandeling;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.NavxGyro;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
@@ -29,10 +35,10 @@ public class RobotContainer {
   private final SwerveModule[] m_wheels;
   private final Drivetrain m_drive;
   private final IGyro m_gyro = new NavxGyro();
-  // private final Shooter m_shooter = new Shooter();
-  // private final Intake m_intake = new Intake();
-  // private final MagazineAndFeed m_magazine = new MagazineAndFeed();
-  // private final Climber m_climbe = new Climber();
+  private final Shooter m_shooter = new Shooter();
+  private final Intake m_intake = new Intake();
+  private final MagazineAndFeed m_magazine = new MagazineAndFeed();
+  private final Climber m_climbe = new Climber();
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
@@ -223,7 +229,9 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
-        .onTrue(Commands.runOnce(() -> m_drive.resetPose(new Pose2d())));
+        // .onTrue(Commands.runOnce(() -> m_drive.resetPose(new Pose2d())));
+        .whileTrue(Commands.runOnce(() -> new DriveToPose(m_drive, ()-> new Pose2d(0, 0,new Rotation2d(0)))));
+
   }
 
   public Command getAutonomousCommand() {

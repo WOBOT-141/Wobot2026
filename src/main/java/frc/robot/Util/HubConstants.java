@@ -23,6 +23,9 @@ public class HubConstants {
     public static final double fieldLength = AprilTagLayoutType.OFFICIAL.getLayout().getFieldLength();
     public static final double fieldWidth = AprilTagLayoutType.OFFICIAL.getLayout().getFieldWidth();
 
+    public static final int[] redHubTags = new int[] { 10, 4, 2, 5 };
+    public static final int[] blueHubTags = new int[] { 26, 20, 18, 21 };
+
     public static boolean disableHAL = false;
 
     public static boolean isRedAlliance() {
@@ -31,7 +34,7 @@ public class HubConstants {
     }
 
     public static int[] getTagsToUse() {
-        return isRedAlliance() ? new int[] { 10, 4, 2, 5 } : new int[] { 26, 20, 18, 21 };
+        return isRedAlliance() ? redHubTags : blueHubTags;
     }
 
     public static final double width = Units.inchesToMeters(47.0);

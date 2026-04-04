@@ -252,7 +252,6 @@ public class Drivetrain extends SubsystemBase {
                 if (visionRobotPose != null && m_visionServer.hasTargets()) {
                     Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
 
-                    // Optimized Loop matching the filtered arrays
                     ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
                     ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
 
