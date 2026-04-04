@@ -44,6 +44,8 @@ public class VisionServer extends SubsystemBase {
 
   private AprilTagFieldLayout m_aprilTagFieldLayout;
 
+  int logCounter = 0;
+
   public VisionServer(int ANumberOfCameras, int AnumberOfTags) {
 
     if (DEBUG_LOG)
@@ -307,8 +309,7 @@ public class VisionServer extends SubsystemBase {
     for (DetectionList detection_list : m_detections_Apriltag) {
       for (int i = 0; i < detection_list.getSize(); i++) {
         IDetection currentDetection = detection_list.getDetection(i);
-
-        if (currentDetection.getDistance() < minDistance) {
+        if (currentDetection.getDistance() < closestDetection.getDistance()) {
           closestDetection = currentDetection;
           minDistance = currentDetection.getDistance();
         }
@@ -384,5 +385,18 @@ public class VisionServer extends SubsystemBase {
   @Override
   public void periodic() {
     updateDetectionLists();
+
+    if (true) return;
+
+    if (logCounter++ % 50 == 0) {
+      logCounter = 0;
+
+      System.out.print("[Detections:");
+      for (int i = 0; i < m_detections_Apriltag.length; i++) {
+        System.out.printf("  Cam%d:%d", i, m_detections_Apriltag[i].getSize());
+      }
+
+      System.out.println("]");
+    }
   }
 }

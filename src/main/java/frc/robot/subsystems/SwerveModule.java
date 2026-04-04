@@ -108,29 +108,28 @@ public class SwerveModule extends SubsystemBase {
 
         _wheelDriveEncoder = _driveMotor.getEncoder();
 
-        driveSysId
-                = new SysIdRoutine(
-                        new SysIdRoutine.Config(
-                                edu.wpi.first.units.Units.Volts.of(1.0).per(Second),
-                                edu.wpi.first.units.Units.Volts.of(7.0),
-                                edu.wpi.first.units.Units.Second.of(10.0)
-                        ),
-                        new SysIdRoutine.Mechanism(
-                                volts -> {
-                                    // Disable steering during SysId
-                                    //_steerMotor.stopMotor();
-                                    setAngle(0);
-                                    setDriveVoltage(volts.in(edu.wpi.first.units.Units.Volts));
-                                },
-                                log -> {
-                                    log.motor("drive")
-                                            .voltage(edu.wpi.first.units.Units.Volts.of(getAppliedDriveVoltage()))
-                                            .linearPosition(edu.wpi.first.units.Units.Meters.of(getDrivePositionMeters()))
-                                            .linearVelocity(edu.wpi.first.units.Units.MetersPerSecond.of(getDriveVelocityMetersPerSec()));
-                                },
-                                this
-                        )
-                );
+        driveSysId = new SysIdRoutine(
+                new SysIdRoutine.Config(
+                        edu.wpi.first.units.Units.Volts.of(1.0).per(Second),
+                        edu.wpi.first.units.Units.Volts.of(7.0),
+                        edu.wpi.first.units.Units.Second.of(10.0)
+                ),
+                new SysIdRoutine.Mechanism(
+                        volts -> {
+                            // Disable steering during SysId
+                            //_steerMotor.stopMotor();
+                            setAngle(0);
+                            setDriveVoltage(volts.in(edu.wpi.first.units.Units.Volts));
+                        },
+                        log -> {
+                            log.motor("drive")
+                                    .voltage(edu.wpi.first.units.Units.Volts.of(getAppliedDriveVoltage()))
+                                    .linearPosition(edu.wpi.first.units.Units.Meters.of(getDrivePositionMeters()))
+                                    .linearVelocity(edu.wpi.first.units.Units.MetersPerSecond.of(getDriveVelocityMetersPerSec()));
+                        },
+                        this
+                )
+        );
 
         settoZero();
     }
@@ -160,15 +159,30 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void setSpeed(double speed) {
+        if (Double.isNaN(speed)) {
+            System.out.println("ERROR, commanded speed is NaN!!!");
+            return;
+        }
+
         _drivePID.setSetpoint(speed, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
         SmartDashboard.putNumber("The speed of commanding", speed);
     }
 
     public void setPos(double pos) {
+        if (Double.isNaN(pos)) {
+            System.out.println("ERROR, commanded position is NaN!!!");
+            return;
+        }
+
         _drivePID.setSetpoint(pos, ControlType.kPosition);
     }
 
     public void setAngle(double angle) {
+        if (Double.isNaN(angle)) {
+            System.out.println("ERROR, commanded angle is NaN!!!");
+            return;
+        }
+
         _steerPID.setSetpoint(angle, ControlType.kPosition);
     }
 
@@ -251,12 +265,12 @@ public class SwerveModule extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("encoderDist", getEncoderDistance());
-        SmartDashboard.putNumber("speeed", getSpeed());
+        // SmartDashboard.putNumber("encoderDist", getEncoderDistance());
+        // SmartDashboard.putNumber("speeed", getSpeed());
 
-        steerMotorPosDebug();
-        absEncoderDebug();
-        tractionMotorAMPDebug();
+        // steerMotorPosDebug();
+        // absEncoderDebug();
+        // tractionMotorAMPDebug();
     }
 
     public void tractionMotorAMPDebug() {
@@ -296,6 +310,7 @@ public class SwerveModule extends SubsystemBase {
 
     public void steerMotorPosDebug() {
         double currentAngle_deg = (_steerMotor.getEncoder().getPosition());
+
         switch (steerMotorID) {
 
             case CANIdConstants.backLeftSteerMotorID:

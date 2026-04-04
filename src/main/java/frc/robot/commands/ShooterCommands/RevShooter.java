@@ -40,7 +40,7 @@ public class RevShooter extends Command {
   @Override
   public void execute() {
     m_shooter.setShooterVelocity(m_launchSpeed_ips + BumpShooterVector.returnLaunchSpeed());
-    // m_shooter.setHoodAngle(m_hoodAngle_deg + BumpShooterVector.returnLaunchAngle());
+    m_shooter.setHoodAngle(m_hoodAngle_deg + BumpShooterVector.returnLaunchAngle());
 
     if (m_shooter.allAtSpeed()) {
       if (m_controller != null) m_controller.setRumble(RumbleType.kBothRumble, .6);

@@ -52,6 +52,8 @@ public class Shooter extends SubsystemBase {
 
   private String m_hoodPosition_SD = "SETHOODPOS!!"; // SmartDashboard key for hood position
 
+  private double m_startTime_sec = -1;
+
   public Shooter() {
 
     SmartDashboard.putNumber("hoodP", ShooterConstants.hoodP);
@@ -76,9 +78,9 @@ public class Shooter extends SubsystemBase {
     m_middleMotorConfig.encoder.velocityConversionFactor(ShooterConstants.flywheelVelocity_RPMtoIPS);
     m_leftMotorConfig.encoder.velocityConversionFactor(ShooterConstants.flywheelVelocity_RPMtoIPS);
 
-    m_rightMotorConfig.closedLoop.pid(ShooterConstants.leftP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
-    m_middleMotorConfig.closedLoop.pid(ShooterConstants.middleP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
-    m_leftMotorConfig.closedLoop.pid(ShooterConstants.rightP, ShooterConstants.I, ShooterConstants.D).velocityFF(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+    m_rightMotorConfig.closedLoop.pid(ShooterConstants.rightP, ShooterConstants.I, ShooterConstants.D).feedForward.kV(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+    m_middleMotorConfig.closedLoop.pid(ShooterConstants.middleP, ShooterConstants.I, ShooterConstants.D).feedForward.kV(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
+    m_leftMotorConfig.closedLoop.pid(ShooterConstants.leftP, ShooterConstants.I, ShooterConstants.D).feedForward.kV(ShooterConstants.kF, ClosedLoopSlot.kSlot0);
 
     m_rightMotorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(ShooterConstants.flywheelCurrentLimit_amp, ShooterConstants.flywheelCurrentLimit_amp);
     m_middleMotorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(ShooterConstants.flywheelCurrentLimit_amp, ShooterConstants.flywheelCurrentLimit_amp);
@@ -91,9 +93,9 @@ public class Shooter extends SubsystemBase {
         .openLoopRampRate(ShooterConstants.hoodSlewRate);
     m_hoodMotorConfig.encoder.positionConversionFactor(ShooterConstants.hoodDegPerMotorRot); 
     m_hoodMotorConfig.closedLoop
-        .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD)
-        .minOutput(-0.3)
-        .maxOutput(0.3);
+        .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD);
+        // .minOutput(-0.2)
+        // .maxOutput(0.2);
 
     m_hoodMotor.configure(m_hoodMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
@@ -115,15 +117,16 @@ public class Shooter extends SubsystemBase {
   }
 
   public void homeHood() {
-    //double startTime_sec = Timer.getFPGATimestamp();
-    //if ((startTime_sec - currentTime_sec) > .05) {
+    double currentTime_sec = Timer.getFPGATimestamp();
+    //if ((m_startTime_sec - currentTime_sec) > .05) {
       //m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
       
-      //if (m_hoodMotor.getOutputCurrent() > ShooterConstants.hoodCurrentLim_amp) {
+      if (m_hoodMotor.getOutputCurrent() > ShooterConstants.hoodCurrentLim_amp) {
+        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
         m_hoodMotor.stopMotor();
-        //m_hoodMotorEncoder.setPosition(ShooterConstants.hoodUpperLimit_deg);
+        m_hoodMotorEncoder.setPosition(ShooterConstants.hoodUpperLimit_deg);
         m_hoodAtHome = true;
-      //}
+      }
    // }
   }
 
@@ -133,20 +136,27 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setHoodAtHome(boolean atHome) {
+    m_startTime_sec = Timer.getFPGATimestamp();
+    m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
     m_hoodAtHome = atHome;
   }
 
   public void setHoodAngle(double targetPosition_deg) {
+    // System.out.println("---------- setHoodAngle ----------");
+    // System.out.println("max "+ShooterConstants.hoodLowerLimit_deg);
     targetPosition_deg = Math.max(targetPosition_deg, ShooterConstants.hoodLowerLimit_deg);
+    // System.out.println(targetPosition_deg);
     targetPosition_deg = Math.min(targetPosition_deg, ShooterConstants.hoodUpperLimit_deg);
+    // System.out.println(targetPosition_deg);
     m_hoodTargetPosition_deg = targetPosition_deg;
-
-   //m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    
+    m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
   public void setHoodPositionFromDashboard() {
     double targetPosition_deg = SmartDashboard.getNumber(m_hoodPosition_SD, m_hoodTargetPosition_deg);
-    
+    System.out.println("setHoodPositionFromDashboard "+ m_hoodPosition_SD +" "+m_hoodTargetPosition_deg+ " "+targetPosition_deg);
+    m_hoodMotor.set(-Constants.ShooterConstants.hoodHomeRPM);
     setHoodAngle(targetPosition_deg);
   }
   
@@ -165,7 +175,7 @@ public class Shooter extends SubsystemBase {
     if (targetVelocity_ips == m_targetVelocity_ips)
       return;
 
-    m_targetVelocity_ips =  targetVelocity_ips*ShooterConstants.flywheelSlipFactor;
+    m_targetVelocity_ips =  targetVelocity_ips * ShooterConstants.flywheelSlipFactor;
 
     m_rightController.setSetpoint(m_targetVelocity_ips, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     m_middleController.setSetpoint(m_targetVelocity_ips, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
@@ -236,7 +246,7 @@ public class Shooter extends SubsystemBase {
     m_leftMotor.stopMotor();
     m_hoodMotor.stopMotor();
     m_targetVelocity_ips = 0;
-    m_hoodTargetPosition_deg = ShooterConstants.hoodLowerLimit_deg;
+    // m_hoodTargetPosition_deg = ShooterConstants.hoodUpperLimit_deg;
   }
 
   public void stopHood() {

@@ -29,12 +29,8 @@ public class MagazineAndLock extends ParallelCommandGroup {
     m_magazineAndFeed = magazineAndFeed;
     lockWheels = Commands.runOnce(() -> m_drivetrain.lockWheels());
     feed = new Feed(m_magazineAndFeed);
-    
-        //revShooter = new  ShooterCalculationAimCommand(120, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 12, m_shooter);
-        // Add your commands in the addCommands() call, e.g.
 
     addRequirements(m_drivetrain, m_magazineAndFeed);
-        addCommands(lockWheels.andThen(feed));
-
+    addCommands(lockWheels.andThen(feed));
   }
 }

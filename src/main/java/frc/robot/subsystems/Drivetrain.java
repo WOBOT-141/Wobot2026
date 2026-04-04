@@ -1,3 +1,6 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
@@ -73,7 +76,6 @@ public class Drivetrain extends SubsystemBase {
 
         resetWheelPositions();
         swerveStatesArray = new SwerveModuleState[4];
-
     }
 
     private void makeOdometryItems(SwerveDriveKinematics kinematics) {
@@ -105,15 +107,32 @@ public class Drivetrain extends SubsystemBase {
         m_climbing = climb;
     }
 
-    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc,
-            double rotationalSpeed_perc) {
-        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
+    public boolean failedNaNcheck(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+        if (Double.isNaN(translationAngle_deg) || Double.isNaN(translationSpeed_perc) || Double.isNaN(rotationalSpeed_perc)) {
+            System.out.println("ERROR: A Drivetrain commanded value is NaN!!!");
+            System.out.printf("translationSpeed:%.3f  translationAngle:%.3f  rotationalSpeed:%.3f\n", translationSpeed_perc, translationAngle_deg, rotationalSpeed_perc);
+            
+            for (SwerveModule swerveModule : _wheels) {
+                swerveModule.cancelMovement();
+            }
+            return true;
+        }
+        return false;
     }
 
-    public void driveWithoutGyro(double translationAngle_deg,
-            double translationSpeed_perc,
-            double rotationalSpeed_perc,
-            double rotX, double rotY) {
+    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0, false);
+    }
+
+    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY) {
+        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, false);
+    }
+
+    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY, boolean fromSticks) {
+
+        if (failedNaNcheck(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc)) {
+            return;
+        }
 
         if (m_isTipping && !m_climbing) {
             translationAngle_deg = m_tipDirection_deg;
@@ -157,8 +176,13 @@ public class Drivetrain extends SubsystemBase {
 
         for (int i = 0; i < _wheels.length; i++) {
 
+            double translation = calcWheelSpeed[i] / normalizingFactor;
+            if (fromSticks) {
+                translation *= 1.5;
+            }
+
             var inputState = new SwerveModuleState(
-                    (calcWheelSpeed[i] / normalizingFactor),
+                    translation,
                     Rotation2d.fromDegrees(calcWheelAngle[i]));
 
             var outputState = _wheels[i].bestAngle(inputState);
@@ -171,16 +195,25 @@ public class Drivetrain extends SubsystemBase {
         }
     }
 
-    public void driveWithGyro(double translationAngle_deg,
-            double translationSpeed_perc,
-            double rotationalSpeed_perc,
-            double rotX, double rotY) {
+    public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY, boolean fromSticks) {
         translationAngle_deg -= m_gyro.getRealGyroAngle();
-        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY);
+        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, fromSticks);
+    }
+
+    public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, double rotX, double rotY) {
+        translationAngle_deg -= m_gyro.getRealGyroAngle();
+        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, false);
     }
 
     public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
-        driveWithGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
+        driveWithGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0, false);
+    }
+
+    // Temp command for testing
+    public void goDistance(double pos) {
+        for (int i = 0; i < _wheels.length; i++) {
+            _wheels[i].setPos(pos);
+        }
     }
 
     public double getResultAngle(XYVector resultXY) {
