@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.networktables.StringTopic;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Vision.Detections.DetectionList;
 import frc.robot.subsystems.Vision.Detections.IDetection;
@@ -121,6 +122,8 @@ public class VisionServer extends SubsystemBase {
             System.out.println("VisionServer BufferUnderflowException camindex " + cameraIndex);
           continue;
         }
+
+        SmartDashboard.putNumber("DetectionList Size " + cameraIndex, m_detections_Apriltag[cameraIndex].getSize());
 
       } else {
         if (DEBUG_LOG)
