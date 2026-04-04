@@ -7,17 +7,20 @@ package frc.robot.commands.ShooterCommands;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.MagazineAndFeed;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ShakingBot extends Command {
   private final Drivetrain m_drivetrain;
+  private final MagazineAndFeed m_magazine;
   private double startTime;
   private final double m_translationAngle;
 
   /** Creates a new ShakingBot. */
-  public ShakingBot(double translationAngle, Drivetrain drivetrain) {
+  public ShakingBot(double translationAngle, Drivetrain drivetrain, MagazineAndFeed magazine) {
     m_drivetrain = drivetrain;
     m_translationAngle = translationAngle;
+    m_magazine = magazine;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drivetrain);
   }
@@ -33,9 +36,11 @@ public class ShakingBot extends Command {
   public void execute() {
     double currentTime = Timer.getFPGATimestamp();
     if (((currentTime - startTime) % 0.6) < 0.3) {
-      m_drivetrain.driveWithoutGyro(m_translationAngle, -0.4, 0);
+      m_drivetrain.driveWithoutGyro(m_translationAngle, -0.5, 0);
+      m_magazine.setFeedVelocity(-0.3);
     } else {
-      m_drivetrain.driveWithoutGyro(m_translationAngle, 0.4, 0);
+      m_drivetrain.driveWithoutGyro(m_translationAngle, 0.5, 0);
+      m_magazine.setFeedVelocity(-0.3);
     }
   }
 
@@ -43,6 +48,7 @@ public class ShakingBot extends Command {
   @Override
   public void end(boolean interrupted) {
     m_drivetrain.driveWithoutGyro(0, 0, 0);
+    m_magazine.cancel();
   }
 
   // Returns true when the command should end.

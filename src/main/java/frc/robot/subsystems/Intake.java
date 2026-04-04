@@ -19,6 +19,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CANIdConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -92,8 +94,8 @@ public class Intake extends SubsystemBase {
     SparkFlexConfig intakeRollerLeaderMotorConfig = new SparkFlexConfig();
     SparkFlexConfig intakeRollerFollowerMotorConfig = new SparkFlexConfig();
     
-    intakeRollerLeaderMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).feedForward.kV(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
-    intakeRollerFollowerMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).feedForward.kV(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
+    // intakeRollerLeaderMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).feedForward.kV(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
+    // intakeRollerFollowerMotorConfig.closedLoop.pid(IntakeConstants.intakeRollerP, IntakeConstants.intakeRollerI, IntakeConstants.intakeRollerD).feedForward.kV(IntakeConstants.intakeRollerFF, ClosedLoopSlot.kSlot0);
 
     intakeRollerLeaderMotorConfig
         .idleMode(IdleMode.kCoast)
@@ -123,15 +125,28 @@ public class Intake extends SubsystemBase {
         && m_intakeLeftEncoder.getPosition() >= IntakeConstants.intakeRawExtension_rot;
   }
 
-  // Roller control
-  public void intakeRun(double speed_rpm) {
-    m_intakeRollerLeaderMotor.getClosedLoopController().setSetpoint(speed_rpm, ControlType.kVelocity);
+  public void intakeRun(double speed_perc) {
+    // m_intakeRollerLeaderMotor.getClosedLoopController().setSetpoint(speed_perc, ControlType.kVelocity);
+    m_intakeRollerLeaderMotor.set(speed_perc);
   }
 
   public void intakeRollerStop() {
     m_intakeRollerLeaderMotor.stopMotor();
   }
 
+  public void extendIntakeBoth(double speed_perc){
+    m_intakeExtensionLeftMotor.set(speed_perc);
+    m_intakeExtensionRightMotor.set(speed_perc);
+  }
+
+  public Command extendIntakeCommand(double speed_perc) {
+    return Commands.startEnd(
+      () -> extendIntakeBoth(speed_perc),
+      () -> extendIntakeBoth(0),
+      this
+    );
+  }
+  
   // Arm control
   public void extendLeftIntake() {
     if (m_intakeLeftEncoder.getPosition() > IntakeConstants.intakeRawExtension_rot) {
@@ -163,12 +178,24 @@ public class Intake extends SubsystemBase {
     System.out.println("intakeMovingDown");
   }
 
-  public void retractLeftIntake() {
+  public void retractLeftIntake(){
+    retractLeftIntake(IntakeConstants.SlowSpot);
+  }
+  public void retractRightIntake(){
+    retractRightIntake(IntakeConstants.SlowSpot);
+  }
+
+  public void retractIntakeToPos(double pos){
+    retractLeftIntake(pos);
+    retractRightIntake(pos);
+    return;
+  }
+  public void retractLeftIntake(double position) {
     if (m_intakeLeftEncoder.getPosition() < 0) {
       m_intakeExtensionLeftMotor.set(0);
       return;
     }
-    if (m_intakeLeftEncoder.getPosition() < IntakeConstants.SlowSpot) {
+    if (m_intakeLeftEncoder.getPosition() < position) {
       m_intakeExtensionLeftMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc / 2));
     } else {
       m_intakeExtensionLeftMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc));
@@ -178,13 +205,13 @@ public class Intake extends SubsystemBase {
     System.out.println("intakeMovingDown");
   }
 
-  public void retractRightIntake() {
+  public void retractRightIntake(double position) {
     if (m_intakeRightEncoder.getPosition() < 0) {
       m_intakeExtensionRightMotor.set(0);
       return;
     }
 
-    if (m_intakeRightEncoder.getPosition() < IntakeConstants.SlowSpot) {
+    if (m_intakeRightEncoder.getPosition() < position) {
       m_intakeExtensionRightMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc / 2));
     } else {
       m_intakeExtensionRightMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc));
@@ -203,8 +230,35 @@ public class Intake extends SubsystemBase {
     retractRightIntake();
   }
 
-  public double getElevationCurrent() {
+  public boolean runLeftUntilCurrentLimit(double speed, double currentLimit) {
+    if (m_intakeExtensionLeftMotor.getOutputCurrent() > currentLimit) {
+      m_intakeExtensionLeftMotor.stopMotor();
+      return true;
+    }
+    m_intakeExtensionLeftMotor.set(speed);
+    return false;
+  }
+
+  public boolean runRightUntilCurrentLimit(double speed, double currentLimit) {
+    if (m_intakeExtensionRightMotor.getOutputCurrent() > currentLimit) {
+      m_intakeExtensionRightMotor.stopMotor();
+      return true;
+    }
+    m_intakeExtensionRightMotor.set(speed);
+    return false;
+  }
+
+  public boolean runUntilCurrentLimit(double speed, double currentLimit) {
+    return runRightUntilCurrentLimit(speed, currentLimit) &&
+    runLeftUntilCurrentLimit(speed, currentLimit);
+  }
+
+  public double getRightExtensionCurrent() {
     return m_intakeExtensionRightMotor.getOutputCurrent();
+  }
+
+  public double getLefttExtensionCurrent() {
+    return m_intakeExtensionLeftMotor.getOutputCurrent();
   }
 
   public void stopArm() {
