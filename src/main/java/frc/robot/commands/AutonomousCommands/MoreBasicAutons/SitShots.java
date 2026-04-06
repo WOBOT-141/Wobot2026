@@ -24,7 +24,7 @@ public class SitShots extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       new HoodResetter(shooter, gyro).andThen(
-      new AutonShooter(shooter, magazine, 290, 72))
+      new AutonShooter(shooter, magazine, 180, 70))
       // new RevShooter(300, 65, shooter))
       //   .alongWith(new WaitCommand(0.7)
       //   .andThen(new IntakeFuel(magazine,0.8))).andThen(

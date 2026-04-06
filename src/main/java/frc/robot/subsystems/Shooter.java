@@ -175,6 +175,7 @@ public class Shooter extends SubsystemBase {
     if (targetVelocity_ips == m_targetVelocity_ips)
       return;
 
+    SmartDashboard.putNumber("Shooter Initial Commanded IPS", targetVelocity_ips);
     m_targetVelocity_ips =  targetVelocity_ips * ShooterConstants.flywheelSlipFactor;
 
     m_rightController.setSetpoint(m_targetVelocity_ips, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
