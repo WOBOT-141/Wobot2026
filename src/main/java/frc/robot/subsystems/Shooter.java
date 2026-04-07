@@ -157,7 +157,7 @@ public class Shooter extends SubsystemBase {
     m_hoodTargetPosition_deg = targetPosition_deg;
     m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
 
-    m_slipFactor = targetPosition_deg * ShooterConstants.slipFactorSlope;
+    m_slipFactor = targetPosition_deg * ShooterConstants.slipFactorSlope - ShooterConstants.slipFactorOffSet;
     SmartDashboard.putNumber("Shooter Slip Factor", m_slipFactor);
   }
 
