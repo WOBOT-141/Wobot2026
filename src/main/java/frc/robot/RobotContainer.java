@@ -51,6 +51,8 @@ import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.TestRightMiday;
 import frc.robot.commands.AutonomousCommands.StraightLineDrivePlus;
+import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.DoubleRIghtSwipe;
+import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.HALFswipeRIGHT;
 import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.RRRightMidwayAuton;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
@@ -267,7 +269,9 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     new Trigger(() -> m_flightController0.getIButton())
-      .onTrue(new RRRightMidwayAuton(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+      // .onTrue(new RRRightMidwayAuton(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+      // .onTrue(new HALFswipeRIGHT(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+      .onTrue(new DoubleRIghtSwipe(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
     // .onTrue(new TestRightMiday(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
       // .onTrue(new StraightLineDrivePlus(m_drive, 0, 120, 180, m_wheels, m_gyro, 0.25));
     //   .whileTrue(m_intake.extendIntakeCommand(-IntakeConstants.intakeExtendSpeed_perc));

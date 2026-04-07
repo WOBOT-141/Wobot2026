@@ -69,7 +69,7 @@ public class StraightLineDrivePlus extends Command {
     m_wheels = wheels;
     m_gyro = gyro;
     MAX_VELOCITY = maxSpeed;
-    MAX_ACCEL = maxSpeed * 2;
+    MAX_ACCEL = maxSpeed + 1;
     m_rotationAmount_deg = rotationAmount_deg;
     m_startingEncoderPos_in = new double[m_wheels.length];
 
