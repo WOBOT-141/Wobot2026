@@ -9,6 +9,7 @@ import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -51,6 +52,7 @@ import frc.robot.commands.IntakeCommands.RunUntilCurrentLimit;
 import frc.robot.commands.IntakeCommands.UnjamIntake;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.RotShakes;
+import frc.robot.commands.ShooterCommands.AutonShooter;
 import frc.robot.commands.ShooterCommands.MagazineAndLock;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.ShooterCommands.ShakingBot;
@@ -58,6 +60,7 @@ import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
+import frc.robot.commands.AutonomousCommands.setIntake;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
@@ -329,6 +332,17 @@ public class RobotContainer {
     return new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
   }
+  public void pathPlannerCommands(Intake intake, Shooter shooter, MagazineAndFeed magazine) {
+    // 1. Initialize subsystems
+
+    // 2. Register named commands
+    NamedCommands.registerCommand("ExtendIntake", new IntakeExtend(m_intake));
+    NamedCommands.registerCommand("Intake", new setIntake(m_intake, .45));
+     NamedCommands.registerCommand("Shoot", new AutonShooter(shooter, magazine, 200,  65 ));
+
+    // 3. Initialize AutoBuilder and load autos
+   // configureAutoBuilder();
+}
 
   public Command getAutonomousCommand() {
     Command selectedAuto = autoChooser.get();
