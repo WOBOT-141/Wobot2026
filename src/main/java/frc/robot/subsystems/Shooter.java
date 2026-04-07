@@ -91,6 +91,9 @@ public class Shooter extends SubsystemBase {
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(ShooterConstants.hoodCurrentLim_amp)
         .openLoopRampRate(ShooterConstants.hoodSlewRate);
+    m_hoodMotorConfig.softLimit
+      .forwardSoftLimit(ShooterConstants.hoodUpperLimit_deg)
+      .reverseSoftLimit(ShooterConstants.hoodLowerLimit_deg);
     m_hoodMotorConfig.encoder.positionConversionFactor(ShooterConstants.hoodDegPerMotorRot); 
     m_hoodMotorConfig.closedLoop
         .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD);
