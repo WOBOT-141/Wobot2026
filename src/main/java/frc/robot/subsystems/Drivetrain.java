@@ -5,6 +5,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
+import frc.robot.Constants.WheelConstants;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -27,11 +28,11 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0, false);
   }
 
   public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
-      double rotX, double rotY) {
+      double rotX, double rotY, boolean fromSticks) {
     if (m_isTipping && !m_climbing) {
       translationAngle_deg = m_tipDirection_deg;
       translationSpeed_perc = m_tipMagnitude / (m_tipThreshold * 2);
@@ -40,9 +41,9 @@ public class Drivetrain extends SubsystemBase {
       rotY = 0;
     }
 
-    SmartDashboard.putNumber("translation Speed", translationSpeed_perc);
-    SmartDashboard.putNumber("translation Angle", translationAngle_deg);
-    SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_perc);
+    // SmartDashboard.putNumber("translation Speed", translationSpeed_perc);
+    // SmartDashboard.putNumber("translation Angle", translationAngle_deg);
+    // SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_perc);
 
     if (failedNaNcheck(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc))
       return;
@@ -87,7 +88,12 @@ public class Drivetrain extends SubsystemBase {
     }
 
     for (int i = 0; i < _wheels.length; i++) {
-      var inputState = new SwerveModuleState((calcWheelSpeed_perc[i] / normalizingFactor),
+
+      double translation = calcWheelSpeed_perc[i] / normalizingFactor;
+      if (fromSticks)
+        translation *= 1.5;
+
+      var inputState = new SwerveModuleState(translation,
           Rotation2d.fromDegrees(calcWheelAngle_deg[i]));
       var outputState = _wheels[i].bestAngle(inputState);
       _wheels[i].setAngle(outputState.angle.getDegrees());
@@ -110,10 +116,17 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
+      double rotX, double rotY, boolean fromSticks) {
+    // Field-oriented adjustment
+    translationAngle_deg -= m_gyro.getRealGyroAngle();
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, fromSticks);
+  }
+
+  public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
       double rotX, double rotY) {
     // Field-oriented adjustment
     translationAngle_deg -= m_gyro.getRealGyroAngle();
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY);
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, false);
   }
 
   public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {

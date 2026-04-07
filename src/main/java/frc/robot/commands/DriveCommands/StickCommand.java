@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.IBotSelector;
+import frc.robot.Constants.WheelConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 
@@ -84,7 +85,7 @@ public class StickCommand extends Command {
         return;
       }
         
-      if (m_altCommandedRotation_perc.isEmpty()) {
+      if (m_altCommandedRotation_perc.isEmpty() || m_altCommandedRotation_perc.get().isNaN()) {
         // Maintain last heading when the sticks are at 0, the wheels aren't being locked, and there is no commanded rotation.
         m_rampRate.reset(0);
         m_drive.driveWithGyro(m_lastTranslationAngle_deg, 0.0, 0.0);
@@ -107,8 +108,8 @@ public class StickCommand extends Command {
 
     /* ---------------- Clamping ---------------- */
     translationMagnitude_perc = m_rampRate.calculate(translationMagnitude_perc);
-    translationMagnitude_perc = Math.max(-1.0, Math.min(1.0, translationMagnitude_perc));
-    rotationalMagnitude_perc = Math.max(-1.0, Math.min(1.0, rotationalMagnitude_perc));
+    translationMagnitude_perc = Math.max(-1, Math.min(1, translationMagnitude_perc));
+    rotationalMagnitude_perc = Math.max(-1, Math.min(1.0, rotationalMagnitude_perc));
 
     /* ---------------- Drive ---------------- */
     double yDist = m_isRotateCenter
@@ -120,7 +121,8 @@ public class StickCommand extends Command {
         translationMagnitude_perc,
         rotationalMagnitude_perc,
         0.0,
-        yDist);
+        yDist,
+        true);
 
     m_lastTranslationAngle_deg = translationAngle_deg;
   }
@@ -151,7 +153,8 @@ public class StickCommand extends Command {
     double xPrime_perc = stickX_perc * Math.sqrt(1 - (Math.pow(stickY_perc, 2) / 2));
     double yPrime_perc = stickY_perc * Math.sqrt(1 - (Math.pow(stickX_perc, 2) / 2));
 
-    return Math.sqrt(Math.pow(xPrime_perc, 2) + Math.pow(yPrime_perc, 2));
+    double magnitude_perc = Math.sqrt(Math.pow(xPrime_perc, 2) + Math.pow(yPrime_perc, 2));
+    return magnitude_perc * 2; //TODO This is a gross hack. Figure out the real problem please
   }
 
 

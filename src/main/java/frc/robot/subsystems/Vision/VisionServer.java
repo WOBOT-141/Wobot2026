@@ -106,7 +106,7 @@ public class VisionServer extends SubsystemBase {
                   roll,
                   cameraNum);
             }
-            // else System.out.println("Tag id 0");
+            else if (DEBUG_LOG) System.out.println("Tag id 0");
 
             if (DEBUG_LOG)
               System.out

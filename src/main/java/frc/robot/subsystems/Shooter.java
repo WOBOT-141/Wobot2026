@@ -93,10 +93,9 @@ public class Shooter extends SubsystemBase {
         .openLoopRampRate(ShooterConstants.hoodSlewRate);
     m_hoodMotorConfig.encoder.positionConversionFactor(ShooterConstants.hoodDegPerMotorRot); 
     m_hoodMotorConfig.closedLoop
-        .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD)
-        //.velocityFF(ShooterConstants.hood_kF)
-        .minOutput(-0.2)
-        .maxOutput(0.2);
+        .pid(ShooterConstants.hoodP, ShooterConstants.hoodI, ShooterConstants.hoodD);
+        // .minOutput(-0.2)
+        // .maxOutput(0.2);
 
     m_hoodMotor.configure(m_hoodMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
@@ -143,12 +142,12 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setHoodAngle(double targetPosition_deg) {
-    System.out.println("---------- setHoodAngle ----------");
-    System.out.println("max "+ShooterConstants.hoodLowerLimit_deg);
+    // System.out.println("---------- setHoodAngle ----------");
+    // System.out.println("max "+ShooterConstants.hoodLowerLimit_deg);
     targetPosition_deg = Math.max(targetPosition_deg, ShooterConstants.hoodLowerLimit_deg);
-    System.out.println(targetPosition_deg);
+    // System.out.println(targetPosition_deg);
     targetPosition_deg = Math.min(targetPosition_deg, ShooterConstants.hoodUpperLimit_deg);
-    System.out.println(targetPosition_deg);
+    // System.out.println(targetPosition_deg);
     m_hoodTargetPosition_deg = targetPosition_deg;
     
     m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
@@ -247,7 +246,7 @@ public class Shooter extends SubsystemBase {
     m_leftMotor.stopMotor();
     m_hoodMotor.stopMotor();
     m_targetVelocity_ips = 0;
-    m_hoodTargetPosition_deg = ShooterConstants.hoodLowerLimit_deg;
+    // m_hoodTargetPosition_deg = ShooterConstants.hoodUpperLimit_deg;
   }
 
   public void stopHood() {

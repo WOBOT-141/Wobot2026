@@ -40,6 +40,8 @@ public class StraightLineDrive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    System.out.printf("StraightLineDrive START %.3f  %.3f\n", m_translationAngle, m_distance_in);
+
     for (int i = 0; i < m_wheels.length; i++) {
       m_startingEncoderPos_in[i] = m_wheels[i].getEncoderDistance();
       SmartDashboard.putNumber("StartingEncoderPos_" + i, m_startingEncoderPos_in[i]);
@@ -68,8 +70,10 @@ public class StraightLineDrive extends Command {
     SmartDashboard.putNumber("distanceLeftOver_perc", distanceLeftOver_perc);
     SmartDashboard.putNumber("m_AvgSubtractedDistance", m_avgSubstractedDistance_in);
     SmartDashboard.putNumber("m_distance_in", m_distance_in);
-
-    m_drivetrain.driveWithGyro(m_translationAngle, TrapizoidCalculations(), 0);
+    System.out.printf("DistanceLeftOver_perc: %.3f\n", distanceLeftOver_perc);
+    double finalSpeed = Math.max(TrapizoidCalculations(), 0.05);
+    System.out.printf("StraightLineDrive FINAL speed:%.3f\n", finalSpeed);
+    m_drivetrain.driveWithGyro(m_translationAngle, finalSpeed, 0);
   }
 
   private double TrapizoidCalculations() {
@@ -82,19 +86,21 @@ public class StraightLineDrive extends Command {
     } else if (0.8 < distanceLeftOver_perc) {
       driveSpeed = distanceLeftOver_perc * (-4.52381) + 4.61905;
     } // faster
+    System.out.printf("StraightLineDrive INITAL speed:%.3f\n", driveSpeed);
 
     if (m_speedFactor) {
       finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00544306);
     } else {
-      finalDriveSpeed = driveSpeed * ((m_distance_in) * 0.00909091);
+      finalDriveSpeed = driveSpeed * (m_distance_in);
     }
-
     return finalDriveSpeed;
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    System.out.printf("StraightLineDrive END %.3f  %.3f  %b\n", m_translationAngle, m_distance_in, interrupted);
+
     m_drivetrain.driveWithGyro(0, 0, 0);
   }
 

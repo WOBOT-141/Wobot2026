@@ -17,6 +17,7 @@ import frc.robot.Constants.RotateCommandConstants;
 import frc.robot.Constants.RotateVisionConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Util.ShooterCalculations;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.ShootClimbRIGHT;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Shooter;
@@ -85,16 +86,19 @@ public class AimAtHubCommand extends Command {
     DetectionList detectionList = m_visionServer.getApriltagDetectionLists()[0];
     Optional<AngleMagVector> m_vectorToHubOptional = m_aprilTagFilter.getFloorVectorToTaggedElement(detectionList, FieldElement.HUB);
 
+    double shootDistance_in = 0;
+
     //Update our targeting if we have usable tag data
     if (m_vectorToHubOptional.isPresent()) {
       m_lastFoundVector = m_vectorToHubOptional.get();
-      m_targetGyroAngle_deg = currentGyroAngle_deg - m_lastFoundVector.Angle; //TODO may need to be added instead of subtracted.
+      m_targetGyroAngle_deg = currentGyroAngle_deg + m_lastFoundVector.Angle;
+      shootDistance_in = m_lastFoundVector.Magnitude + ShooterConstants.cameraToMuzzleDist_in;
 
       m_pidController.setSetpoint(m_targetGyroAngle_deg);
-      m_launchAngle_deg = ShooterCalculations.getLaunchAngle(m_lastFoundVector.Magnitude,
-          ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 36);
-      m_launchSpeed_ips = ShooterCalculations.getLaunchSpeed(m_launchAngle_deg, m_lastFoundVector.Magnitude,
-          ShooterConstants.hubRimToCenter_in, 36);
+      m_launchAngle_deg = ShooterCalculations.getLaunchAngle(shootDistance_in,
+          ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24);
+      m_launchSpeed_ips = ShooterCalculations.getLaunchSpeed(m_launchAngle_deg, shootDistance_in,
+          ShooterConstants.hubRimToCenter_in, 24);
 
       m_initialVectorFound = true;
     }
@@ -120,8 +124,8 @@ public class AimAtHubCommand extends Command {
     //Debug output
     System.out.printf("[AimAtHub1 tags:%d  hasVector:%b  gyroTarget:%.3f  gyroCurrent:%.3f  pidOutput:%.3f]\n", detectionList.getSize(),
         m_vectorToHubOptional.isPresent(), m_targetGyroAngle_deg, currentGyroAngle_deg, rotationPidOutput);
-    System.out.printf("[AimAtHub2 vectorAngle:%.3f  vectorDist:%.3f  altRotation:%.3f  launchAngle:%.3f  launchSpeed:%.3f]\n",
-        m_lastFoundVector.Angle, m_lastFoundVector.Magnitude, rotationPidOutput, m_launchAngle_deg, m_launchSpeed_ips);
+    System.out.printf("[AimAtHub2 vectorAngle:%.3f  vectorDist:%.3f  shootDist:%.3f  altRotation:%.3f  launchAngle:%.3f  launchSpeed:%.3f]\n",
+        m_lastFoundVector.Angle, m_lastFoundVector.Magnitude, shootDistance_in, rotationPidOutput, m_launchAngle_deg, m_launchSpeed_ips);
     SmartDashboard.putNumber("AimAtHub targetAngle", m_targetGyroAngle_deg);
     SmartDashboard.putNumber("AimAtHub currentAngle", currentGyroAngle_deg);
   }
