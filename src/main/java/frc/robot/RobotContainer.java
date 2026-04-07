@@ -1,5 +1,16 @@
 package frc.robot;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,6 +62,7 @@ import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
 
+
 public class RobotContainer {
 
   private final SwerveModule[] m_wheels;
@@ -66,13 +78,16 @@ public class RobotContainer {
   // private final CommandJoystick m_joystick = new CommandJoystick(2);
   private final StickCommand m_stickCommand;
 
-  private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
-  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
+  private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras,
+      RebuiltAprilTags.Tags.length);
+  private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags,
+      () -> DriverStation.getAlliance());
 
   private final IBotSelector m_selectedBot = new MainBot();
   // private final IBotSelector m_selectedBot = new SummerBot();
 
- private final SendableChooser<Command> m_autonChooser = new SendableChooser<>();
+  private final SendableChooser<Command> m_autonChooser = new SendableChooser<>();
+  private LoggedDashboardChooser<Command> autoChooser;
 
   public RobotContainer() {
 
@@ -127,7 +142,7 @@ public class RobotContainer {
         () -> m_flightController0.getDriveY(),
         () -> m_flightController0.getRotate(),
         () -> m_flightController0.getThrottle());
-        
+
     m_drive.setDefaultCommand(m_stickCommand);
 
     configureBindings();
@@ -135,19 +150,24 @@ public class RobotContainer {
     m_autonChooser.setDefaultOption("00 Do Nothing", new DoNothing());
     m_autonChooser.addOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
     m_autonChooser.addOption("03 RIGHT Midway Gather",
-        new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+        new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer,
+            m_stickCommand, m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("04 LEFT Midway Gather",
-        new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+        new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand,
+            m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("05 Right HALF Midway Gather",
-        new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+        new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer,
+            m_stickCommand, m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("06 Left HALF Midway Gather",
-        new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+        new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer,
+            m_stickCommand, m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("TEST Rotate to tag",
         new AimAtSpecificTag(11, 27, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
-            SmartDashboard.putData("AutonChooser", m_autonChooser);
+    SmartDashboard.putData("AutonChooser", m_autonChooser);
+    autoChooser = buildAutoChooserForMode(true);
   }
 
-   /**
+  /**
    * Restore flight controller scaling, offsets, and deadbands.
    */
   private void configureFlightControllerParameters() {
@@ -205,47 +225,71 @@ public class RobotContainer {
   private void configureXboxController() {
     m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
     // m_xboxController0.leftBumper().whileTrue(m_intake.extendIntakeCommand(IntakeConstants.intakeExtendSpeed_perc));
-    // m_xboxController0.leftTrigger().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(IntakeConstants.rollerInSpeed_rpm),() -> m_intake.intakeRollerStop(), m_intake));
-    m_xboxController0.leftTrigger().whileTrue((new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis())));
-    m_xboxController0.rightBumper().whileTrue(new MagazineAndLock(m_drive, m_magazine));// locks wheels and runs feed/mag 
+    // m_xboxController0.leftTrigger().whileTrue(Commands.startEnd(() ->
+    // m_intake.intakeRun(IntakeConstants.rollerInSpeed_rpm),() ->
+    // m_intake.intakeRollerStop(), m_intake));
+    m_xboxController0.leftTrigger()
+        .whileTrue((new DoubleButtonIntakeRunCommand(m_intake, () -> m_xboxController0.getRightTriggerAxis())));
+    m_xboxController0.rightBumper().whileTrue(new MagazineAndLock(m_drive, m_magazine));// locks wheels and runs
+                                                                                        // feed/mag
     // m_xboxController0.rightBumper().onTrue(new IntakeRetract(m_intake));
 
-    // m_xboxController0.povUp().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
-    // m_xboxController0.povDown().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchAngleDown())); // Angle down
-    // m_xboxController0.povLeft().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchSpeedUp())); //speed up
-    // m_xboxController0.povRight().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchSpeedDown())); //speed down
-    // m_xboxController0.povLeft().whileTrue(new ShakingBot(0, m_drive, m_magazine)); //Forward back -- Hub
+    // m_xboxController0.povUp().onTrue(Commands.runOnce(() ->
+    // BumpShooterVector.bumpLaunchAngleUp())); //Angle up
+    // m_xboxController0.povDown().onTrue(Commands.runOnce(() ->
+    // BumpShooterVector.bumpLaunchAngleDown())); // Angle down
+    // m_xboxController0.povLeft().onTrue(Commands.runOnce(() ->
+    // BumpShooterVector.bumpLaunchSpeedUp())); //speed up
+    // m_xboxController0.povRight().onTrue(Commands.runOnce(() ->
+    // BumpShooterVector.bumpLaunchSpeedDown())); //speed down
+    // m_xboxController0.povLeft().whileTrue(new ShakingBot(0, m_drive,
+    // m_magazine)); //Forward back -- Hub
     m_xboxController0.povLeft().whileTrue(m_intake.extendIntakeCommand(IntakeConstants.intakeExtendSpeed_perc));
-    // m_xboxController0.povRight().whileTrue(new ShakingBot(45, m_drive, m_magazine)); // Diag Right -- Hub
+    // m_xboxController0.povRight().whileTrue(new ShakingBot(45, m_drive,
+    // m_magazine)); // Diag Right -- Hub
     m_xboxController0.povRight().whileTrue(new RunUntilCurrentLimit(-0.1, 30, m_intake));
-    // m_xboxController0.povRight().whileTrue(new ShakingBot(90, m_drive)); //Side side -- Hub/Tower
+    // m_xboxController0.povRight().whileTrue(new ShakingBot(90, m_drive)); //Side
+    // side -- Hub/Tower
     m_xboxController0.povDown().whileTrue(new RotShakes(0.3, false, m_drive, m_magazine));// Hub
-    // m_xboxController0.povUp().whileTrue(new ShakingBot(135, m_drive, m_magazine)); //Diag Left forward -- Tower
-     m_xboxController0.povUp().whileTrue(new RotShakes(0.3, true, m_drive, m_magazine));// Tower
+    // m_xboxController0.povUp().whileTrue(new ShakingBot(135, m_drive,
+    // m_magazine)); //Diag Left forward -- Tower
+    m_xboxController0.povUp().whileTrue(new RotShakes(0.3, true, m_drive, m_magazine));// Tower
 
-    // m_xboxController0.a().whileTrue(new ShooterCalculationAimCommand(35, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 36, m_xboxController0, m_shooter));
-    m_xboxController0.a().whileTrue(new RevShooter( 180, 70, m_shooter, m_xboxController0));//rev hub //TODO addvibration last priority split rev and fire 
-    m_xboxController0.x().whileTrue(new RevShooter(200, 65, m_shooter, m_xboxController0));//rev bump
+    // m_xboxController0.a().whileTrue(new ShooterCalculationAimCommand(35,
+    // ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in,
+    // 36, m_xboxController0, m_shooter));
+    m_xboxController0.a().whileTrue(new RevShooter(180, 70, m_shooter, m_xboxController0));// rev hub //TODO
+                                                                                           // addvibration last priority
+                                                                                           // split rev and fire
+    m_xboxController0.x().whileTrue(new RevShooter(200, 65, m_shooter, m_xboxController0));// rev bump
     // m_xboxController0.x().onTrue(new IntakeRetract(m_intake));
-    m_xboxController0.y().whileTrue(new ShooterCalculationAimCommand(100, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24, m_xboxController0, m_shooter));
-    // m_xboxController0.y().whileTrue(new RevShooter( 330, 58, m_shooter, m_xboxController0));//rev tower SWEETSPOT TEST
-    //m_xboxController0.b().whileTrue(new FireShooter( 1000, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral */
-    // m_xboxController0.b().whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
-    m_xboxController0.b().whileTrue(new AimAtSpecificTag(10, 26, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
+    m_xboxController0.y().whileTrue(new ShooterCalculationAimCommand(100, ShooterConstants.muzzleToRimHeight_in,
+        ShooterConstants.hubRimToCenter_in, 24, m_xboxController0, m_shooter));
+    // m_xboxController0.y().whileTrue(new RevShooter( 330, 58, m_shooter,
+    // m_xboxController0));//rev tower SWEETSPOT TEST
+    // m_xboxController0.b().whileTrue(new FireShooter( 1000,
+    // ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev
+    // neutral */
+    // m_xboxController0.b().whileTrue(new AimAtHubCommand(m_stickCommand,
+    // m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
+    m_xboxController0.b().whileTrue(
+        new AimAtSpecificTag(10, 26, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
 
-    m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(IntakeConstants.rollerOutSpeed_rpm), () -> m_intake.intakeRollerStop(), m_intake));
-    m_xboxController0.start().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));
-    
-    // m_xboxController0.leftStick().onTrue(Commands.run(() -> BumpShooterVector.reset())); // reset angle/speed
+    m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(IntakeConstants.rollerOutSpeed_rpm),
+        () -> m_intake.intakeRollerStop(), m_intake));
+    m_xboxController0.start()
+        .whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));
+
+    // m_xboxController0.leftStick().onTrue(Commands.run(() ->
+    // BumpShooterVector.reset())); // reset angle/speed
     m_xboxController0.leftStick().onTrue(new SendHoodToHome(m_shooter));
     m_xboxController0.rightStick().onTrue(new StopRobot(m_intake, m_magazine, m_drive, m_shooter));
   }
-  
 
   private void configureJoystick() {
     // m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
     // m_joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
-    
+
   }
 
   private void configureFlightController() {
@@ -254,22 +298,69 @@ public class RobotContainer {
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
     // new Trigger(() -> m_flightController0.getIButton())
-    //   .whileTrue(m_intake.extendIntakeCommand(-IntakeConstants.intakeExtendSpeed_perc));
-    //     .whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
-        // .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
+    // .whileTrue(m_intake.extendIntakeCommand(-IntakeConstants.intakeExtendSpeed_perc));
+    // .whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter,
+    // m_gyro, m_aprilTagFilter, m_xboxController0));
+    // .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
   }
 
- public Command getAutonomousCommand() {
-    Command selectedCommand = m_autonChooser.getSelected();
+  private final Set<String> compAutos = loadCompAutoNames();
+  private static Set<String> loadCompAutoNames() {
+    Set<String> names = new HashSet<>();
+    File autosDir =
+        new File(edu.wpi.first.wpilibj.Filesystem.getDeployDirectory(), "pathplanner/autos");
+    File[] autoFiles = autosDir.listFiles((dir, name) -> name.endsWith(".auto"));
+    if (autoFiles == null) return names;
 
-    if (selectedCommand != null) {
-      System.out.println("Selected auton: " + selectedCommand.getName());
-      return selectedCommand;
+    for (File file : autoFiles) {
+          // Auto name = filename without .auto extension
+          String autoName = file.getName().replace(".auto", "");
+          names.add(autoName);
+    }
+    return names;
+  }
+
+  private LoggedDashboardChooser<Command> buildAutoChooserForMode(boolean competitionMode) {
+    SendableChooser<Command> sendable = new SendableChooser<>();
+    sendable.setDefaultOption("None", Commands.none());
+    for (String autoName : compAutos) {
+      sendable.addOption(autoName, new PathPlannerAuto(autoName));
+    }
+    return new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+  }
+
+  public Command getAutonomousCommand() {
+    Command selectedAuto = autoChooser.get();
+    if (selectedAuto == null) return null;
+
+    // Only wrap comp autos with shooting setup/teardown; test autos run bare
+    String selectedName = autoChooser.getSendableChooser().getSelected();
+    if (selectedName == null || !compAutos.contains(selectedName)) {
+      return selectedAuto;
     }
 
-    System.out.println("Selected auton: <null>");
-    return Commands.none();
+    // Reset odometry to the auto's starting pose BEFORE any shooting commands run.
+    // Without this, the initial SmartLaunch uses a stale pose (e.g. heading=0 from
+    // gyro reset) instead of the auto's actual starting heading, causing the turret
+    // to aim in the wrong direction.
+    edu.wpi.first.math.geometry.Pose2d autoStartingPose = null;
+    try {
+      PathPlannerAuto ppAuto = new PathPlannerAuto(selectedName);
+      autoStartingPose = ppAuto.getStartingPose();
+      if (autoStartingPose != null) {
+        edu.wpi.first.wpilibj.DriverStation.Alliance alliance =
+            edu.wpi.first.wpilibj.DriverStation.getAlliance()
+                .orElse(edu.wpi.first.wpilibj.DriverStation.Alliance.Blue);
+        if (alliance == edu.wpi.first.wpilibj.DriverStation.Alliance.Red) {
+          autoStartingPose = com.pathplanner.lib.util.FlippingUtil.flipFieldPose(autoStartingPose);
+        }
+      }
+    } catch (Exception e) {
+      // Auto doesn't have a valid starting pose - will skip reset
+    }
+    final edu.wpi.first.math.geometry.Pose2d startingPose = autoStartingPose; 
+    return selectedAuto;
   }
 
-  }
-
+}
