@@ -96,7 +96,7 @@ public class StraightLineDrivePlus extends Command {
     m_profile = new TrapezoidProfile(constraints);
 
     m_distancePID = new PIDController(kDistanceP, kDistanceI, kDistanceD);
-    m_distancePID.setTolerance(1);
+    m_distancePID.setTolerance(3);
 
     m_headingPID = new PIDController(kHeadingP, kHeadingI, kHeadingD);
     m_headingPID.enableContinuousInput(-180, 180);

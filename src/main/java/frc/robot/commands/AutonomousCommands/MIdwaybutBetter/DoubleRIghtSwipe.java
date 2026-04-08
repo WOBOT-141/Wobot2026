@@ -7,8 +7,12 @@ package frc.robot.commands.AutonomousCommands.MIdwaybutBetter;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.AutonomousCommands.HoodResetter;
 import frc.robot.commands.AutonomousCommands.StraightLineDrivePlus;
+import frc.robot.commands.AutonomousCommands.setIntake;
 import frc.robot.commands.DriveCommands.StickCommand;
+import frc.robot.commands.IntakeCommands.IntakeExtend;
+import frc.robot.commands.ShooterCommands.AutonShooter;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Intake;
@@ -25,51 +29,65 @@ public class DoubleRIghtSwipe extends SequentialCommandGroup {
   /** Creates a new DoubleRIghtSwipe. */
   public DoubleRIghtSwipe(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake, VisionServer visionServer, StickCommand stickCommand, AprilTagFilter aprilTagFilter, CommandXboxController controller) {
 
-    double bumpSpeed = 0.7;
+    double bumpSpeed = 0.8;
     // FIRST CYCLE
     StraightLineDrivePlus drive_over_ramp = new StraightLineDrivePlus(drivetrain, 0, 85, 0, wheels, gyro, bumpSpeed);
-    StraightLineDrivePlus drive_from_ramp_into_fuel = new StraightLineDrivePlus(drivetrain, 0, 45, 0, wheels, gyro, 1.45);
-    StraightLineDrivePlus leftTurn_into_centerfuel = new StraightLineDrivePlus(drivetrain, -65, 70, -80, wheels, gyro, 0.65);
-    StraightLineDrivePlus turnBack = new StraightLineDrivePlus(drivetrain, 115, 70, 80, wheels, gyro, 0.65);
-    StraightLineDrivePlus drive_from_fuel_into_ramp = new StraightLineDrivePlus(drivetrain, 180, 45, -50, wheels, gyro, 1.4);
-    StraightLineDrivePlus drive_over_ramp_back = new StraightLineDrivePlus(drivetrain, 180, 100,0, wheels, gyro, bumpSpeed);
+    StraightLineDrivePlus drive_from_ramp_into_fuel = new StraightLineDrivePlus(drivetrain, 0, 75, 0, wheels, gyro, 1.45);
+    StraightLineDrivePlus leftTurn_into_centerfuel = new StraightLineDrivePlus(drivetrain, -65, 50, -80, wheels, gyro, 0.65);
+    StraightLineDrivePlus turnBack = new StraightLineDrivePlus(drivetrain, 115, 50, 80, wheels, gyro, 0.65);
+    StraightLineDrivePlus drive_from_fuel_into_ramp = new StraightLineDrivePlus(drivetrain, 180, 45, -80, wheels, gyro, 1.4);
+    StraightLineDrivePlus drive_over_ramp_back = new StraightLineDrivePlus(drivetrain, 180, 120,-20, wheels, gyro, bumpSpeed);
 
     //SECOND CYCLE
-    StraightLineDrivePlus drive_over_ramp_2 = new StraightLineDrivePlus(drivetrain, 0, 100, 0, wheels, gyro, bumpSpeed);
-    StraightLineDrivePlus drive_from_ramp_into_fuel_2 = new StraightLineDrivePlus(drivetrain, 0, 45, 50, wheels, gyro, 1.45);
+    StraightLineDrivePlus drive_over_ramp_2 = new StraightLineDrivePlus(drivetrain, 0, 100, 30, wheels, gyro, bumpSpeed);
+    StraightLineDrivePlus drive_from_ramp_into_fuel_2 = new StraightLineDrivePlus(drivetrain, 0, 65, 30, wheels, gyro, 1.45);
     StraightLineDrivePlus leftTurn_into_centerfuel_2 = new StraightLineDrivePlus(drivetrain, -45, 40, -90, wheels, gyro, 0.9);
-    StraightLineDrivePlus gatherCenterFuel = new StraightLineDrivePlus(drivetrain, -90, 120, 0, wheels, gyro, 0.75);
+    StraightLineDrivePlus gatherCenterFuel = new StraightLineDrivePlus(drivetrain, -90, 120, -20, wheels, gyro, 0.75);
     StraightLineDrivePlus line_back_to_ramp = new StraightLineDrivePlus(drivetrain, 110, 120, 90, wheels, gyro, 2.1);
-    StraightLineDrivePlus drive_over_ramp_AGAIN = new StraightLineDrivePlus(drivetrain, 180, 120, -50, wheels, gyro, bumpSpeed);
+    StraightLineDrivePlus drive_over_ramp_AGAIN = new StraightLineDrivePlus(drivetrain, 180, 140, -40, wheels, gyro, bumpSpeed);
 
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      drive_over_ramp
+      new HoodResetter(shooter, gyro)
+      .alongWith(
+        drive_over_ramp
+        .andThen(new setIntake(intake, 0.5)))
       .andThen(
-        drive_from_ramp_into_fuel)
+        drive_from_ramp_into_fuel
+        .alongWith(new IntakeExtend(intake).withTimeout(1)))
       .andThen(
         leftTurn_into_centerfuel)
       .andThen(
         turnBack)
       .andThen(
-        drive_from_fuel_into_ramp)
+        drive_from_fuel_into_ramp
+        .andThen(new setIntake(intake, 0)))
       .andThen(
         drive_over_ramp_back)
       .andThen(
-        new WaitCommand(0.5))
+        new AutonShooter(shooter, magazine, 200, 65).withTimeout(2)
+        .alongWith(new setIntake(intake, 0.8))
+        .andThen(new WaitCommand(0.5)))
       .andThen( //SECOND CYCLE
-        drive_over_ramp_2)
+        drive_over_ramp_2
+        .alongWith(new setIntake(intake, 0)))
       .andThen(
-        drive_from_ramp_into_fuel_2)
+        drive_from_ramp_into_fuel_2
+        .alongWith(new setIntake(intake, 0.5)))
       .andThen(
-        leftTurn_into_centerfuel_2)
+        leftTurn_into_centerfuel_2
+        .andThen(new setIntake(intake, 0.6)))
       .andThen(
         gatherCenterFuel)
       .andThen(
-        line_back_to_ramp)
+        line_back_to_ramp
+        .andThen(new setIntake(intake, 0)))
       .andThen(
         drive_over_ramp_AGAIN)
+      .andThen(
+        new AutonShooter(shooter, magazine, 200, 65)
+        .alongWith(new setIntake(intake, 1).withTimeout(3)))
       
     );
   }

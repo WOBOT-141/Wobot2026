@@ -21,7 +21,7 @@ public class HoodResetter extends SequentialCommandGroup {
   
     addCommands(
       new SendHoodToHome(shooter).andThen(
-      new SendHoodToHome(shooter)).andThen(
+      // new SendHoodToHome(shooter)).andThen(
       new SendHoodToHome(shooter))
     //     new ResetGyro(gyro))
     );
