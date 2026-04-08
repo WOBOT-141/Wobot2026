@@ -1,12 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
 package frc.robot.subsystems;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import java.util.ArrayList;
 
@@ -23,8 +15,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
@@ -55,6 +45,8 @@ public class Drivetrain extends SubsystemBase {
     private SwerveDrivePoseEstimator poseEstimator;
     private Rotation2d rawGyroRotation = new Rotation2d();
 
+    ChassisSpeeds speeds;
+
     private Pose2d lastPose = new Pose2d();
     private double restAngle_deg;
 
@@ -77,8 +69,6 @@ public class Drivetrain extends SubsystemBase {
         _wheels = wheels;
         m_gyro = gyro;
         m_visionServer = visionServer;
-        RobotConfig config;
-
 
         m_kinematics = new SwerveDriveKinematics(getWheelPositions());
         makeOdometryItems(m_kinematics);
@@ -86,43 +76,6 @@ public class Drivetrain extends SubsystemBase {
         resetWheelPositions();
         swerveStatesArray = new SwerveModuleState[4];
 
-        try {
-            config = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-            // Handle exception as needed
-            e.printStackTrace();
-        }
-
-        // Configure AutoBuilder last
-        // AutoBuilder.configure(
-        // this::getPose, // Robot pose supplier
-        // this::resetPose, // Method to reset odometry (will be called if your auto has
-        // a starting pose)
-        // this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT
-        // RELATIVE
-        // (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will
-        // drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs
-        // individual module feedforwards
-        // new PPHolonomicDriveController( // PPHolonomicController is the built in path
-        // following controller for holonomic drive trains
-        // new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-        // new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
-        // ),
-        // config, // The robot configuration
-        // () -> {
-        // // Boolean supplier that controls when the path will be mirrored for the red
-        // alliance
-        // // This will flip the path being followed to the red side of the field.
-        // // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-        // var alliance = DriverStation.getAlliance();
-        // if (alliance.isPresent()) {
-        // return alliance.get() == DriverStation.Alliance.Red;
-        // }
-        // return false;
-        // },
-        // this // Reference to this subsystem to set requirements
-        // );
     }
 
     private void makeOdometryItems(SwerveDriveKinematics kinematics) {
@@ -154,39 +107,13 @@ public class Drivetrain extends SubsystemBase {
         m_climbing = climb;
     }
 
-    public boolean failedNaNcheck(double translationAngle_deg, double translationSpeed_perc,
-            double rotationalSpeed_perc) {
-        if (Double.isNaN(translationAngle_deg) || Double.isNaN(translationSpeed_perc)
-                || Double.isNaN(rotationalSpeed_perc)) {
-            System.out.println("ERROR: A Drivetrain commanded value is NaN!!!");
-            System.out.printf("translationSpeed:%.3f  translationAngle:%.3f  rotationalSpeed:%.3f\n",
-                    translationSpeed_perc, translationAngle_deg, rotationalSpeed_perc);
-
-            for (SwerveModule swerveModule : _wheels) {
-                swerveModule.cancelMovement();
-            }
-            return true;
-        }
-        return false;
-    }
-
     public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc,
             double rotationalSpeed_perc) {
         driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0, false);
     }
 
     public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
-            double rotX, double rotY) {
-        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, false);
-    }
-
-    public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
             double rotX, double rotY, boolean fromSticks) {
-
-        if (failedNaNcheck(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc)) {
-            return;
-        }
-
         if (m_isTipping && !m_climbing) {
             translationAngle_deg = m_tipDirection_deg;
             translationSpeed_perc = m_tipMagnitude / (m_tipThreshold * 2);
@@ -195,80 +122,82 @@ public class Drivetrain extends SubsystemBase {
             rotY = 0;
         }
 
-        double[] calcWheelAngle = new double[_wheels.length];
-        double[] calcWheelSpeed = new double[_wheels.length];
+        // SmartDashboard.putNumber("translation Speed", translationSpeed_perc);
+        // SmartDashboard.putNumber("translation Angle", translationAngle_deg);
+        // SmartDashboard.putNumber("Rotational Speed", rotationalSpeed_perc);
+
+        double rotationalCenterX = rotX;
+        double rotationalCenterY = rotY;
+        double[] calcWheelAngle_deg = new double[_wheels.length];
+        double[] calcWheelSpeed_perc = new double[_wheels.length];
         double normalizingFactor = 1;
 
         if (translationAngle_deg == 0 && translationSpeed_perc == 0 && rotationalSpeed_perc == 0) {
-            stop();
+            for (int i = 0; i < _wheels.length; ++i) {
+                _wheels[i].cancelMovement();
+            }
             return;
         }
 
+        // Calculate each wheel's angle and speed
         for (int i = 0; i < _wheels.length; ++i) {
             double wheelX = _wheels[i].get_xPos();
             double wheelY = _wheels[i].get_yPos();
 
-            double deltaX = wheelX - rotX;
-            double deltaY = wheelY - rotY;
+            double deltaX = wheelX - rotationalCenterX;
+            double deltaY = wheelY - rotationalCenterY;
 
-            XYVector linearVector = getTranslationVector(translationSpeed_perc, translationAngle_deg);
+            XYVector translationVector = getTranslationVector(translationSpeed_perc, translationAngle_deg);
             double rotationAngle = getRotationAngle(deltaX, deltaY, translationAngle_deg, rotationalSpeed_perc);
             XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed_perc, deltaX, deltaY);
+            XYVector resultXY = new XYVector(translationVector.X + rotationVector.X,
+                    translationVector.Y + rotationVector.Y);
 
-            XYVector resultXY = new XYVector(
-                    linearVector.X + rotationVector.X,
-                    linearVector.Y + rotationVector.Y);
+            double resultSpeed_perc = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2));
 
-            double resultSpeed = Math.hypot(resultXY.X, resultXY.Y);
-            double resultAngle = getResultAngle(resultXY);
+            double resultAngle_deg = getResultAngle(resultXY);
+            speeds = new ChassisSpeeds(translationVector.X, translationVector.Y, rotationVector.X);
 
-            calcWheelAngle[i] = resultAngle;
-            calcWheelSpeed[i] = resultSpeed;
-            normalizingFactor = Math.max(normalizingFactor, resultSpeed);
+            calcWheelAngle_deg[i] = resultAngle_deg;
+            calcWheelSpeed_perc[i] = resultSpeed_perc;
+
+            // normalizing the vectors
+            if (resultSpeed_perc > normalizingFactor) {
+                normalizingFactor = resultSpeed_perc;
+            }
         }
 
         for (int i = 0; i < _wheels.length; i++) {
 
-            double translation = calcWheelSpeed[i] / normalizingFactor;
-            if (fromSticks) {
+            double translation = calcWheelSpeed_perc[i] / normalizingFactor;
+            if (fromSticks)
                 translation *= 1.5;
-            }
 
-            var inputState = new SwerveModuleState(
-                    translation,
-                    Rotation2d.fromDegrees(calcWheelAngle[i]));
-
+            var inputState = new SwerveModuleState(translation,
+                    Rotation2d.fromDegrees(calcWheelAngle_deg[i]));
             var outputState = _wheels[i].bestAngle(inputState);
-
             _wheels[i].setAngle(outputState.angle.getDegrees());
             _wheels[i].setSpeed(outputState.speedMetersPerSecond);
-
-            Logger.recordOutput("wheel " + i + " angle", outputState.angle.getDegrees());
-            Logger.recordOutput("wheel " + i + " speed", outputState.speedMetersPerSecond);
         }
     }
 
-    public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
-            double rotX, double rotY, boolean fromSticks) {
-        translationAngle_deg -= m_gyro.getRealGyroAngle();
-        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, fromSticks);
-    }
-
-    public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
+    public void driveWithGyro(double translationAngle_deg,
+            double translationSpeed_perc,
+            double rotationalSpeed_perc,
             double rotX, double rotY) {
         translationAngle_deg -= m_gyro.getRealGyroAngle();
         driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, false);
     }
 
     public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
-        driveWithGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0, false);
+        driveWithGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0);
     }
 
-    // Temp command for testing
-    public void goDistance(double pos) {
-        for (int i = 0; i < _wheels.length; i++) {
-            _wheels[i].setPos(pos);
-        }
+    public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
+            double rotX, double rotY, boolean fromSticks) {
+        // Field-oriented adjustment
+        translationAngle_deg -= m_gyro.getRealGyroAngle();
+        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, fromSticks);
     }
 
     public double getResultAngle(XYVector resultXY) {
@@ -330,6 +259,7 @@ public class Drivetrain extends SubsystemBase {
         rawGyroRotation = m_gyro.getRotationAs2d();
         poseEstimator.update(rawGyroRotation, getModulePositions());
         Pose2d visionRobotPose;
+        Logger.recordOutput("Constants/currentMode", Constants.currentMode.toString());
 
         switch (Constants.currentMode) {
             case REAL -> {
@@ -340,6 +270,7 @@ public class Drivetrain extends SubsystemBase {
                 if (visionRobotPose != null && m_visionServer.hasTargets()) {
                     Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
 
+                    // Optimized Loop matching the filtered arrays
                     ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
                     ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
 
@@ -359,15 +290,12 @@ public class Drivetrain extends SubsystemBase {
 
                 if (visionRobotPose != null) {
                     Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
-                    ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
-                    ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
 
-                    for (int i = 0; i < poses.size(); i++) {
-                        addVisionMeasurement(
-                                poses.get(i),
-                                Timer.getFPGATimestamp(),
-                                Units.inchesToMeters(distances.get(i)));
-                    }
+                    addVisionMeasurement(
+                            visionRobotPose,
+                            Timer.getFPGATimestamp(),
+                            Units.inchesToMeters(visionRobotPose.getTranslation().getDistance(
+                                    m_visionServer.getTagPose(m_visionServer.getClosestSimTagID()).getTranslation())));
                 }
             }
             default -> {
@@ -523,6 +451,10 @@ public class Drivetrain extends SubsystemBase {
 
     public double getMaxLinearSpeedMetersPerSec() {
         return Constants.DriveConstants.maxSpeedMetersPerSec;
+    }
+
+    public ChassisSpeeds getCurrentChassisSpeeds() {
+        return speeds;
     }
 
     public void runVelocity(ChassisSpeeds speeds) {

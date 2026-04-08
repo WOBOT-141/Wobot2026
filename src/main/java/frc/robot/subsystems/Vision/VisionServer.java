@@ -353,6 +353,10 @@ public class VisionServer extends SubsystemBase {
     return cameraPose.transformBy(robotToCamera.inverse());
   }
 
+  public int getClosestSimTagID(){
+    return (int) SmartDashboard.getNumber("SimVision/TagID", 3);
+  }
+
   public Pose2d getSimulatedRobotPose() {
     int tagToFind = (int) SmartDashboard.getNumber("SimVision/TagID", 3); 
     double distFromTag = SmartDashboard.getNumber("SimVision/Distance_in", 72.0);
@@ -379,7 +383,9 @@ public class VisionServer extends SubsystemBase {
         relativeRotation 
     );
 
-    return tagPose.transformBy(cameraToTag.inverse());
+    Pose2d finalPose = tagPose.transformBy(cameraToTag.inverse());
+    Logger.recordOutput("SimulatedRobotPose", finalPose);
+    return finalPose;
   }
 
   @Override
