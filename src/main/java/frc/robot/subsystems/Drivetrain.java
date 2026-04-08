@@ -45,6 +45,8 @@ public class Drivetrain extends SubsystemBase {
     private SwerveDrivePoseEstimator poseEstimator;
     private Rotation2d rawGyroRotation = new Rotation2d();
 
+    ChassisSpeeds speeds;
+
     private Pose2d lastPose = new Pose2d();
     private double restAngle_deg;
 
@@ -154,6 +156,7 @@ public class Drivetrain extends SubsystemBase {
             double resultSpeed_perc = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2));
 
             double resultAngle_deg = getResultAngle(resultXY);
+            speeds = new ChassisSpeeds(translationVector.X, translationVector.Y, rotationVector.X);
 
             calcWheelAngle_deg[i] = resultAngle_deg;
             calcWheelSpeed_perc[i] = resultSpeed_perc;
@@ -183,7 +186,7 @@ public class Drivetrain extends SubsystemBase {
             double rotationalSpeed_perc,
             double rotX, double rotY) {
         translationAngle_deg -= m_gyro.getRealGyroAngle();
-        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY,false);
+        driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, false);
     }
 
     public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
@@ -196,7 +199,6 @@ public class Drivetrain extends SubsystemBase {
         translationAngle_deg -= m_gyro.getRealGyroAngle();
         driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, fromSticks);
     }
-
 
     public double getResultAngle(XYVector resultXY) {
         double resultAngle_deg = Math.toDegrees(Math.atan2(resultXY.Y, resultXY.X));
@@ -289,10 +291,11 @@ public class Drivetrain extends SubsystemBase {
                 if (visionRobotPose != null) {
                     Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
 
-                        addVisionMeasurement(
-                                visionRobotPose,
-                                Timer.getFPGATimestamp(),
-                                Units.inchesToMeters(visionRobotPose.getTranslation().getDistance(m_visionServer.getTagPose(m_visionServer.getClosestSimTagID()).getTranslation())));
+                    addVisionMeasurement(
+                            visionRobotPose,
+                            Timer.getFPGATimestamp(),
+                            Units.inchesToMeters(visionRobotPose.getTranslation().getDistance(
+                                    m_visionServer.getTagPose(m_visionServer.getClosestSimTagID()).getTranslation())));
                 }
             }
             default -> {
@@ -448,6 +451,10 @@ public class Drivetrain extends SubsystemBase {
 
     public double getMaxLinearSpeedMetersPerSec() {
         return Constants.DriveConstants.maxSpeedMetersPerSec;
+    }
+
+    public ChassisSpeeds getCurrentChassisSpeeds() {
+        return speeds;
     }
 
     public void runVelocity(ChassisSpeeds speeds) {
