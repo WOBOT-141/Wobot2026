@@ -156,7 +156,7 @@ public final class Constants {
   }
 
   public static class OperatorConstants {
-    public static final int driverControllerPort = 0;
+    public static final double throttleFloor_perc = 0.2;
   }
 
   public static class RotateCommandConstants {
