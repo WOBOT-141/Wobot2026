@@ -45,9 +45,9 @@ public class ShooterCalculationAimCommand extends Command {
     double getLaunchAngle = ShooterCalculations.getLaunchAngle(m_targetDistance_in, m_deltaHeight_in,
         m_rimToTargetDistance_in, m_targetHeightAboveRim_in);
     double getLaunchSpeed = ShooterCalculations.getLaunchSpeed(getLaunchAngle, m_targetDistance_in, m_rimToTargetDistance_in, m_targetHeightAboveRim_in);
-    m_shooter.setShooterVelocity(getLaunchSpeed);
-    m_shooter.setHoodAngle(getLaunchAngle);
-        //Controller Feedback
+    m_shooter.setShooterAngleAndVelocity(getLaunchAngle, getLaunchSpeed);
+    
+    //Controller Feedback
     double rumble = m_shooter.isReadyToShoot() ? ControllerConstants.rumbleFeedback_perc : 0.0;
     m_controller.setRumble(RumbleType.kBothRumble, rumble);
   }
