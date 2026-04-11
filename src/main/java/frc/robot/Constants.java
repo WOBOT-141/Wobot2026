@@ -127,8 +127,8 @@ public final class Constants {
     public static final double downAngle_deg = 95.0;
 
     // Motion speeds
-    public static final double intakeRetractSpeed_perc = -0.2; //-0.4;
-    public static final double intakeExtendSpeed_perc = 0.2;//0.4;
+    public static final double intakeRetractSpeed_perc = -0.25; //-0.4;
+    public static final double intakeExtendSpeed_perc = 0.15;//0.4;
 
     public static final double positionTolerance_deg = 3.0; // Allowed error band for position checks
     public static final double moveTimeout_sec = .20; // Safety timeout while moving
