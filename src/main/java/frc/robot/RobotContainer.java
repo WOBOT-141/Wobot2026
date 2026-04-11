@@ -152,6 +152,9 @@ public class RobotContainer {
     m_autonChooser.addOption("TEST Rotate to tag",
         new AimAtSpecificTag(11, 27, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
             SmartDashboard.putData("AutonChooser", m_autonChooser);
+    m_autonChooser.addOption("DOUBLE Right Swipe",
+        new DoubleRIghtSwipe(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+            SmartDashboard.putData("07 DOUBLE Right Swipe", m_autonChooser);
   }
 
    /**
