@@ -52,7 +52,7 @@ public class Drivetrain extends SubsystemBase {
     private SwerveDrivePoseEstimator poseEstimator;
     private Rotation2d rawGyroRotation = new Rotation2d();
 
-    ChassisSpeeds speeds;
+    ChassisSpeeds speeds = new ChassisSpeeds();
 
     private Pose2d lastPose = new Pose2d();
     private double restAngle_deg;
@@ -501,7 +501,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public ChassisSpeeds getCurrentSpeeds() {
-        return speeds;
+        return m_kinematics.toChassisSpeeds(getModuleStates());
     }
 
     public void runVelocity(ChassisSpeeds speeds) {
