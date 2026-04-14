@@ -19,7 +19,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
 import frc.robot.Constants;
@@ -64,6 +66,9 @@ public class Drivetrain extends SubsystemBase {
     private double _lastSimTime = 0;
     private double[] _simDistances;
     private boolean _simInitialized = false;
+
+    private final Watchdog m_watchdog = new Watchdog(TimedRobot.kDefaultPeriod, () -> {
+    });
 
     public Drivetrain(SwerveModule[] wheels, IGyro gyro, VisionServer visionServer) {
         _wheels = wheels;
@@ -256,16 +261,18 @@ public class Drivetrain extends SubsystemBase {
 
     @Override
     public void periodic() {
+        m_watchdog.reset();
         rawGyroRotation = m_gyro.getRotationAs2d();
         poseEstimator.update(rawGyroRotation, getModulePositions());
         Pose2d visionRobotPose;
         Logger.recordOutput("Constants/currentMode", Constants.currentMode.toString());
-
+        m_watchdog.addEpoch("BeforeSwitch");
         switch (Constants.currentMode) {
             case REAL -> {
                 Logger.recordOutput("VISIONCLOSESTPOSE", m_visionServer.getTagPose());
                 Logger.recordOutput("DistanceToHubCenter", getRobotToHubDist_m());
                 visionRobotPose = m_visionServer.getEstimatedRobotPose(m_gyro.getRawGyroAngle());
+                m_watchdog.addEpoch("afterGetEstimatedPose");
 
                 if (visionRobotPose != null && m_visionServer.hasTargets()) {
                     Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
@@ -284,6 +291,7 @@ public class Drivetrain extends SubsystemBase {
             }
             case SIM -> {
                 visionRobotPose = m_visionServer.getSimulatedRobotPose();
+                m_watchdog.addEpoch("afterGetSimulatedPose");
 
                 double currentDistance = getRobotToHubDist_m();
                 Logger.recordOutput("Distance from Hub to Robot centers", currentDistance);
@@ -296,6 +304,8 @@ public class Drivetrain extends SubsystemBase {
                             Timer.getFPGATimestamp(),
                             Units.inchesToMeters(visionRobotPose.getTranslation().getDistance(
                                     m_visionServer.getTagPose(m_visionServer.getClosestSimTagID()).getTranslation())));
+                    m_watchdog.addEpoch("afterAddSimulatedAddVisionMeasurement");
+
                 }
             }
             default -> {

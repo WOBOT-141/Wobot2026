@@ -8,51 +8,34 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import frc.lib.SpektrumFlightController;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionServerConstants;
-import frc.robot.Util.BumpShooterVector;
-import frc.robot.Util.ShooterCalculations;
-import frc.robot.commands.AimAtCenterTagCommand;
-import frc.robot.commands.AimAtHubCommand;
 import frc.robot.commands.AimAtSpecificTag;
-import frc.robot.commands.ShooterCalculationAimCommand;
-import frc.robot.commands.StopRobot;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
 import frc.robot.commands.DriveCommands.DriveToPose;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
-import frc.robot.commands.IntakeCommands.IntakeExtend;
-import frc.robot.commands.IntakeCommands.IntakeRetract;
 import frc.robot.commands.IntakeCommands.RunUntilCurrentLimit;
-import frc.robot.commands.IntakeCommands.UnjamIntake;
-import frc.robot.commands.ShooterCommands.FireShooter;
 import frc.robot.commands.ShooterCommands.MagazineAndLock;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.RotShakes;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
-import frc.robot.commands.ShooterCommands.ShakingBot;
 import frc.robot.commands.ShooterCommands.aimByOdometry;
 import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
-
+import frc.robot.commands.StopRobot;
 import frc.robot.subsystems.ChooserHandeling;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Intake;
@@ -287,8 +270,9 @@ public class RobotContainer {
                                                                                                // fire
         m_xboxController0.x().whileTrue(new RevShooter(200, 65, m_shooter, m_xboxController0));// rev bump
         // m_xboxController0.x().onTrue(new IntakeRetract(m_intake));
-        m_xboxController0.y().whileTrue(new ShooterCalculationAimCommand(100, ShooterConstants.muzzleToRimHeight_in,
-                ShooterConstants.hubRimToCenter_in, 24, m_xboxController0, m_shooter));
+        // m_xboxController0.y().whileTrue(new ShooterCalculationAimCommand(100, ShooterConstants.muzzleToRimHeight_in,
+        //         ShooterConstants.hubRimToCenter_in, 24, m_xboxController0, m_shooter));
+        m_xboxController0.y().whileTrue(new aimByOdometry(m_drive, m_shooter, 24, 24,24));
         // m_xboxController0.y().whileTrue(new RevShooter( 330, 58, m_shooter,
         // m_xboxController0));//rev tower SWEETSPOT TEST
 
