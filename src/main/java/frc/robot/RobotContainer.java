@@ -15,7 +15,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -25,6 +27,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -376,8 +379,6 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intake", new setIntake(m_intake, .45));
     NamedCommands.registerCommand("Shoot", new AutonShooter(shooter, magazine, 200, 65));
 
-    // 3. Initialize AutoBuilder and load autos
-    // configureAutoBuilder();
   }
 
   public Command getAutonomousCommand() {
@@ -412,6 +413,22 @@ public class RobotContainer {
     final edu.wpi.first.math.geometry.Pose2d startingPose = autoStartingPose;
     return selectedAuto;
   }
+public class DriveSubsystem extends SubsystemBase {
+  public DriveSubsystem() {
+    // All other subsystem initialization
+    // ...
 
+    // Load the RobotConfig from the GUI settings. You should probably
+    // store this in your Constants file
+    RobotConfig config;
+    try{
+      config = RobotConfig.fromGUISettings();
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+
+  }
+}
 
 }

@@ -1,9 +1,15 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -19,6 +25,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
@@ -65,6 +72,8 @@ public class Drivetrain extends SubsystemBase {
     private double[] _simDistances;
     private boolean _simInitialized = false;
 
+    RobotConfig config;
+
     public Drivetrain(SwerveModule[] wheels, IGyro gyro, VisionServer visionServer) {
         _wheels = wheels;
         m_gyro = gyro;
@@ -75,6 +84,41 @@ public class Drivetrain extends SubsystemBase {
 
         resetWheelPositions();
         swerveStatesArray = new SwerveModuleState[4];
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            // Handle exception as needed
+            e.printStackTrace();
+        }
+
+        // Configure AutoBuilder last
+        AutoBuilder.configure(
+                () -> getPose(), // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                () -> getCurrentSpeeds(), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speeds, feedforwards) -> runVelocity(speeds), // Method that will drive the robot given ROBOT RELATIVE
+                                                               // ChassisSpeeds. Also optionally outputs individual
+                                                               // module feedforwards
+                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
+                                                // holonomic drive trains
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                ),
+                config, // The robot configuration
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red
+                    // alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
 
     }
 
@@ -411,6 +455,9 @@ public class Drivetrain extends SubsystemBase {
         lastPose = startingPose;
     }
 
+    public void resetPose() {
+    }
+
     public void resetWheelPositions() {
         for (SwerveModule wheel : _wheels) {
             wheel.resetEncoder();
@@ -453,7 +500,7 @@ public class Drivetrain extends SubsystemBase {
         return Constants.DriveConstants.maxSpeedMetersPerSec;
     }
 
-    public ChassisSpeeds getCurrentChassisSpeeds() {
+    public ChassisSpeeds getCurrentSpeeds() {
         return speeds;
     }
 
