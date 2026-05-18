@@ -86,6 +86,9 @@ public class AimAtHubCommand extends Command {
     DetectionList detectionList = m_visionServer.getApriltagDetectionLists()[0];
     Optional<AngleMagVector> m_vectorToHubOptional = m_aprilTagFilter.getFloorVectorToTaggedElement(detectionList, FieldElement.HUB);
 
+    SmartDashboard.putNumber("AimAtHub targetAngle", 0);
+    SmartDashboard.putNumber("AimAtHub currentAngle", 0);
+    
     double shootDistance_in = 0;
 
     //Update our targeting if we have usable tag data
