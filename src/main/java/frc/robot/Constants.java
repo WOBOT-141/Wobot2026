@@ -142,6 +142,7 @@ public final class Constants {
     
     public static final double degPerMotorRotation_deg = 360.0; //TODO change to reflect elevation motor gear ratio
     public static final double intakeRawExtension_rot =  15.6;//15.38;
+    public static final double intakeRetractable_rot = 4.5;
 
     public static final double SlowSpot = 5.0;
 
@@ -151,7 +152,7 @@ public final class Constants {
     public static final double intakeRollerFF = 0.00015;
 
     public static final double rollerInSpeed_rpm = 0.4; //2250.0; //rpm max 6,300 //3500
-    public static final double rollerInMaxSpeed_rpm = 0.8 ;
+    public static final double rollerInMaxSpeed_rpm = 0.8;
     public static final double rollerOutSpeed_rpm = -0.6; //-2250.0; //rpm max 6,300 //3500
   }
 

@@ -4,11 +4,8 @@
 
 package frc.robot.commands.IntakeCommands;
 
-import java.time.chrono.MinguoDate;
-
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -38,7 +35,7 @@ public class IntakeJams extends Command {
     if ((currentTime % 0.6) < 0.3) {
       m_Intake.retractIntake();
     } else {
-      m_Intake.runUntilCurrentLimit(0.2, 5);
+      m_Intake.extendIntake();
     }
   }
 

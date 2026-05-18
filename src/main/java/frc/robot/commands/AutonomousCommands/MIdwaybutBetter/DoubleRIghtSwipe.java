@@ -32,6 +32,7 @@ public class DoubleRIghtSwipe extends SequentialCommandGroup {
   public DoubleRIghtSwipe(Drivetrain drivetrain, SwerveModule[] wheels, IGyro gyro, Shooter shooter, MagazineAndFeed magazine, Intake intake, VisionServer visionServer, StickCommand stickCommand, AprilTagFilter aprilTagFilter, CommandXboxController controller) {
 
     double bumpSpeed = 0.8;
+    double intakeSpeed = 1;
     // FIRST CYCLE
     StraightLineDrivePlus drive_over_ramp = new StraightLineDrivePlus(drivetrain, 0, 85, 0, wheels, gyro, bumpSpeed);
     StraightLineDrivePlus drive_from_ramp_into_fuel = new StraightLineDrivePlus(drivetrain, 0, 75, 0, wheels, gyro, 1.45);
@@ -55,7 +56,7 @@ public class DoubleRIghtSwipe extends SequentialCommandGroup {
       new HoodResetter(shooter, gyro)
       .alongWith(
         drive_over_ramp
-        .andThen(new setIntake(intake, 0.45)))
+        .andThen(new setIntake(intake, intakeSpeed)))
       .andThen(
         drive_from_ramp_into_fuel
         .alongWith(new IntakeExtend(intake).withTimeout(1)))
@@ -85,10 +86,10 @@ public class DoubleRIghtSwipe extends SequentialCommandGroup {
         .alongWith(new IntakeExtend(intake).withTimeout(1)))
       .andThen(
         drive_from_ramp_into_fuel_2
-        .alongWith(new setIntake(intake, 0.4)))
+        .alongWith(new setIntake(intake, intakeSpeed)))
       .andThen(
         leftTurn_into_centerfuel_2
-        .andThen(new setIntake(intake, 0.5)))
+        .andThen(new setIntake(intake, intakeSpeed)))
       .andThen(
         gatherCenterFuel)
       .andThen(
