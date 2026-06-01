@@ -212,7 +212,7 @@ public final class Constants {
 
     // Current limits
     public static final int flywheelCurrentLimit_amp = 40;
-    public static final int hoodCurrentLim_amp = 40;//20;
+    public static final int hoodCurrentLim_amp = 20;//20;
 
     // Brownout protection
     public static final double BrownoutStartVoltage_V = 10.8;

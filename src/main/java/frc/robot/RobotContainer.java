@@ -171,7 +171,7 @@ public class RobotContainer {
     configureFlightController();
   }
 
-  private void configureXboxController() {
+  private void configureXboxController() { //TODO FIX HOOD ANGLE PIDS ON ALL SHOOTER KEYBINDS
     m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
     // m_xboxController0.leftBumper().whileTrue(m_intake.extendIntakeCommand(IntakeConstants.intakeExtendSpeed_perc));
     // m_xboxController0.leftTrigger().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(IntakeConstants.rollerInSpeed_rpm),() -> m_intake.intakeRollerStop(), m_intake));
@@ -217,7 +217,7 @@ public class RobotContainer {
 
     m_xboxController1.leftTrigger().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(IntakeConstants.rollerInSpeed_rpm),() -> m_intake.intakeRollerStop(), m_intake));
     m_xboxController1.rightTrigger().whileTrue(new FireShooter(  69420, ShooterConstants.hoodLowerLimit_deg, m_shooter, m_drive, m_magazine));//rev neutral */);
-    m_xboxController0.leftBumper().onTrue(new IntakeExtend(m_intake));
+    m_xboxController1.leftBumper().onTrue(new IntakeExtend(m_intake));
     m_xboxController1.povLeft().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchSpeedUp())); //speed up
     m_xboxController1.povRight().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchSpeedDown())); //speed down
     m_xboxController1.povUp().onTrue(Commands.runOnce(() -> BumpShooterVector.bumpLaunchAngleUp())); //Angle up
