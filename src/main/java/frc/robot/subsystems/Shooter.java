@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -44,6 +46,8 @@ public class Shooter extends SubsystemBase {
   private double m_targetVelocity_ips = 0.0;
   private double m_hoodTargetPosition_deg = ShooterConstants.hoodLowerLimit_deg;
   private boolean m_hoodAtHome = false;
+
+  private Logger logger;
 
   // How much to adjust the shooting speed based on how long the fuel will be in contact with the hood
   private double m_slipFactor = ShooterConstants.flywheelDefaultSlipFactor;
@@ -274,6 +278,11 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    logger.recordOutput( "Shooter/left shooter AMPS", m_leftMotor.getOutputCurrent());
+    logger.recordOutput( "Shooter/middle shooter AMPS", m_middleMotor.getOutputCurrent());
+    logger.recordOutput( "Shooter/right shooter AMPS", m_rightMotor.getOutputCurrent());
+    logger.recordOutput( "Shooter/hood motor AMPS", m_hoodMotor.getOutputCurrent());
 
     updateShotDetection();
 

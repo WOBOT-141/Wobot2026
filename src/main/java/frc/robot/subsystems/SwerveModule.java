@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Second;
 
@@ -24,11 +27,14 @@ import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.hal.DriverStationJNI;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -59,6 +65,8 @@ public class SwerveModule extends SubsystemBase {
   private double maxAmpsBR_amp = 0;
   private double maxAmpsFL_amp = 0;
   private double maxAmpsFR_amp = 0;
+
+  private Logger logger;
 
   /** Creates a new Wheel. */
   public SwerveModule(int steerId, int driveId, int cancoderId, double absoluteOffset_deg, double xPosition,
@@ -269,6 +277,9 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
+    logger.recordOutput("Swerve Module/drive motor AMPS " + driveMotorID, _driveMotor.getOutputCurrent());
+    logger.recordOutput("Swerve Module/steer motor AMPS " + steerMotorID, _steerMotor.getOutputCurrent());
+    logger.recordOutput("Swerve Module/battery voltage", RobotController.getBatteryVoltage());
     // SmartDashboard.putNumber("encoderDist", getEncoderDistance());
     // SmartDashboard.putNumber("speeed", getSpeed());
 
