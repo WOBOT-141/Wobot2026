@@ -150,13 +150,13 @@ public class StraightLineDrivePlus extends Command {
     SmartDashboard.putNumber("Heading Correction", headingCorrection);
     SmartDashboard.putNumber("Final Speed", speed);
 
-    m_drivetrain.driveWithGyro(m_translationAngle, profileVelocity, headingCorrection,true); //speed
+    m_drivetrain.driveWithGyro(m_translationAngle, profileVelocity, headingCorrection); //speed
   }
 
   @Override
   public void end(boolean interrupted) {
     System.out.println("DONE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    m_drivetrain.driveWithGyro(0, 0, 0,true);
+    m_drivetrain.driveWithGyro(0, 0, 0);
   }
 
   @Override

@@ -81,13 +81,13 @@ public class RotateByAngle extends Command {
     SmartDashboard.putNumber("remainingRotation_perc", remainingRotation_perc);
     SmartDashboard.putNumber("finalRotationSpeed", finalRotationSpeed);
 
-    m_Drivetrain.driveWithoutGyro(0, 0, rotationSpeed, false);
+    m_Drivetrain.driveWithoutGyro(0, 0, rotationSpeed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_Drivetrain.driveWithoutGyro(0, 0, 0, false);
+    m_Drivetrain.driveWithoutGyro(0, 0, 0);
 
   }
 

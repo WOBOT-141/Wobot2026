@@ -117,7 +117,7 @@ public class AimAtSpecificTag extends Command {
 
     //Command output
     double rotationPidOutput = m_pidController.calculate(currentGyroAngle_deg);
-    m_drivetrain.driveWithoutGyro(0,0, rotationPidOutput, false);
+    m_drivetrain.driveWithoutGyro(0,0, rotationPidOutput);
 
     //Debug output
     System.out.printf("[AimAtCenterTag1 tags:%d  hasDetection:%b  gyroTarget:%.3f  gyroCurrent:%.3f  pidOutput:%.3f]\n", detectionList.getSize(),
@@ -130,7 +130,7 @@ public class AimAtSpecificTag extends Command {
   @Override
   public void end(boolean interrupted) {
     System.out.println("AimAtHub END");
-    m_drivetrain.driveWithoutGyro(0, 0, 0, false);
+    m_drivetrain.driveWithoutGyro(0, 0, 0);
     m_controller.setRumble(RumbleType.kBothRumble, 0);
     m_shooter.cancel();
   }

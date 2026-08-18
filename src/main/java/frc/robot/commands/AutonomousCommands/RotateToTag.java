@@ -52,7 +52,7 @@ public class RotateToTag extends Command {
       return;
     }
     double pidOutput = m_pidController.calculate(currentDetection.getBearing());
-    m_drivetrain.driveWithoutGyro(0, 0, -pidOutput, false);
+    m_drivetrain.driveWithoutGyro(0, 0, -pidOutput);
 
     SmartDashboard.putNumber("RotateToTagP", m_pidController.getP());
     SmartDashboard.putNumber("RotateTotagI", m_pidController.getI());

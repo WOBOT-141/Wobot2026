@@ -38,15 +38,15 @@ public class RotShakes extends Command {
   public void execute() {
     double currentTime = Timer.getFPGATimestamp() - startTime;
     if (currentTime < 0.5) {
-      m_drivetrain.driveWithoutGyro(0, m_forward ? 0.3 : -0.3, 0, false);
+      m_drivetrain.driveWithoutGyro(0, m_forward ? 0.3 : -0.3, 0);
       m_magazine.setFeedVelocity(-0.3);
       return;
     }
     if ((currentTime % 0.7) < 0.35) {
-      m_drivetrain.driveWithoutGyro(0, 0, m_speed, false);
+      m_drivetrain.driveWithoutGyro(0, 0, m_speed);
       m_magazine.setFeedVelocity(-0.3);
     } else {
-      m_drivetrain.driveWithoutGyro(0, 0, -1 * m_speed, false);
+      m_drivetrain.driveWithoutGyro(0, 0, -1 * m_speed);
       m_magazine.setFeedVelocity(-0.3);
     }
   }
@@ -54,7 +54,7 @@ public class RotShakes extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drivetrain.driveWithoutGyro(0, 0, 0, false);
+    m_drivetrain.driveWithoutGyro(0, 0, 0);
     m_magazine.cancel();
   }
 

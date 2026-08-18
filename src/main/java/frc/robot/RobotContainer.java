@@ -254,14 +254,6 @@ public class RobotContainer {
   private void configureJoystick() {
     // m_joystick.trigger().onTrue(Commands.print("Joystick Trigger"));
     // m_joystick.button(2).onTrue(Commands.print("Joystick Button 2"));
-    m_joystick.button(5)
-      .onTrue(new StraightLineDrivePlus(m_drive, 0, 60, 0, m_wheels, m_gyro, 0));
-    m_joystick.button(3)
-      .onTrue(new StraightLineDrivePlus(m_drive, 0, 60, 0, m_wheels, m_gyro, 0.5));
-    m_joystick.button(4)
-      .onTrue(new StraightLineDrivePlus(m_drive, 0, 60, 0, m_wheels, m_gyro, 1));
-    m_joystick.button(6)
-      .onTrue(new StraightLineDrivePlus(m_drive, 0, 140, 0, m_wheels, m_gyro, 5));
     
   }
 
@@ -270,15 +262,6 @@ public class RobotContainer {
         .onTrue(new ResetGyro(m_gyro));
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
-    new Trigger(() -> m_flightController0.getIButton())
-      // .onTrue(new RRRightMidwayAuton(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
-      // .onTrue(new HALFswipeRIGHT(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
-      .onTrue(new DoubleRIghtSwipe(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
-    // .onTrue(new TestRightMiday(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
-      // .onTrue(new StraightLineDrivePlus(m_drive, 0, 120, 180, m_wheels, m_gyro, 0.25));
-    //   .whileTrue(m_intake.extendIntakeCommand(-IntakeConstants.intakeExtendSpeed_perc));
-    //     .whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
-        // .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
   }
 
  public Command getAutonomousCommand() {

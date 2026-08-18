@@ -73,7 +73,7 @@ public class StraightLineDrive extends Command {
     System.out.printf("DistanceLeftOver_perc: %.3f\n", distanceLeftOver_perc);
     double finalSpeed = Math.max(TrapizoidCalculations(), 0.05);
     System.out.printf("StraightLineDrive FINAL speed:%.3f\n", finalSpeed);
-    m_drivetrain.driveWithGyro(m_translationAngle, finalSpeed, 0, false);
+    m_drivetrain.driveWithGyro(m_translationAngle, finalSpeed, 0);
   }
 
   private double TrapizoidCalculations() {
@@ -101,7 +101,7 @@ public class StraightLineDrive extends Command {
   public void end(boolean interrupted) {
     System.out.printf("StraightLineDrive END %.3f  %.3f  %b\n", m_translationAngle, m_distance_in, interrupted);
 
-    m_drivetrain.driveWithGyro(0, 0, 0, false);
+    m_drivetrain.driveWithGyro(0, 0, 0);
   }
 
   // Returns true when the command should end.

@@ -36,7 +36,7 @@ public class TestRightMiday extends SequentialCommandGroup {
     StraightLineDrivePlus drive_through_fuel = new StraightLineDrivePlus(drivetrain, 0, 140, 0, wheels, gyro, 0.4);
     StraightLineDrivePlus drive_back_to_line_up_with_ramp = new StraightLineDrivePlus(drivetrain, 180, 110,0, wheels, gyro, 1.4);
     StraightLineDrivePlus drive_back_in_to_alliance_zone = new StraightLineDrivePlus(drivetrain, -90, 201,30, wheels, gyro, 1.1);
-    Command drive_for_tag = Commands.runEnd(() -> drivetrain.driveWithoutGyro(180,0.1,0,true),() -> drivetrain.driveWithoutGyro(0,0,0,true)).withTimeout(0.5);
+    Command drive_for_tag = Commands.runEnd(() -> drivetrain.driveWithoutGyro(180,0.1,0),() -> drivetrain.driveWithoutGyro(0,0,0)).withTimeout(0.5);
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(

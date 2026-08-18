@@ -27,12 +27,12 @@ public class Drivetrain extends SubsystemBase {
     m_climbing = climb;
   }
 
-  public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, boolean autonMode) {
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0, false, autonMode);
+  public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, 0, 0, false);
   }
 
   public void driveWithoutGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
-      double rotX, double rotY, boolean fromSticks, boolean autonMode) {
+      double rotX, double rotY, boolean fromSticks) {
     if (m_isTipping && !m_climbing) {
       translationAngle_deg = m_tipDirection_deg;
       translationSpeed_perc = m_tipMagnitude / (m_tipThreshold * 2);
@@ -75,9 +75,6 @@ public class Drivetrain extends SubsystemBase {
       XYVector resultXY = new XYVector(translationVector.X + rotationVector.X, translationVector.Y + rotationVector.Y);
 
       double resultSpeed_perc = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2)); //This number also changes robot speed
-      if (!autonMode) {
-        resultSpeed_perc = translationSpeed_perc;
-      }
 
       double resultAngle_deg = getResultAngle(resultXY);
 
@@ -85,7 +82,7 @@ public class Drivetrain extends SubsystemBase {
       calcWheelSpeed_perc[i] = resultSpeed_perc;
 
       // normalizing the vectors
-      if (resultSpeed_perc > normalizingFactor && !autonMode) {
+      if (resultSpeed_perc > normalizingFactor) {
         normalizingFactor = resultSpeed_perc;
       }
     }
@@ -119,22 +116,22 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
-      double rotX, double rotY, boolean fromSticks, boolean autonMode) {
+      double rotX, double rotY, boolean fromSticks) {
     // Field-oriented adjustment
     translationAngle_deg -= m_gyro.getRealGyroAngle();
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, fromSticks, autonMode);
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, fromSticks);
   }
 
   public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc,
-      double rotX, double rotY, boolean autonMode) {
+      double rotX, double rotY) {
     // Field-oriented adjustment
     translationAngle_deg -= m_gyro.getRealGyroAngle();
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, false, autonMode);
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, rotX, rotY, false);
   }
 
-  public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc, boolean autonMode) {
+  public void driveWithGyro(double translationAngle_deg, double translationSpeed_perc, double rotationalSpeed_perc) {
     translationAngle_deg -= m_gyro.getRealGyroAngle();
-    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc, autonMode);
+    driveWithoutGyro(translationAngle_deg, translationSpeed_perc, rotationalSpeed_perc);
   }
 
   // Temp command for testing
@@ -214,7 +211,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void stopMotors() {
-    driveWithoutGyro(0, 0, 0, false);
+    driveWithoutGyro(0, 0, 0);
   }
 
   public void lockWheels() {
