@@ -4,29 +4,14 @@
 
 package frc.robot.commands.StickParameters;
 
+import edu.wpi.first.wpilibj.PS4Controller.Axis;
+
 /** Add your docs here. */
 public interface IStickParameters {
-    double get_RotateFactor();
 
-    double get_DriveXFactor();
+    public AxisParameters getLeftXAxisParams();
+    public AxisParameters getLeftYAxisParams();
+    public AxisParameters getRightXAxisParams();
+    public AxisParameters getRightYAxisParams();
 
-    double get_DriveYFactor();
-
-    double get_ThrottleFactor();
-
-    double get_RotateOffset();
-
-    double get_DriveXOffset();
-
-    double get_DriveYOffset();
-
-    double get_ThrottleOffset();
-
-    double get_knobOffset();
-
-    double get_deadbandX();
-
-    double get_deadbandY();
-
-    double get_deadbandRot();
 }

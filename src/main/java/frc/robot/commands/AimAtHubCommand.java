@@ -112,8 +112,7 @@ public class AimAtHubCommand extends Command {
     //Command output
     double rotationPidOutput = m_pidController.calculate(currentGyroAngle_deg);
     m_stickCommand.setAlternateRotation(Optional.of(rotationPidOutput));
-    m_shooter.setHoodAngle(m_launchAngle_deg);
-    m_shooter.setShooterVelocity(m_launchSpeed_ips);
+    m_shooter.setShooterAngleAndVelocity(m_launchAngle_deg, m_launchSpeed_ips);
 
     //Controller Feedback
     double rightRumble = m_shooter.isReadyToShoot() ? ControllerConstants.rumbleFeedback_perc : 0.0;

@@ -54,11 +54,17 @@ public class ShooterCalculations {
         // remove this in final code. this is just for testing the results of the
         // calculations.
 
-        double launchAngle = getLaunchAngle(222.3059, 43.96, 23.51, 72);
-        System.out.println("launch angle " + launchAngle + " degrees");
+        double launchAngle1 = getLaunchAngle(35, 43.96, 23.51, 36);
+        System.out.println("launch angle " + launchAngle1 + " degrees");
 
-        double launchspeed = getLaunchSpeed(launchAngle, 222.3059, 23.51, 72);
-        System.out.println("inital correct velocity " + launchspeed + " inches per second.");
+        double launchspeed1 = getLaunchSpeed(launchAngle1, 222.3059, 23.51, 72);
+        System.out.println("inital correct velocity " + launchspeed1 + " inches per second.");
+
+        double launchangle2 = getLaunchAngle(106, 43.96, 23.51, 24);
+        System.out.println("launch angle " + launchangle2 + " degrees");
+
+        double launchspeed2 = getLaunchSpeed(launchangle2, 222.3059, 23.51, 72);
+        System.out.println("inital correct velocity " + launchspeed2 + " inches per second.");
     }
 
     public static double calculateHeightAboveRim(double angleOfCenterTarget_deg) {

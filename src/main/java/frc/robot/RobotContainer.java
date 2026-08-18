@@ -2,7 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -22,13 +21,9 @@ import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
+import frc.robot.Constants.VisionServerConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.VisionServerConstants;
-import frc.robot.Util.BumpShooterVector;
-import frc.robot.Util.ShooterCalculations;
-import frc.robot.commands.AimAtCenterTagCommand;
-import frc.robot.commands.AimAtHubCommand;
 import frc.robot.commands.AimAtSpecificTag;
 import frc.robot.commands.ShooterCalculationAimCommand;
 import frc.robot.commands.StopRobot;
@@ -39,13 +34,12 @@ import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
 import frc.robot.commands.IntakeCommands.IntakeExtend;
 import frc.robot.commands.IntakeCommands.IntakeJams;
 import frc.robot.commands.IntakeCommands.IntakeRetract;
+import frc.robot.commands.ShooterCommands.RevShooter;
+import frc.robot.commands.ShooterCommands.SendHoodToHome;
+import frc.robot.commands.ShooterCommands.MagazineAndLock;
 import frc.robot.commands.IntakeCommands.RunUntilCurrentLimit;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.RotShakes;
-import frc.robot.commands.ShooterCommands.MagazineAndLock;
-import frc.robot.commands.ShooterCommands.SendHoodToHome;
-import frc.robot.commands.ShooterCommands.ShakingBot;
-import frc.robot.commands.StickParameters.IStickParameters;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
@@ -68,7 +62,7 @@ public class RobotContainer {
   private final MagazineAndFeed m_magazine = new MagazineAndFeed();
   // private final Climber m_climbe = new Climber();
 
-  private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0);
+  private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0, new StickBParameters());
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
   private final CommandJoystick m_joystick = new CommandJoystick(2);
   private final StickCommand m_stickCommand;
@@ -124,8 +118,6 @@ public class RobotContainer {
 
     m_drive = new Drivetrain(m_wheels, m_gyro);
 
-    configureFlightControllerParameters();
-
     m_stickCommand = new StickCommand(
         m_drive,
         m_gyro,
@@ -149,33 +141,11 @@ public class RobotContainer {
         new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("06 Left HALF Midway Gather",
         new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
-    m_autonChooser.addOption("07 DOUBLE Right Swipe",
-        new DoubleRIghtSwipe(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
-
+    m_autonChooser.addOption("TEST Rotate to tag",
+        new AimAtSpecificTag(11, 27, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
+            SmartDashboard.putData("AutonChooser", m_autonChooser);
   }
 
-   /**
-   * Restore flight controller scaling, offsets, and deadbands.
-   */
-  private void configureFlightControllerParameters() {
-
-    IStickParameters p = new StickBParameters();
-
-    m_flightController0.setRotateFactor(p.get_RotateFactor());
-    m_flightController0.setDriveXFactor(p.get_DriveXFactor());
-    m_flightController0.setDriveYFactor(p.get_DriveYFactor());
-    m_flightController0.setThrottleFactor(p.get_ThrottleFactor());
-
-    m_flightController0.setRotateOffset(p.get_RotateOffset());
-    m_flightController0.setDriveXOffset(p.get_DriveXOffset());
-    m_flightController0.setDriveYOffset(p.get_DriveYOffset());
-    m_flightController0.setThrottleOffset(p.get_ThrottleOffset());
-
-    m_flightController0.setKnobOffset(p.get_knobOffset());
-    m_flightController0.setxDeadBand(p.get_deadbandX());
-    m_flightController0.setyDeadBand(p.get_deadbandY());
-    m_flightController0.setRotationDeadBand(p.get_deadbandRot());
-  }
 
   /**
    * Re-zero swerve modules while disabled.
