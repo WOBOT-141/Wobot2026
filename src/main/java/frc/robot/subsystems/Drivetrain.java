@@ -74,7 +74,7 @@ public class Drivetrain extends SubsystemBase {
       XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed_perc, deltaX, deltaY);
       XYVector resultXY = new XYVector(translationVector.X + rotationVector.X, translationVector.Y + rotationVector.Y);
 
-      double resultSpeed_perc = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2));
+      double resultSpeed_perc = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2)); //This number also changes robot speed
 
       double resultAngle_deg = getResultAngle(resultXY);
 
@@ -91,7 +91,7 @@ public class Drivetrain extends SubsystemBase {
 
       double translation = calcWheelSpeed_perc[i] / normalizingFactor;
       if (fromSticks)
-        translation *= 1.5;
+        translation *= 1.5; //This number changes scaling (robot speed)
 
       var inputState = new SwerveModuleState(translation,
           Rotation2d.fromDegrees(calcWheelAngle_deg[i]));

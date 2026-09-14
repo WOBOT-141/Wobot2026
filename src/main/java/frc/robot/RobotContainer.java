@@ -1,8 +1,10 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -30,14 +32,22 @@ import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
 import frc.robot.commands.IntakeCommands.IntakeExtend;
+import frc.robot.commands.IntakeCommands.IntakeJams;
+import frc.robot.commands.IntakeCommands.IntakeRetract;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
 import frc.robot.commands.ShooterCommands.MagazineAndLock;
 import frc.robot.commands.IntakeCommands.RunUntilCurrentLimit;
+import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.RotShakes;
 import frc.robot.commands.StickParameters.StickBParameters;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.TestRightMiday;
+import frc.robot.commands.AutonomousCommands.StraightLineDrivePlus;
+import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.DoubleRIghtSwipe;
+import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.HALFswipeRIGHT;
+import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.RRRightMidwayAuton;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
@@ -54,7 +64,7 @@ public class RobotContainer {
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0, new StickBParameters());
   private final CommandXboxController m_xboxController0 = new CommandXboxController(1);
-  // private final CommandJoystick m_joystick = new CommandJoystick(2);
+  private final CommandJoystick m_joystick = new CommandJoystick(2);
   private final StickCommand m_stickCommand;
 
   private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
@@ -184,7 +194,9 @@ public class RobotContainer {
     // m_xboxController0.povLeft().whileTrue(new ShakingBot(0, m_drive, m_magazine)); //Forward back -- Hub
     m_xboxController0.povLeft().whileTrue(m_intake.extendIntakeCommand(IntakeConstants.intakeExtendSpeed_perc));
     // m_xboxController0.povRight().whileTrue(new ShakingBot(45, m_drive, m_magazine)); // Diag Right -- Hub
-    m_xboxController0.povRight().whileTrue(new RunUntilCurrentLimit(-0.1, 30, m_intake));
+    // m_xboxController0.povRight().whileTrue(new RunUntilCurrentLimit(-0.1, 30, m_intake));
+    // m_xboxController0.povRight().whileTrue(new IntakeJams(m_intake));
+    m_xboxController0.povRight().onTrue(new IntakeRetract(m_intake));
     // m_xboxController0.povRight().whileTrue(new ShakingBot(90, m_drive)); //Side side -- Hub/Tower
     m_xboxController0.povDown().whileTrue(new RotShakes(0.3, false, m_drive, m_magazine));// Hub
     // m_xboxController0.povUp().whileTrue(new ShakingBot(135, m_drive, m_magazine)); //Diag Left forward -- Tower
@@ -220,10 +232,6 @@ public class RobotContainer {
         .onTrue(new ResetGyro(m_gyro));
     new Trigger(() -> m_flightController0.getRawButton(SpektrumFlightController.Button.kSelectPress.value))
         .onTrue(Commands.runOnce(() -> m_stickCommand.lockWheels()));
-    // new Trigger(() -> m_flightController0.getIButton())
-    //   .whileTrue(m_intake.extendIntakeCommand(-IntakeConstants.intakeExtendSpeed_perc));
-    //     .whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
-        // .whileTrue(new MovingRotateToTag(m_visionServer, m_stickCommand));
   }
 
  public Command getAutonomousCommand() {

@@ -121,8 +121,7 @@ public class StickCommand extends Command {
         translationMagnitude_perc,
         rotationalMagnitude_perc,
         0.0,
-        yDist,
-        true);
+        yDist);
 
     m_lastTranslationAngle_deg = translationAngle_deg;
   }

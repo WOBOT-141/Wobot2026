@@ -117,7 +117,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isAtRetractedPosition() {
-    return m_intakeRightEncoder.getPosition() <= 0 && m_intakeLeftEncoder.getPosition() <= 0;
+    return m_intakeRightEncoder.getPosition() <= IntakeConstants.intakeRetractable_rot && m_intakeLeftEncoder.getPosition() <= IntakeConstants.intakeRetractable_rot; //Used to be 0
   }
 
   public boolean isAtExtendedPosition() {
@@ -178,24 +178,18 @@ public class Intake extends SubsystemBase {
     System.out.println("intakeMovingDown");
   }
 
-  public void retractLeftIntake(){
-    retractLeftIntake(IntakeConstants.SlowSpot);
-  }
-  public void retractRightIntake(){
-    retractRightIntake(IntakeConstants.SlowSpot);
-  }
 
-  public void retractIntakeToPos(double pos){
-    retractLeftIntake(pos);
-    retractRightIntake(pos);
+  public void retractIntakeToPos(){
+    retractLeftIntake();
+    retractRightIntake();
     return;
   }
-  public void retractLeftIntake(double position) {
-    if (m_intakeLeftEncoder.getPosition() < 0) {
+  public void retractLeftIntake() {
+    if (m_intakeLeftEncoder.getPosition() < IntakeConstants.intakeRetractable_rot) {
       m_intakeExtensionLeftMotor.set(0);
       return;
     }
-    if (m_intakeLeftEncoder.getPosition() < position) {
+    if (m_intakeLeftEncoder.getPosition() < IntakeConstants.intakeRetractable_rot + IntakeConstants.SlowSpot) {
       m_intakeExtensionLeftMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc / 2));
     } else {
       m_intakeExtensionLeftMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc));
@@ -205,13 +199,13 @@ public class Intake extends SubsystemBase {
     System.out.println("intakeMovingDown");
   }
 
-  public void retractRightIntake(double position) {
-    if (m_intakeRightEncoder.getPosition() < 0) {
+  public void retractRightIntake() {
+    if (m_intakeRightEncoder.getPosition() < IntakeConstants.intakeRetractable_rot) {
       m_intakeExtensionRightMotor.set(0);
       return;
     }
 
-    if (m_intakeRightEncoder.getPosition() < position) {
+    if (m_intakeRightEncoder.getPosition() < IntakeConstants.intakeRetractable_rot + IntakeConstants.SlowSpot) {
       m_intakeExtensionRightMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc / 2));
     } else {
       m_intakeExtensionRightMotor.set(applyBrownoutScale(IntakeConstants.intakeRetractSpeed_perc));
