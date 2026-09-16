@@ -202,6 +202,9 @@ public final class Constants {
     public static final double hoodI = 0.00005;
     public static final double hoodD = 0; //.001
     public static final double hood_kF = 0;
+
+    public static final double hoodMaxSpeed = 0.1;
+    public static final double hoodMaxAccel = 15;
     
     public static final double hoodGearRatio = (10.0 / 62.0) * (50.0 / 319.0);
     public static final double hoodDegPerMotorRot = 360 * hoodGearRatio;
@@ -213,7 +216,7 @@ public final class Constants {
 
     // Current limits
     public static final int flywheelCurrentLimit_amp = 40;
-    public static final int hoodCurrentLim_amp = 40;//20;
+    public static final int hoodCurrentLim_amp = 40;
 
     // Brownout protection
     public static final double BrownoutStartVoltage_V = 10.8;

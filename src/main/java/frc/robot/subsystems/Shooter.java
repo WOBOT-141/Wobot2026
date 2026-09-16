@@ -3,21 +3,22 @@ package frc.robot.subsystems;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.ClosedLoopSlot;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.Timer;
-
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants;
 import frc.robot.Constants.CANIdConstants;
+import frc.robot.Constants.ShooterConstants;
 
 public class Shooter extends SubsystemBase {
 
@@ -44,6 +45,20 @@ public class Shooter extends SubsystemBase {
   private double m_targetVelocity_ips = 0.0;
   private double m_hoodTargetPosition_deg = ShooterConstants.hoodLowerLimit_deg;
   private boolean m_hoodAtHome = false;
+
+  //Motion profiling
+
+  private TrapezoidProfile m_hoodProfile;
+  private TrapezoidProfile.State m_hoodSetpoint;
+  private TrapezoidProfile.State m_hoodEndPos;
+
+  private double hoodMaxSpeed = ShooterConstants.hoodMaxSpeed;
+  private double hoodMaxAccel = ShooterConstants.hoodMaxAccel;
+
+  
+  private final Timer m_timer = new Timer();
+  private double m_lastTime;
+  private double dt;
 
   // How much to adjust the shooting speed based on how long the fuel will be in contact with the hood
   private double m_slipFactor = ShooterConstants.flywheelDefaultSlipFactor;
@@ -108,6 +123,7 @@ public class Shooter extends SubsystemBase {
 
     m_hoodMotor.configure(m_hoodMotorConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
+    // m_hoodMotor = new PIDController(ShooterConstants.hoodP, ShooterConstants.);
 
     configureMotor(m_rightMotor, m_rightMotorConfig);
     configureMotor(m_middleMotor, m_middleMotorConfig);
@@ -123,6 +139,14 @@ public class Shooter extends SubsystemBase {
     m_middleController = m_middleMotor.getClosedLoopController();
     m_leftController = m_leftMotor.getClosedLoopController();
     m_hoodController = m_hoodMotor.getClosedLoopController();
+
+    TrapezoidProfile.Constraints hoodSpeedValues = new TrapezoidProfile.Constraints(hoodMaxSpeed, hoodMaxAccel);
+    m_hoodSetpoint = new TrapezoidProfile.State(ShooterConstants.hoodUpperLimit_deg, 0); //Set when hood is homed to hood max pos
+    m_hoodProfile = new TrapezoidProfile(hoodSpeedValues);
+
+    m_timer.reset();
+    m_timer.start();
+    m_lastTime = m_timer.get();
   }
 
   public void homeHood() {
@@ -135,6 +159,7 @@ public class Shooter extends SubsystemBase {
       m_hoodMotor.stopMotor();
       m_hoodMotorEncoder.setPosition(ShooterConstants.hoodUpperLimit_deg);
       m_hoodAtHome = true;
+      m_hoodSetpoint = new TrapezoidProfile.State(ShooterConstants.hoodUpperLimit_deg,0);
     }
     // }
   }
@@ -146,7 +171,7 @@ public class Shooter extends SubsystemBase {
 
   public void setHoodAtHome(boolean atHome) {
     m_startTime_sec = Timer.getFPGATimestamp();
-    m_hoodMotor.set(Constants.ShooterConstants.hoodHomeRPM);
+    m_hoodMotor.set(ShooterConstants.hoodHomeRPM);
     m_hoodAtHome = atHome;
   }
 
@@ -154,11 +179,22 @@ public class Shooter extends SubsystemBase {
     targetPosition_deg = Math.max(targetPosition_deg, ShooterConstants.hoodLowerLimit_deg);
     targetPosition_deg = Math.min(targetPosition_deg, ShooterConstants.hoodUpperLimit_deg);
 
+    m_hoodEndPos = new TrapezoidProfile.State(targetPosition_deg, 0);
+    m_hoodSetpoint = new TrapezoidProfile.State(m_hoodMotorEncoder.getPosition(), m_hoodMotorEncoder.getVelocity());
+
+
     m_hoodTargetPosition_deg = targetPosition_deg;
-    m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    // m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+
+    m_hoodSetpoint = m_hoodProfile.calculate(dt, m_hoodSetpoint, m_hoodEndPos);
+    
+    double hoodSpeed = m_hoodSetpoint.velocity;
+    m_hoodMotor.set(hoodSpeed);
 
     m_slipFactor = targetPosition_deg * ShooterConstants.slipFactorSlope - ShooterConstants.slipFactorOffSet;
     SmartDashboard.putNumber("Shooter Slip Factor", m_slipFactor);
+
+    SmartDashboard.putNumber("HoodSpeed", hoodSpeed);
   }
 
   public void setHoodPositionFromDashboard() {
@@ -274,6 +310,11 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    //Important timer stuff
+    double currentTime = m_timer.get();
+    dt = currentTime - m_lastTime;
+    m_lastTime = currentTime;
 
     updateShotDetection();
 

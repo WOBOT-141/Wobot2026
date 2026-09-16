@@ -4,9 +4,9 @@
 
 package frc.robot.commands.ShooterCommands;
 
-import java.lang.ModuleLayer.Controller;
-
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Util.BumpShooterVector;
@@ -45,7 +45,9 @@ public class RevShooter extends Command {
     if (m_shooter.allAtSpeed()) {
       if (m_controller != null) m_controller.setRumble(RumbleType.kBothRumble, .6);
     }
+    //SmartDashboard.putNumber("hoodPosition_deg", m_shooter.m_hoodMotor.getEncoder.getPosition());
   }
+  
 
   // Called once the command ends or is interrupted.
   @Override
