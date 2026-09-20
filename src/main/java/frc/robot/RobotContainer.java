@@ -132,7 +132,8 @@ public class RobotContainer {
     configureBindings();
 
     m_autonChooser.setDefaultOption("00 Do Nothing", new DoNothing());
-    m_autonChooser.addOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
+    m_autonChooser.addOption("01 Shoot and sit",
+       new SitShots(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake));
     m_autonChooser.addOption("03 RIGHT Midway Gather",
         new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("04 LEFT Midway Gather",
@@ -204,11 +205,13 @@ public class RobotContainer {
 
     // m_xboxController0.a().whileTrue(new ShooterCalculationAimCommand(35, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 36, m_xboxController0, m_shooter));
     m_xboxController0.a().whileTrue(new RevShooter( 150, 70, m_shooter, m_xboxController0));//rev hub //previously 180 for launch speed //TODO addvibration last priority split rev and fire 
-    m_xboxController0.x().whileTrue(new RevShooter(200, 65, m_shooter, m_xboxController0));//rev bump
+    m_xboxController0.x().whileTrue(new RevShooter(190, 65, m_shooter, m_xboxController0));//rev bump //used to be 200
     // m_xboxController0.x().onTrue(new IntakeRetract(m_intake));
     m_xboxController0.y().whileTrue(new ShooterCalculationAimCommand(100, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24, m_xboxController0, m_shooter));
     // m_xboxController0.y().whileTrue(new RevShooter( 330, 58, m_shooter, m_xboxController0));//rev tower SWEETSPOT TEST
-    m_xboxController0.b().whileTrue(new RevShooter(500, 55, m_shooter, m_xboxController0));//rev neutral */
+    // m_xboxController0.b().whileTrue(new RevShooter(500, 55, m_shooter, m_xboxController0));//rev neutral */
+    m_xboxController0.b().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));
+    
     // m_xboxController0.b().whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
     // m_xboxController0.b().whileTrue(new AimAtSpecificTag(10, 26, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
 
