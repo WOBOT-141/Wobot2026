@@ -207,7 +207,7 @@ public class RobotContainer {
     m_xboxController0.a().whileTrue(new RevShooter( 150, 70, m_shooter, m_xboxController0));//rev hub //previously 180 for launch speed //TODO addvibration last priority split rev and fire 
     m_xboxController0.x().whileTrue(new RevShooter(190, 65, m_shooter, m_xboxController0));//rev bump //used to be 200
     // m_xboxController0.x().onTrue(new IntakeRetract(m_intake));
-    m_xboxController0.y().whileTrue(new ShooterCalculationAimCommand(100, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24, m_xboxController0, m_shooter));
+    m_xboxController0.y().whileTrue(new ShooterCalculationAimCommand(141, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 27, m_xboxController0, m_shooter)); // target difference previously 100, height above rim og = 24
     // m_xboxController0.y().whileTrue(new RevShooter( 330, 58, m_shooter, m_xboxController0));//rev tower SWEETSPOT TEST
     // m_xboxController0.b().whileTrue(new RevShooter(500, 55, m_shooter, m_xboxController0));//rev neutral */
     m_xboxController0.b().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));
