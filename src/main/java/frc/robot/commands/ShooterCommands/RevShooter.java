@@ -45,6 +45,7 @@ public class RevShooter extends Command {
     if (m_shooter.allAtSpeed()) {
       if (m_controller != null) m_controller.setRumble(RumbleType.kBothRumble, .6);
     }
+    System.out.println("speed: " + ((m_shooter.getAverageVelocity_ips() * Math.PI * 4.0)/60));
   }
 
   // Called once the command ends or is interrupted.
