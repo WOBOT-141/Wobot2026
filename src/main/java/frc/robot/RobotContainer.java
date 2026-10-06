@@ -204,6 +204,7 @@ public class RobotContainer {
 
     // m_xboxController0.a().whileTrue(new ShooterCalculationAimCommand(35, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 36, m_xboxController0, m_shooter));
     m_xboxController0.a().whileTrue(new RevShooter( 180, 70, m_shooter, m_xboxController0));//rev hub //TODO addvibration last priority split rev and fire 
+    //TODO change a and x to shooter calculation aim command, then recalibrate the slip factor
     m_xboxController0.x().whileTrue(new RevShooter(200, 65, m_shooter, m_xboxController0));//rev bump
     // m_xboxController0.x().onTrue(new IntakeRetract(m_intake));
     m_xboxController0.y().whileTrue(new ShooterCalculationAimCommand(100, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24, m_xboxController0, m_shooter));
