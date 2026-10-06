@@ -15,7 +15,7 @@ import frc.robot.subsystems.Vision.Detections.IDetection;
 import frc.robot.subsystems.Vision.Detections.NullDetection;
 import frc.robot.subsystems.Vision.Detections.ObjectType;
 
-public class VisionServer extends SubsystemBase {
+public class VisionServer extends SubsystemBase implements IVision {
 
   private final boolean DEBUG_LOG = false;
 
@@ -54,7 +54,8 @@ public class VisionServer extends SubsystemBase {
 
     m_detections_Apriltag = new DetectionList[ANumberOfCameras];
     for (int i = 0; i < m_detections_Apriltag.length; ++i) {
-      m_detections_Apriltag[i] = new DetectionList(ObjectType.APRILTAG, AnumberOfTags);
+      m_detections_Apriltag[i] = 
+      new DetectionList(ObjectType.APRILTAG, AnumberOfTags);
     }
   }
 

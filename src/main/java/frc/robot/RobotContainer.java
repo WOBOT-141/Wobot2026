@@ -1,5 +1,10 @@
 package frc.robot;
 
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
+import org.photonvision.PhotonVersion;
+import org.photonvision.targeting.PhotonPipelineResult;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,6 +57,7 @@ import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
 
+
 public class RobotContainer {
 
   private final SwerveModule[] m_wheels;
@@ -60,6 +66,7 @@ public class RobotContainer {
   private final Shooter m_shooter = new Shooter();
   private final Intake m_intake = new Intake();
   private final MagazineAndFeed m_magazine = new MagazineAndFeed();
+
   // private final Climber m_climbe = new Climber();
 
   private final SpektrumFlightController m_flightController0 = new SpektrumFlightController(0, new StickBParameters());
@@ -76,6 +83,12 @@ public class RobotContainer {
  private final SendableChooser<Command> m_autonChooser = new SendableChooser<>();
 
   public RobotContainer() {
+
+  // PhotonCamera camera = new PhotonCamera("rex");
+  // var rexCameraResults = camera.getLatestResult();
+  
+  // rexCameraResults.
+
 
     m_wheels = new SwerveModule[] {
 
