@@ -100,12 +100,12 @@
         "y": 5.5
       },
       "prevControl": {
-        "x": 3.6707782779906335,
-        "y": 5.935675370698479
+        "x": 3.6707927546342,
+        "y": 5.935722199301874
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "FirstSwipeShot"
     }
   ],
   "rotationTargets": [
@@ -211,7 +211,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -52.77924389178929
   },
   "reversed": false,
   "folder": "Autons",
