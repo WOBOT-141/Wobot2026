@@ -101,8 +101,8 @@ public class Drivetrain extends SubsystemBase {
                                                                // module feedforwards
                 new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
                                                 // holonomic drive trains
-                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants //TODO TUNE
+                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants //TODO TUNE
                 ),
                 config, // The robot configuration
                 () -> {
@@ -522,7 +522,7 @@ public class Drivetrain extends SubsystemBase {
     public void driveToPose(Pose2d targetPose) {
         Pose2d error = targetPose.relativeTo(getPose());
 
-        double kP = 2.0;
+        double kP = 2.0; //MAYBE tune
 
         double vx = error.getX() * kP;
         double vy = error.getY() * kP;

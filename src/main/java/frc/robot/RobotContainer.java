@@ -5,8 +5,6 @@ package frc.robot;
 
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,64 +13,43 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import frc.lib.SpektrumFlightController;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionServerConstants;
-import frc.robot.Util.BumpShooterVector;
-import frc.robot.Util.ShooterCalculations;
-import frc.robot.commands.AimAtCenterTagCommand;
-import frc.robot.commands.AimAtHubCommand;
 import frc.robot.commands.AimAtSpecificTag;
 import frc.robot.commands.ShooterCalculationAimCommand;
 import frc.robot.commands.StopRobot;
+import frc.robot.commands.AutonomousCommands.setIntake;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
+import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MoreBasicAutons.DoNothing;
-import frc.robot.commands.DriveCommands.DriveToPose;
+import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
 import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
 import frc.robot.commands.IntakeCommands.IntakeExtend;
 import frc.robot.commands.IntakeCommands.IntakeRetract;
 import frc.robot.commands.IntakeCommands.RunUntilCurrentLimit;
-import frc.robot.commands.IntakeCommands.UnjamIntake;
-import frc.robot.commands.ShooterCommands.FireShooter;
+import frc.robot.commands.ShooterCommands.AutonShooter;
 import frc.robot.commands.ShooterCommands.MagazineAndLock;
 import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.commands.ShooterCommands.RotShakes;
-import frc.robot.commands.ShooterCommands.AutonShooter;
-import frc.robot.commands.ShooterCommands.MagazineAndLock;
 import frc.robot.commands.ShooterCommands.SendHoodToHome;
-import frc.robot.commands.ShooterCommands.ShakingBot;
 import frc.robot.commands.ShooterCommands.aimByOdometry;
-import frc.robot.commands.StickParameters.IStickParameters;
-import frc.robot.commands.StickParameters.StickBParameters;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
-import frc.robot.commands.AutonomousCommands.setIntake;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
-import frc.robot.commands.AutonomousCommands.MidwayStuff.RightHalfMidwayGather;
-import frc.robot.commands.AutonomousCommands.MoreBasicAutons.SitShots;
-
 import frc.robot.subsystems.ChooserHandeling;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Intake;
@@ -80,9 +57,9 @@ import frc.robot.subsystems.MagazineAndFeed;
 import frc.robot.subsystems.NavxGyro;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.Vision.VisionServer;
 import frc.robot.subsystems.Vision.AprilTags.AprilTagFilter;
 import frc.robot.subsystems.Vision.AprilTags.RebuiltAprilTags;
-import frc.robot.subsystems.Vision.VisionServer;
 
 public class RobotContainer {
 
@@ -312,8 +289,9 @@ public class RobotContainer {
     // neutral */
     // m_xboxController0.b().whileTrue(new AimAtHubCommand(m_stickCommand,
     // m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
-    m_xboxController0.b().whileTrue(
-        new AimAtSpecificTag(10, 26, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
+    // m_xboxController0.b().whileTrue(
+    //     new AimAtSpecificTag(10, 26, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
+    m_xboxController0.b().whileTrue(new aimByOdometry(m_drive, m_shooter, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24)); //TODO TEST
 
     m_xboxController0.back().whileTrue(Commands.startEnd(() -> m_intake.intakeRun(IntakeConstants.rollerOutSpeed_rpm),
         () -> m_intake.intakeRollerStop(), m_intake));
@@ -376,8 +354,10 @@ public class RobotContainer {
 
     // 2. Register named commands
     NamedCommands.registerCommand("ExtendIntake", new IntakeExtend(m_intake));
-    NamedCommands.registerCommand("Intake", new setIntake(m_intake, .45));
+    NamedCommands.registerCommand("Intake", new setIntake(m_intake, .7));
     NamedCommands.registerCommand("Shoot", new AutonShooter(shooter, magazine, 200, 65));
+    NamedCommands.registerCommand("RetractIntake", new IntakeRetract(m_intake));
+    NamedCommands.registerCommand("TestShot", new aimByOdometry(m_drive, m_shooter, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24));
 
   }
 
@@ -394,7 +374,7 @@ public class RobotContainer {
 
     // Reset odometry to the auto's starting pose BEFORE any shooting commands run.
     // Without this, the initial SmartLaunch uses a stale pose (e.g. heading=0 from
-    // gyro reset) instead of the auto's actual starting heading, causing the turret
+    // gyro reset) instead of the auto's actual starting heading, causing the turret 
     // to aim in the wrong direction.
     edu.wpi.first.math.geometry.Pose2d autoStartingPose = null;
     try {
@@ -420,7 +400,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Load the RobotConfig from the GUI settings. You should probably
     // store this in your Constants file
-    RobotConfig config;
+    RobotConfig config; // this is in settings.json
     try{
       config = RobotConfig.fromGUISettings();
     } catch (Exception e) {

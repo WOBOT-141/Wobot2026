@@ -70,7 +70,7 @@ public class aimByOdometry extends Command {
     m_turnController.enableContinuousInput(-Math.PI, Math.PI);
 
     // Set a tolerance of 1.5 degrees for the aiming rotation
-    m_turnController.setTolerance(Math.toRadians(1.5));
+    m_turnController.setTolerance(Math.toRadians(1.5)); //Can prob increase to 3
   }
 
   // Called when the command is initially scheduled.
