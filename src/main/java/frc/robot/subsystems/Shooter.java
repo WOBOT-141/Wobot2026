@@ -46,7 +46,7 @@ public class Shooter extends SubsystemBase {
   private boolean m_hoodAtHome = false;
 
   // How much to adjust the shooting speed based on how long the fuel will be in contact with the hood
-  private double m_slipFactor = 1;// ShooterConstants.flywheelDefaultSlipFactor;
+  private double m_slipFactor = 1.5;// ShooterConstants.flywheelDefaultSlipFactor;
   //TODO Change the slip factor until the shot works; write down distance we are shooting from, angle hood was commanded to, and the slip factor used for each test and if it was long or short
 
   // Shot detection

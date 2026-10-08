@@ -196,7 +196,7 @@ public final class Constants {
     public static final double rightP = 0.002; //0.0012;
     public static final double I = 0.0000;
     public static final double D = 0.000000;
-    public static final double kF = 0.00045; //0.0018;
+    public static final double kF = 0.0025; //0.0018;
 
     public static final double hoodP = 0.08;
     public static final double hoodI = 0.00005;
