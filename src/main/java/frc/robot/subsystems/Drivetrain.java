@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -30,6 +29,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
 import frc.robot.Constants;
+import frc.robot.Constants.DriveCommandConstants;
+import frc.robot.Constants.RotateVisionConstants;
 import frc.robot.Util.HubConstants;
 import frc.robot.subsystems.Vision.VisionServer;
 
@@ -101,8 +102,8 @@ public class Drivetrain extends SubsystemBase {
                                                                // module feedforwards
                 new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
                                                 // holonomic drive trains
-                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants //TODO TUNE
-                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants //TODO TUNE
+                        new PIDConstants(DriveCommandConstants.P, DriveCommandConstants.I, DriveCommandConstants.D), // Translation PID constants //TODO TUNE
+                        new PIDConstants(RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D) // Rotation PID constants //TODO TUNE
                 ),
                 config, // The robot configuration
                 () -> {
@@ -399,7 +400,7 @@ public class Drivetrain extends SubsystemBase {
         switch (Constants.currentMode) {
             case REAL -> {
                 for (int i = 0; i < _wheels.length; i++) {
-                    double distanceMeters = Units.inchesToMeters(_wheels[i].getEncoderDistance());
+                    double distanceMeters = (Units.inchesToMeters(_wheels[i].getEncoderDistance()));
                     Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
                     positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
                 }

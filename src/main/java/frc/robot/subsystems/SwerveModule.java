@@ -365,7 +365,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void runSetpoint(SwerveModuleState state) {
-        setSpeed(state.speedMetersPerSecond);
+        setSpeed(state.speedMetersPerSecond / 2); //Robot was overshooting by double distance
         setAngle(state.angle.getDegrees());
     }
 
