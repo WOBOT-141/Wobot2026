@@ -3,7 +3,8 @@ package frc.robot.subsystems.Vision;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
-
+import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.PhotonUtils;
 
 
 
@@ -18,6 +19,18 @@ public class PhotonVisionServer extends SubsystemBase implements IVision {
         camera = new PhotonCamera("photonvision"); 
         
 
+    }
+
+    public PhotonTrackedTarget getTagID(int tagID, PhotonPipelineResult result ) { // IDetection type in old // Look for photonUtils
+        // looks through targtes litds
+        for (int i = 0; i < result.getTargets().size(); i++) {
+            if(result.getTargets().get(i).getFiducialId() == tagID) {
+                return result.getTargets().get(i);
+            }
+        }
+        return null;
+        // double distance; //testing
+        // distance.calculateDistanceToTargetMeters(); //testing
     }
 
     @Override
