@@ -1,26 +1,138 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
-import frc.robot.Constants.WheelConstants;
+import frc.robot.Constants;
+import frc.robot.Constants.DriveCommandConstants;
+import frc.robot.Constants.RotateVisionConstants;
+import frc.robot.Util.HubConstants;
+import frc.robot.subsystems.Vision.VisionServer;
 
 public class Drivetrain extends SubsystemBase {
 
   private SwerveModule[] _wheels;
   private IGyro m_gyro;
-  private double restAngle_deg;
+  private VisionServer m_visionServer;
   private boolean m_isTipping = false;
   private boolean m_climbing = false;
   private double m_tipMagnitude;
   private double m_tipDirection_deg;
   private double m_tipThreshold = 10;
 
-  public Drivetrain(SwerveModule[] wheels, IGyro gyro) {
+  private SwerveDriveKinematics m_kinematics;
+  private SwerveDriveOdometry odometry;
+  private SwerveDrivePoseEstimator poseEstimator;
+  private Rotation2d rawGyroRotation = new Rotation2d();
+
+  ChassisSpeeds speeds = new ChassisSpeeds();
+
+  private Pose2d lastPose = new Pose2d();
+  private double restAngle_deg;
+
+  @AutoLogOutput
+  public int counter = 0;
+
+  SwerveModuleState[] swerveStatesArray;
+
+  StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+          .getStructTopic("MyPoseNTVersion", Pose2d.struct)
+          .publish();
+  StructArrayPublisher<SwerveModuleState> arrayPublisher = NetworkTableInstance.getDefault()
+          .getStructArrayTopic("swerveModuleState", SwerveModuleState.struct).publish();
+
+  private double _lastSimTime = 0;
+  private double[] _simDistances;
+  private boolean _simInitialized = false;
+
+  RobotConfig config;
+
+  public Drivetrain(SwerveModule[] wheels, IGyro gyro, VisionServer visionServer) {
     _wheels = wheels;
     m_gyro = gyro;
+    m_visionServer = visionServer;
+
+        m_kinematics = new SwerveDriveKinematics(getWheelPositions());
+        makeOdometryItems(m_kinematics);
+
+        resetWheelPositions();
+        swerveStatesArray = new SwerveModuleState[4];
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            // Handle exception as needed
+            e.printStackTrace();
+        }
+
+        // Configure AutoBuilder last
+        AutoBuilder.configure(
+                () -> getPose(), // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                () -> getCurrentSpeeds(), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speeds, feedforwards) -> runVelocity(speeds), // Method that will drive the robot given ROBOT RELATIVE
+                                                               // ChassisSpeeds. Also optionally outputs individual
+                                                               // module feedforwards
+                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
+                                                // holonomic drive trains
+                        new PIDConstants(DriveCommandConstants.P, DriveCommandConstants.I, DriveCommandConstants.D), // Translation PID constants //TODO TUNE
+                        new PIDConstants(RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D) // Rotation PID constants //TODO TUNE
+                ),
+                config, // The robot configuration
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red
+                    // alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
+
+    }
+
+    private void makeOdometryItems(SwerveDriveKinematics kinematics) {
+        poseEstimator = new SwerveDrivePoseEstimator(
+                kinematics,
+                rawGyroRotation,
+                getModulePositions(),
+                lastPose,
+                VecBuilder.fill(0.05, 0.05, 1.0),
+                VecBuilder.fill(0.05, 0.05, 1000.0));
+
+        odometry = new SwerveDriveOdometry(
+                kinematics,
+                rawGyroRotation,
+                getModulePositions());
   }
 
   public void setClimbing(boolean climb) {
@@ -207,8 +319,240 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    rawGyroRotation = m_gyro.getRotationAs2d();
+        poseEstimator.update(rawGyroRotation, getModulePositions());
+        Pose2d visionRobotPose;
+        Logger.recordOutput("Constants/currentMode", Constants.currentMode.toString());
+
+        switch (Constants.currentMode) {
+            case REAL -> {
+                Logger.recordOutput("VISIONCLOSESTPOSE", m_visionServer.getTagPose());
+                Logger.recordOutput("DistanceToHubCenter", getRobotToHubDist_m());
+                visionRobotPose = m_visionServer.getEstimatedRobotPose(m_gyro.getRawGyroAngle());
+
+                if (visionRobotPose != null && m_visionServer.hasTargets()) {
+                    Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
+
+                    // Optimized Loop matching the filtered arrays
+                    ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
+                    ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
+
+                    for (int i = 0; i < poses.size(); i++) {
+                        addVisionMeasurement(
+                                poses.get(i),
+                                Timer.getFPGATimestamp(),
+                                Units.inchesToMeters(distances.get(i)));
+                    }
+                }
+            }
+            case SIM -> {
+                visionRobotPose = m_visionServer.getSimulatedRobotPose();
+
+                double currentDistance = getRobotToHubDist_m();
+                Logger.recordOutput("Distance from Hub to Robot centers", currentDistance);
+
+                if (visionRobotPose != null) {
+                    Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
+
+                    addVisionMeasurement(
+                            visionRobotPose,
+                            Timer.getFPGATimestamp(),
+                            Units.inchesToMeters(visionRobotPose.getTranslation().getDistance(
+                                    m_visionServer.getTagPose(m_visionServer.getClosestSimTagID()).getTranslation())));
+                }
+            }
+            default -> {
+                visionRobotPose = m_visionServer.getSimulatedRobotPose();
+
+                double currentDistance = getRobotToHubDist_m();
+                Logger.recordOutput("Distance from Hub to Robot centers", currentDistance);
+
+                if (visionRobotPose != null) {
+                    Logger.recordOutput("Vision/PoseFromTag", visionRobotPose);
+                    ArrayList<Pose2d> poses = m_visionServer.getEstimatedRobotPoseFromList();
+                    ArrayList<Double> distances = m_visionServer.getAllDetectedTagsDistance();
+
+                    for (int i = 0; i < poses.size(); i++) {
+                        addVisionMeasurement(
+                                poses.get(i),
+                                Timer.getFPGATimestamp(),
+                                Units.inchesToMeters(distances.get(i)));
+                    }
+                }
+            }
+        }
+
+        lastPose = poseEstimator.getEstimatedPosition();
+        Logger.recordOutput("Odometry/Robot", lastPose);
+        Logger.recordOutput("Pose/X", lastPose.getX());
+        Logger.recordOutput("Pose/Y", lastPose.getY());
+        Logger.recordOutput("Pose/Rotation", lastPose.getRotation().getDegrees());
+
+        Logger.recordOutput("rightface", HubConstants.getRightFace());
+        Logger.recordOutput("leftface", HubConstants.getLeftFace());
+        Logger.recordOutput("frontface", HubConstants.getNearFace());
+        Logger.recordOutput("backface", HubConstants.getFarFace());
   }
+  
+  public Translation2d[] getWheelPositions() {
+        Translation2d[] translations = new Translation2d[_wheels.length];
+        for (int i = 0; i < _wheels.length; i++) {
+            translations[i] = _wheels[i].getTranslation();
+        }
+        return translations;
+    }
+
+  public SwerveModuleState[] getModuleStates() {
+        SwerveModuleState[] states = new SwerveModuleState[_wheels.length];
+        for (int i = 0; i < _wheels.length; i++) {
+            double speedMetersPerSecond = Units.inchesToMeters(_wheels[i].getEncoderDistance()) / 0.02;
+            Rotation2d angle = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
+            states[i] = new SwerveModuleState(speedMetersPerSecond, angle);
+        }
+        return states;
+  }
+
+  public SwerveModulePosition[] getModulePositions() {
+        SwerveModulePosition[] positions = new SwerveModulePosition[_wheels.length];
+
+        switch (Constants.currentMode) {
+            case REAL -> {
+                for (int i = 0; i < _wheels.length; i++) {
+                    double distanceMeters = (Units.inchesToMeters(_wheels[i].getEncoderDistance()));
+                    Rotation2d azimuth = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
+                    positions[i] = new SwerveModulePosition(distanceMeters, azimuth);
+                }
+            }
+            case SIM -> {
+                for (int i = 0; i < _wheels.length; i++) {
+                    positions[i] = new SwerveModulePosition(0.0, new Rotation2d());
+                }
+            }
+            default -> {
+                for (int i = 0; i < _wheels.length; i++) {
+                    positions[i] = new SwerveModulePosition(0.0, new Rotation2d());
+                }
+            }
+        }
+
+        return positions;
+    }
+
+    public Pose2d getPose() {
+        return lastPose;
+    }
+
+    public double getPoseX() {
+        return getPose().getX();
+    }
+
+    public double getPoseY() {
+        return getPose().getY();
+    }
+
+    public Rotation2d getPoseRotation() {
+        return getPose().getRotation();
+    }
+
+    public double getHubX() {
+        return HubConstants.getTopCenterPoint().getX();
+    }
+
+    public double getHubY() {
+        return HubConstants.getTopCenterPoint().getY();
+    }
+
+    public double getRobotToHubDist_m() {
+        double distStep1 = Math.pow(getPoseX() - getHubX(), 2);
+        double distStep2 = Math.pow(getPoseY() - getHubY(), 2);
+        return Math.sqrt(distStep1 + distStep2);
+    }
+
+    public void resetPose(Pose2d startingPose) {
+        odometry.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), startingPose);
+        poseEstimator.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), startingPose);
+        lastPose = startingPose;
+    }
+
+    public void resetPose() {
+    }
+
+    public void resetWheelPositions() {
+        for (SwerveModule wheel : _wheels) {
+            wheel.resetEncoder();
+        }
+
+        Pose2d resetPose = new Pose2d(0, 0, new Rotation2d());
+
+        odometry.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
+        poseEstimator.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
+
+        lastPose = resetPose;
+    }
+
+    public void stop() {
+        for (SwerveModule wheel : _wheels) {
+            wheel.cancelMovement();
+        }
+    }
+
+    public Rotation2d getRotation() {
+        return getPose().getRotation();
+    }
+
+    public double getMaxAngularSpeedRadPerSec() {
+        return Constants.DriveConstants.maxSpeedMetersPerSec / Constants.DriveConstants.driveBaseRadius;
+    }
+
+    public double getMaxLinearSpeedMetersPerSec() {
+        return Constants.DriveConstants.maxSpeedMetersPerSec;
+    }
+
+    public ChassisSpeeds getCurrentSpeeds() {
+        return m_kinematics.toChassisSpeeds(getModuleStates());
+    }
+
+    public void runVelocity(ChassisSpeeds speeds) {
+        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+        SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, Constants.DriveConstants.maxSpeedMetersPerSec);
+
+        Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+        Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
+
+        for (int i = 0; i < 4; i++) {
+            _wheels[i].runSetpoint(setpointStates[i]);
+        }
+
+        Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
+    }
+
+    public void driveToPose(Pose2d targetPose) { //NOT USED?
+        Pose2d error = targetPose.relativeTo(getPose());
+
+        double kP = 0.02; //MAYBE tune
+
+        double vx = error.getX() * kP;
+        double vy = error.getY() * kP;
+        double omega = error.getRotation().getRadians() * kP;
+
+        runVelocity(new ChassisSpeeds(vx, vy, omega));
+    }
+
+    public void addVisionMeasurement(Pose2d visionRobotPose, double timestampSeconds, double distanceToTargetMeters) {
+        double xyStdDev = 0.5;
+
+        xyStdDev = xyStdDev * Math.pow(distanceToTargetMeters, 2);
+
+        if (xyStdDev < 0.01) {
+            xyStdDev = 0.01;
+        }
+
+        poseEstimator.addVisionMeasurement(
+                visionRobotPose,
+                timestampSeconds,
+                VecBuilder.fill(xyStdDev, xyStdDev, 1.0));
+    }
 
   public void stopMotors() {
     driveWithoutGyro(0, 0, 0);

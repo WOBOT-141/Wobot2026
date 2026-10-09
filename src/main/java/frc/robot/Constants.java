@@ -5,12 +5,15 @@
 package frc.robot;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants.
  */
 public final class Constants {
+    public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
+    public static final boolean tuningMode = false;
 
   public static final class CANIdConstants {
     public static final int frontLeftSteerMotorID = 1;
@@ -40,6 +43,21 @@ public final class Constants {
     public static final int climberMotorID = 99; //TODO add can ids
     public static final int climbFollowerMotorID = 99;
   }
+
+  public static enum Mode {
+        /**
+         * Running on a real robot.
+         */
+        REAL,
+        /**
+         * Running a physics simulator.
+         */
+        SIM,
+        /**
+         * Replaying from a log file.
+         */
+        REPLAY
+    }
 
 
   public static class VisionServerConstants {
@@ -259,4 +277,12 @@ public final class Constants {
     public static final double SteerIz = 0;
     public static final double SteerFF = 0;
   }
+
+    public static class DriveConstants {
+
+        public static final double driveBaseRadius = Math.hypot(0.6096 / 2.0, 0.6096 / 2.0);// 24 inches converted to meters 
+        public static final double driveMotorReduction = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0); // found from the SDS mk4 website
+        public static final double maxSpeedMetersPerSec = 5676.0 / 60.0 / driveMotorReduction * 2.0 * Math.PI
+                * Units.inchesToMeters(4) * 0.95; // 5676 is the rotations per minute of the spark motors. drive motor reduction is the total overal gear ratio reduction. 
+    }
 }

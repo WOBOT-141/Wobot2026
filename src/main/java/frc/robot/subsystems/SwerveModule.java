@@ -4,19 +4,15 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Second;
-
-import java.util.concurrent.TimeUnit;
 
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
-
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -25,17 +21,14 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANIdConstants;
-import frc.robot.IBotSelector;
 import frc.robot.Constants.WheelConstants;
 
 public class SwerveModule extends SubsystemBase {
@@ -364,6 +357,15 @@ public class SwerveModule extends SubsystemBase {
     double absoluteAngle = getAbsoluteEncoderAngle_deg();
     _steerMotor.getEncoder().setPosition(absoluteAngle);
   }
+
+  public Translation2d getTranslation() {
+        return new Translation2d(_xPos, _yPos);
+    }
+
+    public void runSetpoint(SwerveModuleState state) {
+        setSpeed(state.speedMetersPerSecond / 2); //Robot was overshooting by double distance
+        setAngle(state.angle.getDegrees()); //Locks wheels when rotating???
+    }
 
   // ---- SYSID HELPERS ----
 
