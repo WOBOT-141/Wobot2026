@@ -1,0 +1,50 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "LeftFirstStep"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ExtendIntake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftSecondStep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftThirdStep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftFourthStep"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "LakeCityAutons",
+  "choreoAuto": false
+}

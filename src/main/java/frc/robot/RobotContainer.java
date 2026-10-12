@@ -280,7 +280,8 @@ public class RobotContainer {
       NamedCommands.registerCommand("TestShot", new aimByOdometry(m_drive, m_shooter, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24));
       NamedCommands.registerCommand("AutoShoot", new AutonShooterV3(m_drive, shooter, intake, magazine));
       NamedCommands.registerCommand("ExtendIntake", new IntakeExtend(m_intake));
-      NamedCommands.registerCommand("d", new setIntake(m_intake, .7));
+      NamedCommands.registerCommand("m_intake", new setIntake(m_intake, .7));
+      
 
     }
 

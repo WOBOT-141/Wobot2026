@@ -4,9 +4,13 @@
   "holonomicMode": true,
   "pathFolders": [
     "Autons",
-    "TestPaths"
+    "LeftFullAuton",
+    "LeftHalfAutons",
+    "Tests"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "LakeCityAutons"
+  ],
   "defaultMaxVel": 1.0,
   "defaultMaxAccel": 1.0,
   "defaultMaxAngVel": 20.0,

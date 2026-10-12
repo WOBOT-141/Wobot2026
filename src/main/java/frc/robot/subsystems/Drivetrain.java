@@ -405,7 +405,7 @@ public class Drivetrain extends SubsystemBase {
   public SwerveModuleState[] getModuleStates() {
         SwerveModuleState[] states = new SwerveModuleState[_wheels.length];
         for (int i = 0; i < _wheels.length; i++) {
-            double speedMetersPerSecond = Units.inchesToMeters(_wheels[i].getEncoderDistance()) / 0.02;
+            double speedMetersPerSecond = Units.inchesToMeters(_wheels[i].getEncoderDistance()) / 0.02; //check
             Rotation2d angle = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
             states[i] = new SwerveModuleState(speedMetersPerSecond, angle);
         }
