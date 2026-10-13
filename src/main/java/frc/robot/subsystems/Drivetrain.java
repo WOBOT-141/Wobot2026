@@ -392,6 +392,8 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("leftface", HubConstants.getLeftFace());
         Logger.recordOutput("frontface", HubConstants.getNearFace());
         Logger.recordOutput("backface", HubConstants.getFarFace());
+        System.out.printf("Wheel 2 pos_in", _wheels[2].getEncoderDistance());
+        Logger.recordOutput("Wheel2 pos", _wheels[2].getEncoderDistance());
   }
   
   public Translation2d[] getWheelPositions() {
@@ -482,7 +484,7 @@ public class Drivetrain extends SubsystemBase {
             wheel.resetEncoder();
         }
 
-        Pose2d resetPose = new Pose2d(0, 0, new Rotation2d());
+        Pose2d resetPose = new Pose2d(0, 0, new Rotation2d()); //STARTING POSITION
 
         odometry.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
         poseEstimator.resetPosition(m_gyro.getRotationAs2d(), getModulePositions(), resetPose);
@@ -514,7 +516,7 @@ public class Drivetrain extends SubsystemBase {
 
     public void runVelocity(ChassisSpeeds speeds) {
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-        SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds);
+        SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds); //check later
         SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, Constants.DriveConstants.maxSpeedMetersPerSec);
 
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -527,7 +529,7 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
     }
 
-    public void driveToPose(Pose2d targetPose) { //NOT USED?
+    public void driveToPose(Pose2d targetPose) { //NOT USED
         Pose2d error = targetPose.relativeTo(getPose());
 
         double kP = 0.02; //MAYBE tune
