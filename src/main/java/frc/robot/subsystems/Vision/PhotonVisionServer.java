@@ -1,5 +1,11 @@
 package frc.robot.subsystems.Vision;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -12,9 +18,12 @@ public class PhotonVisionServer extends SubsystemBase implements IVision {
 
     PhotonCamera camera;
     int tagID;
+
+    double yawFromPose;
+
     
 
-    public PhotonVisionServer() {
+    public  PhotonVisionServer() {
         // Initialize the PhotonVision server here
         camera = new PhotonCamera("photonvision"); 
         
@@ -30,7 +39,17 @@ public class PhotonVisionServer extends SubsystemBase implements IVision {
         }
         return null;
         // double distance; //testing
-        // distance.calculateDistanceToTargetMeters(); //testing
+        // camea = d.calculateDistanceToTargetMeters(); // testing
+
+        // Calculate robot's field relative pose
+       
+    }
+    public void calculatePosition(PhotonTrackedTarget target) {
+        Transform3d cameraToRobot;// place holder //TODO remove place holder
+        // AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.);
+        //  if (aprilTagFieldLayout.getTagPose(target.getFiducialId()).isPresent()) {
+        //     Pose3d rofbotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(), CAMERATOROBOT );
+        // }
     }
 
     @Override
@@ -40,6 +59,7 @@ public class PhotonVisionServer extends SubsystemBase implements IVision {
         boolean hasTargets = results.hasTargets(); // returns none if no targets 
         if (!hasTargets) {
             return;
+        
         }
         // results.getTargets().forEach(target -> {
         //     tagID = target.getFiducialId();
