@@ -19,14 +19,13 @@ public class PhotonVisionServer extends SubsystemBase implements IVision {
     PhotonCamera camera;
     int tagID;
 
-    double yawFromPose;
-
+    String taginfomationTosmartDashboard; // 
     
 
     public  PhotonVisionServer() {
         // Initialize the PhotonVision server here
-        camera = new PhotonCamera("photonvision"); 
-        
+        camera = new PhotonCamera("PC_Camera"); 
+
 
     }
 
@@ -44,6 +43,15 @@ public class PhotonVisionServer extends SubsystemBase implements IVision {
         // Calculate robot's field relative pose
        
     }
+
+    public void getBestTarget(PhotonPipelineResult result) {
+        if (result.hasTargets()) {
+            PhotonTrackedTarget bestTarget = result.getBestTarget();
+            tagID = bestTarget.getFiducialId();
+            taginfomationTosmartDashboard = bestTarget.toString();
+            // You can also get other information about the target here
+        }
+    }
     public void calculatePosition(PhotonTrackedTarget target) {
         Transform3d cameraToRobot;// place holder //TODO remove place holder
         // AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.);
@@ -57,10 +65,21 @@ public class PhotonVisionServer extends SubsystemBase implements IVision {
         // This method will be called once per scheduler run
         PhotonPipelineResult results = camera.getLatestResult();
         boolean hasTargets = results.hasTargets(); // returns none if no targets 
-        if (!hasTargets) {
-            return;
+        SmartDashboard.putBoolean("Has Targets vision photon", hasTargets);
+        if (hasTargets) {
+            PhotonTrackedTarget bestTarget = results.getBestTarget();
+            tagID = bestTarget.getFiducialId();
+            taginfomationTosmartDashboard = bestTarget.toString();
+        // // if (!hasTargets) {
+        // //     return;
+            SmartDashboard.putNumber("atagID Photon", tagID);
+            System.out.println(taginfomationTosmartDashboard);
+        }    
+            
+
+
         
-        }
+        // }
         // results.getTargets().forEach(target -> {
         //     tagID = target.getFiducialId();
         //     target.getBestCameraToTarget().getTranslation().getMeasureX();
