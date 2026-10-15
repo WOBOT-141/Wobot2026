@@ -209,8 +209,8 @@ public class RobotContainer {
     // m_xboxController0.x().onTrue(new IntakeRetract(m_intake));
     m_xboxController0.y().whileTrue(new ShooterCalculationAimCommand(141, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 27, m_xboxController0, m_shooter)); // target difference previously 100, height above rim og = 24
     // m_xboxController0.y().whileTrue(new RevShooter( 330, 58, m_shooter, m_xboxController0));//rev tower SWEETSPOT TEST
-    // m_xboxController0.b().whileTrue(new RevShooter(500, 55, m_shooter, m_xboxController0));//rev neutral */
-    m_xboxController0.b().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));
+    m_xboxController0.b().whileTrue(new RevShooter(1041, 50, m_shooter, m_xboxController0));//rev neutral */
+    // m_xboxController0.b().whileTrue(Commands.startEnd(() -> m_magazine.setFeedVelocity(-0.3), () -> m_magazine.cancel(), m_magazine));
     
     // m_xboxController0.b().whileTrue(new AimAtHubCommand(m_stickCommand, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0));
     // m_xboxController0.b().whileTrue(new AimAtSpecificTag(10, 26, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
