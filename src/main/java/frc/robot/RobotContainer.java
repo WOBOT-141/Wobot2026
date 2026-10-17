@@ -96,21 +96,21 @@ public class RobotContainer {
             m_selectedBot.rotationsPerInch_rot()),
 
         new SwerveModule(
-            Constants.CANIdConstants.backLeftSteerMotorID,
-            Constants.CANIdConstants.backLeftDriveMotorID,
-            Constants.CANIdConstants.backLeftEncoderid,
-            m_selectedBot.getbackLeftOffset(),
-            m_selectedBot.getbackLeftLocationX(),
-            m_selectedBot.getbackLeftLocationY(),
-            m_selectedBot.rotationsPerInch_rot()),
-
-        new SwerveModule(
             Constants.CANIdConstants.frontRightSteerMotorID,
             Constants.CANIdConstants.frontRightDriveMotorID,
             Constants.CANIdConstants.frontRightEncoderid,
             m_selectedBot.getfrontRightOffset(),
             m_selectedBot.getfrontRightLocationX(),
             m_selectedBot.getfrontRightLocationY(),
+            m_selectedBot.rotationsPerInch_rot()),
+
+        new SwerveModule(
+            Constants.CANIdConstants.backLeftSteerMotorID,
+            Constants.CANIdConstants.backLeftDriveMotorID,
+            Constants.CANIdConstants.backLeftEncoderid,
+            m_selectedBot.getbackLeftOffset(),
+            m_selectedBot.getbackLeftLocationX(),
+            m_selectedBot.getbackLeftLocationY(),
             m_selectedBot.rotationsPerInch_rot()),
 
         new SwerveModule(

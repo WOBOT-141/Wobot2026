@@ -99,8 +99,8 @@ public class Drivetrain extends SubsystemBase {
                                                                // module feedforwards
                 new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
                                                 // holonomic drive trains
-                        new PIDConstants(DriveCommandConstants.P, DriveCommandConstants.I, DriveCommandConstants.D), // Translation PID constants //TODO TUNE
-                        new PIDConstants(RotateVisionConstants.P, RotateVisionConstants.I, RotateVisionConstants.D) // Rotation PID constants //TODO TUNE
+                        new PIDConstants(5,0,0), // Translation PID constants //TODO TUNE
+                        new PIDConstants(3,0,0) // Rotation PID constants //TODO TUNE
                 ),
                 config, // The robot configuration
                 () -> {
@@ -392,8 +392,6 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("leftface", HubConstants.getLeftFace());
         Logger.recordOutput("frontface", HubConstants.getNearFace());
         Logger.recordOutput("backface", HubConstants.getFarFace());
-        System.out.printf("Wheel 2 pos_in", _wheels[2].getEncoderDistance());
-        Logger.recordOutput("Wheel2 pos", _wheels[2].getEncoderDistance());
   }
   
   public Translation2d[] getWheelPositions() {
@@ -518,6 +516,7 @@ public class Drivetrain extends SubsystemBase {
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds); //check later
         SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, Constants.DriveConstants.maxSpeedMetersPerSec);
+        
 
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
         Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
