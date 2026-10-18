@@ -30,7 +30,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveCommandConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.RotateVisionConstants;
+import frc.robot.Constants.VisionServerConstants;
 import frc.robot.Util.HubConstants;
 import frc.robot.subsystems.Vision.VisionServer;
 
@@ -94,13 +96,13 @@ public class Drivetrain extends SubsystemBase {
                 () -> getPose(), // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 () -> getCurrentSpeeds(), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds, feedforwards) -> runVelocity(speeds), // Method that will drive the robot given ROBOT RELATIVE
+                (speeds) -> runVelocity(speeds), // Method that will drive the robot given ROBOT RELATIVE
                                                                // ChassisSpeeds. Also optionally outputs individual
                                                                // module feedforwards
                 new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
                                                 // holonomic drive trains
-                        new PIDConstants(5,0,0), // Translation PID constants //TODO TUNE
-                        new PIDConstants(3,0,0) // Rotation PID constants //TODO TUNE
+                        new PIDConstants(DriveCommandConstants.P,0,0), // Translation PID constants //TODO TUNE
+                        new PIDConstants(RotateVisionConstants.P,0,0) // Rotation PID constants //TODO TUNE
                 ),
                 config, // The robot configuration
                 () -> {
@@ -405,7 +407,7 @@ public class Drivetrain extends SubsystemBase {
   public SwerveModuleState[] getModuleStates() {
         SwerveModuleState[] states = new SwerveModuleState[_wheels.length];
         for (int i = 0; i < _wheels.length; i++) {
-            double speedMetersPerSecond = Units.inchesToMeters(_wheels[i].getEncoderDistance()) / 0.02; //check
+            double speedMetersPerSecond = Units.inchesToMeters(_wheels[i].getEncoderDistance()) / 0.02; //TODO check
             Rotation2d angle = Rotation2d.fromDegrees(_wheels[i].getAbsoluteEncoderAngle_deg());
             states[i] = new SwerveModuleState(speedMetersPerSecond, angle);
         }
@@ -474,9 +476,6 @@ public class Drivetrain extends SubsystemBase {
         lastPose = startingPose;
     }
 
-    public void resetPose() {
-    }
-
     public void resetWheelPositions() {
         for (SwerveModule wheel : _wheels) {
             wheel.resetEncoder();
@@ -513,9 +512,10 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void runVelocity(ChassisSpeeds speeds) {
-        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+        Logger.recordOutput("Speeds", speeds);
+        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02); //New input speeds every X seconds
         SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds); //check later
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, Constants.DriveConstants.maxSpeedMetersPerSec);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.maxSpeedMetersPerSec); //Stops it from going past max speed
         
 
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);

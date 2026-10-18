@@ -359,12 +359,12 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public Translation2d getTranslation() {
-        return new Translation2d(_xPos, _yPos);
+        return new Translation2d(Units.inchesToMeters(_xPos), Units.inchesToMeters(_yPos)); //Measurement NEEDS TO BE in METERS for translation2d
     }
 
     public void runSetpoint(SwerveModuleState state) {
-        setSpeed(state.speedMetersPerSecond / 2); //Robot was overshooting by double distance
-        setAngle(state.angle.getDegrees()); //Locks wheels when rotating???
+        setSpeed(state.speedMetersPerSecond / 2); //Robot was overshooting by double distance, find a better fix
+        setAngle(state.angle.getDegrees());
     }
 
   // ---- SYSID HELPERS ----
