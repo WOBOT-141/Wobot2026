@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.39797797198443385,
-        "y": 7.682984426138441
+        "x": 3.5,
+        "y": 2.6
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3979779719844339,
-        "y": 7.682984426138441
+        "x": 4.663677923037153,
+        "y": 2.6082608661097155
+      },
+      "isLocked": false,
+      "linkedName": "FirstSwipeShot"
+    },
+    {
+      "anchor": {
+        "x": 6.752364754512392,
+        "y": 2.6
+      },
+      "prevControl": {
+        "x": 6.0709724871835995,
+        "y": 2.4309713322521915
+      },
+      "nextControl": {
+        "x": 6.99501052744915,
+        "y": 2.660191601373643
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.8589848153395927,
-        "y": 7.682984426138441
+        "x": 7.877295511179957,
+        "y": 3.4790822417160565
       },
       "prevControl": {
-        "x": 2.8589848153395927,
-        "y": 7.682984426138441
+        "x": 7.266982174734069,
+        "y": 3.0398235463355974
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "EndPosRight"
     }
   ],
   "rotationTargets": [],
@@ -45,10 +61,10 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "DriveForwards",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 52.77924389178929
   },
   "useDefaultConstraints": true
 }

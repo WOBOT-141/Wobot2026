@@ -189,7 +189,6 @@
   ],
   "eventMarkers": [
     {
-      "name": "ExtendIntake",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": 2.0,
       "command": null

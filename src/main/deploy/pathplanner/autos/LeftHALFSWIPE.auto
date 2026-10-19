@@ -13,12 +13,6 @@
                 "data": {
                   "pathName": "LeftHalfFirstStep"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ExtendIntake"
-                }
               }
             ]
           }
@@ -45,6 +39,12 @@
           "type": "path",
           "data": {
             "pathName": "LeftHalfFifthStep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SingleLeftSwipeEnd"
           }
         }
       ]

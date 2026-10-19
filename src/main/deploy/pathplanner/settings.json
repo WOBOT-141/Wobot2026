@@ -6,10 +6,14 @@
     "Autons",
     "LeftFullAuton",
     "LeftHalfAutons",
+    "DriveForwards",
+    "RightFullAuton",
     "Tests"
   ],
   "autoFolders": [
-    "LakeCityAutons"
+    "Tests",
+    "LakeCityAutons",
+    "DriveToNeutral"
   ],
   "defaultMaxVel": 4.0,
   "defaultMaxAccel": 4.0,
@@ -35,5 +39,7 @@
   "brModuleY": -0.231,
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
-  "robotFeatures": []
+  "robotFeatures": [
+    "{\"name\":\"ExtendedIntake\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.462,\"y\":0.0},\"size\":{\"width\":0.61,\"length\":0.305},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":true}}"
+  ]
 }

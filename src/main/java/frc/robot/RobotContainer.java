@@ -27,6 +27,7 @@ import frc.robot.Constants.VisionServerConstants;
 import frc.robot.commands.AimAtSpecificTag;
 import frc.robot.commands.ShooterCalculationAimCommand;
 import frc.robot.commands.StopRobot;
+import frc.robot.commands.AutonomousCommands.HoodResetter;
 import frc.robot.commands.AutonomousCommands.setIntake;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftHalfMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
@@ -38,6 +39,7 @@ import frc.robot.commands.DriveCommands.ResetGyro;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.IntakeCommands.DoubleButtonIntakeRunCommand;
 import frc.robot.commands.IntakeCommands.IntakeExtend;
+import frc.robot.commands.IntakeCommands.IntakeJams;
 import frc.robot.commands.IntakeCommands.IntakeRetract;
 import frc.robot.commands.ShooterCommands.AutonShooter;
 import frc.robot.commands.ShooterCommands.AutonShooterV3;
@@ -78,8 +80,6 @@ public class RobotContainer {
 
   // private final IBotSelector m_selectedBot = new MainBot();
   private final IBotSelector m_selectedBot = new SummerBot(); //Change later
-
- private final SendableChooser<Command> m_autonChooser = new SendableChooser<>();
  private LoggedDashboardChooser<Command> autoChooser;
 
   public RobotContainer() {
@@ -136,22 +136,18 @@ public class RobotContainer {
         
     m_drive.setDefaultCommand(m_stickCommand);
 
-    configureBindings();
+    //Autonomous Commands for pathplanner
+    NamedCommands.registerCommand("Intake", new setIntake(m_intake, 0.8));
+    NamedCommands.registerCommand("ExtendIntake", new IntakeExtend(m_intake));
+    NamedCommands.registerCommand("OscillateBox", new IntakeJams(m_intake));
+    NamedCommands.registerCommand("Shoot", new AutonShooterV3(m_drive, m_shooter, m_intake, m_magazine));
+    NamedCommands.registerCommand("Homehood", new HoodResetter(m_shooter, m_gyro));
 
-    m_autonChooser.setDefaultOption("00 Do Nothing", new DoNothing());
-    m_autonChooser.addOption("01 Shoot and sit", new SitShots(m_shooter, m_magazine, m_gyro));
-    m_autonChooser.addOption("03 RIGHT Midway Gather",
-        new RightMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
-    m_autonChooser.addOption("04 LEFT Midway Gather",
-        new LeftMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
-    m_autonChooser.addOption("05 Right HALF Midway Gather",
-        new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
-    m_autonChooser.addOption("06 Left HALF Midway Gather",
-        new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
-    m_autonChooser.addOption("TEST Rotate to tag",
-        new AimAtSpecificTag(11, 27, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
-            SmartDashboard.putData("AutonChooser", m_autonChooser);
+    pathPlannerCommands(m_intake, m_shooter, m_magazine);
+
+    configureBindings();
     autoChooser = buildAutoChooserForMode(true);
+    pathPlannerCommands(m_intake, m_shooter, m_magazine);
   }
 
 

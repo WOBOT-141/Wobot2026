@@ -118,6 +118,7 @@ public class Shooter extends SubsystemBase {
     m_middleEncoder = m_middleMotor.getEncoder();
     m_leftEncoder = m_leftMotor.getEncoder();
     m_hoodMotorEncoder = m_hoodMotor.getEncoder();
+    //m_hoodMotorEncoder.setPosition(ShooterConstants.hoodUpperLimit_deg); //Assume hood is already at home position?
 
     m_rightController = m_rightMotor.getClosedLoopController();
     m_middleController = m_middleMotor.getClosedLoopController();

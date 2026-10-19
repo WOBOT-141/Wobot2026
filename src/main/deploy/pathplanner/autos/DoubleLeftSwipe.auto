@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New Path"
+            "pathName": "FastLeft#1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "New New Path"
+            "pathName": "FastLeft#2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DoubleLeftSwipeEnd"
           }
         }
       ]
