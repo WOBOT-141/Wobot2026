@@ -46,7 +46,8 @@ public class Shooter extends SubsystemBase {
   private boolean m_hoodAtHome = false;
 
   // How much to adjust the shooting speed based on how long the fuel will be in contact with the hood
-  private double m_slipFactor = ShooterConstants.flywheelDefaultSlipFactor;
+  private double m_slipFactor = 1.8;// ShooterConstants.flywheelDefaultSlipFactor;
+  
 
   // Shot detection
   private double m_lastAvgRPM_rpm = 0.0;
@@ -157,7 +158,7 @@ public class Shooter extends SubsystemBase {
     m_hoodTargetPosition_deg = targetPosition_deg;
     m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
 
-    m_slipFactor = targetPosition_deg * ShooterConstants.slipFactorSlope - ShooterConstants.slipFactorOffSet;
+   m_slipFactor = targetPosition_deg * ShooterConstants.slipFactorSlope - ShooterConstants.slipFactorOffSet;
     SmartDashboard.putNumber("Shooter Slip Factor", m_slipFactor);
   }
 
@@ -169,7 +170,7 @@ public class Shooter extends SubsystemBase {
     setHoodAngle(targetPosition_deg);
   }
 
-  public void setPIDValues(double hoodP, double hoodI, double hoodD) {
+  public void  setPIDValues(double hoodP, double hoodI, double hoodD) {
     m_hoodMotorConfig.closedLoop
         .pid(hoodP, hoodI, hoodD);
   }
