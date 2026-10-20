@@ -231,7 +231,7 @@ public final class Constants {
     // Fire command constants
     public static final double firingWaitTime_sec = 0.5;
     public static final double defaultHeightAboveRim_in = 36;
-    public static final double slipFactorSlopeRise = 2.3 - 1.5;
+    public static final double slipFactorSlopeRise = 1.8 - 1.5;
     public static final double slipFactorSlopeRun = 69.4 - 58.10;
     public static final double slipFactorSlope = slipFactorSlopeRise/slipFactorSlopeRun;
     public static final double slipFactorOffSet = 2.65;

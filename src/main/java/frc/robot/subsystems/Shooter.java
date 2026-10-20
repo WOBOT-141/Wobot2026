@@ -46,8 +46,8 @@ public class Shooter extends SubsystemBase {
   private boolean m_hoodAtHome = false;
 
   // How much to adjust the shooting speed based on how long the fuel will be in contact with the hood
-  private double m_slipFactor = 1.5;// ShooterConstants.flywheelDefaultSlipFactor;
-  //TODO Change the slip factor until the shot works; write down distance we are shooting from, angle hood was commanded to, and the slip factor used for each test and if it was long or short
+  private double m_slipFactor = 1.8;// ShooterConstants.flywheelDefaultSlipFactor;
+  
 
   // Shot detection
   private double m_lastAvgRPM_rpm = 0.0;
@@ -158,7 +158,7 @@ public class Shooter extends SubsystemBase {
     m_hoodTargetPosition_deg = targetPosition_deg;
     m_hoodController.setSetpoint(m_hoodTargetPosition_deg, ControlType.kPosition, ClosedLoopSlot.kSlot0);
 
-   // m_slipFactor = targetPosition_deg * ShooterConstants.slipFactorSlope - ShooterConstants.slipFactorOffSet;
+   m_slipFactor = targetPosition_deg * ShooterConstants.slipFactorSlope - ShooterConstants.slipFactorOffSet;
     SmartDashboard.putNumber("Shooter Slip Factor", m_slipFactor);
   }
 
