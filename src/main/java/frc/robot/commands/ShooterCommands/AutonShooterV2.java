@@ -38,9 +38,7 @@ public class AutonShooterV2 extends SequentialCommandGroup {
     addCommands(
         new aimByOdometry(drivetrain, shooter, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24)
             .alongWith(new WaitCommand(0.6)
-                .andThen(new IntakeFuel(m_magazine, 0.8))
-                .alongWith(new WaitCommand(0.3))
                 .andThen(new IntakeJams(intake)))
-            .andThen(Commands.run(() -> m_Shooter.cancel()).alongWith(new IntakeFuel(m_magazine, 0))));
+            .andThen(Commands.run(() -> m_Shooter.cancel())));
   }
 }

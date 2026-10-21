@@ -64,16 +64,16 @@
     },
     {
       "anchor": {
-        "x": 5.642705414870691,
-        "y": 5.271946600552262
+        "x": 5.741015161974677,
+        "y": 5.5
       },
       "prevControl": {
-        "x": 6.309992755884504,
-        "y": 4.801521801755217
+        "x": 6.40830250298849,
+        "y": 5.029575201202955
       },
       "nextControl": {
-        "x": 5.422486546136231,
-        "y": 5.427196686457274
+        "x": 5.520796293240217,
+        "y": 5.655250085905012
       },
       "isLocked": false,
       "linkedName": null
@@ -152,10 +152,23 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "ExtendBox",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Intake",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": 4.0,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.0,
-    "maxAcceleration": 4.0,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

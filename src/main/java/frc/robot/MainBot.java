@@ -34,24 +34,24 @@ public class MainBot implements IBotSelector {
         frontRightOffset = 0.004395;
         backRightOffset  = 0.745605;
 
-        frontLeftLocationX = -18.25;
-        frontLeftLocationY = 18.25;
-        backLeftLocationX = -18.25;
-        backLeftLocationY = -18.25;
-        frontRightLocationX = 18.25;
-        frontRightLocationY = 18.25;
-        backRightLocationX = 18.25;
-        backRightLocationY = -18.25;
+        // frontLeftLocationX = -18.25;
+        // frontLeftLocationY = 18.25;
+        // backLeftLocationX = -18.25;
+        // backLeftLocationY = -18.25;
+        // frontRightLocationX = 18.25;
+        // frontRightLocationY = 18.25;
+        // backRightLocationX = 18.25;
+        // backRightLocationY = -18.25;
 
         //Matches with WPILIB coordinate system to fix pathplanner
-        // frontLeftLocationX = 18.25;
-        // frontLeftLocationY = 18.25;
-        // frontRightLocationX = 18.25;
-        // frontRightLocationY = -18.25;
-        // backLeftLocationX = -18.25;
-        // backLeftLocationY = 18.25;
-        // backRightLocationX = -18.25;
-        // backRightLocationY = -18.25;
+        frontLeftLocationX = 18.25;
+        frontLeftLocationY = 18.25;
+        frontRightLocationX = 18.25;
+        frontRightLocationY = -18.25;
+        backLeftLocationX = -18.25;
+        backLeftLocationY = 18.25;
+        backRightLocationX = -18.25;
+        backRightLocationY = -18.25;
         
 
         driveGearRatio = 5.14;

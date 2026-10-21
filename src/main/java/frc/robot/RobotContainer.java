@@ -78,8 +78,8 @@ public class RobotContainer {
   private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
-  // private final IBotSelector m_selectedBot = new MainBot();
-  private final IBotSelector m_selectedBot = new SummerBot(); //Change later
+  private final IBotSelector m_selectedBot = new MainBot();
+  // private final IBotSelector m_selectedBot = new SummerBot(); //Change later
  private LoggedDashboardChooser<Command> autoChooser;
 
   public RobotContainer() {
@@ -138,10 +138,10 @@ public class RobotContainer {
 
     //Autonomous Commands for pathplanner
     NamedCommands.registerCommand("Intake", new setIntake(m_intake, 0.8));
-    NamedCommands.registerCommand("ExtendIntake", new IntakeExtend(m_intake));
+    NamedCommands.registerCommand("Extendbox", new IntakeExtend(m_intake));
     NamedCommands.registerCommand("OscillateBox", new IntakeJams(m_intake));
     NamedCommands.registerCommand("Shoot", new AutonShooterV3(m_drive, m_shooter, m_intake, m_magazine));
-    NamedCommands.registerCommand("Homehood", new HoodResetter(m_shooter, m_gyro));
+    NamedCommands.registerCommand("HomeHood", new HoodResetter(m_shooter, m_gyro));
 
     pathPlannerCommands(m_intake, m_shooter, m_magazine);
 
@@ -271,12 +271,13 @@ public class RobotContainer {
 
       // 2. Register named commands
       NamedCommands.registerCommand("AutoShoot", new AutonShooterV3(m_drive, shooter, intake, magazine));
-      NamedCommands.registerCommand("Shoot", new AutonShooter(shooter, magazine, 200, 65));
+      NamedCommands.registerCommand("HardcodedShot", new AutonShooter(shooter, magazine, 200, 65));
       NamedCommands.registerCommand("RetractIntake", new IntakeRetract(m_intake));
       NamedCommands.registerCommand("TestShot", new aimByOdometry(m_drive, m_shooter, ShooterConstants.muzzleToRimHeight_in, ShooterConstants.hubRimToCenter_in, 24));
       NamedCommands.registerCommand("AutoShoot", new AutonShooterV3(m_drive, shooter, intake, magazine));
-      NamedCommands.registerCommand("ExtendIntake", new IntakeExtend(m_intake));
-      NamedCommands.registerCommand("m_intake", new setIntake(m_intake, .7));
+      NamedCommands.registerCommand("ExtendBox", new IntakeExtend(m_intake));
+      NamedCommands.registerCommand("m_intake", new setIntake(m_intake, .8));
+      NamedCommands.registerCommand("HomeHood", new HoodResetter(m_shooter, m_gyro));
       
 
     }
