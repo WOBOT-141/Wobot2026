@@ -115,7 +115,7 @@ public final class Constants {
 
   public static final class IntakeConstants {
     public static final int extensionCurrentLimit_amp = 40;
-    public static final int rollerCurrentLimit_amp = 40;
+    public static final int rollerCurrentLimit_amp = 50;
 
     // Homing (current-based)
     public static final double homingSpeed_perc = -0.20;

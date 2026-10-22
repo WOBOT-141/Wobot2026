@@ -35,19 +35,19 @@ public class DoubleRIghtSwipe extends SequentialCommandGroup {
     double intakeSpeed = 1;
     // FIRST CYCLE
     StraightLineDrivePlus drive_over_ramp = new StraightLineDrivePlus(drivetrain, 0, 85, 0, wheels, gyro, bumpSpeed);
-    StraightLineDrivePlus drive_from_ramp_into_fuel = new StraightLineDrivePlus(drivetrain, 0, 75, 0, wheels, gyro, 1.45);
+    StraightLineDrivePlus drive_from_ramp_into_fuel = new StraightLineDrivePlus(drivetrain, 0, 75, 0, wheels, gyro, 0.99);
     StraightLineDrivePlus leftTurn_into_centerfuel = new StraightLineDrivePlus(drivetrain, -65, 50, -80, wheels, gyro, 0.65);
     StraightLineDrivePlus turnBack = new StraightLineDrivePlus(drivetrain, 115, 50, 90, wheels, gyro, 0.65);
-    StraightLineDrivePlus drive_from_fuel_into_ramp = new StraightLineDrivePlus(drivetrain, 180, 45, -0, wheels, gyro, 1.4);
-    StraightLineDrivePlus drive_straight_to_ramp = new StraightLineDrivePlus(drivetrain, 150, 85, 40, wheels, gyro, 1.5);
+    StraightLineDrivePlus drive_from_fuel_into_ramp = new StraightLineDrivePlus(drivetrain, 180, 45, -0, wheels, gyro, 0.99);
+    StraightLineDrivePlus drive_straight_to_ramp = new StraightLineDrivePlus(drivetrain, 150, 85, 40, wheels, gyro, 0.99);
     StraightLineDrivePlus drive_over_ramp_back = new StraightLineDrivePlus(drivetrain, 180, 120,-15, wheels, gyro, bumpSpeed);
 
     //SECOND CYCLE
     StraightLineDrivePlus drive_over_ramp_2 = new StraightLineDrivePlus(drivetrain, 0, 100, 0, wheels, gyro, bumpSpeed);
-    StraightLineDrivePlus drive_from_ramp_into_fuel_2 = new StraightLineDrivePlus(drivetrain, 0, 50, 45, wheels, gyro, 1.45);
+    StraightLineDrivePlus drive_from_ramp_into_fuel_2 = new StraightLineDrivePlus(drivetrain, 0, 50, 45, wheels, gyro, 0.99);
     StraightLineDrivePlus leftTurn_into_centerfuel_2 = new StraightLineDrivePlus(drivetrain, -45, 40, -90, wheels, gyro, 0.9);
     StraightLineDrivePlus gatherCenterFuel = new StraightLineDrivePlus(drivetrain, -90, 120, -20, wheels, gyro, 0.75);
-    StraightLineDrivePlus line_back_to_ramp = new StraightLineDrivePlus(drivetrain, 110, 130, 90, wheels, gyro, 3);
+    StraightLineDrivePlus line_back_to_ramp = new StraightLineDrivePlus(drivetrain, 110, 130, 90, wheels, gyro, 0.99);
     StraightLineDrivePlus drive_over_ramp_AGAIN = new StraightLineDrivePlus(drivetrain, 180, 120, -45, wheels, gyro, bumpSpeed);
 
     // Add your commands in the addCommands() call, e.g.
@@ -74,7 +74,7 @@ public class DoubleRIghtSwipe extends SequentialCommandGroup {
         .andThen(new setIntake(intake, 0)))
       .andThen(
         drive_over_ramp_back)
-        .andThen(new RotateToTag(11, visionServer, drivetrain).withTimeout(1)
+        .andThen(new RotateToTag(11, visionServer, drivetrain).withTimeout(0.01)
         .alongWith(
         new AutonShooter(shooter, magazine, 205, 65).withTimeout(2)
         .alongWith(new IntakeRetract(intake).withTimeout(0.5))
@@ -97,7 +97,7 @@ public class DoubleRIghtSwipe extends SequentialCommandGroup {
         .andThen(new setIntake(intake, 0)))
       .andThen(
         drive_over_ramp_AGAIN)
-        .andThen(new RotateToTag(11, visionServer, drivetrain).withTimeout(1)
+        .andThen(new RotateToTag(11, visionServer, drivetrain).withTimeout(0.01)
           .alongWith(
             new AutonShooter(shooter, magazine, 205, 65)
             .alongWith(new IntakeRetract(intake).withTimeout(0.5))

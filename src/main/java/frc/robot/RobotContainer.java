@@ -45,6 +45,7 @@ import frc.robot.commands.AutonomousCommands.MidwayStuff.LeftMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.RightMidwayGather;
 import frc.robot.commands.AutonomousCommands.MidwayStuff.TestRightMiday;
 import frc.robot.commands.AutonomousCommands.StraightLineDrivePlus;
+import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.DoubleLeftSwipe;
 import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.DoubleRIghtSwipe;
 import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.HALFswipeRIGHT;
 import frc.robot.commands.AutonomousCommands.MIdwaybutBetter.RRRightMidwayAuton;
@@ -142,6 +143,10 @@ public class RobotContainer {
         new RightHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("06 Left HALF Midway Gather",
         new LeftHalfMidwayGather(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+    m_autonChooser.addOption("07 DOUBLEDOUBLERight", 
+        new DoubleRIghtSwipe(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
+    m_autonChooser.addOption("08 DOUBLEDOUBLELeft", 
+        new DoubleLeftSwipe(m_drive, m_wheels, m_gyro, m_shooter, m_magazine, m_intake, m_visionServer, m_stickCommand, m_aprilTagFilter, m_xboxController0));
     m_autonChooser.addOption("TEST Rotate to tag",
         new AimAtSpecificTag(11, 27, m_visionServer, m_shooter, m_gyro, m_aprilTagFilter, m_xboxController0, m_drive));
             SmartDashboard.putData("AutonChooser", m_autonChooser);

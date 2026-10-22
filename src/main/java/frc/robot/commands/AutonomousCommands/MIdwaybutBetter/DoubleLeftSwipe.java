@@ -34,18 +34,18 @@ public class DoubleLeftSwipe extends SequentialCommandGroup {
     double bumpSpeed = 0.8;
     // FIRST CYCLE
     StraightLineDrivePlus drive_over_ramp = new StraightLineDrivePlus(drivetrain, 0, 85, 0, wheels, gyro, bumpSpeed);
-    StraightLineDrivePlus drive_from_ramp_into_fuel = new StraightLineDrivePlus(drivetrain, 0, 75, 0, wheels, gyro, 1.45);
-    StraightLineDrivePlus rightTurn_into_centerfuel = new StraightLineDrivePlus(drivetrain, 65, 50, -80, wheels, gyro, 0.65);
-    StraightLineDrivePlus drive_straight_to_ramp = new StraightLineDrivePlus(drivetrain, -140, 100, 40, wheels, gyro, 1.5);
-    StraightLineDrivePlus drive_over_ramp_back = new StraightLineDrivePlus(drivetrain, 180, 120,-67, wheels, gyro, bumpSpeed);
+    StraightLineDrivePlus drive_from_ramp_into_fuel = new StraightLineDrivePlus(drivetrain, 180, 75, 0, wheels, gyro, 0.99);
+    StraightLineDrivePlus rightTurn_into_centerfuel = new StraightLineDrivePlus(drivetrain, 245, 50, 80, wheels, gyro, 0.65);
+    StraightLineDrivePlus drive_straight_to_ramp = new StraightLineDrivePlus(drivetrain, -150, 100, -40, wheels, gyro, 0.99);
+    StraightLineDrivePlus drive_over_ramp_back = new StraightLineDrivePlus(drivetrain, 0, 120,15, wheels, gyro, bumpSpeed);
 
     //SECOND CYCLE
-    StraightLineDrivePlus drive_over_ramp_2 = new StraightLineDrivePlus(drivetrain, 0, 100, 40, wheels, gyro, bumpSpeed);
-    StraightLineDrivePlus drive_from_ramp_into_fuel_2 = new StraightLineDrivePlus(drivetrain, 0, 50, 0, wheels, gyro, 1.45);
-    StraightLineDrivePlus rightTurn_into_centerfuel_2 = new StraightLineDrivePlus(drivetrain, 45, 40, -90, wheels, gyro, 0.9);
-    StraightLineDrivePlus gatherCenterFuel = new StraightLineDrivePlus(drivetrain, 90, 120, -20, wheels, gyro, 0.75);
-    StraightLineDrivePlus line_back_to_ramp = new StraightLineDrivePlus(drivetrain, -110, 130, 90, wheels, gyro, 2.4);
-    StraightLineDrivePlus drive_over_ramp_AGAIN = new StraightLineDrivePlus(drivetrain, -180, 120, -32, wheels, gyro, bumpSpeed);
+    StraightLineDrivePlus drive_over_ramp_2 = new StraightLineDrivePlus(drivetrain, 180, 100, 0, wheels, gyro, bumpSpeed);
+    StraightLineDrivePlus drive_from_ramp_into_fuel_2 = new StraightLineDrivePlus(drivetrain, 180, 50, -45, wheels, gyro, 0.99);
+    StraightLineDrivePlus rightTurn_into_centerfuel_2 = new StraightLineDrivePlus(drivetrain, 45, 40, 90, wheels, gyro, 0.9);
+    StraightLineDrivePlus gatherCenterFuel = new StraightLineDrivePlus(drivetrain, 90, 120, 20, wheels, gyro, 0.75);
+    StraightLineDrivePlus line_back_to_ramp = new StraightLineDrivePlus(drivetrain, -110, 130, -90, wheels, gyro, 0.99);
+    StraightLineDrivePlus drive_over_ramp_AGAIN = new StraightLineDrivePlus(drivetrain, 0, 120, 45, wheels, gyro, bumpSpeed);
 
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
@@ -53,7 +53,7 @@ public class DoubleLeftSwipe extends SequentialCommandGroup {
       new HoodResetter(shooter, gyro)
       .alongWith(
         drive_over_ramp
-        .andThen(new setIntake(intake, 0.5)))
+        .andThen(new setIntake(intake, 1)))
       .andThen(
         drive_from_ramp_into_fuel
         .alongWith(new IntakeExtend(intake).withTimeout(1)))
@@ -73,7 +73,7 @@ public class DoubleLeftSwipe extends SequentialCommandGroup {
         drive_over_ramp_back)
         // .andThen(new RotateToTag(11, visionServer, drivetrain).withTimeout(1)))
       .andThen(
-        new AutonShooter(shooter, magazine, 195, 65).withTimeout(2)
+        new AutonShooter(shooter, magazine, 180, 65).withTimeout(2)
         .alongWith(new IntakeRetract(intake).withTimeout(0.5))
         .andThen(new WaitCommand(0.5)))
       .andThen( //SECOND CYCLE
@@ -81,10 +81,10 @@ public class DoubleLeftSwipe extends SequentialCommandGroup {
         .alongWith(new IntakeExtend(intake).withTimeout(1)))
       .andThen(
         drive_from_ramp_into_fuel_2
-        .alongWith(new setIntake(intake, 0.5)))
+        .alongWith(new setIntake(intake, 1)))
       .andThen(
         rightTurn_into_centerfuel_2
-        .andThen(new setIntake(intake, 0.6)))
+        .andThen(new setIntake(intake, 1)))
       .andThen(
         gatherCenterFuel)
       .andThen(
@@ -94,7 +94,7 @@ public class DoubleLeftSwipe extends SequentialCommandGroup {
         drive_over_ramp_AGAIN)
         // .andThen(new RotateToTag(11, visionServer, drivetrain).withTimeout(1)))
       .andThen(
-        new AutonShooter(shooter, magazine, 200, 65)
+        new AutonShooter(shooter, magazine, 160, 65)
         .alongWith(new IntakeRetract(intake).withTimeout(0.5))
         .withTimeout(3))
         .andThen(new IntakeExtend(intake))
