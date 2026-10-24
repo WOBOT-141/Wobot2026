@@ -46,8 +46,8 @@ public class DoubleRIghtSwipe extends SequentialCommandGroup {
     StraightLineDrivePlus drive_over_ramp_2 = new StraightLineDrivePlus(drivetrain, 0, 100, 0, wheels, gyro, bumpSpeed);
     StraightLineDrivePlus drive_from_ramp_into_fuel_2 = new StraightLineDrivePlus(drivetrain, 0, 50, 45, wheels, gyro, 0.99);
     StraightLineDrivePlus leftTurn_into_centerfuel_2 = new StraightLineDrivePlus(drivetrain, -45, 40, -90, wheels, gyro, 0.9);
-    StraightLineDrivePlus gatherCenterFuel = new StraightLineDrivePlus(drivetrain, -90, 120, -20, wheels, gyro, 0.75);
-    StraightLineDrivePlus line_back_to_ramp = new StraightLineDrivePlus(drivetrain, 110, 130, 90, wheels, gyro, 0.99);
+    StraightLineDrivePlus gatherCenterFuel = new StraightLineDrivePlus(drivetrain, -90, 110, -20, wheels, gyro, 0.75);
+    StraightLineDrivePlus line_back_to_ramp = new StraightLineDrivePlus(drivetrain, 110, 125, 90, wheels, gyro, 0.99);
     StraightLineDrivePlus drive_over_ramp_AGAIN = new StraightLineDrivePlus(drivetrain, 180, 120, -45, wheels, gyro, bumpSpeed);
 
     // Add your commands in the addCommands() call, e.g.
@@ -76,7 +76,7 @@ public class DoubleRIghtSwipe extends SequentialCommandGroup {
         drive_over_ramp_back)
         .andThen(new RotateToTag(11, visionServer, drivetrain).withTimeout(0.01)
         .alongWith(
-        new AutonShooter(shooter, magazine, 205, 65).withTimeout(2)
+        new AutonShooter(shooter, magazine, 180, 65).withTimeout(2)
         .alongWith(new IntakeRetract(intake).withTimeout(0.5))
         // .andThen(new setIntake(intake, -0.4))
         .andThen(new WaitCommand(0.5))))
@@ -99,7 +99,7 @@ public class DoubleRIghtSwipe extends SequentialCommandGroup {
         drive_over_ramp_AGAIN)
         .andThen(new RotateToTag(11, visionServer, drivetrain).withTimeout(0.01)
           .alongWith(
-            new AutonShooter(shooter, magazine, 205, 65)
+            new AutonShooter(shooter, magazine, 160, 70)
             .alongWith(new IntakeRetract(intake).withTimeout(0.5))
             .withTimeout(3))
             .andThen(new IntakeExtend(intake)))

@@ -43,8 +43,8 @@ public class DoubleLeftSwipe extends SequentialCommandGroup {
     StraightLineDrivePlus drive_over_ramp_2 = new StraightLineDrivePlus(drivetrain, 180, 100, 0, wheels, gyro, bumpSpeed);
     StraightLineDrivePlus drive_from_ramp_into_fuel_2 = new StraightLineDrivePlus(drivetrain, 180, 50, -45, wheels, gyro, 0.99);
     StraightLineDrivePlus rightTurn_into_centerfuel_2 = new StraightLineDrivePlus(drivetrain, 45, 40, 90, wheels, gyro, 0.9);
-    StraightLineDrivePlus gatherCenterFuel = new StraightLineDrivePlus(drivetrain, 90, 120, 20, wheels, gyro, 0.75);
-    StraightLineDrivePlus line_back_to_ramp = new StraightLineDrivePlus(drivetrain, -110, 130, -90, wheels, gyro, 0.99);
+    StraightLineDrivePlus gatherCenterFuel = new StraightLineDrivePlus(drivetrain, 90, 110, 20, wheels, gyro, 0.75);
+    StraightLineDrivePlus line_back_to_ramp = new StraightLineDrivePlus(drivetrain, -110, 125, -90, wheels, gyro, 0.99);
     StraightLineDrivePlus drive_over_ramp_AGAIN = new StraightLineDrivePlus(drivetrain, 0, 120, 45, wheels, gyro, bumpSpeed);
 
     // Add your commands in the addCommands() call, e.g.
