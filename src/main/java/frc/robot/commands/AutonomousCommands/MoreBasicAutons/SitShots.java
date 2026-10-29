@@ -31,7 +31,7 @@ public class SitShots extends SequentialCommandGroup {
         walkBack
         .alongWith(new IntakeExtend(intake).withTimeout(2))) //Disallows string to get caught on hood;
       .andThen(
-      new AutonShooter(shooter, magazine, 290, 72))
+      new AutonShooter(shooter, magazine, 167, 67))
     );
   }
 }
