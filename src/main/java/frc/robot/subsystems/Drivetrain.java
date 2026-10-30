@@ -211,7 +211,12 @@ public class Drivetrain extends SubsystemBase {
           Rotation2d.fromDegrees(calcWheelAngle_deg[i]));
       var outputState = _wheels[i].bestAngle(inputState);
       _wheels[i].setAngle(outputState.angle.getDegrees());
+      if (i == 2){
+        _wheels[i].setSpeed(outputState.speedMetersPerSecond);
+      } else {
       _wheels[i].setSpeed(outputState.speedMetersPerSecond);
+    }
+
     }
   }
 

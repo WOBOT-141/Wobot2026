@@ -29,21 +29,62 @@ public class SummerBot implements IBotSelector {
     public SummerBot() {
         distToFront = 15.25;
 
-        frontLeftOffset = 0.444092; // 9
-        backLeftOffset = 0.174316; // 10
-        frontRightOffset = 0.008301; // 11
-        backRightOffset = 0.088867; // 12
+        // frontLeftOffset = 0.444092; // 9
+        // backLeftOffset = 0.174316; // 10
+        // frontRightOffset = 0.008301; // 11
+        // backRightOffset = 0.088867; // 12 
+
+        // frontLeftLocationX = -18.25;
+        // frontLeftLocationY = 18.25;
+        // backLeftLocationX = -18.25;
+        // backLeftLocationY = -18.25;
+        // frontRightLocationX = 18.25;
+        // frontRightLocationY = 18.25;
+        // backRightLocationX = 18.25;
+        // backRightLocationY = -18.25;
+
+        ////////////
         
-        //Matches with WPILIB coordinate system to fix pathplanner
+        // frontLeftLocationX = -18.25;
+        // frontLeftLocationY = 18.25;
+        // frontLeftOffset = 0.444092; // 9 Swap with Back left OLD
+        // frontLeftOffset = 0.008301; // 11 frontRightOffset = 0.008301; NEW CHANGE
+        
+        // frontRightLocationX = 18.25;
+        // frontRightLocationY = 18.25;
+        // frontRightOffset = 0.008301; // 11 Swap with Front Left OLD
+        // frontRightOffset = 0.088867;  backRightOffset = 0.088867; NEW CHANGE
+
+        // backLeftLocationX = -18.25;
+        // backLeftLocationY = -18.25;
+        // backLeftOffset = 0.174316; // 10 Swap with Back right OLD
+        // frontLeftOffset = 0.008301; frontLeftOffset = 0.008301; NEW CHANGE
+
+        // backRightLocationX = 18.25;
+        // backRightLocationY = -18.25;
+        // backRightOffset = 0.088867; // 12  Swap with Front Right OLD
+        // backLeftOffset = 0.174316; backLeftOffset = 0.174316; NEW CHANGE
+
+        ///////////////
+        
         frontLeftLocationX = 18.25;
         frontLeftLocationY = 18.25;
+        frontLeftOffset = 0.008301;
+        
         frontRightLocationX = 18.25;
         frontRightLocationY = -18.25;
+        frontRightOffset = 0.088867; 
+
         backLeftLocationX = -18.25;
         backLeftLocationY = 18.25;
+        backLeftOffset = 0.424316;
+
         backRightLocationX = -18.25;
         backRightLocationY = -18.25;
-        
+        backRightOffset = 0.174316;
+
+
+
 
         driveGearRatio = 6.12;
         wheelCircumference_in = 3.88 * Math.PI;

@@ -78,8 +78,8 @@ public class RobotContainer {
   private final VisionServer m_visionServer = new VisionServer(VisionServerConstants.NumberOfCameras, RebuiltAprilTags.Tags.length);
   private final AprilTagFilter m_aprilTagFilter = new AprilTagFilter(RebuiltAprilTags.Tags, () -> DriverStation.getAlliance());
 
-  private final IBotSelector m_selectedBot = new MainBot();
-  // private final IBotSelector m_selectedBot = new SummerBot(); //Change later
+  // private final IBotSelector m_selectedBot = new MainBot();
+  private final IBotSelector m_selectedBot = new SummerBot(); //Change later
  private LoggedDashboardChooser<Command> autoChooser;
 
   public RobotContainer() {
@@ -160,13 +160,13 @@ public class RobotContainer {
     m_wheels[0].set_xPos(m_selectedBot.getfrontLeftLocationX());
     m_wheels[0].set_yPos(m_selectedBot.getfrontLeftLocationY());
 
-    m_wheels[1].setEncoderOffset(m_selectedBot.getbackLeftOffset());
-    m_wheels[1].set_xPos(m_selectedBot.getbackLeftLocationX());
-    m_wheels[1].set_yPos(m_selectedBot.getbackLeftLocationY());
+    m_wheels[1].setEncoderOffset(m_selectedBot.getfrontRightOffset());
+    m_wheels[1].set_xPos(m_selectedBot.getfrontRightLocationX());
+    m_wheels[1].set_yPos(m_selectedBot.getfrontRightLocationY());
 
-    m_wheels[2].setEncoderOffset(m_selectedBot.getfrontRightOffset());
-    m_wheels[2].set_xPos(m_selectedBot.getfrontRightLocationX());
-    m_wheels[2].set_yPos(m_selectedBot.getfrontRightLocationY());
+    m_wheels[2].setEncoderOffset(m_selectedBot.getbackLeftOffset());
+    m_wheels[2].set_xPos(m_selectedBot.getbackLeftLocationX());
+    m_wheels[2].set_yPos(m_selectedBot.getbackLeftLocationY());
 
     m_wheels[3].setEncoderOffset(m_selectedBot.getbackRightOffset());
     m_wheels[3].set_xPos(m_selectedBot.getbackRightLocationX());

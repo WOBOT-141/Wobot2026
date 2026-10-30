@@ -1,0 +1,45 @@
+{
+  "robotWidth": 0.762,
+  "robotLength": 0.762,
+  "holonomicMode": true,
+  "pathFolders": [
+    "Autons",
+    "LeftFullAuton",
+    "LeftHalfAutons",
+    "DriveForwards",
+    "RightFullAuton",
+    "Tests"
+  ],
+  "autoFolders": [
+    "Tests",
+    "LakeCityAutons",
+    "DriveToNeutral"
+  ],
+  "defaultMaxVel": 2.0,
+  "defaultMaxAccel": 3.0,
+  "defaultMaxAngVel": 540.0,
+  "defaultMaxAngAccel": 720.0,
+  "defaultNominalVoltage": 12.0,
+  "robotMass": 52.16312,
+  "robotMOI": 14400.0,
+  "robotTrackwidth": 0.546,
+  "driveWheelRadius": 0.0508,
+  "driveGearing": 5.14,
+  "maxDriveSpeed": 5.2,
+  "driveMotorType": "NEO",
+  "driveCurrentLimit": 40.0,
+  "wheelCOF": 1.0,
+  "flModuleX": 0.231,
+  "flModuleY": 0.231,
+  "frModuleX": 0.231,
+  "frModuleY": -0.231,
+  "blModuleX": -0.231,
+  "blModuleY": 0.231,
+  "brModuleX": -0.231,
+  "brModuleY": -0.231,
+  "bumperOffsetX": 0.0,
+  "bumperOffsetY": 0.0,
+  "robotFeatures": [
+    "{\"name\":\"ExtendedIntake\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.462,\"y\":0.0},\"size\":{\"width\":0.61,\"length\":0.305},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":true}}"
+  ]
+}
