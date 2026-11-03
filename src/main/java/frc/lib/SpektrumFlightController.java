@@ -210,6 +210,16 @@ public class SpektrumFlightController extends GenericHID {
     return applyStepDeadband(corrected, _stickParameters.getRightYAxisParams().axisDeadband);
   }
 
+  public double getAngleDriveMagnitude() {
+    double rawX = getRawAxis(Axis.kDriveX.value);
+    double correctedX = getCorrectedAxisInput(rawX, _stickParameters.getRightXAxisParams());
+    double rawY = getRawAxis(Axis.kDriveY.value);
+    double correctedY = getCorrectedAxisInput(rawY, _stickParameters.getRightYAxisParams());
+    double angleDriveMagnitude = Math.sqrt(Math.pow(correctedX, 2) + Math.pow(correctedY, 2));
+    return applyStepDeadband(angleDriveMagnitude, _stickParameters.getRightYAxisParams().axisDeadband);//TODO the deadband parameter might not be correct
+  }
+
+  
 
   /**
    * Get the axis value of the axis that the contoller doesn't have.
