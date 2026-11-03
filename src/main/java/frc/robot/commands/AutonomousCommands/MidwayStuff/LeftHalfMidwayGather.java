@@ -9,18 +9,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.AimAtSpecificTag;
 import frc.robot.commands.AutonomousCommands.HoodResetter;
-import frc.robot.commands.AutonomousCommands.RotateByAngle;
 import frc.robot.commands.AutonomousCommands.RotateByAnglePID;
 import frc.robot.commands.AutonomousCommands.StraightLineDrive;
+import frc.robot.commands.AutonomousCommands.StraightLineDrivePlus;
 import frc.robot.commands.AutonomousCommands.setIntake;
 import frc.robot.commands.DriveCommands.StickCommand;
 import frc.robot.commands.IntakeCommands.IntakeExtend;
-import frc.robot.commands.IntakeCommands.IntakeFuel;
 import frc.robot.commands.ShooterCommands.AutonShooter;
-import frc.robot.commands.ShooterCommands.RevShooter;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IGyro;
 import frc.robot.subsystems.Intake;
@@ -42,6 +39,7 @@ public class LeftHalfMidwayGather extends SequentialCommandGroup {
     StraightLineDrive drive_through_fuel = new StraightLineDrive(drivetrain, 0, 70, wheels, gyro, true);
     StraightLineDrive drive_back_to_line_up_with_ramp = new StraightLineDrive(drivetrain, 180, 50, wheels, gyro, false);
     StraightLineDrive drive_back_in_to_alliance_zone = new StraightLineDrive(drivetrain, 90, 178, wheels, gyro, false);
+    StraightLineDrivePlus drive_back_to_center = new StraightLineDrivePlus(drivetrain, -90, 180, -60, wheels, gyro, 0.9);
     Command drive_for_tag = Commands.runEnd(() -> drivetrain.driveWithoutGyro(0,-0.1,0),() -> drivetrain.driveWithoutGyro(0,0,0)).withTimeout(0.5);
     addCommands(
         new HoodResetter(shooter, gyro)
@@ -62,9 +60,11 @@ public class LeftHalfMidwayGather extends SequentialCommandGroup {
                 new RotateByAnglePID(-30, gyro, drivetrain))
             .andThen(
                 drive_for_tag)
+            // .andThen(
+            //     new AimAtSpecificTag(8, 24, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain).withTimeout(1.5))
             .andThen(
-                new AimAtSpecificTag(8, 24, visionServer, shooter, gyro, aprilTagFilter, controller, drivetrain).withTimeout(1.5))
+                new AutonShooter(shooter, magazine, 185, 65).withTimeout(4))
             .andThen(
-                new AutonShooter(shooter, magazine, 200, 65)));
+                drive_back_to_center));
   }
 }
