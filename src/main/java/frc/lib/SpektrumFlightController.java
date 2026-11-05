@@ -4,7 +4,6 @@
 package frc.lib;
 
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
-
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.GenericHID;
 import frc.robot.commands.StickParameters.AxisParameters;
@@ -192,10 +191,32 @@ public class SpektrumFlightController extends GenericHID {
    *
    * @return The axis value.
    */
+
+    public double getAngleDriveMagnitude() {
+      double rawX = getRawAxis(Axis.kDriveX.value);
+      double correctedX = getCorrectedAxisInput(rawX, _stickParameters.getRightXAxisParams());
+      double rawY = getRawAxis(Axis.kDriveY.value);
+      double correctedY = getCorrectedAxisInput(rawY, _stickParameters.getRightYAxisParams());
+      double angleDriveMagnitude = Math.sqrt(Math.pow(correctedX, 2) + Math.pow(correctedY, 2));
+      return angleDriveMagnitude;
+      // applyStepDeadband(angleDriveMagnitude, _stickParameters.getRightYAxisParams().axisDeadband);
+    }
+
   public double getDriveX() {
-    double raw = getRawAxis(Axis.kDriveX.value);
-    double corrected = getCorrectedAxisInput(raw, _stickParameters.getRightXAxisParams());
-    return applyStepDeadband(corrected, _stickParameters.getRightXAxisParams().axisDeadband);
+    double rawX = getRawAxis(Axis.kDriveX.value);
+    double correctedX = getCorrectedAxisInput(rawX, _stickParameters.getRightXAxisParams());
+    double rawY = getRawAxis(Axis.kDriveY.value);
+    double correctedY = getCorrectedAxisInput(rawY,  _stickParameters.getRightYAxisParams());
+    if(Math.sqrt(Math.pow(correctedX, 2) + Math.pow(correctedY, 2)) < _stickParameters.getRightXAxisParams().axisDeadband){
+      return 0;
+    }
+    else{
+      return correctedX;
+    }
+    //TODO add to y
+    //return applyStepDeadband(correctedX,  _stickParameters.getRightXAxisParams().axisDeadband);
+   // return applyStepDeadband(Math.sqrt(Math.pow(correctedX, 2) + Math.pow(correctedY, 2)), _stickParameters.getRightXAxisParams().axisDeadband);
+   //return corrected;
   }
 
   /**
@@ -205,20 +226,14 @@ public class SpektrumFlightController extends GenericHID {
    * @return The axis value.
    */
   public double getDriveY() {
-    double raw = getRawAxis(Axis.kDriveY.value);
-    double corrected = getCorrectedAxisInput(raw, _stickParameters.getRightYAxisParams());
-    return applyStepDeadband(corrected, _stickParameters.getRightYAxisParams().axisDeadband);
-  }
-
-  public double getAngleDriveMagnitude() {
-    double rawX = getRawAxis(Axis.kDriveX.value);
-    double correctedX = getCorrectedAxisInput(rawX, _stickParameters.getRightXAxisParams());
     double rawY = getRawAxis(Axis.kDriveY.value);
-    double correctedY = getCorrectedAxisInput(rawY, _stickParameters.getRightYAxisParams());
-    double angleDriveMagnitude = Math.sqrt(Math.pow(correctedX, 2) + Math.pow(correctedY, 2));
-    return applyStepDeadband(angleDriveMagnitude, _stickParameters.getRightYAxisParams().axisDeadband);//TODO the deadband parameter might not be correct
+    double corrected = getCorrectedAxisInput(rawY, _stickParameters.getRightYAxisParams());
+
+    return applyStepDeadband(corrected, _stickParameters.getRightYAxisParams().axisDeadband);
+    //return corrected;
   }
 
+  
   
 
   /**
