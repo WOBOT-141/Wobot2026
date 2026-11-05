@@ -97,7 +97,7 @@ public class Drivetrain extends SubsystemBase {
           Rotation2d.fromDegrees(calcWheelAngle_deg[i]));
       var outputState = _wheels[i].bestAngle(inputState);
       _wheels[i].setAngle(outputState.angle.getDegrees());
-      _wheels[i].setSpeed(outputState.speedMetersPerSecond);
+      _wheels[i].setSpeed(outputState.speedMetersPerSecond * -1);
     }
   }
 
@@ -143,7 +143,7 @@ public class Drivetrain extends SubsystemBase {
 
   public double getResultAngle(XYVector resultXY) {
     double resultAngle_deg = Math.toDegrees(Math.atan2(resultXY.Y, resultXY.X));
-    resultAngle_deg = -(90 - resultAngle_deg);
+    resultAngle_deg = (90 + resultAngle_deg);
 
     if (resultXY.Y == 0 && resultXY.X == 0) {
       resultAngle_deg = restAngle_deg;

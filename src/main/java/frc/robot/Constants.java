@@ -13,18 +13,34 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
 
   public static final class CANIdConstants {
-    public static final int frontLeftSteerMotorID = 1;
-    public static final int frontLeftDriveMotorID = 2;
-    public static final int backLeftSteerMotorID = 3;
-    public static final int backLeftDriveMotorID = 4;
-    public static final int frontRightSteerMotorID = 5;
-    public static final int frontRightDriveMotorID = 6;
-    public static final int backRightSteerMotorID = 7;
-    public static final int backRightDriveMotorID = 8;
-    public static final int frontLeftEncoderid = 9;
-    public static final int backLeftEncoderid = 10;
-    public static final int frontRightEncoderid = 11;
-    public static final int backRightEncoderid = 12;
+    // public static final int frontLeftSteerMotorID = 1;
+    // public static final int frontLeftDriveMotorID = 2;
+    // public static final int backLeftSteerMotorID = 3;
+    // public static final int backLeftDriveMotorID = 4;
+    // public static final int frontRightSteerMotorID = 5;
+    // public static final int frontRightDriveMotorID = 6;
+    // public static final int backRightSteerMotorID = 7;
+    // public static final int backRightDriveMotorID = 8;
+    // public static final int frontLeftEncoderid = 9;
+    // public static final int backLeftEncoderid = 10;
+    // public static final int frontRightEncoderid = 11;
+    // public static final int backRightEncoderid = 12;
+
+    
+    public static final int backLeftSteerMotorID = 1;
+    public static final int backLeftDriveMotorID = 2;
+    public static final int backRightSteerMotorID = 3;
+    public static final int backRightDriveMotorID = 4;
+    public static final int frontLeftSteerMotorID = 5;
+    public static final int frontLeftDriveMotorID = 6;
+    public static final int frontRightSteerMotorID = 7;
+    public static final int frontRightDriveMotorID = 8;
+    public static final int backLeftEncoderid = 9;
+    public static final int backRightEncoderid = 10;
+    public static final int frontLeftEncoderid = 11;
+    public static final int frontRightEncoderid = 12;
+
+
     public static final int flyWheelRightMotorID = 14;
     public static final int flyWheelMiddleMotorID = 13;
     public static final int flyWheelLeftMotorID = 15;
