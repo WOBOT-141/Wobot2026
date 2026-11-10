@@ -97,7 +97,7 @@ public class Drivetrain extends SubsystemBase {
           Rotation2d.fromDegrees(calcWheelAngle_deg[i]));
       var outputState = _wheels[i].bestAngle(inputState);
       _wheels[i].setAngle(outputState.angle.getDegrees());
-      _wheels[i].setSpeed(outputState.speedMetersPerSecond * -1);
+      _wheels[i].setSpeed(outputState.speedMetersPerSecond);
     }
   }
 
@@ -143,7 +143,6 @@ public class Drivetrain extends SubsystemBase {
 
   public double getResultAngle(XYVector resultXY) {
     double resultAngle_deg = Math.toDegrees(Math.atan2(resultXY.Y, resultXY.X));
-    resultAngle_deg = (90 + resultAngle_deg);
 
     if (resultXY.Y == 0 && resultXY.X == 0) {
       resultAngle_deg = restAngle_deg;
@@ -177,11 +176,11 @@ public class Drivetrain extends SubsystemBase {
     double alpha = 0;
     double RotationAngle_deg = 0.0;
 
-    if (deltaY == 0 && deltaX > 0) {
+    if (deltaY >= 0 && deltaX == 0) {
       // If the wheel is aligned with the center of rotation on the Y axis and
       // positive on the X axis alpha = 90
       alpha = 90;
-    } else if (deltaY == 0 && deltaX < 0) {
+    } else if (deltaY <= 0 && deltaX == 0) {
       // If the wheel is aligned with the center of rotation on the Y axis and
       // negative on the X axis alpha = -90
       alpha = -90;
@@ -196,10 +195,10 @@ public class Drivetrain extends SubsystemBase {
 
     if (rotationalSpeed_perc > 0) {
       // If rotating clockwise add 90 to alpha to get angle
-      RotationAngle_deg = alpha + 90;
+      RotationAngle_deg = alpha;
     } else if (rotationalSpeed_perc < 0) {
       // If rotating counter clockwise subtract 90 from alpha to get angle
-      RotationAngle_deg = alpha - 90;
+      RotationAngle_deg = alpha - 180;
     }
 
     return RotationAngle_deg;

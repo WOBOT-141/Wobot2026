@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.util.Units;
-
 /** Add your docs here. */
 public class SummerBot implements IBotSelector {
     double frontLeftOffset;
@@ -34,6 +32,18 @@ public class SummerBot implements IBotSelector {
         // frontRightOffset = 0.008301; // 11
         // backRightOffset = 0.088867; // 12 
 
+        
+        frontLeftOffset = 0.194092; // 9
+        backLeftOffset = 0.924316; // 10
+        frontRightOffset = 0.758301; // 11
+        backRightOffset = 0.838867; // 12 
+
+        
+        // frontLeftOffset = 0.694092; // 9
+        // backLeftOffset = 0.424316; // 10
+        // frontRightOffset = 0.258301; // 11
+        // backRightOffset = 0.338867; // 12 
+
         // frontLeftLocationX = -18.25;
         // frontLeftLocationY = 18.25;
         // backLeftLocationX = -18.25;
@@ -53,10 +63,10 @@ public class SummerBot implements IBotSelector {
         frontRightLocationX = 18.25;
         frontRightLocationY = -18.25;
         
-        backLeftOffset = 0.444092; // 9
-        backRightOffset = 0.174316; // 10
-        frontLeftOffset = 0.008301; // 11
-        frontRightOffset = 0.088867; // 12 
+        // backLeftOffset = 0.444092; // 9
+        // backRightOffset = 0.174316; // 10
+        // frontLeftOffset = 0.008301; // 11
+        // frontRightOffset = 0.088867; // 12 
 
         driveGearRatio = 6.12;
         wheelCircumference_in = 3.88 * Math.PI;
