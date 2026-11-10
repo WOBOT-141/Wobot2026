@@ -192,16 +192,6 @@ public class SpektrumFlightController extends GenericHID {
    * @return The axis value.
    */
 
-    public double getAngleDriveMagnitude() {
-      double rawX = getRawAxis(Axis.kDriveX.value);
-      double correctedX = getCorrectedAxisInput(rawX, _stickParameters.getRightXAxisParams());
-      double rawY = getRawAxis(Axis.kDriveY.value);
-      double correctedY = getCorrectedAxisInput(rawY, _stickParameters.getRightYAxisParams());
-      double angleDriveMagnitude = Math.sqrt(Math.pow(correctedX, 2) + Math.pow(correctedY, 2));
-      return angleDriveMagnitude;
-      // applyStepDeadband(angleDriveMagnitude, _stickParameters.getRightYAxisParams().axisDeadband);
-    }
-
   public double getDriveX() {
     double rawX = getRawAxis(Axis.kDriveX.value);
     double correctedX = getCorrectedAxisInput(rawX, _stickParameters.getRightXAxisParams());
@@ -213,10 +203,6 @@ public class SpektrumFlightController extends GenericHID {
     else{
       return correctedX;
     }
-    //TODO add to y
-    //return applyStepDeadband(correctedX,  _stickParameters.getRightXAxisParams().axisDeadband);
-   // return applyStepDeadband(Math.sqrt(Math.pow(correctedX, 2) + Math.pow(correctedY, 2)), _stickParameters.getRightXAxisParams().axisDeadband);
-   //return corrected;
   }
 
   /**
@@ -227,10 +213,15 @@ public class SpektrumFlightController extends GenericHID {
    */
   public double getDriveY() {
     double rawY = getRawAxis(Axis.kDriveY.value);
-    double corrected = getCorrectedAxisInput(rawY, _stickParameters.getRightYAxisParams());
-
-    return applyStepDeadband(corrected, _stickParameters.getRightYAxisParams().axisDeadband);
-    //return corrected;
+    double correctedY = getCorrectedAxisInput(rawY, _stickParameters.getRightYAxisParams());
+    double rawX = getRawAxis(Axis.kDriveX.value);
+    double correctedX = getCorrectedAxisInput(rawX, _stickParameters.getRightXAxisParams());
+    if(Math.sqrt(Math.pow(correctedX, 2) + Math.pow(correctedY, 2)) < _stickParameters.getRightYAxisParams().axisDeadband){
+      return 0;
+    }
+    else{
+      return correctedY;
+    }
   }
 
   
