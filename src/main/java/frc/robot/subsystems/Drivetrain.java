@@ -5,7 +5,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.XYVector;
-import frc.robot.Constants.WheelConstants;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -40,6 +39,7 @@ public class Drivetrain extends SubsystemBase {
       rotX = 0;
       rotY = 0;
     }
+    SmartDashboard.putNumber("translationAngle", translationAngle_deg);
 
     // SmartDashboard.putNumber("translation Speed", translationSpeed_perc);
     // SmartDashboard.putNumber("translation Angle", translationAngle_deg);
@@ -73,6 +73,7 @@ public class Drivetrain extends SubsystemBase {
       double rotationAngle = getRotationAngle(deltaX, deltaY, translationAngle_deg, rotationalSpeed_perc);
       XYVector rotationVector = getRotationVector(rotationAngle, rotationalSpeed_perc, deltaX, deltaY);
       XYVector resultXY = new XYVector(translationVector.X + rotationVector.X, translationVector.Y + rotationVector.Y);
+      
 
       double resultSpeed_perc = Math.sqrt(Math.pow(resultXY.Y, 2) + Math.pow(resultXY.X, 2)); //This number also changes robot speed
 
@@ -142,8 +143,8 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getResultAngle(XYVector resultXY) {
-    double resultAngle_deg = Math.toDegrees(Math.atan2(resultXY.Y, resultXY.X));
-
+    double resultAngle_deg = Math.toDegrees(Math.atan2(resultXY.X, resultXY.Y));
+    resultAngle_deg = -(90 - resultAngle_deg);
     if (resultXY.Y == 0 && resultXY.X == 0) {
       resultAngle_deg = restAngle_deg;
     } else {
@@ -154,8 +155,8 @@ public class Drivetrain extends SubsystemBase {
 
   public XYVector getRotationVector(double rotationAngle_deg, double rotationalSpeed_perc, double deltaX,
       double deltaY) {
-    double rotationalspeedY = Math.cos(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
-    double rotationalspeedX = Math.sin(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
+    double rotationalspeedY = Math.sin(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
+    double rotationalspeedX = Math.cos(Math.toRadians(rotationAngle_deg)) * Math.abs(rotationalSpeed_perc);
     if (deltaX == 0 && deltaY == 0) {
       rotationalspeedX = 0;
       rotationalspeedY = 0;
@@ -164,8 +165,9 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public XYVector getTranslationVector(double translationSpeed_perc, double translationAngle_deg) {
-    double linDeltaY = Math.cos(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
-    double linDeltaX = Math.sin(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
+    translationAngle_deg *= -1;
+    double linDeltaY = Math.sin(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
+    double linDeltaX = Math.cos(Math.toRadians(translationAngle_deg)) * translationSpeed_perc;
     return new XYVector(linDeltaX, linDeltaY);
   }
 
@@ -176,11 +178,11 @@ public class Drivetrain extends SubsystemBase {
     double alpha = 0;
     double RotationAngle_deg = 0.0;
 
-    if (deltaY >= 0 && deltaX == 0) {
+    if (deltaY == 0 && deltaX > 0) {
       // If the wheel is aligned with the center of rotation on the Y axis and
       // positive on the X axis alpha = 90
       alpha = 90;
-    } else if (deltaY <= 0 && deltaX == 0) {
+    } else if (deltaY == 0 && deltaX < 0) {
       // If the wheel is aligned with the center of rotation on the Y axis and
       // negative on the X axis alpha = -90
       alpha = -90;
@@ -195,10 +197,10 @@ public class Drivetrain extends SubsystemBase {
 
     if (rotationalSpeed_perc > 0) {
       // If rotating clockwise add 90 to alpha to get angle
-      RotationAngle_deg = alpha;
+      RotationAngle_deg = alpha - 90;
     } else if (rotationalSpeed_perc < 0) {
       // If rotating counter clockwise subtract 90 from alpha to get angle
-      RotationAngle_deg = alpha - 180;
+      RotationAngle_deg = alpha + 90;
     }
 
     return RotationAngle_deg;

@@ -158,7 +158,7 @@ public class StickCommand extends Command {
 
 
   private double calcTranslationAngle_deg(double stickX_perc, double stickY_perc) {
-    double translationAngle_deg = Math.toDegrees(Math.atan2(stickX_perc, stickY_perc));
+    double translationAngle_deg = Math.toDegrees(Math.atan2(stickY_perc, stickX_perc));
     return (translationAngle_deg + 360.0) % 360.0;
   }
 

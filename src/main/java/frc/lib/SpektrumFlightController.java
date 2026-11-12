@@ -85,8 +85,8 @@ public class SpektrumFlightController extends GenericHID {
     kRotateAxis(0),
     kThrottle(1),
     kLeftSlider(2),
-    kDriveX(3),
-    kDriveY(4),
+    kDriveX(4),
+    kDriveY(3),
     kRightSlider(5),
     kUnknownAxis(6),
     kTopRightKnob(7);
@@ -172,6 +172,7 @@ public class SpektrumFlightController extends GenericHID {
    */
   public double getRotate() {
     double raw = getRawAxis(Axis.kRotateAxis.value);
+    raw *= -1;
     double corrected = getCorrectedAxisInput(raw, _stickParameters.getLeftXAxisParams());
     return applyStepDeadband(corrected, _stickParameters.getLeftXAxisParams().axisDeadband);
   }
@@ -206,6 +207,7 @@ public class SpektrumFlightController extends GenericHID {
    */
   public double getDriveY() {
     double raw = getRawAxis(Axis.kDriveY.value);
+    raw *= -1;
     double corrected = getCorrectedAxisInput(raw, _stickParameters.getRightYAxisParams());
     return applyStepDeadband(corrected, _stickParameters.getRightYAxisParams().axisDeadband);
   }
