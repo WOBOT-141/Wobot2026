@@ -94,6 +94,8 @@ public class StickCommand extends Command {
     } else {
       m_lockdown = false; // Exit lockdown if driver commands movement
     }
+    SmartDashboard.putNumber("stickX_perc", stickX_perc);
+    SmartDashboard.putNumber("stickY_perc", stickY_perc);
 
     /* ---------------- Vector Math ---------------- */
     double throttle_perc = calcThrottle_perc(stickThrottle_perc);
@@ -112,7 +114,7 @@ public class StickCommand extends Command {
     rotationalMagnitude_perc = Math.max(-1, Math.min(1.0, rotationalMagnitude_perc));
 
     /* ---------------- Drive ---------------- */
-    double yDist = m_isRotateCenter
+    double xDist = m_isRotateCenter
         ? m_selectedBot.getDistToFront()
         : 0.0;
 
@@ -120,8 +122,8 @@ public class StickCommand extends Command {
         translationAngle_deg,
         translationMagnitude_perc,
         rotationalMagnitude_perc,
-        0.0,
-        yDist);
+        xDist,
+        0.0);
 
     m_lastTranslationAngle_deg = translationAngle_deg;
   }
@@ -158,7 +160,8 @@ public class StickCommand extends Command {
 
 
   private double calcTranslationAngle_deg(double stickX_perc, double stickY_perc) {
-    double translationAngle_deg = Math.toDegrees(Math.atan2(stickX_perc, stickY_perc));
+    double translationAngle_deg = Math.toDegrees(Math.atan2(stickY_perc, stickX_perc));
+    SmartDashboard.putNumber("CONTROLLERtranslationAngle", translationAngle_deg);
     return (translationAngle_deg + 360.0) % 360.0;
   }
 
